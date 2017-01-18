@@ -100,6 +100,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.datetime		:release_at 
 			t.integer 		:suggested_price
 			t.integer 		:price
+			t.integer 		:inventory, default: -1
 			t.string 		:tags, array: true, default: '{}'
 			t.hstore		:properties, default: {}
 			t.timestamps
