@@ -1,22 +1,22 @@
 class SwellEcomMigration < ActiveRecord::Migration
 	# V4.0
-	
+
 	def change
 
 		enable_extension 'hstore'
 
 
 		create_table :carts do |t|
-			t.references	:user 
+			t.references	:user
 			t.integer		:status, default: 1
-			t.string		:ip 
-			t.timestamps 
+			t.string		:ip
+			t.timestamps
 		end
 
 		create_table :cart_items do |t|
-			t.references 	:item, polymorphic: true 
+			t.references 	:item, polymorphic: true
 			t.integer 		:quantity, default: 1
-			t.timestamps 
+			t.timestamps
 		end
 		add_index :cart_items, [ :item_id, :item_type ]
 
@@ -69,35 +69,39 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:discount, defualt: 0
 			t.integer 		:total, defualt: 0
 			t.text 			:customer_comment
-			t.datetime 		:fulfilled_at 
+			t.datetime 		:fulfilled_at
 			t.timestamps
 		end
 		add_index 	:orders, [ :user_id, :billing_address_id, :shipping_address_id ]
 		add_index 	:orders, [ :email, :billing_address_id, :shipping_address_id ]
 		add_index 	:orders, [ :email, :status ]
 
-		create_table :order_items do |t| 
-			t.references 	:order 
-			t.references 	:item, polymorphic: true 
+		create_table :order_items do |t|
+			t.references 	:order
+			t.references 	:item, polymorphic: true
 			t.integer 		:quantity, default: 1
 			t.integer 		:subtotal, default: 0
+			t.integer 		:tax_amount, defualt: 0
+			t.integer 		:shipping_amount, defualt: 0
+			t.integer 		:discount, defualt: 0
+			t.integer 		:total, defualt: 0
 			t.timestamps
 		end
 		add_index :order_items, [ :item_id, :item_type ]
 
-		create_table :products do |t| 
+		create_table :products do |t|
 			t.references 	:category
 			t.string 		:title
-			t.string		:subtitle 
+			t.string		:subtitle
 			t.string 		:slug
 			t.string 		:avatar
 			t.string 		:product_type, default: 'physical'
 			t.integer		:status, 	default: 0
 			t.text 			:description
-			t.text 			:content 
-			t.datetime		:publish_at 
-			t.datetime		:preorder_at 
-			t.datetime		:release_at 
+			t.text 			:content
+			t.datetime		:publish_at
+			t.datetime		:preorder_at
+			t.datetime		:release_at
 			t.integer 		:suggested_price
 			t.integer 		:price
 			t.string 		:tags, array: true, default: '{}'
@@ -109,8 +113,8 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :products, :slug, unique: true
 		add_index :products, :status
 
-		create_table :refunds do |t| 
-			t.references 	:order 
+		create_table :refunds do |t|
+			t.references 	:order
 			t.integer 		:item_amount, default: 0
 			t.integer 		:shipping_amount, default: 0
 			t.integer 		:tax_amount, default: 0
@@ -127,7 +131,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.string 		:reference
 			t.integer 		:amount, default: 0
 			t.integer		:status, default: 1
-			t.timestamps 
+			t.timestamps
 		end
 		add_index :transactions, [ :parent_id, :parent_type ]
 		add_index :transactions, [ :transaction_type ]
@@ -135,7 +139,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :transactions, [ :status, :reference ]
 
 
-		# todo: 
+		# todo:
 		# - product variants
 		# - coupons
 		# - bundles
@@ -146,7 +150,3 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 	end
 end
-
-
-
-
