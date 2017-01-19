@@ -19,8 +19,8 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :cart_items, [ :item_id, :item_type ]
 
 		create_table :coupons do |t| 
-			t.references 	:valid_redemption_item, polymoprhic: true # valid for specific item
-			t.string 		:valid_redemption_email # to give to specific user
+			t.references 	:valid_for_item, polymoprhic: true # valid for specific item
+			t.string 		:valid_for_email # to give to specific user
 			t.string 		:title 
 			t.string 		:code
 			t.text 			:description
@@ -36,8 +36,8 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.hstore		:properties, default: {}
 			t.timestamps
 		end
-		add_index :coupons, [ :valid_redemption_item_id, :valid_redemption_item_type ], name: 'idx_item'
-		add_index :coupons, :valid_redemption_email
+		# add_index :coupons, [ :valid_for_item_id, :valid_for_item_type ], name: 'idx_item'
+		add_index :coupons, :valid_for_email
 		add_index :coupons, :code
 
 		create_table :coupon_redemptions do |t|
@@ -139,8 +139,8 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.datetime		:publish_at
 			t.datetime		:preorder_at
 			t.datetime		:release_at
-			t.integer 		:suggested_price
-			t.integer 		:price
+			t.integer 		:suggested_price, default: 0
+			t.integer 		:price, default: 0
 			t.string 		:currency, default: 'USD'
 			t.integer 		:inventory, default: -1
 			t.string 		:tags, array: true, default: '{}'
@@ -183,7 +183,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.string 		:interval, default: 'month' # day, week, month, year
 			t.integer 		:interval_count, default: 1
 			t.integer 		:trial_period_days, default: 0
-			t.integer		:price
+			t.integer		:price, default: 0
 			t.string 		:currency, default: 'USD'
 			t.integer 		:status, default: 1
 			t.hstore		:properties, default: {}
@@ -204,7 +204,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 		create_table :tax_rates do |t|
 			t.references 	:geo_state
-			t.float			:rate
+			t.float			:rate, default: 0
 			t.timestamps
 		end
 		add_index :tax_rates, :geo_state_id
