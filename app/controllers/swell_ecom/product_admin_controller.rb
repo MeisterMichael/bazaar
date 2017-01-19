@@ -20,8 +20,18 @@ module SwellEcom
 			@products = @products.page( params[:page] )
 		end
 
-		def edit
-			
+		def create
+			@product = Product.new( product_params )
+			@product.publish_at ||= Time.zone.now
+			@product.status = 'draft'
+
+			if @product.save
+				set_flash 'Product Created'
+				redirect_to edit_product_admin_path( @product )
+			else
+				set_flash 'Product could not be created', :error, @product
+				redirect_to :back
+			end
 		end
 
 		def update
@@ -41,8 +51,8 @@ module SwellEcom
 
 		private
 			def product_params
-				params[:product][:price] = params[:product][:price].gsub( /\D/, '' )
-				params[:product][:suggested_price] = params[:product][:suggested_price].gsub( /\D/, '' )
+				params[:product][:price] = params[:product][:price].gsub( /\D/, '' ) if params[:product][:price].present?
+				params[:product][:suggested_price] = params[:product][:suggested_price].gsub( /\D/, '' ) if params[:product][:suggested_price].present?
 				params.require( :product ).permit( :title, :subtitle, :slug_pref, :description, :content, :price, :suggested_price, :status, :publish_at, :tags, :tags_csv, :avatar, :avatar_asset_file, :avatar_asset_url, :cover_path, :avatar_urls )
 			end
 

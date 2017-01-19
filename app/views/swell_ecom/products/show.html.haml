@@ -1,0 +1,6 @@
+%h1
+	= @product.title
+
+= number_to_currency @product.price / 100
+
+= link_to 'Buy', buy_product_path( @product )

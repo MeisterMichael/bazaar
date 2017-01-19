@@ -59,6 +59,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.references 	:cart
 			t.references 	:billing_address
 			t.references 	:shipping_address
+			t.string 		:code
 			t.string 		:email
 			t.integer 		:status, default: 0
 			t.integer 		:subtotal, defualt: 0
@@ -66,6 +67,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:shipping_amount, defualt: 0
 			t.integer 		:discount, defualt: 0
 			t.integer 		:total, defualt: 0
+			t.string 		:currency, default: 'USD'
 			t.text 			:customer_comment
 			t.datetime 		:fulfilled_at
 			t.timestamps
@@ -73,6 +75,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index 	:orders, [ :user_id, :billing_address_id, :shipping_address_id ], name: 'user_id_addr_indx'
 		add_index 	:orders, [ :email, :billing_address_id, :shipping_address_id ], name: 'email_addr_indx'
 		add_index 	:orders, [ :email, :status ]
+		add_index 	:orders, :code, unique: true
 
 		create_table :order_items do |t|
 			t.references 	:order
@@ -90,10 +93,10 @@ class SwellEcomMigration < ActiveRecord::Migration
 		create_table :products do |t|
 			t.references 	:category
 			t.string 		:title
-			t.string		:subtitle
+			t.string		:caption
 			t.string 		:slug
 			t.string 		:avatar
-			t.string 		:product_type, default: 'physical'
+			t.string 		:product_type, default: 'physical' # digital, subscription
 			t.integer		:status, 	default: 0
 			t.text 			:description
 			t.text 			:content
@@ -102,6 +105,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.datetime		:release_at
 			t.integer 		:suggested_price
 			t.integer 		:price
+			t.string 		:currency, default: 'USD'
 			t.integer 		:inventory, default: -1
 			t.string 		:tags, array: true, default: '{}'
 			t.hstore		:properties, default: {}
@@ -118,10 +122,22 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:shipping_amount, default: 0
 			t.integer 		:tax_amount, default: 0
 			t.integer 		:total_amount, default: 0
+			t.string 		:currency, default: 'USD'
 			t.text 			:comment
 			t.integer 		:status, default: 0
 			t.timestamps
 		end
+
+		create_table :skus do |t|
+			t.references	:product
+			t.string 		:code 
+			t.integer 		:price, 	default: 0
+			t.integer 		:inventory, default: -1
+			t.string 		:currency, default: 'USD'
+			t.hstore		:properties, default: {}
+			t.timestamps
+		end
+		add_index :skus, :code, unique: true
 
 		create_table :tax_rates do |t|
 			t.references 	:geo_state

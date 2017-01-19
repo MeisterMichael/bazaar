@@ -1,0 +1,13 @@
+
+%h1
+	Thanks for your order!
+
+%h3
+	Total:
+	= number_to_currency @order.total.to_f / 100
+
+You bought
+- @order.order_items.each do |line|
+	.line
+		= line.item.title
+		= number_to_currency line.item.price / 100.to_f
