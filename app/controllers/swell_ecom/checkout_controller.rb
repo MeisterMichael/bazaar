@@ -30,6 +30,7 @@ module SwellEcom
 			rescue Stripe::CardError => e
 				set_flash e.message, :danger
 				redirect_to success_checkout_index_path
+			end
 
 		end
 

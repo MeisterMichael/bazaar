@@ -18,6 +18,42 @@ class SwellEcomMigration < ActiveRecord::Migration
 		end
 		add_index :cart_items, [ :item_id, :item_type ]
 
+		create_table :coupons do |t| 
+			t.references 	:valid_redemption_item, polymoprhic: true # valid for specific item
+			t.string 		:valid_redemption_email # to give to specific user
+			t.string 		:title 
+			t.string 		:code
+			t.text 			:description
+			t.string 		:discount_type
+			t.integer 		:discount, default: 0
+			t.string 		:discount_base, default: 'item' # 'total' => price + tax + shipping, 'shipping' => discount 100% is free shipping, 'tax' => discount 100% is free tax
+			t.integer 		:max_redemptions, default: 1
+			t.string 		:duration_type, default: 'once' # for subscriptions: 'repeat', 'forever'
+			t.string 		:duration_days, default: 0 # if duration_type is repeat, how many days to continue
+			t.datetime 		:publish_at
+			t.datetime 		:expires_at 
+			t.integer 		:status, default: 1
+			t.hstore		:properties, default: {}
+			t.timestamps
+		end
+		add_index :coupons, [ :valid_redemption_item_id, :valid_redemption_item_type ], name: 'idx_item'
+		add_index :coupons, :valid_redemption_email
+		add_index :coupons, :code
+
+		create_table :coupon_redemptions do |t|
+			t.references	:coupon 
+			t.references 	:order
+			t.references 	:user
+			t.string 		:email 
+			t.integer 		:applied_discount 
+			t.integer 		:status, default: 1
+			t.timestamps 
+		end
+		add_index :coupon_redemptions, :coupon_id
+		add_index :coupon_redemptions, :order_id
+		add_index :coupon_redemptions, :user_id
+		add_index :coupon_redemptions, :email
+
 		create_table :geo_addresses do |t|
 			t.references	:user
 			t.references	:geo_state
@@ -96,7 +132,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.string		:caption
 			t.string 		:slug
 			t.string 		:avatar
-			t.string 		:product_type, default: 'physical' # digital, subscription
+			t.string 		:fulfillment_type, default: 'self' # digital, printful
 			t.integer		:status, 	default: 0
 			t.text 			:description
 			t.text 			:content
@@ -138,6 +174,33 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.timestamps
 		end
 		add_index :skus, :code, unique: true
+
+		create_table :subscriptions do |t|
+			t.string		:title
+			t.string 		:slug
+			t.string 		:caption
+			t.text 			:description 
+			t.string 		:interval, default: 'month' # day, week, month, year
+			t.integer 		:interval_count, default: 1
+			t.integer 		:trial_period_days, default: 0
+			t.integer		:price
+			t.string 		:currency, default: 'USD'
+			t.integer 		:status, default: 1
+			t.hstore		:properties, default: {}
+		end
+		add_index :subscriptions, :slug, unique: true
+
+		create_table :subscribings do |t| 
+			t.references 	:user
+			t.references 	:subscription 
+			t.string 		:email 
+			t.integer 		:status, default: 1
+			t.hstore		:properties, default: {}
+			t.timestamps 
+		end
+		add_index :subscribings, :user_id
+		add_index :subscribings, :subscription_id
+		add_index :subscribings, :email
 
 		create_table :tax_rates do |t|
 			t.references 	:geo_state
