@@ -1,6 +1,4 @@
 class SwellEcomMigration < ActiveRecord::Migration
-	# V4.0
-
 	def change
 
 		enable_extension 'hstore'
@@ -72,8 +70,8 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.datetime 		:fulfilled_at
 			t.timestamps
 		end
-		add_index 	:orders, [ :user_id, :billing_address_id, :shipping_address_id ]
-		add_index 	:orders, [ :email, :billing_address_id, :shipping_address_id ]
+		add_index 	:orders, [ :user_id, :billing_address_id, :shipping_address_id ], name: 'user_id_addr_indx'
+		add_index 	:orders, [ :email, :billing_address_id, :shipping_address_id ], name: 'email_addr_indx'
 		add_index 	:orders, [ :email, :status ]
 
 		create_table :order_items do |t|
@@ -124,6 +122,13 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:status, default: 0
 			t.timestamps
 		end
+
+		create_table :tax_rates do |t|
+			t.references 	:geo_state
+			t.float			:rate
+			t.timestamps
+		end
+		add_index :tax_rates, :geo_state_id
 
 		create_table :transactions do |t|
 			t.references 	:parent, polymorphic: true 	# order, refund

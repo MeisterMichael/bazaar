@@ -1,15 +1,20 @@
 SwellEcom::Engine.routes.draw do
 
-	resources :store, controller: :products
-
+	resources :cart
 	resources :cart_items
 
+	resources :checkout
+
+	resources :products, path: :store
+
 	resources :order_admin
+
+	resources :product_admin do 
+		get :preview, on: :member
+		delete :empty_trash, on: :collection 
+	end
+	
 	resources :refund_admin
 	resources :transaction_admin
-
-	get '/cart', to: 'carts#show', as: :cart
-	post '/checkout', to: 'orders#new', as: :checkout
-
 
 end

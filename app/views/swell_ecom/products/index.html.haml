@@ -1,0 +1,17 @@
+
+.row
+	.col-sm-8.col-sm-offset-2
+	%h1
+		Our Store
+
+.row
+	- @products.each do |p|
+		.col-sm-4
+			= link_to p.title, p
+			%center
+				%a{ href: product_path( p ) }
+					%img.img.img-responsive{ src: p.avatar }
+
+			.strikethrough{ style: 'text-decoration:line-through;' }
+				= number_to_currency( p.suggested_price / 100 )
+			= number_to_currency( p.price / 100 )
