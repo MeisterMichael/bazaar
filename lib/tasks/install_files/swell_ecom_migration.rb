@@ -18,10 +18,10 @@ class SwellEcomMigration < ActiveRecord::Migration
 		end
 		add_index :cart_items, [ :item_id, :item_type ]
 
-		create_table :coupons do |t| 
+		create_table :coupons do |t|
 			t.references 	:valid_for_item, polymoprhic: true # valid for specific item
 			t.string 		:valid_for_email # to give to specific user
-			t.string 		:title 
+			t.string 		:title
 			t.string 		:code
 			t.text 			:description
 			t.string 		:discount_type
@@ -31,7 +31,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.string 		:duration_type, default: 'once' # for subscriptions: 'repeat', 'forever'
 			t.string 		:duration_days, default: 0 # if duration_type is repeat, how many days to continue
 			t.datetime 		:publish_at
-			t.datetime 		:expires_at 
+			t.datetime 		:expires_at
 			t.integer 		:status, default: 1
 			t.hstore		:properties, default: {}
 			t.timestamps
@@ -41,13 +41,13 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :coupons, :code
 
 		create_table :coupon_redemptions do |t|
-			t.references	:coupon 
+			t.references	:coupon
 			t.references 	:order
 			t.references 	:user
-			t.string 		:email 
-			t.integer 		:applied_discount 
+			t.string 		:email
+			t.integer 		:applied_discount
 			t.integer 		:status, default: 1
-			t.timestamps 
+			t.timestamps
 		end
 		add_index :coupon_redemptions, :coupon_id
 		add_index :coupon_redemptions, :order_id
@@ -98,12 +98,10 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.string 		:code
 			t.string 		:email
 			t.integer 		:status, default: 0
-			t.integer 		:subtotal, defualt: 0
-			t.integer 		:tax_amount, defualt: 0
-			t.integer 		:shipping_amount, defualt: 0
-			t.integer 		:discount, defualt: 0
+
 			t.integer 		:total, defualt: 0
 			t.string 		:currency, default: 'USD'
+
 			t.text 			:customer_comment
 			t.datetime 		:fulfilled_at
 			t.timestamps
@@ -116,15 +114,35 @@ class SwellEcomMigration < ActiveRecord::Migration
 		create_table :order_items do |t|
 			t.references 	:order
 			t.references 	:item, polymorphic: true
+			t.integer		:order_item_type, default: 1
 			t.integer 		:quantity, default: 1
-			t.integer 		:subtotal, default: 0
-			t.integer 		:tax_amount, defualt: 0
-			t.integer 		:shipping_amount, defualt: 0
-			t.integer 		:discount, defualt: 0
-			t.integer 		:total, defualt: 0
+			t.integer 		:amount, default: 0
 			t.timestamps
 		end
-		add_index :order_items, [ :item_id, :item_type ]
+		add_index :order_items, [ :item_id, :item_type, :order_id ]
+		add_index :order_items, [ :order_item_type, :order_id ]
+
+		create_table :plans do |t|
+			t.references	:product
+			t.string 		:code
+			t.integer 		:price, 	default: 0
+			t.string 		:currency, default: 'USD'
+			t.hstore		:properties, default: {}
+
+			t.string		:name
+			t.string 		:caption
+			t.text 			:description
+			t.string 		:statement_descriptor
+
+			t.string 		:interval, default: 'month' # day, week, month, year
+			t.integer 		:interval_count, default: 1
+			t.integer 		:trial_period_days, default: 0
+
+			t.integer 		:status, default: 1
+
+			t.hstore		:properties, default: {}
+		end
+		add_index :plans, :code, unique: true
 
 		create_table :products do |t|
 			t.references 	:category
@@ -152,21 +170,28 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :products, :slug, unique: true
 		add_index :products, :status
 
-		create_table :refunds do |t|
-			t.references 	:order
-			t.integer 		:item_amount, default: 0
-			t.integer 		:shipping_amount, default: 0
-			t.integer 		:tax_amount, default: 0
-			t.integer 		:total_amount, default: 0
-			t.string 		:currency, default: 'USD'
-			t.text 			:comment
+		create_table :shipments do |t|
+			t.references	:order
+			t.string 		:provider
+			t.string 		:reference
+			t.integer 		:amount, default: 0
 			t.integer 		:status, default: 0
+			t.hstore		:properties, default: {}
 			t.timestamps
 		end
+		add_index :shipment, :order_id
+
+		create_table :shipment_items do |t|
+			t.references	:shipment
+			t.string 		:receipt_item
+			t.integer 		:quantity, default: 1
+			t.timestamps
+		end
+		add_index :shipment_items, [:shipment_id, :receipt_item_id]
 
 		create_table :skus do |t|
 			t.references	:product
-			t.string 		:code 
+			t.string 		:code
 			t.integer 		:price, 	default: 0
 			t.integer 		:inventory, default: -1
 			t.string 		:currency, default: 'USD'
@@ -176,31 +201,27 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :skus, :code, unique: true
 
 		create_table :subscriptions do |t|
-			t.string		:title
-			t.string 		:slug
-			t.string 		:caption
-			t.text 			:description 
-			t.string 		:interval, default: 'month' # day, week, month, year
-			t.integer 		:interval_count, default: 1
-			t.integer 		:trial_period_days, default: 0
-			t.integer		:price, default: 0
-			t.string 		:currency, default: 'USD'
-			t.integer 		:status, default: 1
-			t.hstore		:properties, default: {}
-		end
-		add_index :subscriptions, :slug, unique: true
-
-		create_table :subscribings do |t| 
 			t.references 	:user
-			t.references 	:subscription 
-			t.string 		:email 
+			t.references 	:plan
+			t.integer 		:quantity, default: 1
 			t.integer 		:status, default: 1
 			t.hstore		:properties, default: {}
-			t.timestamps 
+
+			t.boolean		:cancel_at_period_end
+			t.datetime		:canceled_at
+			t.datetime		:current_period_end
+			t.datetime		:current_period_start
+			t.datetime		:ended_at
+			t.datetime		:start_at
+			t.datetime		:trial_end_at
+			t.datetime		:trail_start_at
+
+			t.integer 		:amount, default: 0
+			t.string 		:currency, default: 'USD'
+			t.timestamps
 		end
-		add_index :subscribings, :user_id
+		add_index :subscriptions, :user_id
 		add_index :subscribings, :subscription_id
-		add_index :subscribings, :email
 
 		create_table :tax_rates do |t|
 			t.references 	:geo_state
@@ -211,11 +232,11 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 		create_table :transactions do |t|
 			t.references 	:parent, polymorphic: true 	# order, refund
-			t.string 		:transaction_type   # order_payment, subscription_payment, refund
+			t.integer 		:transaction_type   # chargeback, refund, preauth, charge
 			t.string	 	:provider
 			t.string 		:reference
 			t.integer 		:amount, default: 0
-			t.integer		:status, default: 1
+			t.integer		:status, default: 1	# declined, approved
 			t.timestamps
 		end
 		add_index :transactions, [ :parent_id, :parent_type ]
