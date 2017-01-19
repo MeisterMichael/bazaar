@@ -202,10 +202,11 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 		create_table :subscriptions do |t|
 			t.references 	:user
-			t.references 	:plan
-			t.integer 		:quantity, default: 1
 			t.integer 		:status, default: 1
 			t.hstore		:properties, default: {}
+
+			t.references 	:plan
+			t.integer 		:quantity, default: 1
 
 			t.boolean		:cancel_at_period_end
 			t.datetime		:canceled_at
@@ -221,7 +222,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.timestamps
 		end
 		add_index :subscriptions, :user_id
-		add_index :subscribings, :subscription_id
+		add_index :subscriptions, :plan_id
 
 		create_table :tax_rates do |t|
 			t.references 	:geo_state
@@ -231,7 +232,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :tax_rates, :geo_state_id
 
 		create_table :transactions do |t|
-			t.references 	:parent, polymorphic: true 	# order, refund
+			t.references 	:parent, polymorphic: true 	# order, subscription
 			t.integer 		:transaction_type   # chargeback, refund, preauth, charge
 			t.string	 	:provider
 			t.string 		:reference
