@@ -1,5 +1,5 @@
 module SwellEcom
-	class Product < ActiveRecord::Base 
+	class Product < ActiveRecord::Base
 		self.table_name = 'products'
 
 		include SwellMedia::Concerns::URLConcern
@@ -9,6 +9,7 @@ module SwellEcom
 
 		mounted_at '/store'
 
+		has_many :skus
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 		before_save	:set_publish_at
 
@@ -31,7 +32,7 @@ module SwellEcom
 
 
 		def slugger
-			if self.slug_pref.present? 
+			if self.slug_pref.present?
 				self.slug = nil # friendly_id 5.0 only updates slug if slug field is nil
 				return self.slug_pref
 			else

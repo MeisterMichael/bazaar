@@ -1,8 +1,6 @@
 class SwellEcomMigration < ActiveRecord::Migration
 	def change
 
-		enable_extension 'hstore'
-
 
 		create_table :carts do |t|
 			t.references	:user
@@ -117,6 +115,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer		:order_item_type, default: 1
 			t.integer 		:quantity, default: 1
 			t.integer 		:amount, default: 0
+			t.string		:label
 			t.timestamps
 		end
 		add_index :order_items, [ :item_id, :item_type, :order_id ]
@@ -192,6 +191,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 		create_table :skus do |t|
 			t.references	:product
+			t.string		:name
 			t.string 		:code
 			t.integer 		:price, 	default: 0
 			t.integer 		:inventory, default: -1
@@ -237,7 +237,9 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:transaction_type   # chargeback, refund, preauth, charge
 			t.string	 	:provider
 			t.string 		:reference
+			t.string 		:message
 			t.integer 		:amount, default: 0
+			t.string 		:currency, default: 'USD'
 			t.integer		:status, default: 1	# declined, approved
 			t.timestamps
 		end

@@ -1,29 +1,184 @@
 
 .container
 	.row
-		.col-xs-12
 
-			= form_tag swell_ecom.checkout_index_path(), method: 'POST', class: 'stripe_form' do
+		= form_for @order, as: :order, url: swell_ecom.checkout_index_path(), method: 'POST', html: { class: 'stripe_form' } do |f|
+			.col-xs-12.col-lg-8.col-lg-offset-2
+				%table.table
+					%thead
+						%tr
+							-# %th{ style: 'width: 100px' } &nbsp;
+							%th &nbsp;
+							%th{ style: 'width: 100px' } Price
+							%th.text-right{ style: 'width: 100px' } Quantity
+					%tbody
+						- @order.order_items.each do |order_item|
+							- if order_item.sku?
+								= hidden_field_tag 'order[order_items][][code]', order_item.item.code
+								= hidden_field_tag 'order[order_items][][quantity]', order_item.quantity
+								%tr
+									-# %td avatar
+									%td
+										=order_item.item.name
+									%td= number_to_currency order_item.item.price.to_f / 100
+									%td.text-right
+										=order_item.quantity
+
+
+			.col-xs-12
+				.row
+					.col-xs-12.col-lg-4.col-lg-offset-2
+
+						%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Contact Information
+
+						.form-group
+							%label
+								%span Email
+							= text_field_tag 'order[email]', '', class: 'form-control'
+
+						-# .form-group
+							%label
+								%span Title
+							= text_field_tag 'order[billing_address][title]', '', class: 'form-control'
+
+			.col-xs-12.col-lg-4.col-lg-offset-2
+				%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Billing Information
+
+				.form-group
+					%label
+						%span First Name
+					= text_field_tag 'order[billing_address][first_name]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span Last Name
+					= text_field_tag 'order[billing_address][last_name]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span Address Line 1
+					= text_field_tag 'order[billing_address][street]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span Address Line 2
+					= text_field_tag 'order[billing_address][street2]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span City
+					= text_field_tag 'order[billing_address][city]', '', class: 'form-control'
+
+				-# .form-group
+					%label
+						%span State
+					= text_field_tag 'order[billing_address][state]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span State
+					= text_field_tag 'order[billing_address][geo_state_id]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span Country
+					= text_field_tag 'order[billing_address][geo_country_id]', '', class: 'form-control'
+
+
+				.form-group
+					%label
+						%span Zip
+					= text_field_tag 'order[billing_address][zip]', '12345', class: 'form-control', "data-stripe" => "address_zip"
+
+				.form-group
+					%label
+						%span Phone Number
+					= text_field_tag 'order[billing_address][phone]', '', class: 'form-control'
+
 				%span.payment-errors
 				.form-group
 					%label
 						%span Card Number
 					%input.form-control{"data-stripe" => "number", :size => "20", :type => "text", :value => '4242 4242 4242 4242'}/
+
+				.row
+					.col-xs-12.col-md-6
+						.form-group
+							%label
+								%span Expiration (MM/YY)
+							%div
+								%input.form-control{"data-stripe" => "exp_month", :size => "2", :type => "text", :value => '12', style: 'width: auto;display:inline-block;'}/
+								%span /
+								%input.form-control{"data-stripe" => "exp_year", :size => "2", :type => "text", :value => '18', style: 'width: auto;display:inline-block;'}/
+					.col-xs-12.col-md-6
+						.form-group
+							%label
+								%span CVC
+							%input.form-control{"data-stripe" => "cvc", :size => "4", :type => "text", :value => '123', style: 'width: auto;'}/
+
+			.col-xs-12.col-lg-4
+				%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Shipping Information
+
+
 				.form-group
 					%label
-						%span Expiration (MM/YY)
-					%input.form-control{"data-stripe" => "exp_month", :size => "2", :type => "text", :value => '12'}/
-					%span /
-					%input.form-control{"data-stripe" => "exp_year", :size => "2", :type => "text", :value => '18'}/
+						%span First Name
+					= text_field_tag 'order[shipping_address][first_name]', '', class: 'form-control'
+
 				.form-group
 					%label
-						%span CVC
-					%input.form-control{"data-stripe" => "cvc", :size => "4", :type => "text", :value => '123'}/
+						%span Last Name
+					= text_field_tag 'order[shipping_address][last_name]', '', class: 'form-control'
+
 				.form-group
 					%label
-						%span Billing ZIP Code
-					%input.form-control{"data-stripe" => "address_zip", :size => "6", :type => "text", :value => '12345'}/
-				%input.btn.submit{:type => "submit", :value => "Submit Payment", :class => ($items.present? ? '' : 'disabled'), :disabled => ($items.present? ? nil : 'disabled')}/
+						%span Address Line 1
+					= text_field_tag 'order[shipping_address][street]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span Address Line 2
+					= text_field_tag 'order[shipping_address][street2]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span City
+					= text_field_tag 'order[shipping_address][city]', '', class: 'form-control'
+
+				-# .form-group
+					%label
+						%span State
+					= text_field_tag 'order[shipping_address][state]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span State
+					= text_field_tag 'order[shipping_address][geo_state_id]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span Country
+					= text_field_tag 'order[shipping_address][geo_country_id]', '', class: 'form-control'
+
+
+				.form-group
+					%label
+						%span Zip
+					= text_field_tag 'order[shipping_address][zip]', '', class: 'form-control'
+
+				.form-group
+					%label
+						%span Phone Number
+					= text_field_tag 'order[shipping_address][phone]', '', class: 'form-control'
+
+			.col-xs-12.col-lg-6.col-lg-offset-3{ style: 'margin-top: 1.5em;margin-bottom: 1.5em;' }
+				.form-group
+					%label
+						%span Comment
+					= text_area_tag 'order[customer_comment]', '', class: 'form-control'
+
+			.col-xs-12.text-center
+				%input.btn.submit{:type => "submit", :value => "Submit Payment"}/
 
 
 %script{:src => "https://js.stripe.com/v2/", :type => "text/javascript"}
