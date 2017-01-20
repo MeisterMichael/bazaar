@@ -3,27 +3,26 @@
 	.row
 		.col-xs-12
 
-
-			%form.stripe_form{:action => "/your-charge-code", :method => "POST"}
+			= form_tag swell_ecom.checkout_index_path(), method: 'POST', class: 'stripe_form' do
 				%span.payment-errors
-				.form-row
+				.form-group
 					%label
 						%span Card Number
-						%input{"data-stripe" => "number", :size => "20", :type => "text", :value => '4242 4242 4242 4242'}/
-				.form-row
+					%input.form-control{"data-stripe" => "number", :size => "20", :type => "text", :value => '4242 4242 4242 4242'}/
+				.form-group
 					%label
 						%span Expiration (MM/YY)
-						%input{"data-stripe" => "exp_month", :size => "2", :type => "text", :value => '12'}/
+					%input.form-control{"data-stripe" => "exp_month", :size => "2", :type => "text", :value => '12'}/
 					%span /
-					%input{"data-stripe" => "exp_year", :size => "2", :type => "text", :value => '18'}/
-				.form-row
+					%input.form-control{"data-stripe" => "exp_year", :size => "2", :type => "text", :value => '18'}/
+				.form-group
 					%label
 						%span CVC
-						%input{"data-stripe" => "cvc", :size => "4", :type => "text", :value => '123'}/
-				.form-row
+					%input.form-control{"data-stripe" => "cvc", :size => "4", :type => "text", :value => '123'}/
+				.form-group
 					%label
 						%span Billing ZIP Code
-						%input{"data-stripe" => "address_zip", :size => "6", :type => "text", :value => '12345'}/
+					%input.form-control{"data-stripe" => "address_zip", :size => "6", :type => "text", :value => '12345'}/
 				%input.btn.submit{:type => "submit", :value => "Submit Payment", :class => ($items.present? ? '' : 'disabled'), :disabled => ($items.present? ? nil : 'disabled')}/
 
 
