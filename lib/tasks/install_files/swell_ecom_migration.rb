@@ -113,7 +113,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 		create_table :order_items do |t|
 			t.references 	:order
-			t.references 	:item, polymorphic: true
+			t.references 	:item, polymorphic: true #sku, plan
 			t.integer		:order_item_type, default: 1
 			t.integer 		:quantity, default: 1
 			t.integer 		:amount, default: 0
@@ -122,12 +122,13 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :order_items, [ :item_id, :item_type, :order_id ]
 		add_index :order_items, [ :order_item_type, :order_id ]
 
-		create_table :plans do |t|
+		create_table :plans do |t| # Subscription version of a sku
 			t.references	:product
 			t.string 		:code
-			t.integer 		:price, 	default: 0
-			t.string 		:currency, default: 'USD'
-			t.hstore		:properties, default: {}
+			t.integer 		:price, 		default: 0
+			t.integer 		:renewal_price,	default: 0 # less than price
+			t.string 		:currency, 		default: 'USD'
+			t.hstore		:properties, 	default: {}
 
 			t.string		:name
 			t.string 		:caption
@@ -179,15 +180,15 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.hstore		:properties, default: {}
 			t.timestamps
 		end
-		add_index :shipment, :order_id
+		add_index :shipments, :order_id
 
 		create_table :shipment_items do |t|
 			t.references	:shipment
-			t.string 		:receipt_item
+			t.references 	:order_item
 			t.integer 		:quantity, default: 1
 			t.timestamps
 		end
-		add_index :shipment_items, [:shipment_id, :receipt_item_id]
+		add_index :shipment_items, [:shipment_id, :order_item_id]
 
 		create_table :skus do |t|
 			t.references	:product
