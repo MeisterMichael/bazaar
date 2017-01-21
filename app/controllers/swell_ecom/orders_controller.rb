@@ -1,8 +1,8 @@
 module SwellEcom
 	class OrdersController < ApplicationController
-		
+
 		def show
-			@order = Order.find( params[:id] )
+			@order = Order.find_by( code: params[:id] )
 		end
 
 	end

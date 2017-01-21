@@ -1,6 +1,6 @@
 
 module SwellEcom
-	class Order < ActiveRecord::Base 
+	class Order < ActiveRecord::Base
 		self.table_name = 'orders'
 
 		before_create :generate_order_code
@@ -8,7 +8,7 @@ module SwellEcom
 
 		belongs_to 	:billing_address, class_name: 'GeoAddress'
 		belongs_to 	:shipping_address, class_name: 'GeoAddress'
-		belongs_to 	:cart
+		# belongs_to 	:cart
 		belongs_to 	:user
 
 		has_many 	:order_items
