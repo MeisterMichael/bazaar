@@ -2,23 +2,25 @@ module SwellEcom
 
 	class TaxService
 
+		# a list of tax codes
+		# https://taxcloud.net/tic/
+
 		def self.calculate( order )
 
-			# order.order_items.new item: nil, amount: 100, label: 'Sales Tax', order_item_type: 'tax'
-
-			# return
-
 			origin = TaxCloud::Address.new(
-				:city => 'San Diego',
-				:state => 'CA',
-				:zip5 => '06851')
+				:address1 => origin_address[:street],
+				:addressw => origin_address[:street2],
+				:city => origin_address[:city],
+				:state => origin_address[:state],
+				:zip5 => origin_address[:zip]).verify
+
 			destination = TaxCloud::Address.new(
 				:address1 => order.shipping_address.street,
 				:address2 => order.shipping_address.street2,
 				:city => order.shipping_address.city,
-				:state => order.shipping_address.geo_state.try(:code) || order.shipping_address.state || 'CA',
-				# :country => order.shipping_address.geo_country.try(:code) || 'USA',
-				:zip5 => order.shipping_address.zip)
+				:state => order.shipping_address.geo_state.try(:code) || order.shipping_address.state,
+				:zip5 => order.shipping_address.zip
+			).verify
 
 
 			transaction = TaxCloud::Transaction.new(
@@ -29,23 +31,23 @@ module SwellEcom
 
 			order.order_items.select{|order_item| order_item.sku? }.each_with_index do |order_item, index|
 
-
 				transaction.cart_items << TaxCloud::CartItem.new(
 					:index => index,
 					:item_id => order_item.item.code,
-					:tic => order_item.item.tax_code,
-					:price => order_item.item.price,
-					:quantity => order_item.quantity )
+					:tic => (order_item.item.get_tax_code || TaxCloud::TaxCodes::GENERAL),
+					:price => (order_item.amout / order_item.quantity) / 100.0,
+					:quantity => order_item.quantity
+				)
 
 			end
 
 			lookup = transaction.lookup # this will return a TaxCloud::Responses::Lookup instance
-			puts lookup
-			puts lookup.tax_amount # total tax amount
-			lookup.cart_items.each do |cart_item|
-				puts cart_item.tax_amount # tax for a single item
-			end
 
+			order.order_items.new item: nil, amount: (lookup.tax_amount * 100).to_i, label: 'Sales Tax', order_item_type: 'tax'
+
+
+
+			return
 =begin
 			client = Taxjar::Client.new(api_key: ENV['TAX_JAR_API_KEY'])
 
@@ -78,6 +80,38 @@ module SwellEcom
 			tax_for_order = client.tax_for_order()
 			puts tax_for_order
 			return tax_for_order
+=end
+
+=begin
+			line = Avalara::Request::Line.new({
+			  line_no: "1",
+			  destination_code: "1",
+			  origin_code: "1",
+			  qty: "1",
+			  amount: 10
+			})
+
+			address = Avalara::Request::Address.new({
+			  address_code: 1,
+			  line_1: "435 Ericksen Avenue Northeast",
+			  line_2: "#250",
+			  postal_code: "98110"
+			})
+
+			invoice = Avalara::Request::Invoice.new({
+			  doc_date: Time.now,
+			  company_code: 1,
+			  lines: [line],
+			  addresses: [address]
+			})
+
+			# You'll get back a Response::Invoice object
+			result = Avalara.get_tax(invoice)
+
+			puts result.result_code
+			puts result.total_amount
+			puts result.total_tax
+			puts result.total_tax_calculated
 =end
 
 		end

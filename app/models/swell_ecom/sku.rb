@@ -4,8 +4,8 @@ module SwellEcom
 
 		belongs_to :product
 
-		def tax_code
-			20010 #product.tax_code
+		def get_tax_code
+			self.tax_code || product.tax_code
 		end
 
 	end

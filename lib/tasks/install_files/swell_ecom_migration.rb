@@ -127,6 +127,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:price, 		default: 0
 			t.integer 		:renewal_price,	default: 0 # less than price
 			t.string 		:currency, 		default: 'USD'
+			t.string 		:tax_code, default: nil
 			t.hstore		:properties, 	default: {}
 
 			t.string		:name
@@ -194,6 +195,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.references	:product
 			t.string		:name
 			t.string 		:code
+			t.string 		:tax_code, default: nil
 			t.integer 		:price, 	default: 0
 			t.integer 		:inventory, default: -1
 			t.string 		:currency, default: 'USD'

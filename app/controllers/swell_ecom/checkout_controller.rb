@@ -34,9 +34,9 @@ module SwellEcom
 				@order.order_items.new item: item, amount: item.price, label: item.name, order_item_type: 'sku', quantity: order_item[:quantity]
 				# @todo add plans
 			end
-
-			TaxService.calculate( @order )
+			
 			ShippingService.calculate( @order )
+			TaxService.calculate( @order )
 
 			StripeService.process( @order, params[:stripeToken] )
 

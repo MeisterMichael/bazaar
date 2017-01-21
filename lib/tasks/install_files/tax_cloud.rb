@@ -4,4 +4,6 @@ TaxCloud.configure do |config|
   # config.usps_username = 'your_usps_username' # optional
   # config.open_timeout = 1 # optional
   # config.read_timeout = 1 # optional
+
+  # configure taxable states in the taxcloud console
 end
