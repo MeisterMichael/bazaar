@@ -8,11 +8,11 @@ module SwellEcom
 		def self.calculate( order )
 
 			origin = TaxCloud::Address.new(
-				:address1 => origin_address[:street],
-				:addressw => origin_address[:street2],
-				:city => origin_address[:city],
-				:state => origin_address[:state],
-				:zip5 => origin_address[:zip]).verify
+				:address1 => SwellEcom.origin_address[:street],
+				:address2 => SwellEcom.origin_address[:street2],
+				:city => SwellEcom.origin_address[:city],
+				:state => SwellEcom.origin_address[:state],
+				:zip5 => SwellEcom.origin_address[:zip]).verify
 
 			destination = TaxCloud::Address.new(
 				:address1 => order.shipping_address.street,
@@ -29,15 +29,18 @@ module SwellEcom
 				:origin => origin,
 				:destination => destination)
 
-			order.order_items.select{|order_item| order_item.sku? }.each_with_index do |order_item, index|
+			order.order_items.each_with_index do |order_item, index|
+				if order_item.get_tax_code.present?
 
-				transaction.cart_items << TaxCloud::CartItem.new(
-					:index => index,
-					:item_id => order_item.item.code,
-					:tic => (order_item.item.get_tax_code || TaxCloud::TaxCodes::GENERAL),
-					:price => (order_item.amout / order_item.quantity) / 100.0,
-					:quantity => order_item.quantity
-				)
+					transaction.cart_items << TaxCloud::CartItem.new(
+						:index => index,
+						:item_id => order_item.item.code,
+						:tic => order_item.get_tax_code,
+						:price => (order_item.amount / order_item.quantity) / 100.0,
+						:quantity => order_item.quantity
+					)
+
+				end
 
 			end
 

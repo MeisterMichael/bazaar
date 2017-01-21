@@ -7,5 +7,9 @@ module SwellEcom
 
 		enum order_item_type: { 'sku' => 1, 'tax' => 2, 'shipping' => 3, 'discount' => 4 }
 
+		def get_tax_code
+			self.tax_code || self.item.get_tax_code
+		end
+
 	end
 end
