@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir["test/**/*"]
 
   s.add_dependency "swell_media"
-  s.add_dependency "tax_cloud"
+  s.add_dependency 'tax_cloud'
   s.add_dependency 'stripe' #, :git => 'https://github.com/stripe/stripe-ruby'
 
   s.add_development_dependency "sqlite3"

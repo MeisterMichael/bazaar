@@ -20,7 +20,7 @@ module SwellEcom
 
 		def create
 			order_attributes 			= params.require(:order).permit(:email, :customer_comment)
-			order_items_attributes		= params[:order][:items]
+			order_items_attributes		= params[:order][:order_items]
 			shipping_address_attributes = params.require(:order).require(:shipping_address).permit(:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name)
 			billing_address_attributes	= params.require(:order).require(:billing_address).permit(:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name)
 

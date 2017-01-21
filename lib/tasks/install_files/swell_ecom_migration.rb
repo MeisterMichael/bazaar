@@ -162,6 +162,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.string 		:currency, default: 'USD'
 			t.integer 		:inventory, default: -1
 			t.string 		:tags, array: true, default: '{}'
+			t.string		:tax_code, default: nil
 			t.hstore		:properties, default: {}
 			t.timestamps
 		end
