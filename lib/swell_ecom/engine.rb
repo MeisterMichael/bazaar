@@ -1,7 +1,6 @@
 
 require 'stripe'
 require 'tax_cloud'
-require 'avalara'
 
 module SwellEcom
 
