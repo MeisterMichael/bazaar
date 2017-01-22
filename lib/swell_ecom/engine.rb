@@ -7,7 +7,9 @@ module SwellEcom
 
 	class << self
 		mattr_accessor :origin_address
+		mattr_accessor :order_email_from
 
+		self.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
 	end
 
 	# this function maps the vars from your app into your engine

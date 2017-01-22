@@ -1,0 +1,32 @@
+
+%h1.text-center
+	Thanks for your order!
+.text-center
+	Order Number: #{@order.code}
+
+
+%table.table
+	%thead
+		%tr
+			%th Product
+			%th{ style: 'width: 100px' } Price
+			%th.text-right{ style: 'width: 100px' } Quantity
+	%tbody
+		- @order.order_items.each do |order_item|
+			- if order_item.sku?
+				%tr
+					-# %td avatar
+					%td
+						=order_item.item.name
+					%td= number_to_currency order_item.amount.to_f / 100
+					%td.text-right
+						=order_item.quantity
+- @order.order_items.each do |order_item|
+	- unless order_item.sku?
+		.text-right
+			#{order_item.label}: #{number_to_currency order_item.amount.to_f / 100}
+%h3.text-right
+
+
+	Total:
+	= number_to_currency @order.total.to_f / 100

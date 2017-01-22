@@ -35,7 +35,7 @@ module SwellEcom
 
 			else
 
-				# @todo email receipt
+				OrderMailer.receipt( @order ).deliver_now
 				redirect_to swell_ecom.order_path( @order.code )
 
 			end

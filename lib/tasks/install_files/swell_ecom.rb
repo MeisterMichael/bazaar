@@ -8,4 +8,6 @@ SwellEcom.configure do |config|
 		zip: '92014'
 	}
 
+	config.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
+
 end
