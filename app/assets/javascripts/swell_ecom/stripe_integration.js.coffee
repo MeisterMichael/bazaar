@@ -1,5 +1,9 @@
 $ ->
 
+	$('.disable_submit_after_submit').submit (event) ->
+		# Disable the submit button to prevent repeated clicks:
+		$(this).find('.submit').prop 'disabled', true
+
 	$('.stripe_form').each ->
 		$form = $(this)
 
