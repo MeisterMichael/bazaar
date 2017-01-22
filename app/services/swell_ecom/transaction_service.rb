@@ -1,35 +1,32 @@
 module SwellEcom
 
-	class StripeService
+	class TransactionService
 
-		def self.process( order, stripe_token )
+		def self.calculate( order )
 
 			order.total = 0
 
 			order.order_items.each do |order_item|
-				puts order_item.label
-				puts order_item.amount
 				order.total = order.total + order_item.amount
 			end
+
+		end
+
+		def self.process( order, args = {} )
+
+			stripe_token = args[:stripe_token]
+
+			self.calculate( order )
 
 			begin
 
 				# Token is created using Stripe.js or Checkout!
 				# Get the payment token submitted by the form:
 
-				puts "order.total"
-				puts order.total
-
-				puts "stripe_token"
-				puts stripe_token
-
 				customer = Stripe::Customer.create(
 					'email' => order.email,
 					'card'  => stripe_token
 				)
-
-				puts "customer"
-				puts customer.id
 
 				# Charge the user's card:
 				charge = Stripe::Charge.create(

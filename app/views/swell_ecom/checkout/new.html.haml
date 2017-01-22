@@ -2,7 +2,7 @@
 .container
 	.row
 
-		= form_for @order, as: :order, url: swell_ecom.checkout_index_path(), method: 'POST', html: { class: 'stripe_form' } do |f|
+		= form_for @order, as: :order, url: swell_ecom.confirm_checkout_index_path(), method: 'POST', html: { class: 'stripe_form' } do |f|
 			.col-xs-12.col-lg-8.col-lg-offset-2
 				%table.table
 					%thead
@@ -34,7 +34,7 @@
 						.form-group
 							%label
 								%span Email
-							= text_field_tag 'order[email]', '', class: 'form-control'
+							= f.text_field :email, class: 'form-control'
 
 						-# .form-group
 							%label
@@ -42,135 +42,135 @@
 							= text_field_tag 'order[billing_address][title]', '', class: 'form-control'
 
 			.col-xs-12.col-lg-4.col-lg-offset-2
-				%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Billing Information
+				= f.fields_for :billing_address do |billing_address_form|
+					%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Billing Information
 
-				.form-group
-					%label
-						%span First Name
-					= text_field_tag 'order[billing_address][first_name]', '', class: 'form-control'
+					.form-group
+						%label
+							%span First Name
+						= billing_address_form.text_field :first_name, class: 'form-control'
 
-				.form-group
-					%label
-						%span Last Name
-					= text_field_tag 'order[billing_address][last_name]', '', class: 'form-control'
+					.form-group
+						%label
+							%span Last Name
+						= billing_address_form.text_field :last_name, class: 'form-control'
 
-				.form-group
-					%label
-						%span Address Line 1
-					= text_field_tag 'order[billing_address][street]', '', class: 'form-control'
+					.form-group
+						%label
+							%span Country
+						= billing_address_form.collection_select :geo_country_id, @billing_countries, :id, :name, { prompt: @billing_countries.count > 1 }, { class: "form-control" }
 
-				.form-group
-					%label
-						%span Address Line 2
-					= text_field_tag 'order[billing_address][street2]', '', class: 'form-control'
+					.form-group.address_state_toggle
+						%label
+							%span State
+						= billing_address_form.text_field :state, class: "form-control address_state #{@billing_states.present? ? 'hidden' : ''}"
+						-# = select_tag 'order[billing_address][geo_state_id]', options_from_collection_for_select(@billing_states, 'id', 'name', @order.billing_address.try(:geo_state_id)), class: "form-control address_geo_state #{@billing_states.present? ? '' : 'hidden'}"
+						= billing_address_form.collection_select :geo_state_id, @billing_states, :id, :name, { prompt: true }, { class: "form-control address_geo_state #{@shipping_states.present? ? '' : 'hidden'}" }
+					.form-group
+						%label
+							%span Address Line 1
+						= billing_address_form.text_field :street, class: 'form-control'
 
-				.form-group
-					%label
-						%span City
-					= text_field_tag 'order[billing_address][city]', '', class: 'form-control'
+					.form-group
+						%label
+							%span Address Line 2
+						= billing_address_form.text_field :street2, class: 'form-control'
 
-				.form-group.address_state_toggle
-					%label
-						%span State
-					= text_field_tag 'order[billing_address][state]', '', class: 'form-control address_state hidden'
-					= select_tag 'order[billing_address][geo_state_id]', options_from_collection_for_select(SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) ), 'id', 'name', @order.billing_address.try(:geo_state_id)), class: 'form-control address_geo_state'
+					.form-group
+						%label
+							%span City
+						= billing_address_form.text_field :city, class: 'form-control'
 
-				.form-group
-					%label
-						%span Country
-					= select_tag 'order[billing_address][geo_country_id]', options_from_collection_for_select(SwellEcom::GeoCountry.all, 'id', 'name', @order.billing_address.try(:geo_country_id)), class: 'form-control'
+					.form-group
+						%label
+							%span Zip
+						= billing_address_form.text_field :zip, value: '12345', class: 'form-control', "data-stripe" => "address_zip"
 
+					.form-group
+						%label
+							%span Phone Number
+						= billing_address_form.text_field :phone, class: 'form-control'
 
-				.form-group
-					%label
-						%span Zip
-					= text_field_tag 'order[billing_address][zip]', '12345', class: 'form-control', "data-stripe" => "address_zip"
+					%span.payment-errors
+					.form-group
+						%label
+							%span Card Number
+						%input.form-control{"data-stripe" => "number", :size => "20", :type => "text", :value => '4242 4242 4242 4242'}/
 
-				.form-group
-					%label
-						%span Phone Number
-					= text_field_tag 'order[billing_address][phone]', '', class: 'form-control'
-
-				%span.payment-errors
-				.form-group
-					%label
-						%span Card Number
-					%input.form-control{"data-stripe" => "number", :size => "20", :type => "text", :value => '4242 4242 4242 4242'}/
-
-				.row
-					.col-xs-12.col-md-6
-						.form-group
-							%label
-								%span Expiration (MM/YY)
-							%div
-								%input.form-control{"data-stripe" => "exp_month", :size => "2", :type => "text", :value => '12', style: 'width: auto;display:inline-block;'}/
-								%span /
-								%input.form-control{"data-stripe" => "exp_year", :size => "2", :type => "text", :value => '18', style: 'width: auto;display:inline-block;'}/
-					.col-xs-12.col-md-6
-						.form-group
-							%label
-								%span CVC
-							%input.form-control{"data-stripe" => "cvc", :size => "4", :type => "text", :value => '123', style: 'width: auto;'}/
+					.row
+						.col-xs-12.col-md-6
+							.form-group
+								%label
+									%span Expiration (MM/YY)
+								%div
+									%input.form-control{"data-stripe" => "exp_month", :size => "2", :type => "text", :value => '12', style: 'width: auto;display:inline-block;'}/
+									%span /
+									%input.form-control{"data-stripe" => "exp_year", :size => "2", :type => "text", :value => '18', style: 'width: auto;display:inline-block;'}/
+						.col-xs-12.col-md-6
+							.form-group
+								%label
+									%span CVC
+								%input.form-control{"data-stripe" => "cvc", :size => "4", :type => "text", :value => '123', style: 'width: auto;'}/
 
 			.col-xs-12.col-lg-4
-				%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Shipping Information
+				= f.fields_for :shipping_address do |shipping_address_form|
+					%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Shipping Information
 
 
-				.form-group
-					%label
-						%span First Name
-					= text_field_tag 'order[shipping_address][first_name]', '', class: 'form-control'
+					.form-group
+						%label
+							%span First Name
+						= shipping_address_form.text_field :first_name, class: 'form-control'
 
-				.form-group
-					%label
-						%span Last Name
-					= text_field_tag 'order[shipping_address][last_name]', '', class: 'form-control'
+					.form-group
+						%label
+							%span Last Name
+						= shipping_address_form.text_field :last_name, class: 'form-control'
 
-				.form-group
-					%label
-						%span Address Line 1
-					= text_field_tag 'order[shipping_address][street]', '', class: 'form-control'
+					.form-group
+						%label
+							%span Country
+						= shipping_address_form.collection_select :geo_country_id, @shipping_countries, :id, :name, { prompt: @shipping_countries.count > 1 }, { class: "form-control" }
 
-				.form-group
-					%label
-						%span Address Line 2
-					= text_field_tag 'order[shipping_address][street2]', '', class: 'form-control'
+					.form-group.address_state_toggle
+						%label
+							%span State
+						= shipping_address_form.text_field :state, class: "form-control address_state #{@shipping_states.present? ? 'hidden' : ''}"
+						= shipping_address_form.collection_select :geo_state_id, @shipping_states, :id, :name, { prompt: true }, { class: "form-control address_geo_state #{@shipping_states.present? ? '' : 'hidden'}" }
 
-				.form-group
-					%label
-						%span City
-					= text_field_tag 'order[shipping_address][city]', '', class: 'form-control'
+					.form-group
+						%label
+							%span Address Line 1
+						= shipping_address_form.text_field :street, class: 'form-control'
 
-				.form-group.address_state_toggle
-					%label
-						%span State
-					= text_field_tag 'order[shipping_address][state]', '', class: 'form-control address_state hidden'
-					= select_tag 'order[shipping_address][geo_state_id]', options_from_collection_for_select(SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) ), 'id', 'name', @order.shipping_address.try(:geo_state_id)), class: 'form-control address_geo_state'
+					.form-group
+						%label
+							%span Address Line 2
+						= shipping_address_form.text_field :street2, class: 'form-control'
 
-				.form-group
-					%label
-						%span Country
-					= select_tag 'order[shipping_address][geo_country_id]', options_from_collection_for_select(SwellEcom::GeoCountry.all, 'id', 'name', @order.shipping_address.try(:geo_country_id)), class: 'form-control'
+					.form-group
+						%label
+							%span City
+						= shipping_address_form.text_field :city, class: 'form-control'
 
+					.form-group
+						%label
+							%span Zip
+						= shipping_address_form.text_field :zip, class: 'form-control'
 
-				.form-group
-					%label
-						%span Zip
-					= text_field_tag 'order[shipping_address][zip]', '', class: 'form-control'
-
-				.form-group
-					%label
-						%span Phone Number
-					= text_field_tag 'order[shipping_address][phone]', '', class: 'form-control'
+					.form-group
+						%label
+							%span Phone Number
+						= shipping_address_form.text_field :phone, class: 'form-control'
 
 			.col-xs-12.col-lg-6.col-lg-offset-3{ style: 'margin-top: 1.5em;margin-bottom: 1.5em;' }
 				.form-group
 					%label
 						%span Comment
-					= text_area_tag 'order[customer_comment]', '', class: 'form-control'
+					= f.text_area :customer_comment, class: 'form-control'
 
 			.col-xs-12.text-center
-				%input.btn.submit{:type => "submit", :value => "Submit Payment"}/
+				%input.btn.submit{:type => "submit", :value => "Next"}/
 
 
 %script{:src => "https://js.stripe.com/v2/", :type => "text/javascript"}

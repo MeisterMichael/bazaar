@@ -7,7 +7,7 @@ module SwellEcom
 
 		def self.calculate( order )
 
-			return unless ['USA', 'US'].include?( order.shipping_address.country.abbrev )
+			return unless ['USA', 'US'].include?( order.shipping_address.geo_country.abbrev || order.shipping_address.country )
 
 			origin = TaxCloud::Address.new(
 				:address1 => SwellEcom.origin_address[:street],
@@ -36,7 +36,7 @@ module SwellEcom
 
 					transaction.cart_items << TaxCloud::CartItem.new(
 						:index => index,
-						:item_id => order_item.item.code,
+						:item_id => order_item.item.try(:code) || order_item.label,
 						:tic => order_item.get_tax_code,
 						:price => (order_item.amount / order_item.quantity) / 100.0,
 						:quantity => order_item.quantity

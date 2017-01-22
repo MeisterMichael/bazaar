@@ -1,6 +1,7 @@
 SwellEcom::Engine.routes.draw do
 
 	resources :checkout do
+		post :confirm, on: :collection
 		get :success, on: :collection
 	end
 
