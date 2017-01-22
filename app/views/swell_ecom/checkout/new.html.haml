@@ -69,20 +69,16 @@
 						%span City
 					= text_field_tag 'order[billing_address][city]', '', class: 'form-control'
 
-				-# .form-group
+				.form-group.address_state_toggle
 					%label
 						%span State
-					= text_field_tag 'order[billing_address][state]', '', class: 'form-control'
-
-				.form-group
-					%label
-						%span State
-					= text_field_tag 'order[billing_address][geo_state_id]', '', class: 'form-control'
+					= text_field_tag 'order[billing_address][state]', '', class: 'form-control address_state hidden'
+					= select_tag 'order[billing_address][geo_state_id]', options_from_collection_for_select(SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) ), 'id', 'name', @order.billing_address.try(:geo_state_id)), class: 'form-control address_geo_state'
 
 				.form-group
 					%label
 						%span Country
-					= text_field_tag 'order[billing_address][geo_country_id]', '', class: 'form-control'
+					= select_tag 'order[billing_address][geo_country_id]', options_from_collection_for_select(SwellEcom::GeoCountry.all, 'id', 'name', @order.billing_address.try(:geo_country_id)), class: 'form-control'
 
 
 				.form-group
@@ -145,20 +141,16 @@
 						%span City
 					= text_field_tag 'order[shipping_address][city]', '', class: 'form-control'
 
-				-# .form-group
+				.form-group.address_state_toggle
 					%label
 						%span State
-					= text_field_tag 'order[shipping_address][state]', '', class: 'form-control'
-
-				.form-group
-					%label
-						%span State
-					= text_field_tag 'order[shipping_address][geo_state_id]', '', class: 'form-control'
+					= text_field_tag 'order[shipping_address][state]', '', class: 'form-control address_state hidden'
+					= select_tag 'order[shipping_address][geo_state_id]', options_from_collection_for_select(SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) ), 'id', 'name', @order.shipping_address.try(:geo_state_id)), class: 'form-control address_geo_state'
 
 				.form-group
 					%label
 						%span Country
-					= text_field_tag 'order[shipping_address][geo_country_id]', '', class: 'form-control'
+					= select_tag 'order[shipping_address][geo_country_id]', options_from_collection_for_select(SwellEcom::GeoCountry.all, 'id', 'name', @order.shipping_address.try(:geo_country_id)), class: 'form-control'
 
 
 				.form-group

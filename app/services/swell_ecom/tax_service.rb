@@ -7,6 +7,8 @@ module SwellEcom
 
 		def self.calculate( order )
 
+			return unless ['USA', 'US'].include?( order.shipping_address.country.abbrev )
+
 			origin = TaxCloud::Address.new(
 				:address1 => SwellEcom.origin_address[:street],
 				:address2 => SwellEcom.origin_address[:street2],
@@ -18,7 +20,7 @@ module SwellEcom
 				:address1 => order.shipping_address.street,
 				:address2 => order.shipping_address.street2,
 				:city => order.shipping_address.city,
-				:state => order.shipping_address.geo_state.try(:code) || order.shipping_address.state,
+				:state => order.shipping_address.geo_state.try(:abbrev) || order.shipping_address.state,
 				:zip5 => order.shipping_address.zip
 			).verify
 
