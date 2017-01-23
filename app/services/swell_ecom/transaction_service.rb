@@ -49,9 +49,20 @@ module SwellEcom
 
 			rescue Stripe::CardError => e
 
+
 				order.errors.add(:base, :processing_error, message: "cannot be nil")
 				# Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: 'Stripe', amount: order.total, currency: order.currency, status: 'declined' )
 
+			rescue Stripe::InvalidRequestError => e
+
+				order.errors.add(:base, :processing_error, message: 'Processing error')
+				NewRelic::Agent.notice_error(e, custom_params: {
+					message: e.message,
+					'email' => order.email,
+					'card'  => stripe_token
+					'amount' 	=> order.total,
+					'currency'	=> order.currency,
+				} )
 
 			end
 
