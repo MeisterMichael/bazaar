@@ -252,7 +252,7 @@ namespace :swell_ecom do
 		SwellEcom::GeoCountry.create :abbrev => "ZW", :name => "Zimbabwe"
 
 		puts "Adding state data"
-		usa.geo_states.create :country => 'US', geo_country: usa :name => 'Alabama', :abbrev => 'AL'
+		usa.geo_states.create :country => 'US', geo_country: usa, :name => 'Alabama', :abbrev => 'AL'
 		usa.geo_states.create :country => 'US', geo_country: usa, :name => 'Alaska', :abbrev => 'AK'
 		usa.geo_states.create :country => 'US', geo_country: usa, :name => 'Arizona', :abbrev => 'AZ'
 		usa.geo_states.create :country => 'US', geo_country: usa, :name => 'Arkansas', :abbrev => 'AR'
