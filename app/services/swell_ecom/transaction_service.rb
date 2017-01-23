@@ -57,9 +57,9 @@ module SwellEcom
 
 				order.errors.add(:base, :processing_error, message: 'Processing error')
 				NewRelic::Agent.notice_error(e, custom_params: {
-					message: e.message,
+					'e.message' => e.message,
 					'email' => order.email,
-					'card'  => stripe_token
+					'card'  => stripe_token,
 					'amount' 	=> order.total,
 					'currency'	=> order.currency,
 				} )
