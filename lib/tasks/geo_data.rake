@@ -303,10 +303,10 @@ namespace :swell_ecom do
 		usa.geo_states.create :country => 'US', :name => 'West Virginia', :abbrev => 'WV'
 		usa.geo_states.create :country => 'US', :name => 'Wisconsin', :abbrev => 'WI'
 		usa.geo_states.create :country => 'US', :name => 'Wyoming', :abbrev => 'WY'
-		usa.geo_states.create :country => 'US', :name => 'APO', :abbrev => 'AP'	
+		usa.geo_states.create :country => 'US', :name => 'APO', :abbrev => 'AP'
 		usa.geo_states.create :country => 'US', :name => 'APO', :abbrev => 'AE'
 		usa.geo_states.create :country => 'US', :name => 'APO', :abbrev => 'AA'
-		
+=begin
 		puts "Adding Tax Rates"
 		r = SwellEcom::TaxRate.create :geo_state_id => 1 , :rate => 0.04
 		r = SwellEcom::TaxRate.create :geo_state_id => 2 , :rate => 0
@@ -370,5 +370,6 @@ namespace :swell_ecom do
 		r = SwellEcom::TaxRate.create :geo_state_id => 52 , :rate => 0
 		r = SwellEcom::TaxRate.create :geo_state_id => 53 , :rate => 0
 		r = SwellEcom::TaxRate.create :geo_state_id => 54 , :rate => 0
+=end
 	end
 end
