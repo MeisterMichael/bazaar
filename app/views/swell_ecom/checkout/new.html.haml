@@ -58,7 +58,13 @@
 					.form-group
 						%label
 							%span Country
-						= billing_address_form.collection_select :geo_country_id, @billing_countries, :id, :name, { prompt: @billing_countries.count > 1 }, { class: "form-control" }
+						- if @billing_countries.count == 1
+							= billing_address_form.hidden_field :geo_country_id, value: @billing_countries.first.id
+							%div= @billing_countries.first.name
+						- else
+							= billing_address_form.collection_select :geo_country_id, @billing_countries, :id, :name, { prompt: @billing_countries.count > 1 }, { class: "form-control" }
+
+
 
 					.form-group.address_state_toggle
 						%label
@@ -130,7 +136,11 @@
 					.form-group
 						%label
 							%span Country
-						= shipping_address_form.collection_select :geo_country_id, @shipping_countries, :id, :name, { prompt: @shipping_countries.count > 1 }, { class: "form-control" }
+						- if @shipping_countries.count == 1
+							= shipping_address_form.hidden_field :geo_country_id, value: @shipping_countries.first.id
+							%div= @shipping_countries.first.name
+						- else
+							= shipping_address_form.collection_select :geo_country_id, @shipping_countries, :id, :name, { prompt: @shipping_countries.count > 1 }, { class: "form-control" }
 
 					.form-group.address_state_toggle
 						%label
