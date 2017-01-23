@@ -3,7 +3,9 @@ module SwellEcom
 		def receipt( order, args = {} )
 			@order = order
 
-			mail to: @order.email, from: SwellEcom.order_email_from, subject: "#{SwellMedia.app_name} order of #{@order.order_items.first.label}".truncate(255)
+			subject = "#{SwellMedia.app_name} order of #{@order.order_items.first.label}".truncate(255)
+
+			mail to: @order.email, from: SwellEcom.order_email_from, subject: subject
 		end
 
 	end
