@@ -30,7 +30,7 @@
 				.form-group
 					%label
 						%span Email
-					= f.text_field :email, class: 'form-control'
+					= f.email_field :email, class: 'form-control'
 
 				-# .form-group
 					%label
@@ -44,21 +44,21 @@
 			.form-group
 				%label
 					%span First Name
-				= billing_address_form.text_field :first_name, class: 'form-control'
+				= billing_address_form.text_field :first_name, class: 'form-control', required: true
 
 			.form-group
 				%label
 					%span Last Name
-				= billing_address_form.text_field :last_name, class: 'form-control'
+				= billing_address_form.text_field :last_name, class: 'form-control', required: true
 
 			.form-group
 				%label
 					%span Country
 				- if @billing_countries.count == 1
 					= billing_address_form.hidden_field :geo_country_id, value: @billing_countries.first.id
-					%div= @billing_countries.first.name
+					.form-control= @billing_countries.first.name
 				- else
-					= billing_address_form.collection_select :geo_country_id, @billing_countries, :id, :name, { prompt: @billing_countries.count > 1 }, { class: "form-control", data: {'geostateupdate-target' => '#order_billing_address_state', 'geostateupdate-data' => { address_attribute: :billing_address }.to_json}  }
+					= billing_address_form.collection_select :geo_country_id, @billing_countries, :id, :name, { prompt: @billing_countries.count > 1 }, { class: "form-control", data: {'geostateupdate-target' => '#order_billing_address_state', 'geostateupdate-data' => { address_attribute: :billing_address }.to_json}, required: true  }
 
 
 
@@ -69,7 +69,7 @@
 			.form-group
 				%label
 					%span Address Line 1
-				= billing_address_form.text_field :street, class: 'form-control'
+				= billing_address_form.text_field :street, class: 'form-control', required: true
 
 			.form-group
 				%label
@@ -79,23 +79,23 @@
 			.form-group
 				%label
 					%span City
-				= billing_address_form.text_field :city, class: 'form-control'
+				= billing_address_form.text_field :city, class: 'form-control', required: true
 
 			.form-group
 				%label
 					%span Zip
-				= billing_address_form.text_field :zip, class: 'form-control', "data-stripe" => "address_zip"
+				= billing_address_form.text_field :zip, class: 'form-control', "data-stripe" => "address_zip", required: true
 
 			.form-group
 				%label
 					%span Phone Number
-				= billing_address_form.text_field :phone, class: 'form-control'
+				= billing_address_form.telephone_field :phone, class: 'form-control', required: true
 
 			%span.payment-errors
 			.form-group
 				%label
 					%span Card Number
-				%input.form-control{"data-stripe" => "number", :size => "20", :type => "text"}/
+				%input.form-control{"data-stripe" => "number", :size => "20", :type => "text", :autocomplete => "cc-number", :required => true }/
 
 			.row
 				.col-xs-12.col-md-6
@@ -103,14 +103,13 @@
 						%label
 							%span Expiration (MM/YY)
 						%div
-							%input.form-control{"data-stripe" => "exp_month", :size => "2", :type => "text", style: 'width: auto;display:inline-block;'}/
-							%span /
-							%input.form-control{"data-stripe" => "exp_year", :size => "2", :type => "text", style: 'width: auto;display:inline-block;'}/
+							%input.form-control{"data-stripe" => "exp", :size => "9", :type => "text", style: 'width: auto;display:inline-block;', :autocomplete => "cc-exp", required: true }/
+
 				.col-xs-12.col-md-6
 					.form-group
 						%label
 							%span CVC
-						%input.form-control{"data-stripe" => "cvc", :size => "4", :type => "text", style: 'width: auto;'}/
+						%input.form-control{"data-stripe" => "cvc", :size => "4", :type => "text", style: 'width: auto;', :autocomplete => "off", required: true }/
 
 	.col-xs-12.col-lg-4
 		= f.fields_for :shipping_address do |shipping_address_form|
@@ -120,21 +119,21 @@
 			.form-group
 				%label
 					%span First Name
-				= shipping_address_form.text_field :first_name, class: 'form-control'
+				= shipping_address_form.text_field :first_name, class: 'form-control', required: true
 
 			.form-group
 				%label
 					%span Last Name
-				= shipping_address_form.text_field :last_name, class: 'form-control'
+				= shipping_address_form.text_field :last_name, class: 'form-control', required: true
 
 			.form-group
 				%label
 					%span Country
 				- if @shipping_countries.count == 1
 					= shipping_address_form.hidden_field :geo_country_id, value: @shipping_countries.first.id
-					%div= @shipping_countries.first.name
+					.form-control= @shipping_countries.first.name
 				- else
-					= shipping_address_form.collection_select :geo_country_id, @shipping_countries, :id, :name, { prompt: @shipping_countries.count > 1 }, { class: "form-control", data: { 'geostateupdate-target' => '#order_shipping_address_state', 'geostateupdate-data' => { address_attribute: :shipping_address }.to_json } }
+					= shipping_address_form.collection_select :geo_country_id, @shipping_countries, :id, :name, { prompt: @shipping_countries.count > 1 }, { class: "form-control", data: { 'geostateupdate-target' => '#order_shipping_address_state', 'geostateupdate-data' => { address_attribute: :shipping_address }.to_json }, required: true }
 
 			.form-group.address_state_toggle
 				%label
@@ -144,7 +143,7 @@
 			.form-group
 				%label
 					%span Address Line 1
-				= shipping_address_form.text_field :street, class: 'form-control'
+				= shipping_address_form.text_field :street, class: 'form-control', required: true
 
 			.form-group
 				%label
@@ -154,17 +153,17 @@
 			.form-group
 				%label
 					%span City
-				= shipping_address_form.text_field :city, class: 'form-control'
+				= shipping_address_form.text_field :city, class: 'form-control', required: true
 
 			.form-group
 				%label
 					%span Zip
-				= shipping_address_form.text_field :zip, class: 'form-control'
+				= shipping_address_form.text_field :zip, class: 'form-control', required: true
 
 			.form-group
 				%label
 					%span Phone Number
-				= shipping_address_form.text_field :phone, class: 'form-control'
+				= shipping_address_form.telephone_field :phone, class: 'form-control', required: true
 
 	.col-xs-12.col-lg-6.col-lg-offset-3{ style: 'margin-top: 1.5em;margin-bottom: 1.5em;' }
 		.form-group
