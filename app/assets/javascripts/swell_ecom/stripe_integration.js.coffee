@@ -9,6 +9,7 @@ $ ->
 				# Problem!
 				# Show the errors on the form:
 				$form.find('.payment-errors').text response.error.message
+				$form.find('.payment-errors').removeClass('hide')
 				$form.find('.submit').prop 'disabled', false
 				# Re-enable submission
 			else
@@ -16,6 +17,7 @@ $ ->
 				# Get the token ID:
 				token = response.id
 				# Insert the token ID into the form so it gets submitted to the server:
+				$form.find('.payment-errors').addClass('hide')
 				$form.append $('<input type="hidden" name="stripeToken">').val(token)
 				# Submit the form:
 				$form.get(0).submit();

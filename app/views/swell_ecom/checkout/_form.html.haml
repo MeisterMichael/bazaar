@@ -30,7 +30,8 @@
 				.form-group
 					%label
 						%span Email
-					= f.email_field :email, class: 'form-control'
+					= f.email_field :email, class: 'form-control', required: true
+					.help-block.with-errors
 
 				-# .form-group
 					%label
@@ -45,11 +46,13 @@
 				%label
 					%span First Name
 				= billing_address_form.text_field :first_name, class: 'form-control', required: true
+				.help-block.with-errors
 
 			.form-group
 				%label
 					%span Last Name
 				= billing_address_form.text_field :last_name, class: 'form-control', required: true
+				.help-block.with-errors
 
 			.form-group
 				%label
@@ -59,43 +62,52 @@
 					.form-control= @billing_countries.first.name
 				- else
 					= billing_address_form.collection_select :geo_country_id, @billing_countries, :id, :name, { prompt: @billing_countries.count > 1 }, { class: "form-control", data: {'geostateupdate-target' => '#order_billing_address_state', 'geostateupdate-data' => { address_attribute: :billing_address }.to_json}, required: true  }
-
+				.help-block.with-errors
 
 
 			.form-group
 				%label
 					%span State
 				= render 'state_input', f: billing_address_form, states: @billing_states, id: 'order_billing_address_state'
+				.help-block.with-errors
 			.form-group
 				%label
 					%span Address Line 1
 				= billing_address_form.text_field :street, class: 'form-control', required: true
+				.help-block.with-errors
 
 			.form-group
 				%label
 					%span Address Line 2
+					%small (optional)
 				= billing_address_form.text_field :street2, class: 'form-control'
+				.help-block.with-errors
 
 			.form-group
 				%label
 					%span City
 				= billing_address_form.text_field :city, class: 'form-control', required: true
+				.help-block.with-errors
 
 			.form-group
 				%label
 					%span Zip
 				= billing_address_form.text_field :zip, class: 'form-control', "data-stripe" => "address_zip", required: true
+				.help-block.with-errors
 
 			.form-group
 				%label
 					%span Phone Number
 				= billing_address_form.telephone_field :phone, class: 'form-control', required: true
+				.help-block.with-errors
 
-			%span.payment-errors
+			.payment-errors.alert.alert-danger.hide
+
 			.form-group
 				%label
 					%span Card Number
 				%input.form-control{"data-stripe" => "number", :size => "20", :type => "text", :autocomplete => "cc-number", :required => true }/
+				.help-block.with-errors
 
 			.row
 				.col-xs-12.col-md-6
@@ -104,13 +116,13 @@
 							%span Expiration (MM/YY)
 						%div
 							%input.form-control{"data-stripe" => "exp", :size => "9", :type => "text", style: 'width: auto;display:inline-block;', :autocomplete => "cc-exp", required: true }/
-
+						.help-block.with-errors
 				.col-xs-12.col-md-6
 					.form-group
 						%label
 							%span CVC
 						%input.form-control{"data-stripe" => "cvc", :size => "4", :type => "text", style: 'width: auto;', :autocomplete => "off", required: true }/
-
+						.help-block.with-errors
 	.col-xs-12.col-lg-4
 		= f.fields_for :shipping_address do |shipping_address_form|
 			%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Shipping Information
@@ -120,12 +132,12 @@
 				%label
 					%span First Name
 				= shipping_address_form.text_field :first_name, class: 'form-control', required: true
-
+				.help-block.with-errors
 			.form-group
 				%label
 					%span Last Name
 				= shipping_address_form.text_field :last_name, class: 'form-control', required: true
-
+				.help-block.with-errors
 			.form-group
 				%label
 					%span Country
@@ -134,37 +146,38 @@
 					.form-control= @shipping_countries.first.name
 				- else
 					= shipping_address_form.collection_select :geo_country_id, @shipping_countries, :id, :name, { prompt: @shipping_countries.count > 1 }, { class: "form-control", data: { 'geostateupdate-target' => '#order_shipping_address_state', 'geostateupdate-data' => { address_attribute: :shipping_address }.to_json }, required: true }
-
+				.help-block.with-errors
 			.form-group.address_state_toggle
 				%label
 					%span State
 				= render 'state_input', f: shipping_address_form, states: @shipping_states, id: 'order_shipping_address_state'
-
+				.help-block.with-errors
 			.form-group
 				%label
 					%span Address Line 1
 				= shipping_address_form.text_field :street, class: 'form-control', required: true
-
+				.help-block.with-errors
 			.form-group
 				%label
 					%span Address Line 2
+					%small (optional)
 				= shipping_address_form.text_field :street2, class: 'form-control'
-
+				.help-block.with-errors
 			.form-group
 				%label
 					%span City
 				= shipping_address_form.text_field :city, class: 'form-control', required: true
-
+				.help-block.with-errors
 			.form-group
 				%label
 					%span Zip
 				= shipping_address_form.text_field :zip, class: 'form-control', required: true
-
+				.help-block.with-errors
 			.form-group
 				%label
 					%span Phone Number
 				= shipping_address_form.telephone_field :phone, class: 'form-control', required: true
-
+				.help-block.with-errors
 	.col-xs-12.col-lg-6.col-lg-offset-3{ style: 'margin-top: 1.5em;margin-bottom: 1.5em;' }
 		.form-group
 			%label
@@ -172,4 +185,4 @@
 			= f.text_area :customer_comment, class: 'form-control'
 
 	.col-xs-12.text-center
-		%input.btn.submit{:type => "submit", :value => "Next"}/
+		%input.btn.btn-primary.submit{:type => "submit", :value => "Next"}/

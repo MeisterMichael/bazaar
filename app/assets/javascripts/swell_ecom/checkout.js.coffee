@@ -1,4 +1,6 @@
 #= require ./plugins/jquery.payment
+#= require ./plugins/validator.js
+#= require ./stripe_integration.js
 
 $ ->
 

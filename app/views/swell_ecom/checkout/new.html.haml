@@ -1,6 +1,6 @@
 
 .container
-	= form_for @order, as: :order, url: swell_ecom.confirm_checkout_index_path(), method: 'POST', html: { class: 'stripe_form form_validation' } do |f|
+	= form_for @order, as: :order, url: swell_ecom.confirm_checkout_index_path(), method: 'POST', html: { class: 'stripe_form', data: { toggle: 'validator' } } do |f|
 		= render 'form', f: f, args: {}
 
 
