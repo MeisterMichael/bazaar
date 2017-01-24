@@ -23,6 +23,8 @@ module SwellEcom
 				# Token is created using Stripe.js or Checkout!
 				# Get the payment token submitted by the form:
 
+				Stripe::Charge.list()
+
 				customer = Stripe::Customer.create(
 					'email' => order.email,
 					'card'  => stripe_token
@@ -32,7 +34,7 @@ module SwellEcom
 				charge = Stripe::Charge.create(
 					'customer'	=> customer.id,
 					'amount' 	=> order.total,
-					'currency'	=> order.currency,
+					'currency'	=> order.currency.downcase,
 				)
 
 
@@ -61,7 +63,18 @@ module SwellEcom
 					'email' => order.email,
 					'card'  => stripe_token,
 					'amount' 	=> order.total,
-					'currency'	=> order.currency,
+					'currency'	=> order.currency.downcase,
+				} )
+
+			rescue Stripe::Exception => e
+
+				order.errors.add(:base, :server_error, message: 'Server error')
+				NewRelic::Agent.notice_error(e, custom_params: {
+					'e.message' => e.message,
+					'email' => order.email,
+					'card'  => stripe_token,
+					'amount' 	=> order.total,
+					'currency'	=> order.currency.downcase,
 				} )
 
 			end
