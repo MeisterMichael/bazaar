@@ -1,0 +1,4 @@
+
+= form_for @order, as: :order, url: swell_ecom.confirm_checkout_index_path(), method: 'POST', html: { class: 'stripe_form' } do |f|
+	= f.fields_for @address_attribute do |address_form|
+		= render 'state_input', f: address_form, states: @states, id: "order_#{@address_attribute}_state"

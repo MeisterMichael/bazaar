@@ -15,8 +15,8 @@ module SwellEcom
 			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
 			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
 
-			@shipping_states = SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id )
-			@billing_states = SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id )
+			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
+			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
 
 		end
 
@@ -47,6 +47,19 @@ module SwellEcom
 
 			end
 
+
+		end
+
+		def state_input
+
+			@order = Order.new currency: 'usd'
+			@order.shipping_address = GeoAddress.new
+			@order.billing_address 	= GeoAddress.new
+
+			@address_attribute = ( params[:address_attribute] == 'billing_address' ? :billing_address : :shipping_address )
+			@states = SwellEcom::GeoState.where( geo_country_id: params[:geo_country_id] )
+
+			render layout: false
 
 		end
 
