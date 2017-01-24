@@ -30,9 +30,10 @@ module SwellEcom
 
 				# Charge the user's card:
 				charge = Stripe::Charge.create(
-					'customer'	=> customer.id,
-					'amount' 	=> order.total,
-					'currency'	=> order.currency.downcase,
+					'customer'		=> customer.id,
+					'amount' 		=> order.total,
+					'description' 	=> args[:description] || "#{SwellMedia.app_name} order of #{@order.order_items.first.label}".truncate(255),
+					'currency'		=> order.currency.downcase,
 				)
 
 
