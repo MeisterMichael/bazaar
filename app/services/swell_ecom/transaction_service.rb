@@ -23,8 +23,6 @@ module SwellEcom
 				# Token is created using Stripe.js or Checkout!
 				# Get the payment token submitted by the form:
 
-				Stripe::Charge.list()
-
 				customer = Stripe::Customer.create(
 					'email' => order.email,
 					'card'  => stripe_token
