@@ -1,6 +1,8 @@
 #= require ./plugins/jquery.payment
 #= require ./plugins/validator.js
-#= require ./stripe_integration.js
+#= require ./custom/stripe_integration.js
+#= require ./plugins/jquery.caret.js
+#= require ./plugins/jquery.mobilePhoneNumber.js
 
 $ ->
 
@@ -29,6 +31,8 @@ $ ->
 	$('[data-stripe=number]').payment('formatCardNumber');
 	$('[data-stripe=cvc]').payment('formatCardCVC');
 	$('[data-stripe=exp]').payment('formatCardExpiry');
+	$('.telephone_formatted').each ()->
+		$(this).mobilePhoneNumber({ defaultPrefix: '+1' });
 
 	$(document).on 'submit', '.disable_submit_after_submit', (event) ->
 		# Disable the submit button to prevent repeated clicks:

@@ -73,6 +73,7 @@
 							%th Product
 							%th{ style: 'width: 100px' } Price
 							%th.text-right{ style: 'width: 100px' } Quantity
+							%th.text-right{ style: 'width: 100px' } Subtotal
 					%tbody
 						- @order.order_items.each do |order_item|
 							- if order_item.sku?
@@ -80,9 +81,11 @@
 									-# %td avatar
 									%td
 										=order_item.item.name
-									%td= number_to_currency order_item.amount.to_f / 100
+									%td= number_to_currency (order_item.amount / order_item.quantity.to_f) / 100
 									%td.text-right
 										=order_item.quantity
+									%td.text-right
+										= number_to_currency order_item.amount.to_f / 100
 				- if @order.customer_comment.present?
 					%label Comment
 					.well.well-sm= @order.customer_comment

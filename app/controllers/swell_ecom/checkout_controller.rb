@@ -88,7 +88,8 @@ module SwellEcom
 			order_items_attributes.each do |order_item|
 				item = Sku.find_by( code: order_item[:code] )
 
-				@order.order_items.new item: item, amount: item.price, label: item.name, order_item_type: 'sku', quantity: (order_item[:quantity] || 1)
+				quantity = (order_item[:quantity] || 1).to_i
+				@order.order_items.new item: item, amount: item.price * quantity, label: item.name, order_item_type: 'sku', quantity: quantity
 				# @todo add plans
 			end
 

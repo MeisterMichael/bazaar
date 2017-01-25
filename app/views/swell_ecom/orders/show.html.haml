@@ -12,8 +12,9 @@
 				%thead
 					%tr
 						%th Product
-						%th{ style: 'width: 100px' } Price
-						%th.text-right{ style: 'width: 100px' } Quantity
+						%th{ style: 'width: 80px' } Price
+						%th.text-right{ style: 'width: 70px' } Quantity
+						%th.text-right{ style: 'width: 100px' } Subtotal
 				%tbody
 					- @order.order_items.each do |order_item|
 						- if order_item.sku?
@@ -21,9 +22,10 @@
 								-# %td avatar
 								%td
 									=order_item.item.name
-								%td= number_to_currency order_item.amount.to_f / 100
+								%td= number_to_currency (order_item.amount.to_f / order_item.quantity) / 100
 								%td.text-right
 									=order_item.quantity
+								%td.text-right= number_to_currency order_item.amount.to_f / 100
 		.col-xs-12.col-md-6.col-md-offset-3
 			- @order.order_items.each do |order_item|
 				- unless order_item.sku?
