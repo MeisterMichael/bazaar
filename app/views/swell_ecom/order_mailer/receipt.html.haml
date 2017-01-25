@@ -4,28 +4,30 @@
 .text-center
 	Order Number: #{@order.code}
 
+%br
 
 %table.table
 	%thead
 		%tr
-			%th Product
+			%th{ style: 'text-align: left;' } Product
 			%th{ style: 'width: 100px' } Price
-			%th.text-right{ style: 'width: 100px' } Quantity
+			%th{ style: 'width: 100px;text-align: right;' } Quantity
 	%tbody
 		- @order.order_items.each do |order_item|
 			- if order_item.sku?
 				%tr
 					-# %td avatar
-					%td
+					%td{ style: 'padding: 8px' }
 						=order_item.item.name
-					%td= number_to_currency order_item.amount.to_f / 100
-					%td.text-right
+					%td{ style: 'padding: 8px' }= number_to_currency order_item.amount.to_f / 100
+					%td{ style: 'padding: 8px;text-align: right;' }
 						=order_item.quantity
+%br
 - @order.order_items.each do |order_item|
 	- unless order_item.sku?
 		.text-right
 			#{order_item.label}: #{number_to_currency order_item.amount.to_f / 100}
-%h3.text-right
+%h3
 
 
 	Total:
