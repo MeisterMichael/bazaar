@@ -17,7 +17,8 @@
 								=order_item.item.name
 							%td= number_to_currency order_item.item.price.to_f / 100
 							%td.text-right
-								= number_field_tag 'order[order_items][][quantity]', order_item.quantity, min: 1, max: 99
+								= select_tag 'order[order_items][][quantity]', options_for_select(1..20, order_item.quantity)
+								-# = number_field_tag , order_item.quantity, min: 1, max: 99
 
 
 	.col-xs-12

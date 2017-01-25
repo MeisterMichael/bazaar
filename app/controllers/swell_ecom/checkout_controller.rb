@@ -2,23 +2,7 @@
 module SwellEcom
 	class CheckoutController < ApplicationController
 
-		before_filter :get_order, only: [ :confirm, :create, :new ]
-
-		def new
-
-			@billing_countries 	= SwellEcom::GeoCountry.all
-			@shipping_countries = SwellEcom::GeoCountry.all
-
-			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:only] ) if SwellEcom.billing_countries[:only].present?
-			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:except] ) if SwellEcom.billing_countries[:except].present?
-
-			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
-			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
-
-			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
-			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
-
-		end
+		before_filter :get_order, only: [ :confirm, :create, :index ]
 
 		def confirm
 
@@ -48,6 +32,26 @@ module SwellEcom
 			end
 
 
+		end
+
+		def index
+
+			@billing_countries 	= SwellEcom::GeoCountry.all
+			@shipping_countries = SwellEcom::GeoCountry.all
+
+			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:only] ) if SwellEcom.billing_countries[:only].present?
+			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:except] ) if SwellEcom.billing_countries[:except].present?
+
+			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
+			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
+
+			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
+			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
+
+		end
+
+		def new
+			redirect_to checkout_index_path( params.merge( controller: nil, action: nil ) )
 		end
 
 		def state_input
