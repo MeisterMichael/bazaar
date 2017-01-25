@@ -86,8 +86,8 @@ module SwellEcom
 			end
 
 			@order = Order.new order_attributes.merge( currency: 'usd' )
-			@order.shipping_address = GeoAddress.new shipping_address_attributes
-			@order.billing_address 	= GeoAddress.new billing_address_attributes
+			@order.shipping_address = GeoAddress.new shipping_address_attributes.merge( user: current_user )
+			@order.billing_address 	= GeoAddress.new billing_address_attributes.merge( user: current_user )
 
 			order_items_attributes.each do |order_item|
 				item = Sku.find_by( code: order_item[:code] )

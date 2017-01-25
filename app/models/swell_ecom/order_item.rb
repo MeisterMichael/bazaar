@@ -11,5 +11,9 @@ module SwellEcom
 			self.tax_code || self.item.get_tax_code
 		end
 
+		def price
+			self.amount / self.quantity
+		end
+
 	end
 end
