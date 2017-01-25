@@ -32,7 +32,7 @@ module SwellEcom
 				charge = Stripe::Charge.create(
 					'customer'		=> customer.id,
 					'amount' 		=> order.total,
-					'description' 	=> args[:description] || "#{SwellMedia.app_name} order of #{@order.order_items.first.label}".truncate(255),
+					'description' 	=> args[:description] || "#{SwellMedia.app_name} order of #{order.order_items.first.label}".truncate(255),
 					'currency'		=> order.currency.downcase,
 				)
 
@@ -50,7 +50,7 @@ module SwellEcom
 
 			rescue Stripe::CardError => e
 
-
+				puts e
 				order.errors.add(:base, :processing_error, message: "cannot be nil")
 				# Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: 'Stripe', amount: order.total, currency: order.currency, status: 'declined' )
 
@@ -64,17 +64,7 @@ module SwellEcom
 					'amount' 	=> order.total,
 					'currency'	=> order.currency.downcase,
 				} )
-
-			rescue Stripe::Exception => e
-
-				order.errors.add(:base, :server_error, message: 'Server error')
-				NewRelic::Agent.notice_error(e, custom_params: {
-					'e.message' => e.message,
-					'email' => order.email,
-					'card'  => stripe_token,
-					'amount' 	=> order.total,
-					'currency'	=> order.currency.downcase,
-				} )
+				puts e
 
 			end
 

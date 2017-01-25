@@ -4,6 +4,17 @@
 
 $ ->
 
+	$('.checkout_form').validator(
+		#custom: {
+		#	zipcode: ($el) ->
+		#	 	matchValue = $el.data('phone')
+		#	  	# foo
+		#	 	if $el.val() != matchValue
+		#	    	return 'Hey, that\'s not valid! It\'s gotta be ' + matchValue
+		#	  	return
+		#}
+	)
+
 	$(document).on 'change', '[data-geostateupdate-target]', (event)->
 		$select = $(this)
 		target = $select.data('geostateupdate-target')
