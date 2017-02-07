@@ -6,12 +6,14 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.references	:user
 			t.integer		:status, default: 1
 			t.string		:ip
+			t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
 
 		create_table :cart_items do |t|
 			t.references 	:item, polymorphic: true
 			t.integer 		:quantity, default: 1
+			t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
 		add_index :cart_items, [ :item_id, :item_type ]
@@ -102,6 +104,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 			t.text 			:customer_comment
 			t.datetime 		:fulfilled_at
+			t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
 		add_index 	:orders, [ :user_id, :billing_address_id, :shipping_address_id ], name: 'user_id_addr_indx'
@@ -117,6 +120,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:amount, default: 0
 			t.string		:tax_code, default: nil
 			t.string		:label
+			t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
 		add_index :order_items, [ :item_id, :item_type, :order_id ]
@@ -142,7 +146,6 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 			t.integer 		:status, default: 1
 
-			t.hstore		:properties, default: {}
 		end
 		add_index :plans, :code, unique: true
 
@@ -152,7 +155,8 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.string		:caption
 			t.string 		:slug
 			t.string 		:avatar
-			t.string 		:fulfillment_type, default: 'self' # digital, printful
+			t.integer		:default_product_type, default: 1 # physical, digital
+			t.string 		:fulfilled_by, default: 'self' # self, download, amazon, printful
 			t.integer		:status, 	default: 0
 			t.text 			:description
 			t.text 			:content
@@ -245,6 +249,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:amount, default: 0
 			t.string 		:currency, default: 'USD'
 			t.integer		:status, default: 1	# declined, approved
+			t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
 		add_index :transactions, [ :parent_id, :parent_type ]
