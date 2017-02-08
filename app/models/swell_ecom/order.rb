@@ -3,6 +3,8 @@ module SwellEcom
 	class Order < ActiveRecord::Base
 		self.table_name = 'orders'
 
+		enum status: { 'declined' => -2, 'refunded' => -1, 'placed' => 0, 'fulfilled' => 1 }
+
 		before_create :generate_order_code
 
 
