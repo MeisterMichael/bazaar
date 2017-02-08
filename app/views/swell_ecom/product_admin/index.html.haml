@@ -63,8 +63,18 @@
 							%td
 								= product.publish_at
 							%td
-								.badge{ class: product.status }
-									= product.status
+								- if product.published?
+									.badge{ class: product.status }
+										Live
+								- elsif product.draft?
+									.badge{ class: product.status }
+										Draft
+								- elsif product.active?
+									.badge{ class: 'pending' }
+										Pending
+								- else
+									.badge{ class: product.status }
+										= product.status
 							%td
 								= product.tags.join(', ')
 							%td

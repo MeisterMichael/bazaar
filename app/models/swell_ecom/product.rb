@@ -2,6 +2,10 @@ module SwellEcom
 	class Product < ActiveRecord::Base
 		self.table_name = 'products'
 
+		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
+
+		validates		:title, presence: true, unless: :allow_blank_title?
+
 		include SwellMedia::Concerns::URLConcern
 		include SwellMedia::Concerns::AvatarAsset
 		include SwellMedia::Concerns::TagArrayConcern
@@ -10,7 +14,7 @@ module SwellEcom
 		mounted_at '/store'
 
 		has_many :skus
-		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
+		
 		before_save	:set_publish_at
 
 		attr_accessor	:slug_pref
@@ -50,6 +54,9 @@ module SwellEcom
 
 
 		private
+			def allow_blank_title?
+				self.slug_pref.present?
+			end
 
 			def set_publish_at
 				# set publish_at
