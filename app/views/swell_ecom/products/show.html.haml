@@ -1,6 +1,22 @@
-%h1
-	= @product.title
 
-= number_to_currency @product.price / 100
+.row
+	.col-sm-6.col-md-4
+		= image_tag @product.avatar, class: 'img img-responsive center-block'
+	.col-sm-6.col-md-8
+		%h1
+			= @product.title
+		%div{ style: 'font-weight: bold;font-size: 1.2em;padding-bottom: 1em;margin-bottom: 1em;border-bottom: 1px solid #ccc;' }
+			- if @min_price != @max_price
+				#{number_to_currency @min_price / 100} - #{number_to_currency @max_price / 100}
+			- else
+				#{number_to_currency @min_price / 100}
+		- if @product.description.present?
+			%div{ style: 'padding-bottom: 1em;margin-bottom: 1em;border-bottom: 1px solid #ccc;' }
+				=@product.description
 
-= link_to 'Buy', buy_product_path( @product )
+		.row
+			- @product.skus.each do |sku|
+				.col-xs-6.col-md-3{ style: 'margin-top: 0.5em;' }
+					= sku.label
+				.col-xs-6.col-md-3{ style: 'margin-top: 0.5em;' }
+					= link_to 'Buy', new_checkout_path( items: [ { code: sku.code } ] ), class: 'btn btn-primary'

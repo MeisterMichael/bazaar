@@ -177,6 +177,14 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :products, :slug, unique: true
 		add_index :products, :status
 
+		create_table :product_options do |t|
+			t.references	:product
+			t.string 		:label
+			t.string 		:code
+			t.timestamps
+		end
+		add_index :product_options, [ :product_id, :label ]
+
 		create_table :shipments do |t|
 			t.references	:order
 			t.string 		:provider
@@ -199,12 +207,15 @@ class SwellEcomMigration < ActiveRecord::Migration
 		create_table :skus do |t|
 			t.references	:product
 			t.string		:name
+			t.string		:label
 			t.string 		:code
+			t.integer		:status, 	default: 0
 			t.string 		:tax_code, default: nil
 			t.integer 		:price, 	default: 0
 			t.integer 		:inventory, default: -1
 			t.string 		:currency, default: 'USD'
 			t.hstore		:properties, default: {}
+			t.hstore		:options, default: {}
 			t.timestamps
 		end
 		add_index :skus, :code, unique: true
