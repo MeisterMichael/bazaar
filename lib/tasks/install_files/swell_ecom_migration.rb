@@ -181,7 +181,6 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.references	:product
 			t.string 		:label
 			t.string 		:code
-			t.timestamps
 		end
 		add_index :product_options, [ :product_id, :label ]
 
@@ -209,6 +208,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.string		:name
 			t.string		:label
 			t.string 		:code
+			t.string 		:avatar
 			t.integer		:status, 	default: 0
 			t.string 		:tax_code, default: nil
 			t.integer 		:price, 	default: 0
@@ -219,6 +219,13 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.timestamps
 		end
 		add_index :skus, :code, unique: true
+
+		create_table :sku_options do |t|
+			t.references	:sku
+			t.string 		:code
+			t.string 		:value
+		end
+		add_index :sku_options, [ :product_id, :label ]
 
 		create_table :subscriptions do |t|
 			t.references 	:user
