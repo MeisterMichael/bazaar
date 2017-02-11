@@ -225,7 +225,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.string 		:code
 			t.string 		:value
 		end
-		add_index :sku_options, [ :product_id, :label ]
+		add_index :sku_options, [ :sku_id, :code, :value ]
 
 		create_table :subscriptions do |t|
 			t.references 	:user
