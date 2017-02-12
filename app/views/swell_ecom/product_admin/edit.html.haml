@@ -23,10 +23,10 @@
 				.form-group
 					= f.text_field :title, class: 'form-control input-lg'
 				.form-group
+					= f.label :slug_pref, 'URL for this product:'
 					.input-group
-						= f.label :slug_pref, 'URL for this product:'
 						%span.input-group-addon
-							= SwellMedia.app_host
+							= "#{SwellMedia.app_host}/store/"
 						= f.text_field :slug_pref, class: 'form-control', placeholder: @product.slug
 
 
