@@ -8,7 +8,6 @@ module SwellEcom
 
 		include SwellMedia::Concerns::URLConcern
 		include SwellMedia::Concerns::AvatarAsset
-		include SwellMedia::Concerns::TagArrayConcern
 		#include SwellMedia::Concerns::ExpiresCache
 
 		mounted_at '/store'
