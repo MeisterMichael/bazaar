@@ -59,7 +59,7 @@ module SwellEcom
 			def product_params
 				params[:product][:price] = params[:product][:price].gsub( /\D/, '' ) if params[:product][:price].present?
 				params[:product][:suggested_price] = params[:product][:suggested_price].gsub( /\D/, '' ) if params[:product][:suggested_price].present?
-				params.require( :product ).permit( :title, :subtitle, :slug_pref, :description, :content, :price, :suggested_price, :status, :publish_at, :tags, :tags_csv, :avatar, :avatar_asset_file, :avatar_asset_url, :cover_path, :avatar_urls )
+				params.require( :product ).permit( :title, :subtitle, :slug_pref, :description, :content, :price, :suggested_price, :status, :publish_at, :tags, :tags_csv, :avatar, :avatar_asset_file, :avatar_asset_url, :cover_image, :avatar_urls )
 			end
 
 			def get_product

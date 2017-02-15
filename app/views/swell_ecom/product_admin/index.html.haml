@@ -10,6 +10,7 @@
 				%li
 					%strong
 						Product Admin
+						= "(#{pluralize @products.total_count, 'Product'})"
 
 		.col-xs-2
 			%a.btn.btn-success{ data: { toggle: :modal, target: '#new_product' } }

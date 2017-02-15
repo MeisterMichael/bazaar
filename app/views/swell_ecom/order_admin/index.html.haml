@@ -10,6 +10,7 @@
 				%li
 					%strong
 						Order Admin
+						= "(#{pluralize @orders.total_count, 'Order'})"
 	.row
 		.col-xs-6
 			= raw paginate @orders
