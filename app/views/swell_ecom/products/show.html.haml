@@ -16,6 +16,7 @@
 
 		- if @product.content.present?
 			%div{ style: 'padding-bottom: 1em;margin-bottom: 1em;border-bottom: 1px solid #ccc;' }
+<<<<<<< HEAD
 				= raw @product.content
 
 		-# %div
@@ -28,6 +29,9 @@
 					%a.btn.btn-primary.disabled{ disabled: true }
 						Buy
 
+=======
+				=@product.description
+>>>>>>> 4d83bb5b91fd08c6bdf470c9ba2ba2e62f03c653
 		.row
 			- @product.skus.each do |sku|
 				.col-xs-6.col-md-3{ style: 'margin-top: 0.5em;' }

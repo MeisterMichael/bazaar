@@ -16,9 +16,8 @@ module SwellEcom
 
 		belongs_to :product_category, foreign_key: :category_id
 
-		has_many :product_options
 		has_many :skus
-		
+
 		before_save	:set_publish_at
 
 		attr_accessor	:slug_pref
