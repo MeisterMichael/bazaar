@@ -6,11 +6,15 @@ module SwellEcom
 
 		validates		:title, presence: true, unless: :allow_blank_title?
 
+		attr_accessor	:category_name
+
 		include SwellMedia::Concerns::URLConcern
 		include SwellMedia::Concerns::AvatarAsset
 		#include SwellMedia::Concerns::ExpiresCache
 
 		mounted_at '/store'
+
+		belongs_to :product_category, foreign_key: :category_id
 
 		has_many :product_options
 		has_many :skus

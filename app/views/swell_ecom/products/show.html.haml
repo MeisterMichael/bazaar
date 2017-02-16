@@ -6,13 +6,17 @@
 		%h1
 			= @product.title
 		%div{ style: 'font-weight: bold;font-size: 1.2em;padding-bottom: 1em;margin-bottom: 1em;border-bottom: 1px solid #ccc;' }
-			- if @min_price != @max_price
-				#{number_to_currency @min_price / 100} - #{number_to_currency @max_price / 100}
-			- else
-				#{number_to_currency @min_price / 100}
-		- if @product.description.present?
+
+			- if ( @min_price.present? && @max_price.present? ) && @min_price != @max_price
+				#{number_to_currency @min_price.to_f / 100} - #{number_to_currency @max_price / 100}
+			- elsif @min_price.present?
+				#{number_to_currency @min_price.to_f / 100}
+
+		= render 'shopify_buy_now'
+
+		- if @product.content.present?
 			%div{ style: 'padding-bottom: 1em;margin-bottom: 1em;border-bottom: 1px solid #ccc;' }
-				=@product.description
+				= raw @product.content
 
 		-# %div
 			- @product_options.each do |option|

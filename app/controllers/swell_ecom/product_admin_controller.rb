@@ -43,8 +43,15 @@ module SwellEcom
 		def update
 			@product.slug = nil if params[:update_slug].present? && params[:product][:title] != @product.title
 
+			params[:product][:price] = params[:product][:price].to_f * 100 #.gsub( /\D/, '' ) if params[:product][:price].present?
+			params[:product][:suggested_price] = params[:product][:suggested_price].to_f * 100 #.gsub( /\D/, '' ) if params[:product][:suggested_price].present?
+
 			@product.attributes = product_params
 			@product.avatar_urls = params[:product][:avatar_urls] if params[:product].present? && params[:product][:avatar_urls].present?
+
+			if params[:product][:category_name].present?
+				@product.category_id = SwellEcom::ProductCategory.where( name: params[:product][:category_name] ).first_or_create( status: 'active' ).id
+			end
 
 			if @product.save
 				set_flash 'Product Updated'
@@ -57,9 +64,7 @@ module SwellEcom
 
 		private
 			def product_params
-				params[:product][:price] = params[:product][:price].gsub( /\D/, '' ) if params[:product][:price].present?
-				params[:product][:suggested_price] = params[:product][:suggested_price].gsub( /\D/, '' ) if params[:product][:suggested_price].present?
-				params.require( :product ).permit( :title, :subtitle, :slug_pref, :description, :content, :price, :suggested_price, :status, :publish_at, :tags, :tags_csv, :avatar, :avatar_asset_file, :avatar_asset_url, :cover_image, :avatar_urls )
+				params.require( :product ).permit( :title, :subtitle, :slug_pref, :category_id, :description, :content, :price, :suggested_price, :status, :publish_at, :tags, :tags_csv, :avatar, :avatar_asset_file, :avatar_asset_url, :cover_image, :avatar_urls )
 			end
 
 			def get_product
