@@ -12,9 +12,8 @@ module SwellEcom
 
 		mounted_at '/store'
 
-		has_many :product_options
 		has_many :skus
-		
+
 		before_save	:set_publish_at
 
 		attr_accessor	:slug_pref
