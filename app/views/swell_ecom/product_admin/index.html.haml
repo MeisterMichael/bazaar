@@ -1,6 +1,4 @@
 
-
-
 .container-fluid
 	.row
 		.col-xs-10
@@ -60,7 +58,7 @@
 							%td
 								= link_to product.title, edit_product_admin_path( product.id )
 							%td
-								= number_to_currency product.price / 100
+								= number_to_currency product.price.to_f / 100
 							%td
 								= product.publish_at
 							%td

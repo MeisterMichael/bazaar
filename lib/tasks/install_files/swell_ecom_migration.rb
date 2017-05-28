@@ -1,7 +1,6 @@
 class SwellEcomMigration < ActiveRecord::Migration
 	def change
 
-
 		create_table :carts do |t|
 			t.references	:user
 			t.integer		:status, default: 1
@@ -18,41 +17,6 @@ class SwellEcomMigration < ActiveRecord::Migration
 		end
 		add_index :cart_items, [ :item_id, :item_type ]
 
-		create_table :coupons do |t|
-			t.references 	:valid_for_item, polymoprhic: true # valid for specific item
-			t.string 		:valid_for_email # to give to specific user
-			t.string 		:title
-			t.string 		:code
-			t.text 			:description
-			t.string 		:discount_type
-			t.integer 		:discount, default: 0
-			t.string 		:discount_base, default: 'item' # 'total' => price + tax + shipping, 'shipping' => discount 100% is free shipping, 'tax' => discount 100% is free tax
-			t.integer 		:max_redemptions, default: 1
-			t.string 		:duration_type, default: 'once' # for subscriptions: 'repeat', 'forever'
-			t.string 		:duration_days, default: 0 # if duration_type is repeat, how many days to continue
-			t.datetime 		:publish_at
-			t.datetime 		:expires_at
-			t.integer 		:status, default: 1
-			t.hstore		:properties, default: {}
-			t.timestamps
-		end
-		# add_index :coupons, [ :valid_for_item_id, :valid_for_item_type ], name: 'idx_item'
-		add_index :coupons, :valid_for_email
-		add_index :coupons, :code
-
-		create_table :coupon_redemptions do |t|
-			t.references	:coupon
-			t.references 	:order
-			t.references 	:user
-			t.string 		:email
-			t.integer 		:applied_discount
-			t.integer 		:status, default: 1
-			t.timestamps
-		end
-		add_index :coupon_redemptions, :coupon_id
-		add_index :coupon_redemptions, :order_id
-		add_index :coupon_redemptions, :user_id
-		add_index :coupon_redemptions, :email
 
 		create_table :geo_addresses do |t|
 			t.references	:user
@@ -126,28 +90,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :order_items, [ :item_id, :item_type, :order_id ]
 		add_index :order_items, [ :order_item_type, :order_id ]
 
-		create_table :plans do |t| # Subscription version of a sku
-			t.references	:product
-			t.string 		:code
-			t.integer 		:price, 		default: 0
-			t.integer 		:renewal_price,	default: 0 # less than price
-			t.string 		:currency, 		default: 'USD'
-			t.string 		:tax_code, default: nil
-			t.hstore		:properties, 	default: {}
-
-			t.string		:name
-			t.string 		:caption
-			t.text 			:description
-			t.string 		:statement_descriptor
-
-			t.string 		:interval, default: 'month' # day, week, month, year
-			t.integer 		:interval_count, default: 1
-			t.integer 		:trial_period_days, default: 0
-
-			t.integer 		:status, default: 1
-
-		end
-		add_index :plans, :code, unique: true
+		
 
 		create_table :products do |t|
 			t.references 	:category
@@ -183,80 +126,6 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.string 		:code
 		end
 		add_index :product_options, [ :product_id, :label ]
-
-		create_table :shipments do |t|
-			t.references	:order
-			t.string 		:provider
-			t.string 		:reference
-			t.integer 		:amount, default: 0
-			t.integer 		:status, default: 0
-			t.hstore		:properties, default: {}
-			t.timestamps
-		end
-		add_index :shipments, :order_id
-
-		create_table :shipment_items do |t|
-			t.references	:shipment
-			t.references 	:order_item
-			t.integer 		:quantity, default: 1
-			t.timestamps
-		end
-		add_index :shipment_items, [:shipment_id, :order_item_id]
-
-		create_table :skus do |t|
-			t.references	:product
-			t.string		:name
-			t.string		:label
-			t.string 		:code
-			t.string 		:avatar
-			t.integer		:status, 	default: 0
-			t.string 		:tax_code, default: nil
-			t.integer 		:price, 	default: 0
-			t.integer 		:inventory, default: -1
-			t.string 		:currency, default: 'USD'
-			t.hstore		:properties, default: {}
-			t.hstore		:options, default: {}
-			t.timestamps
-		end
-		add_index :skus, :code, unique: true
-
-		create_table :sku_options do |t|
-			t.references	:sku
-			t.string 		:code
-			t.string 		:value
-		end
-		add_index :sku_options, [ :sku_id, :code, :value ]
-
-		create_table :subscriptions do |t|
-			t.references 	:user
-			t.integer 		:status, default: 1
-			t.hstore		:properties, default: {}
-
-			t.references 	:plan
-			t.integer 		:quantity, default: 1
-
-			t.boolean		:cancel_at_period_end
-			t.datetime		:canceled_at
-			t.datetime		:current_period_end
-			t.datetime		:current_period_start
-			t.datetime		:ended_at
-			t.datetime		:start_at
-			t.datetime		:trial_end_at
-			t.datetime		:trail_start_at
-
-			t.integer 		:amount, default: 0
-			t.string 		:currency, default: 'USD'
-			t.timestamps
-		end
-		add_index :subscriptions, :user_id
-		add_index :subscriptions, :plan_id
-
-		create_table :tax_rates do |t|
-			t.references 	:geo_state
-			t.float			:rate, default: 0
-			t.timestamps
-		end
-		add_index :tax_rates, :geo_state_id
 
 		create_table :transactions do |t|
 			t.references 	:parent, polymorphic: true 	# order, subscription

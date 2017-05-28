@@ -1,0 +1,23 @@
+#new_variant.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					New Product Variant
+			= form_tag swell_ecom.product_variants_path do
+				= hidden_field_tag :product_id, product.id
+				.modal-body
+					= label_tag :title
+					= text_field_tag :title, '', class: 'form-control'
+
+					- product.product_options.published.each do |option|
+						.form-group
+							= label_tag option.name
+							= select_tag "options['#{option.name}']", options_from_collection_for_select( option.values, :to_s, :to_s ), class: 'form-control'
+
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= submit_tag 'Create', class: 'btn btn-primary'
