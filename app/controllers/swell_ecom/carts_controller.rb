@@ -9,7 +9,19 @@ module SwellEcom
 		end
 
 		def update
-			
+			params[:item_quantity].each do |k, v|
+				line_item = @cart.cart_items.find( k )
+				if v.to_i < 1
+					session[:cart_count] = session[:cart_count] - line_item.quantity
+					line_item.destroy
+				else
+					delta = line_item.quantity - v.to_i
+					line_item.update( quantity: v, subtotal: line_item.price * v.to_i )
+					session[:cart_count] = session[:cart_count] - delta
+				end
+
+			end
+			redirect_to :back
 		end
 
 		private

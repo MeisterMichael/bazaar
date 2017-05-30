@@ -4,5 +4,7 @@ module SwellEcom
 
 		belongs_to 	:cart 
 		belongs_to 	:item, polymorphic: true
+
+		
 	end
 end
