@@ -9,13 +9,12 @@
 			= form_tag swell_ecom.product_variants_path do
 				= hidden_field_tag :product_id, product.id
 				.modal-body
-					= label_tag :title
-					= text_field_tag :title, '', class: 'form-control'
-
-					- product.product_options.published.each do |option|
-						.form-group
-							= label_tag option.name
-							= select_tag "options['#{option.name}']", options_from_collection_for_select( option.values, :to_s, :to_s ), class: 'form-control'
+					.form-group
+						= label_tag :option_name
+						= text_field_tag :option_name, 'size', class: 'form-control'
+					.form-group
+						= label_tag :option_value, "Option Value(s)"
+						= text_field_tag :option_value, '', class: 'form-control'
 
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }

@@ -2,13 +2,20 @@ module SwellEcom
 	class CartsController < ApplicationController
 		# really just to show the user's cart
 
+		before_filter :get_cart
+
 		def show
-			@cart = Cart.find_by( id: cookies[:cart] )
+			
 		end
 
 		def update
-			@cart = cookies.permanent.signed[:cart]
+			
 		end
+
+		private
+			def get_cart
+				@cart = Cart.find_by( id: session[:cart_id] )
+			end
 
 	end
 end

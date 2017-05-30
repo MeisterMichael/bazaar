@@ -119,85 +119,52 @@
 						= f.submit 'Update', class: 'btn btn-primary'
 
 
-	.row#options
+	.row#variants
 		.col-xs-12
 			%h3
-				Options
+				Variants
+				%a.pull-right.btn.btn-success{ data: { toggle: :modal, target: '#new_variant' } }
+					%i.fa.fa-plus
+					Add
+
+			-# if @product.product_variants.empty?
+				%a.btn{ href: generate_product_variant_path( id: @product.id ), data: { method: :post } }
+					Generate Variants
+
 			%table.table
 				%thead
+					%th Title
+					%th Price
+					%th Shipping Price
+					%th Inventory
 					%th
-						Name
-					%th
-						Values CSV
-					%th
-				- @product.product_options.each do |option|
-					%tr
-						= form_for option do |f|
+				- @product.product_variants.each do |variant|
+					= form_for variant do |f|
+						%tr
+							%td{ style: 'width: 50%;' }
+								= f.text_field :title, class: 'form-control'
 							%td
-								= option.name
+								.input-group
+									%span.input-group-addon
+										$
+									= f.text_field :price, value: number_with_precision( (variant.price.to_f / 100), :precision => 2 ), class: 'form-control'
 							%td
-								= f.text_field :values_csv, class: 'form-control'
+								.input-group
+									%span.input-group-addon
+										$
+									= f.text_field :shipping_price, value: number_with_precision( (variant.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
 							%td
-								= f.submit "Update", class: 'form-control btn'
-				%tr
-					= form_for @product.product_options.new, class: 'form form-horizontal' do |f|
-						= f.hidden_field :product_id, value: @product.id
-						%td
-							= f.text_field :name, value: '', placeholder: 'Size, color, style, etc.', class: 'form-control'
-						%td
-							= f.text_field :values_csv, class: 'form-control'
-						%td					
-							= f.submit "Add", class: 'form-control btn btn-success'
+								= f.text_field :inventory, class: 'form-control'
 
-			
-			- if @product.product_options.published.present?
-				%h3
-					Variants
-					%a.pull-right.btn.btn-success{ data: { toggle: :modal, target: '#new_variant' } }
-						%i.fa.fa-plus
-						Add
-
-				- if @product.product_variants.empty?
-					%a.btn{ href: generate_product_variant_path( id: @product.id ), data: { method: :post } }
-						Generate Variants
-				- else
-					%table.table
-						%thead
-							%th Title
-							%th Price
-							%th Shipping Price
-							%th Inventory
-							%th
-						- @product.product_variants.each do |variant|
-							= form_for variant do |f|
-								%tr
-									%td{ style: 'width: 50%;' }
-										= f.text_field :title, class: 'form-control'
-									%td
-										.input-group
-											%span.input-group-addon
-												$
-											= f.text_field :price, value: number_with_precision( (variant.price.to_f / 100), :precision => 2 ), class: 'form-control'
-									%td
-										.input-group
-											%span.input-group-addon
-												$
-											= f.text_field :shipping_price, value: number_with_precision( (variant.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
-									%td
-										= f.text_field :inventory, class: 'form-control'
-
-									%td
-										= f.submit 'Update'
-										%a{ href: '' }
-											%i.fa.fa-pencil
-											edit
-										%br
-										%a{ href: product_variant_path( variant.id ), data: { method: :delete, confirm: 'Are you sure?' }, style: 'color:#f00;' }
-											%i.fa.fa-trash
-											delete
-			- else
-				%h3
-					Add options before generating variants
+							%td
+								= f.submit 'Update'
+								%a{ href: '' }
+									%i.fa.fa-pencil
+									edit
+								%br
+								%a{ href: product_variant_path( variant.id ), data: { method: :delete, confirm: 'Are you sure?' }, style: 'color:#f00;' }
+									%i.fa.fa-trash
+									delete
 
 
 

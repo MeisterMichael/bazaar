@@ -2,7 +2,11 @@ module SwellEcom
 	class ProductVariantsController < SwellMedia::AdminController
 
 		def create
-			
+			@product = Product.find( params[:product_id] )
+			params[:option_value].split( /,/ ).reverse.each do |value|
+				@product.product_variants.create( option_name: params[:option_name], option_value: value.strip )
+			end
+			redirect_to :back
 		end
 
 		def destroy
@@ -34,12 +38,17 @@ module SwellEcom
 				pv.price = @product.price
 				pv.shipping_price = @product.shipping_price
 				pv.description = @product.description
-				pv.publish_at = @product.publish_at
+				#pv.publish_at = @product.publish_at
 				pv.save
 			end
 
 			redirect_to :back
 		end
+
+		private
+			def variant_params
+				params.require( :product_variant ).permit( :title, :option_name, :option_value, :seq, :price, :shipping_price, :inventory, :description, :avatar, :status )
+			end
 
 	end
 end
