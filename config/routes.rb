@@ -9,6 +9,7 @@ SwellEcom::Engine.routes.draw do
 	resources :checkout, only: [:new, :create, :index] do
 		post :confirm, on: :collection
 		get :state_input, on: :collection
+		get :thank_you, on: :collection, path: 'thank-you'
 	end
 
 	resources :order_admin
