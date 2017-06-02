@@ -5,7 +5,7 @@ module SwellEcom
 		belongs_to :item, polymorphic: true
 		belongs_to :order
 
-		enum order_item_type: { 'sku' => 1, 'tax' => 2, 'shipping' => 3, 'discount' => 4 }
+		enum order_item_type: { 'item' => 1, 'tax' => 2, 'shipping' => 3, 'discount' => 4 }
 
 		def get_tax_code
 			self.tax_code || self.item.get_tax_code
