@@ -80,12 +80,12 @@
 								%tr
 									-# %td avatar
 									%td
-										=order_item.item.name
-									%td= number_to_currency (order_item.amount / order_item.quantity.to_f) / 100
+										=order_item.label
+									%td= number_to_currency (order_item.price / 100.0)
 									%td.text-right
 										=order_item.quantity
 									%td.text-right
-										= number_to_currency order_item.amount.to_f / 100
+										= number_to_currency order_item.subtotal.to_f / 100
 				- if @order.customer_comment.present?
 					%label Comment
 					.well.well-sm= @order.customer_comment
@@ -108,7 +108,7 @@
 					- unless order_item.sku?
 						%div
 							.pull-right
-								#{number_to_currency order_item.amount.to_f / 100}
+								#{number_to_currency order_item.subtotal.to_f / 100}
 							#{order_item.label}:
 				%div{ style: 'font-weight: bold;' }
 					.pull-right

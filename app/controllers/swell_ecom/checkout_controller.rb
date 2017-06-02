@@ -83,7 +83,7 @@ module SwellEcom
 				order_items_attributes		= params[:order][:order_items]
 				billing_address_attributes	= params.require(:order).require(:billing_address ).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
 
-				if params[:order][:same_as_billing]
+				if params[:same_as_billing]
 
 					shipping_address_attributes = params.require(:order).require(:billing_address).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
 
@@ -106,7 +106,7 @@ module SwellEcom
 
 			cart.cart_items.each do |cart_item|
 
-				@order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, label: cart_item.item.title, order_item_type: 'sku', quantity: cart_item.quantity
+				@order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, label: cart_item.item.title, order_item_type: 'sku', quantity: cart_item.quantity, tax_code: cart_item.item.tax_code
 
 			end
 

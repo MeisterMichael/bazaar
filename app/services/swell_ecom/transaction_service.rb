@@ -7,7 +7,7 @@ module SwellEcom
 			order.total = 0
 
 			order.order_items.each do |order_item|
-				order.total = order.total + order_item.amount
+				order.total = order.total + order_item.subtotal
 			end
 
 		end
@@ -41,7 +41,7 @@ module SwellEcom
 
 					order.save
 
-					Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: 'Stripe', amount: order.total, currency: order.currency, status: 'approved' )
+					# Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: 'Stripe', amount: order.total, currency: order.currency, status: 'approved' )
 
 					return true
 				end

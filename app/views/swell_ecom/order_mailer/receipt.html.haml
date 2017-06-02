@@ -18,15 +18,15 @@
 				%tr
 					-# %td avatar
 					%td{ style: 'padding: 8px' }
-						=order_item.item.name
-					%td{ style: 'padding: 8px' }= number_to_currency order_item.amount.to_f / 100
+						=order_item.label
+					%td{ style: 'padding: 8px' }= number_to_currency order_item.subtotal.to_f / 100
 					%td{ style: 'padding: 8px;text-align: right;' }
 						=order_item.quantity
 %br
 - @order.order_items.each do |order_item|
 	- unless order_item.sku?
 		.text-right
-			#{order_item.label}: #{number_to_currency order_item.amount.to_f / 100}
+			#{order_item.label}: #{number_to_currency order_item.subtotal.to_f / 100}
 %h3
 
 
