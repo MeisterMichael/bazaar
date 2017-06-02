@@ -4,7 +4,7 @@ module SwellEcom
 
 		def self.calculate( order )
 
-			order.order_items.new item: nil, amount: 1000, label: 'Shipping', order_item_type: 'shipping', tax_code: '11000'
+			# order.order_items.new item: nil, amount: 1000, label: 'Shipping', order_item_type: 'shipping', tax_code: '11000'
 
 =begin
 			Taxability Information Code: 11010

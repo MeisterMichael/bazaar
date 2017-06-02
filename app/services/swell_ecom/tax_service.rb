@@ -36,9 +36,9 @@ module SwellEcom
 
 					transaction.cart_items << TaxCloud::CartItem.new(
 						:index => index,
-						:item_id => order_item.item.try(:code) || order_item.label,
+						:item_id => "#{order_item.item.class.name.underscore}_#{order_item.item.id}",
 						:tic => order_item.get_tax_code,
-						:price => (order_item.amount / order_item.quantity) / 100.0,
+						:price => order_item.price / 100.0,
 						:quantity => order_item.quantity
 					)
 
@@ -48,7 +48,7 @@ module SwellEcom
 
 			lookup = transaction.lookup # this will return a TaxCloud::Responses::Lookup instance
 
-			order.order_items.new item: nil, amount: (lookup.tax_amount * 100).to_i, label: 'Sales Tax', order_item_type: 'tax'
+			order.order_items.new item: nil, subtotal: (lookup.tax_amount * 100).to_i, label: 'Sales Tax', order_item_type: 'tax'
 
 
 
