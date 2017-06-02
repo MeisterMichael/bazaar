@@ -8,6 +8,7 @@ SwellEcom::Engine.routes.draw do
 
 	resources :checkout, only: [:new, :create, :index] do
 		post :confirm, on: :collection
+		get :confirm, on: :collection
 		get :state_input, on: :collection
 		get :thank_you, on: :collection, path: 'thank-you'
 	end
@@ -28,7 +29,7 @@ SwellEcom::Engine.routes.draw do
 
 	resources :product_options
 
-	resources :product_variants do 
+	resources :product_variants do
 		post :generate, on: :member
 	end
 

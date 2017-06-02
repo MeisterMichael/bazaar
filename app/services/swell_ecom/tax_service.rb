@@ -8,6 +8,7 @@ module SwellEcom
 		def self.calculate( order )
 
 			return unless ['USA', 'US'].include?( order.shipping_address.geo_country.abbrev || order.shipping_address.country )
+			return if order.order_items.blank?
 
 			origin = TaxCloud::Address.new(
 				:address1 => SwellEcom.origin_address[:street],
@@ -16,13 +17,19 @@ module SwellEcom
 				:state => SwellEcom.origin_address[:state],
 				:zip5 => SwellEcom.origin_address[:zip]).verify
 
-			destination = TaxCloud::Address.new(
+			state = order.shipping_address.geo_state.try(:abbrev) || order.shipping_address.state
+			destination_info = {
 				:address1 => order.shipping_address.street,
 				:address2 => order.shipping_address.street2,
 				:city => order.shipping_address.city,
-				:state => order.shipping_address.geo_state.try(:abbrev) || order.shipping_address.state,
+				:state => state,
 				:zip5 => order.shipping_address.zip
-			).verify
+			}
+
+			puts destination_info
+
+
+			destination = TaxCloud::Address.new( destination_info ).verify
 
 
 			transaction = TaxCloud::Transaction.new(
@@ -32,13 +39,13 @@ module SwellEcom
 				:destination => destination)
 
 			order.order_items.each_with_index do |order_item, index|
-				if order_item.get_tax_code.present?
+				if order_item.tax_code.present?
 
 					transaction.cart_items << TaxCloud::CartItem.new(
 						:index => index,
-						:item_id => order_item.item.try(:code) || order_item.label,
-						:tic => order_item.get_tax_code,
-						:price => (order_item.amount / order_item.quantity) / 100.0,
+						:item_id => "#{order_item.item.class.name.underscore}_#{order_item.item.id}",
+						:tic => order_item.tax_code,
+						:price => order_item.price / 100.0,
 						:quantity => order_item.quantity
 					)
 
@@ -48,7 +55,7 @@ module SwellEcom
 
 			lookup = transaction.lookup # this will return a TaxCloud::Responses::Lookup instance
 
-			order.order_items.new item: nil, amount: (lookup.tax_amount * 100).to_i, label: 'Sales Tax', order_item_type: 'tax'
+			order.order_items.new item: nil, subtotal: (lookup.tax_amount * 100).to_i, label: 'Sales Tax', order_item_type: 'tax'
 
 
 
@@ -77,7 +84,7 @@ module SwellEcom
 			                          :street => '1218 State St.'}],
 			    :line_items => order.order_items.select{|order_item| order_item.sku?}.collect{|order_item| {
 					:quantity => order_item.quantity,
-					:unit_price => (order_item.amount / order_item.quantity),
+					:unit_price => (order_item.price),
 					:product_tax_code => order_item.item.tax_code
 				} }
 			}

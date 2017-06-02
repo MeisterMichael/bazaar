@@ -26,6 +26,9 @@ module SwellEcom
 
 			else
 
+				session[:cart_count] = 0
+				Cart.find_by( id: session[:cart_id] ).destroy
+
 				OrderMailer.receipt( @order ).deliver_now
 				redirect_to swell_ecom.order_path( @order.code )
 
@@ -71,13 +74,25 @@ module SwellEcom
 		private
 
 		def get_order
-
+			cart = Cart.find_by( id: session[:cart_id] )
+			cart ||= Cart.new
 
 			if params[:order].present?
+
 				order_attributes 			= params.require(:order).permit(:email, :customer_comment)
 				order_items_attributes		= params[:order][:order_items]
-				shipping_address_attributes = params.require(:order).require(:shipping_address).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
 				billing_address_attributes	= params.require(:order).require(:billing_address ).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
+
+				if params[:same_as_billing]
+
+					shipping_address_attributes = params.require(:order).require(:billing_address).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
+
+				else
+
+					shipping_address_attributes = params.require(:order).require(:shipping_address).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
+
+				end
+
 			else
 				order_attributes = {}
 				order_items_attributes		= params[:items]
@@ -89,12 +104,10 @@ module SwellEcom
 			@order.shipping_address = GeoAddress.new shipping_address_attributes.merge( user: current_user )
 			@order.billing_address 	= GeoAddress.new billing_address_attributes.merge( user: current_user )
 
-			order_items_attributes.each do |order_item|
-				item = Sku.find_by( code: order_item[:code] )
+			cart.cart_items.each do |cart_item|
 
-				quantity = (order_item[:quantity] || 1).to_i
-				@order.order_items.new item: item, amount: item.price * quantity, label: item.name, order_item_type: 'sku', quantity: quantity
-				# @todo add plans
+				@order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, label: cart_item.item.title, order_item_type: 'sku', quantity: cart_item.quantity, tax_code: cart_item.item.tax_code
+
 			end
 
 		end
