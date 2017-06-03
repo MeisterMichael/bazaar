@@ -17,6 +17,8 @@ module SwellEcom
 			line_item = @cart.cart_items.create( item_type: @item.class.name, item_id: @item.id, quantity: params[:quantity] )
 			line_item.update( price: line_item.item.price, subtotal: line_item.item.price * line_item.quantity )
 
+			@cart.update subtotal: @cart.subtotal + ( line_item.item.price * line_item.quantity )
+
 			session[:cart_count] ||= 0
 			session[:cart_count] += params[:quantity].to_i
 
@@ -26,6 +28,7 @@ module SwellEcom
 		def destroy
 			@line_item = @cart.cart_items.find_by( id: params[:id] )
 			@line_item.destroy
+			@cart.update subtotal: @cart.subtotal - ( @line_item.item.price * @line_item.quantity )
 			session[:cart_count] -= @line_item.quantity
 			redirect_to :back
 		end

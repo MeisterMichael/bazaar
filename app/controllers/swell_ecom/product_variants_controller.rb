@@ -10,7 +10,7 @@ module SwellEcom
 		end
 
 		def destroy
-			@variant = ProductVariant.find( params[:id] )
+			@variant = ProductVariant.friendly.find( params[:id] )
 			@variant.destroy
 			redirect_to :back
 		end
@@ -42,6 +42,13 @@ module SwellEcom
 				pv.save
 			end
 
+			redirect_to :back
+		end
+
+		def update
+			@variant = ProductVariant.friendly.find( params[:id] )
+			params[:product_variant][:price] = params[:product_variant][:price].to_f * 100
+			@variant.update( variant_params )
 			redirect_to :back
 		end
 

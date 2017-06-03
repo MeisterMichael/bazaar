@@ -10,10 +10,9 @@ module SwellEcom
 
 		belongs_to 	:billing_address, class_name: 'GeoAddress'
 		belongs_to 	:shipping_address, class_name: 'GeoAddress'
-		# belongs_to 	:cart
 		belongs_to 	:user
 
-		has_many 	:order_items
+		has_many 	:order_items, dependent: :destroy
 
 
 		private

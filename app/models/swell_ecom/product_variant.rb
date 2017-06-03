@@ -19,6 +19,16 @@ module SwellEcom
 		end
 
 
+
+		def option_title( opts={} )
+			separator = opts[:separator] || ': '
+			return "#{self.option_name}#{separator}#{self.option_value}"
+		end
+
+		def tax_code
+			self.product.tax_code
+		end
+
 		def url
 			self.product.url
 		end
@@ -27,7 +37,8 @@ module SwellEcom
 		private
 			def set_defaults
 				if self.title.blank?
-					self.title = "#{self.product.title} | #{self.option_name}: #{self.option_value}"
+					self.title = "#{self.product.title} #{self.option_title}"
+					#self.title = "#{self.product.title} | #{self.option_name}: #{self.option_value}"
 				end
 				self.price = self.product.price	unless self.price > 0
 				self.shipping_price = self.product.shipping_price unless self.shipping_price > 0

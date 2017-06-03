@@ -55,8 +55,8 @@ module SwellEcom
 
 			lookup = transaction.lookup # this will return a TaxCloud::Responses::Lookup instance
 
-			order.order_items.new item: nil, subtotal: (lookup.tax_amount * 100).to_i, label: 'Sales Tax', order_item_type: 'tax'
-
+			order.order_items.new item: nil, subtotal: (lookup.tax_amount * 100).to_i, title: 'Sales Tax', order_item_type: 'tax'
+			order.update tax: ( lookup.tax_amount * 100 ).to_i 
 
 
 			return

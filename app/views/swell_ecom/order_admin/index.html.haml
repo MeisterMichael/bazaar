@@ -28,7 +28,7 @@
 					%th
 						Code
 					%th
-						Email
+						Customer
 						%a{ href: order_admin_index_path( sort_by: 'email', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
 						%a{ href: order_admin_index_path( sort_by: 'email', sort_dir: 'desc' ) }
@@ -55,7 +55,7 @@
 							%td
 								= link_to order.email, edit_order_admin_path( order.id )
 							%td
-								= number_to_currency order.total / 100
+								= number_to_currency order.total / 100.to_f
 							%td
 								= order.created_at
 							%td

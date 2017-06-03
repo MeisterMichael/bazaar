@@ -13,7 +13,6 @@ module SwellEcom
 		end
 
 		def create
-
 			ShippingService.calculate( @order )
 			TaxService.calculate( @order )
 			TransactionService.process( @order, stripe_token: params[:stripeToken] )
@@ -26,7 +25,7 @@ module SwellEcom
 			else
 
 				session[:cart_count] = 0
-				Cart.find_by( id: session[:cart_id] ).destroy
+				@cart.destroy
 
 				OrderMailer.receipt( @order ).deliver_now
 				redirect_to swell_ecom.thank_you_order_path( @order.code )
@@ -73,12 +72,15 @@ module SwellEcom
 		private
 
 		def get_order
-			cart = Cart.find_by( id: session[:cart_id] )
-			cart ||= Cart.new
+
+			if @cart.nil?
+				redirect_to '/cart'
+				return false
+			end
 
 			if params[:order].present?
 
-				order_attributes 			= params.require(:order).permit(:email, :customer_comment)
+				order_attributes 			= params.require(:order).permit(:email, :customer_notes)
 				order_items_attributes		= params[:order][:order_items]
 				billing_address_attributes	= params.require(:order).require(:billing_address ).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
 
@@ -103,10 +105,9 @@ module SwellEcom
 			@order.shipping_address = GeoAddress.new shipping_address_attributes.merge( user: current_user )
 			@order.billing_address 	= GeoAddress.new billing_address_attributes.merge( user: current_user )
 
-			cart.cart_items.each do |cart_item|
-
-				@order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, label: cart_item.item.title, order_item_type: 'item', quantity: cart_item.quantity, tax_code: cart_item.item.tax_code
-
+			@order.subtotal = @cart.subtotal
+			@cart.cart_items.each do |cart_item|
+				@order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code
 			end
 
 		end

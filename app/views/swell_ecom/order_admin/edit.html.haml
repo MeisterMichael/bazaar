@@ -10,7 +10,7 @@
 					= link_to 'Order Admin', order_admin_index_path
 				%li
 					%strong
-						Edit
+						Edit Order:
 						= @order.code
 		.col-xs-2
 
@@ -20,6 +20,13 @@
 			.col-xs-8
 				.row
 					.col-xs-12
+						%h2
+							Order:
+							= @order.code
+						Placed:
+						= @order.created_at.to_s( :short )
+						By:
+						= @order.email
 						%table.table
 							%thead
 								%tr
@@ -28,17 +35,25 @@
 									%th.text-right{ style: 'width: 70px' } Quantity
 									%th.text-right{ style: 'width: 100px' } Subtotal
 							%tbody
-								- @order.order_items.each do |order_item|
-									- if order_item.item?
-										%tr
-											-# %td avatar
-											%td
-												= order_item.label
-											%td= number_to_currency (order_item.price.to_f / 100)
-											%td.text-right
-												=order_item.quantity
-											%td.text-right= number_to_currency order_item.subtotal.to_f / 100
+								- @order.order_items.prod.each do |order_item|
+									%tr
+										%td
+											= order_item.title
+										%td
+											= number_to_currency (order_item.price.to_f / 100)
+										%td.text-right
+											=order_item.quantity
+										%td.text-right= number_to_currency order_item.subtotal.to_f / 100
 								
+								%tr
+									%td
+									%td
+									%td
+										Subtotal
+									%td.text-right
+										%strong
+											= number_to_currency @order.subtotal.to_f / 100
+
 								%tr
 									%td
 									%td
@@ -59,10 +74,10 @@
 									%td
 									%td
 									%td
-										%h5
+										%h5{ style: 'font-weight:bold;' }
 											Total
 									%td.text-right
-										%h5
+										%h5{ style: 'font-weight:bold;' }
 											= number_to_currency @order.total.to_f / 100
 
 				.row
@@ -77,10 +92,17 @@
 						.well
 							= raw @order.shipping_address.to_html
 
-				
-				.form-group
-					= f.label :customer_comment, "Customer Notes"
-					= f.text_area :customer_comment, class: 'form-control'
+				.row
+					.col-xs-12
+						%h4
+							Customer Notes
+						.well
+							= raw @order.customer_notes
+				.row
+					.col-xs-12
+						%h4
+							Support_notes
+						= f.text_area :support_notes, class: 'form-control'
 
 				
 
