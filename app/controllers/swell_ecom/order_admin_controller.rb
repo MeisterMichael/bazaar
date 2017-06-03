@@ -27,10 +27,7 @@ module SwellEcom
 		
 		def update
 			@order.attributes = order_params
-			if params[:order][:support_notes].present?
-				@order.support_notes ||= ''
-				@order.support_notes = @order.support_notes + "\n ----- #{Time.zone.now} ----- \n" + params[:order][:support_notes]
-			end
+		
 			if @order.status_changed? && ( @order.status == 'fulfilled' && @order.status_was == 'placed' )
 				@order.fulfilled_at = Time.zone.now
 			end
@@ -40,7 +37,7 @@ module SwellEcom
 
 		private
 			def order_params
-				params.require( :order ).permit( :email, :status )
+				params.require( :order ).permit( :email, :status, :support_notes )
 			end
 
 			def get_order
