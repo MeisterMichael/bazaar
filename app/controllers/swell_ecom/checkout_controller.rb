@@ -14,7 +14,6 @@ module SwellEcom
 
 		def create
 
-
 			ShippingService.calculate( @order )
 			TaxService.calculate( @order )
 			TransactionService.process( @order, stripe_token: params[:stripeToken] )
@@ -30,7 +29,7 @@ module SwellEcom
 				Cart.find_by( id: session[:cart_id] ).destroy
 
 				OrderMailer.receipt( @order ).deliver_now
-				redirect_to swell_ecom.order_path( @order.code )
+				redirect_to swell_ecom.thank_you_order_path( @order.code )
 
 			end
 
@@ -106,7 +105,7 @@ module SwellEcom
 
 			cart.cart_items.each do |cart_item|
 
-				@order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, label: cart_item.item.title, order_item_type: 'sku', quantity: cart_item.quantity, tax_code: cart_item.item.tax_code
+				@order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, label: cart_item.item.title, order_item_type: 'item', quantity: cart_item.quantity, tax_code: cart_item.item.tax_code
 
 			end
 

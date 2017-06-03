@@ -17,18 +17,18 @@
 						%th.text-right{ style: 'width: 100px' } Subtotal
 				%tbody
 					- @order.order_items.each do |order_item|
-						- if order_item.sku?
+						- if order_item.item?
 							%tr
 								-# %td avatar
 								%td
-									=order_item.label
+									= order_item.label
 								%td= number_to_currency (order_item.price.to_f / 100)
 								%td.text-right
 									=order_item.quantity
 								%td.text-right= number_to_currency order_item.subtotal.to_f / 100
 		.col-xs-12.col-md-6.col-md-offset-3
 			- @order.order_items.each do |order_item|
-				- unless order_item.sku?
+				- unless order_item.item?
 					.text-right
 						#{order_item.label}: #{number_to_currency order_item.subtotal.to_f / 100}
 			%h3.text-right

@@ -3,6 +3,10 @@ module SwellEcom
 
 		before_filter :get_order, except: [ :index ]
 		
+		def edit
+			
+		end
+
 		def index
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'

@@ -14,7 +14,7 @@
 			%th{ style: 'width: 100px;text-align: right;' } Quantity
 	%tbody
 		- @order.order_items.each do |order_item|
-			- if order_item.sku?
+			- if order_item.item?
 				%tr
 					-# %td avatar
 					%td{ style: 'padding: 8px' }
@@ -24,7 +24,7 @@
 						=order_item.quantity
 %br
 - @order.order_items.each do |order_item|
-	- unless order_item.sku?
+	- unless order_item.item?
 		.text-right
 			#{order_item.label}: #{number_to_currency order_item.subtotal.to_f / 100}
 %h3

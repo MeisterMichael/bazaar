@@ -3,11 +3,11 @@ Thanks for your order!
 Order Number: #{@order.code}
 
 - @order.order_items.each do |order_item|
-	- if order_item.sku?
+	- if order_item.item?
 		#{order_item.quantity} x #{order_item.label}           #{number_to_currency order_item.subtotal.to_f / 100}
 ------------------------
 - @order.order_items.each do |order_item|
-	- unless order_item.sku?
+	- unless order_item.item?
 		#{order_item.label}: #{number_to_currency order_item.subtotal.to_f / 100}
 ------------------------
 Total: #{number_to_currency @order.total.to_f / 100}

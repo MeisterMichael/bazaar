@@ -1,0 +1,96 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					= link_to 'Admin', swell_media.admin_index_path
+				%li
+					= link_to 'Order Admin', order_admin_index_path
+				%li
+					%strong
+						Edit
+						= @order.code
+		.col-xs-2
+
+
+	= form_for @order, url: order_admin_path( @order ) do |f|
+		.row
+			.col-xs-8
+				.row
+					.col-xs-12
+						%table.table
+							%thead
+								%tr
+									%th Product
+									%th{ style: 'width: 80px' } Price
+									%th.text-right{ style: 'width: 70px' } Quantity
+									%th.text-right{ style: 'width: 100px' } Subtotal
+							%tbody
+								- @order.order_items.each do |order_item|
+									- if order_item.item?
+										%tr
+											-# %td avatar
+											%td
+												= order_item.label
+											%td= number_to_currency (order_item.price.to_f / 100)
+											%td.text-right
+												=order_item.quantity
+											%td.text-right= number_to_currency order_item.subtotal.to_f / 100
+								
+								%tr
+									%td
+									%td
+									%td
+										Tax
+									%td.text-right
+										%strong
+											= number_to_currency @order.tax.to_f / 100
+								%tr
+									%td
+									%td
+									%td
+										Shipping
+									%td.text-right
+										%strong
+											= number_to_currency @order.shipping.to_f / 100
+								%tr
+									%td
+									%td
+									%td
+										%h5
+											Total
+									%td.text-right
+										%h5
+											= number_to_currency @order.total.to_f / 100
+
+				.row
+					.col-xs-6
+						%h5
+							Billing Address
+						.well
+							= raw @order.billing_address.to_html
+					.col-xs-6
+						%h5
+							Shipping Address
+						.well
+							= raw @order.shipping_address.to_html
+
+				
+				.form-group
+					= f.label :customer_comment, "Customer Notes"
+					= f.text_area :customer_comment, class: 'form-control'
+
+				
+
+
+			.col-xs-4
+				.well
+					
+					.form-group
+						= f.label :status
+						= f.collection_select :status, SwellEcom::Order.statuses, :first, :first, {}, class: 'form-control'
+
+					.form-group
+						= f.submit 'Update', class: 'btn btn-primary'

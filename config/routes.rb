@@ -10,12 +10,13 @@ SwellEcom::Engine.routes.draw do
 		post :confirm, on: :collection
 		get :confirm, on: :collection
 		get :state_input, on: :collection
-		get :thank_you, on: :collection, path: 'thank-you'
 	end
 
 	resources :order_admin
 
-	resources :orders, only: :show
+	resources :orders do 
+		get :thank_you, on: :member, path: 'thank-you'
+	end
 
 	resources :products, path: :store do
 		# for single-item quick buy
