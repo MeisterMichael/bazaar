@@ -41,7 +41,7 @@ module SwellEcom
 
 					order.save
 
-					# Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: 'Stripe', amount: order.total, currency: order.currency, status: 'approved' )
+					# Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: charge.id, provider: 'Stripe', amount: order.total, currency: order.currency, status: 'approved' )
 
 					return true
 				end
