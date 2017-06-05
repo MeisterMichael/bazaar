@@ -5,7 +5,74 @@ module SwellEcom
 		# a list of tax codes
 		# https://taxcloud.net/tic/
 
-		def self.calculate( order )
+		def self.calculate( obj )
+
+			return self.calculate_order( obj ) if obj.is_a? Order
+			return self.calculate_cart( obj ) if obj.is_a? Cart
+
+		end
+
+		def self.calculate_cart( cart )
+			country = 'USA'
+			state = 'CA'
+			city = 'San Diego'
+			zip = '92126'
+
+			return unless ['USA', 'US'].include?( country )
+			return if order.order_items.blank?
+
+			origin = TaxCloud::Address.new(
+				:address1 => SwellEcom.origin_address[:street],
+				:address2 => SwellEcom.origin_address[:street2],
+				:city => SwellEcom.origin_address[:city],
+				:state => SwellEcom.origin_address[:state],
+				:zip5 => SwellEcom.origin_address[:zip]).verify
+
+			destination_info = {
+				# :address1 => order.shipping_address.street,
+				# :address2 => order.shipping_address.street2,
+				:city => city,
+				:state => state,
+				:zip5 => zip
+			}
+
+			puts destination_info
+
+
+			destination = TaxCloud::Address.new( destination_info ).verify
+
+
+			transaction = TaxCloud::Transaction.new(
+				:customer_id => '1',
+				:cart_id => '1',
+				:origin => origin,
+				:destination => destination)
+
+			cart.cart_items.each_with_index do |cart_item, index|
+				if cart_item.item.tax_code.present?
+
+					transaction.cart_items << TaxCloud::CartItem.new(
+						:index => index,
+						:item_id => "#{cart_item.item.class.name.underscore}_#{cart_item.item.id}",
+						:tic => cart_item.item.tax_code,
+						:price => cart_item.price / 100.0,
+						:quantity => cart_item.quantity
+					)
+
+				end
+
+			end
+
+			lookup = transaction.lookup # this will return a TaxCloud::Responses::Lookup instance
+
+			cart.update estimated_tax: ( lookup.tax_amount * 100 ).to_i
+
+
+			return
+
+		end
+
+		def self.calculate_order( order )
 
 			return unless ['USA', 'US'].include?( order.shipping_address.geo_country.abbrev || order.shipping_address.country )
 			return if order.order_items.blank?
@@ -56,7 +123,7 @@ module SwellEcom
 			lookup = transaction.lookup # this will return a TaxCloud::Responses::Lookup instance
 
 			order.order_items.new item: nil, subtotal: (lookup.tax_amount * 100).to_i, title: 'Sales Tax', order_item_type: 'tax'
-			order.update tax: ( lookup.tax_amount * 100 ).to_i 
+			order.update tax: ( lookup.tax_amount * 100 ).to_i
 
 
 			return
@@ -74,7 +141,7 @@ module SwellEcom
 			    :from_country => 'US',
 			    :from_zip => '92014',
 			    :from_city => 'San Diego',
-			    :amount => order.order_items.select{|order_item| order_item.sku?}.sum(&:amount) / 100,
+			    :amount => order.order_items.select{|order_item| order_item.prod?}.sum(&:amount) / 100,
 			    :shipping => order.order_items.select{|order_item| order_item.shipping?}.sum(&:amount) / 100,
 			    :nexus_addresses => [{:address_id => 1,
 			                          :country => 'US',
@@ -82,7 +149,7 @@ module SwellEcom
 			                          :state => 'CA',
 			                          :city => 'Santa Barbara',
 			                          :street => '1218 State St.'}],
-			    :line_items => order.order_items.select{|order_item| order_item.sku?}.collect{|order_item| {
+			    :line_items => order.order_items.select{|order_item| order_item.prod?}.collect{|order_item| {
 					:quantity => order_item.quantity,
 					:unit_price => (order_item.price),
 					:product_tax_code => order_item.item.tax_code

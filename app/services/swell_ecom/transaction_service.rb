@@ -4,6 +4,23 @@ module SwellEcom
 
 		def self.calculate( order )
 
+			return self.calculate_order( obj ) if obj.is_a? Order
+			return self.calculate_cart( obj ) if obj.is_a? Cart
+
+		end
+
+		def self.calculate_cart( cart )
+
+			cart.estimated_total = cart.estimated_tax + cart.estimated_shipping
+
+			cart.cart_items.each do |cart_item|
+				cart.estimated_total = cart.estimated_total + cart_item.subtotal
+			end
+
+		end
+
+		def self.calculate_order( order )
+
 			order.total = 0
 
 			order.order_items.each do |order_item|
