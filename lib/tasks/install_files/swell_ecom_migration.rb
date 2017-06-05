@@ -78,7 +78,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 		create_table :order_items do |t|
 			t.references 	:order
-			t.references 	:item, polymorphic: true #sku, plan
+			t.references 	:item, polymorphic: true #product, plan
 			t.integer		:order_item_type, default: 1
 			t.integer 		:quantity, default: 1
 			t.integer 		:amount, default: 0
@@ -90,7 +90,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :order_items, [ :item_id, :item_type, :order_id ]
 		add_index :order_items, [ :order_item_type, :order_id ]
 
-		
+
 
 		create_table :products do |t|
 			t.references 	:category

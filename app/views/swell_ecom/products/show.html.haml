@@ -14,27 +14,6 @@
 
 		= render 'shopify_buy_now'
 
-		- if @product.content.present?
+		- if @product.description.present?
 			%div{ style: 'padding-bottom: 1em;margin-bottom: 1em;border-bottom: 1px solid #ccc;' }
-<<<<<<< HEAD
-				= raw @product.content
-
-		-# %div
-			- @product_options.each do |option|
-				= select_tag "option[#{option.code}]", options_for_select({option.label => ''}.merge( Hash[*@options[option.code][:values].collect{|v| [v,v] }.flatten] ), @options[option.code][:selected])
-			.pull-right
-				- if @skus.count == 1
-					= link_to 'Buy', new_checkout_path( items: [ { code: @skus.first.code } ] ), class: 'btn btn-primary'
-				- else
-					%a.btn.btn-primary.disabled{ disabled: true }
-						Buy
-
-=======
 				=@product.description
->>>>>>> 4d83bb5b91fd08c6bdf470c9ba2ba2e62f03c653
-		.row
-			- @product.skus.each do |sku|
-				.col-xs-6.col-md-3{ style: 'margin-top: 0.5em;' }
-					= sku.label
-				.col-xs-6.col-md-3{ style: 'margin-top: 0.5em;' }
-					= link_to 'Buy', new_checkout_path( items: [ { code: sku.code } ] ), class: 'btn btn-primary'

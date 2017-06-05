@@ -5,7 +5,7 @@
 		= form_for @order, as: :order, url: swell_ecom.checkout_index_path(), method: 'POST', html: { class: 'disable_submit_after_submit'} do |f|
 
 			- @order.order_items.each do |order_item|
-				- if order_item.sku?
+				- if order_item.prod?
 					= hidden_field_tag 'order[order_items][][code]', order_item.item.code
 					= hidden_field_tag 'order[order_items][][quantity]', order_item.quantity
 
@@ -76,7 +76,7 @@
 							%th.text-right{ style: 'width: 100px' } Subtotal
 					%tbody
 						- @order.order_items.each do |order_item|
-							- if order_item.sku?
+							- if order_item.prod?
 								%tr
 									-# %td avatar
 									%td
@@ -102,10 +102,10 @@
 
 				%div
 					.pull-right
-						#{number_to_currency @order.order_items.select{ |order_item| order_item.sku? }.sum(&:amount).to_f / 100}
-					Items (#{@order.order_items.select{ |order_item| order_item.sku? }.sum(&:quantity)}):
+						#{number_to_currency @order.order_items.select{ |order_item| order_item.prod? }.sum(&:amount).to_f / 100}
+					Items (#{@order.order_items.select{ |order_item| order_item.prod? }.sum(&:quantity)}):
 				- @order.order_items.each do |order_item|
-					- unless order_item.sku?
+					- unless order_item.prod?
 						%div
 							.pull-right
 								#{number_to_currency order_item.subtotal.to_f / 100}

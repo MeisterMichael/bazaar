@@ -9,7 +9,7 @@
 					%th.text-right{ style: 'width: 100px' } Quantity
 			%tbody
 				- @order.order_items.each do |order_item|
-					- if order_item.sku?
+					- if order_item.prod?
 						= hidden_field_tag 'order[order_items][][code]', order_item.item.code
 						%tr
 							-# %td avatar
