@@ -2,7 +2,7 @@ module SwellEcom
 	class ProductAdminController < SwellMedia::AdminController
 
 		before_filter :get_product, except: [ :create, :index ]
-		
+
 		def index
 			sort_by = params[:sort_by] || 'publish_at'
 			sort_dir = params[:sort_dir] || 'desc'
@@ -73,7 +73,7 @@ module SwellEcom
 
 		private
 			def product_params
-				params.require( :product ).permit( :title, :subtitle, :slug_pref, :category_id, :description, :content, :price, :suggested_price, :status, :publish_at, :tags, :tags_csv, :avatar, :avatar_asset_file, :avatar_asset_url, :cover_image, :avatar_urls, :shopify_code, :size_info, :notes )
+				params.require( :product ).permit( :title, :subtitle, :slug_pref, :category_id, :description, :content, :price, :suggested_price, :status, :publish_at, :tags, :tags_csv, :avatar, :avatar_asset_file, :avatar_asset_url, :cover_image, :avatar_urls, :shopify_code, :size_info, :notes, :tax_code )
 			end
 
 			def get_product
