@@ -6,6 +6,9 @@
 
 $ ->
 
+	$.fn.validator.Constructor.INPUT_SELECTOR = '.collapse.collapse-ignore.in '+$.fn.validator.Constructor.INPUT_SELECTOR+', '+$.fn.validator.Constructor.INPUT_SELECTOR+':not(.collapse.collapse-ignore :input)'
+
+
 	$('.checkout_form').validator(
 		#custom: {
 		#	zipcode: ($el) ->
@@ -16,6 +19,18 @@ $ ->
 		#	  	return
 		#}
 	)
+
+	$('form.disable_submit_after_submit').submit ->
+		# Disable the submit button to prevent repeated clicks:
+		$form = $(this)
+
+		if $form.data('bs.validator')
+			if !$form.data('bs.validator').hasErrors() && !$form.data('bs.validator').isIncomplete()
+				$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
+		else
+			$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
+
+		return false;
 
 	$(document).on 'change', '[data-geostateupdate-target]', (event)->
 		$select = $(this)
@@ -33,7 +48,3 @@ $ ->
 	$('[data-stripe=exp]').payment('formatCardExpiry');
 	$('.telephone_formatted').each ()->
 		$(this).mobilePhoneNumber({ defaultPrefix: '+1' });
-
-	$(document).on 'submit', '.disable_submit_after_submit', (event) ->
-		# Disable the submit button to prevent repeated clicks:
-		$(this).find('.submit').prop 'disabled', true
