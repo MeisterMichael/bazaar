@@ -38,8 +38,12 @@ module SwellEcom
 
 			puts destination_info
 
-
-			destination = TaxCloud::Address.new( destination_info ).verify
+			begin
+				destination = TaxCloud::Address.new( destination_info ).verify
+			rescue TaxCloud::Errors::ApiError => ex
+				cart.errors.add(:base, 'Invalid shipping address.')
+				return false
+			end
 
 
 			transaction = TaxCloud::Transaction.new(
@@ -95,9 +99,12 @@ module SwellEcom
 
 			puts destination_info
 
-
-			destination = TaxCloud::Address.new( destination_info ).verify
-
+			begin
+				destination = TaxCloud::Address.new( destination_info ).verify
+			rescue TaxCloud::Errors::ApiError => ex
+				order.errors.add(:base, 'Invalid shipping address.')
+				return false
+			end
 
 			transaction = TaxCloud::Transaction.new(
 				:customer_id => '1',

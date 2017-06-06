@@ -35,6 +35,8 @@ module SwellEcom
 
 			self.calculate( order )
 
+			return false if order.errors.present?
+
 			begin
 
 				# Token is created using Stripe.js or Checkout!
