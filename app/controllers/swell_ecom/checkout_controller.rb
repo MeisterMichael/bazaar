@@ -17,6 +17,15 @@ module SwellEcom
 			TaxService.calculate( @order )
 			TransactionService.process( @order, stripe_token: params[:stripeToken] )
 
+			if defined?( Gibbon ) && ENV['MAILCHIMP_API_KEY'].present? && params[:newsletter].present?
+				gibbon = Gibbon::Request.new
+				list_id = ENV['MAILCHIMP_DEFAULT_LIST_ID']
+				list_id ||= gibbon.lists.retrieve(params: {"fields": "lists.id"}).body['lists'].first['id']
+
+				gibbon.lists( list_id ).members.create( body: { email_address: @order.email, status: "pending", merge_fields: { NAME: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}" } } )
+			end
+
+
 			if @order.errors.present?
 
 				set_flash @order.errors.full_messages, :danger
