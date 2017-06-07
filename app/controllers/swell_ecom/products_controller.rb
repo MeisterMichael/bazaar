@@ -21,7 +21,7 @@ module SwellEcom
 
 			else
 
-				@products = Product.published
+				@products = Product.published.order( seq: :asc )
 
 				if params[:category].present? && cat = ProductCategory.friendly.find( params[:category] )
 					@products = @products.where( category_id: cat.id )

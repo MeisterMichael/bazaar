@@ -70,15 +70,16 @@
 			.col-xs-4
 				.well
 					.form-group
-						%a{ href: '#options' }
-							Options
+						= f.label :seq
+						.input-group
+							= f.text_field :seq, class: 'form-control'
 					.form-group
 						= f.label :price
 						.input-group
 							%span.input-group-addon
 								$
 							= f.text_field :price, value: number_with_precision( (@product.price.to_f / 100), :precision => 2 ), class: 'form-control'
-					.form-group
+					-#.form-group
 						= f.label :suggested_price
 						.input-group
 							%span.input-group-addon
