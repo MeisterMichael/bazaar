@@ -4,8 +4,8 @@ module SwellEcom
 		before_filter :get_product, except: [ :create, :index ]
 
 		def index
-			sort_by = params[:sort_by] || 'publish_at'
-			sort_dir = params[:sort_dir] || 'desc'
+			sort_by = params[:sort_by] || 'seq'
+			sort_dir = params[:sort_dir] || 'asc'
 
 			@products = Product.order( "#{sort_by} #{sort_dir}" )
 

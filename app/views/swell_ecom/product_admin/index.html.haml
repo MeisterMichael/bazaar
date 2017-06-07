@@ -47,8 +47,11 @@
 							%i.fa.fa-arrow-up
 						%a{ href: product_admin_index_path( sort_by: 'publish_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
+					%th Seq
 					%th Status
-					%th Tags
+					%th Category
+					-#
+						%th Tags
 					%th
 				%tbody
 					- @products.each do |product|
@@ -60,7 +63,9 @@
 							%td
 								= number_to_currency product.price.to_f / 100
 							%td
-								= product.publish_at
+								= product.publish_at.to_s( :short )
+							%td
+								= product.seq
 							%td
 								- if product.published?
 									.badge{ class: product.status }
@@ -75,6 +80,8 @@
 									.badge{ class: product.status }
 										= product.status
 							%td
+								= product.product_category
+							-#%td
 								= product.tags.join(', ')
 							%td
 								.btn-group
