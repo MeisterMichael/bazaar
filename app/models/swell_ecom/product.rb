@@ -82,7 +82,7 @@ module SwellEcom
 				type: 'Product',
 				og: {
 					"article:published_time" => self.publish_at.iso8601,
-					"product:price:amount" => self.price,
+					"product:price:amount" => self.price / 100.to_f,
 					"product:price:currency" => 'USD'
 				},
 				data: {
