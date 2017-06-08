@@ -8,6 +8,36 @@ $ ->
 
 	$.fn.validator.Constructor.INPUT_SELECTOR = '.collapse.collapse-ignore.in '+$.fn.validator.Constructor.INPUT_SELECTOR+', '+$.fn.validator.Constructor.INPUT_SELECTOR+':not(.collapse.collapse-ignore :input)'
 
+	$(document).on 'click', 'a[data-add-to-cart][href]', ()->
+		$link = $(this)
+		dataLayer.push({
+			'event': 'addToCart',
+			'ecommerce': {
+				'add': {
+					'products': [$link.data('add-to-cart')]
+				}
+			},
+			'eventCallback': ()->
+				document.location = $link.attr('href');
+		});
+
+	$(document).on 'submit', 'form[data-add-to-cart]', ()->
+		$form = $(this)
+		if $form.data('add-to-cart-done') != true
+			$form.data('add-to-cart-done', true)
+			dataLayer.push({
+				'event': 'addToCart',
+				'ecommerce': {
+					'add': {
+						'products': [$form.data('add-to-cart')]
+					}
+				},
+				'eventCallback': ()->
+					$form.submit()
+			});
+
+			return false
+
 
 	$('.checkout_form').validator(
 		#custom: {
