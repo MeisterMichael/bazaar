@@ -63,7 +63,16 @@ module SwellEcom
 			where( "products.publish_at <= :now", now: Time.zone.now ).active
 		end
 
-
+		def page_event_data
+			{
+				id: self.id,
+				name: self.title,
+				price: self.price / 100.0,
+				brand: '',
+				category: '',
+				variant: '',
+			}
+		end
 
 		def page_meta
 			if self.title.present?
