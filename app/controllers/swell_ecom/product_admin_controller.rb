@@ -49,7 +49,7 @@ module SwellEcom
 		end
 
 		def update
-			@product.slug = nil if params[:update_slug].present? && params[:product][:title] != @product.title
+			@product.slug = nil if params[:product][:title] != @product.title || params[:product][:slug_pref].present?
 
 			params[:product][:price] = params[:product][:price].to_f * 100 #.gsub( /\D/, '' ) if params[:product][:price].present?
 			params[:product][:suggested_price] = params[:product][:suggested_price].to_f * 100 #.gsub( /\D/, '' ) if params[:product][:suggested_price].present?
