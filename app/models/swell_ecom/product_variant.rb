@@ -2,14 +2,14 @@ module SwellEcom
 	class ProductVariant < ActiveRecord::Base
 
 		self.table_name = 'product_variants'
-		
+
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 
 
 		before_save :set_defaults
 
-		belongs_to :product 
-		
+		belongs_to :product
+
 		include FriendlyId
 		friendly_id :title, use: [ :slugged, :history ]
 
@@ -31,6 +31,10 @@ module SwellEcom
 
 		def url
 			self.product.url
+		end
+
+		def page_event_data
+			self.product.page_event_data.merge( variant: self.title )
 		end
 
 

@@ -1,5 +1,5 @@
 module SwellEcom
-	
+
 	class ProductsController < ApplicationController
 
 		before_filter :get_product, only: :show
@@ -48,6 +48,15 @@ module SwellEcom
 			@related_products = @product_category.products.published.where.not( id: @product.id ).limit(6) if @product_category.present?
 
 			set_page_meta( @product.page_meta )
+
+			add_page_event_data(
+				ecommerce: {
+					detail: {
+						actionField: {},
+						products: [ @product.page_event_data ]
+					}
+				}
+			);
 		end
 
 		private

@@ -58,6 +58,17 @@ module SwellEcom
 			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
 			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
 
+
+
+			add_page_event_data(
+				ecommerce: {
+					checkout: {
+						actionField: {},
+						products: @cart.cart_items.collect{|cart_item| cart_item.item.page_event_data.merge( quantity: cart_item.quantity ) }
+					}
+				}
+			);
+
 		end
 
 		def new
