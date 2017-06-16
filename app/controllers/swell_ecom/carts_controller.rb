@@ -5,7 +5,16 @@ module SwellEcom
 		before_filter :get_cart
 
 		def show
-			
+
+			add_page_event_data(
+				ecommerce: {
+					add: {
+						actionField: {},
+						products: @cart.cart_items.collect{|cart_item| cart_item.item.page_event_data.merge( quantity: cart_item.quantity ) }
+					}
+				}
+			);
+
 		end
 
 		def update
