@@ -68,8 +68,8 @@ module SwellEcom
 				id: self.id,
 				name: self.title,
 				price: self.price / 100.0,
-				brand: '',
-				category: '',
+				brand: (self.brand || ''),
+				category: self.product_category.name,
 				variant: '',
 			}
 		end
