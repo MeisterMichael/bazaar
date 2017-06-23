@@ -23,9 +23,13 @@ module SwellEcom
 
 				@products = Product.published.order( seq: :asc )
 
-				if params[:category].present? && cat = ProductCategory.friendly.find( params[:category] )
-					@products = @products.where( category_id: cat.id )
-					@title_mod = "in #{cat.name}"
+				begin
+					if params[:category].present? && ( cat = ProductCategory.friendly.find( params[:category] ) ).present?
+						@products = @products.where( category_id: cat.id )
+						@title_mod = "in #{cat.name}"
+					end
+				rescue ActiveRecord::RecordNotFound
+					set_flash "Category does not exist", :danger
 				end
 
 				if params[:tag].present?
