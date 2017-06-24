@@ -44,7 +44,7 @@
 										%td.text-right
 											=order_item.quantity
 										%td.text-right= number_to_currency order_item.subtotal.to_f / 100
-								
+
 								%tr
 									%td
 									%td
@@ -78,7 +78,7 @@
 											Total
 									%td.text-right
 										%h5{ style: 'font-weight:bold;' }
-											= number_to_currency @order.total.to_f / 100
+											= number_to_currency ( @order.total || 0 ).to_f / 100
 
 				.row
 					.col-xs-6
@@ -104,12 +104,12 @@
 							Support_notes
 						= f.text_area :support_notes, class: 'form-control'
 
-				
+
 
 
 			.col-xs-4
 				.well
-					
+
 					.form-group
 						= f.label :status
 						= f.collection_select :status, SwellEcom::Order.statuses, :first, :first, {}, class: 'form-control'
