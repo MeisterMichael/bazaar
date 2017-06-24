@@ -2,9 +2,6 @@ module SwellEcom
 
 	class ProductsController < ApplicationController
 
-		before_filter :get_product, only: :show
-
-
 		def index
 
 			if params[:query].present?
@@ -42,6 +39,12 @@ module SwellEcom
 		end
 
 		def show
+			begin
+				@product = Product.friendly.find( params[:id] )
+			rescue ActiveRecord::RecordNotFound => ex
+				render '404', status: 404
+				return
+			end
 
 			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
 
@@ -62,12 +65,6 @@ module SwellEcom
 				}
 			);
 		end
-
-		private
-
-			def get_product
-				@product = Product.friendly.find( params[:id] )
-			end
 
 	end
 
