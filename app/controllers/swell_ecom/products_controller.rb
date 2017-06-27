@@ -2,9 +2,6 @@ module SwellEcom
 
 	class ProductsController < ApplicationController
 
-		before_filter :get_product, only: :show
-
-
 		def index
 
 			if params[:query].present?
@@ -23,9 +20,13 @@ module SwellEcom
 
 				@products = Product.published.order( seq: :asc )
 
-				if params[:category].present? && cat = ProductCategory.friendly.find( params[:category] )
-					@products = @products.where( category_id: cat.id )
-					@title_mod = "in #{cat.name}"
+				begin
+					if params[:category].present? && ( cat = ProductCategory.friendly.find( params[:category] ) ).present?
+						@products = @products.where( category_id: cat.id )
+						@title_mod = "in #{cat.name}"
+					end
+				rescue ActiveRecord::RecordNotFound
+					set_flash "Category does not exist", :danger
 				end
 
 				if params[:tag].present?
@@ -38,6 +39,12 @@ module SwellEcom
 		end
 
 		def show
+			begin
+				@product = Product.friendly.find( params[:id] )
+			rescue ActiveRecord::RecordNotFound => ex
+				render '404', status: 404
+				return
+			end
 
 			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
 
@@ -58,12 +65,6 @@ module SwellEcom
 				}
 			);
 		end
-
-		private
-
-			def get_product
-				@product = Product.friendly.find( params[:id] )
-			end
 
 	end
 

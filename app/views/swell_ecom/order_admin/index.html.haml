@@ -55,7 +55,7 @@
 							%td
 								= link_to order.email, edit_order_admin_path( order.id )
 							%td
-								= number_to_currency order.total / 100.to_f
+								= number_to_currency ( order.total || 0 ) / 100.to_f
 							%td
 								= order.created_at
 							%td
@@ -76,5 +76,3 @@
 											%a{ href: order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
 												%i.fa.fa-trash-o
 												Delete!
-
-
