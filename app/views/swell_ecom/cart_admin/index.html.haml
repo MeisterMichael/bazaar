@@ -1,0 +1,78 @@
+
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					= link_to 'Admin', swell_media.admin_index_path
+				%li
+					%strong
+						Cart Admin
+						= "(#{pluralize @carts.total_count, 'Cart'})"
+	.row
+		.col-xs-6
+			= raw paginate @carts
+		.col-xs-6
+			= form_tag cart_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= select_tag :status, options_from_collection_for_select( SwellEcom::Cart.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+
+	.row
+		.col-xs-12
+			%table.table
+				%thead
+					%th
+						ID
+					%th
+						Sub Total
+						%a{ href: cart_admin_index_path( sort_by: 'subtotal', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: cart_admin_index_path( sort_by: 'subtotal', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th
+						Items
+					%th
+						IP
+					%th
+						Created
+						%a{ href: cart_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: cart_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th Status
+					%th
+				%tbody
+					- @carts.each do |cart|
+						%tr
+							%td
+								= link_to cart.id, edit_cart_admin_path( cart.id )
+
+							%td
+								= number_to_currency cart.subtotal / 100.to_f
+							%td
+								= cart.cart_items.count
+							%td
+								= cart.ip
+							%td
+								= cart.created_at
+							%td
+								.badge{ class: cart.status }
+									= cart.status
+							%td
+								.btn-group
+									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+										%i.fa.fa-cog
+										%b.caret
+									%ul.dropdown-menu
+										%li
+											%a{ href: edit_cart_admin_path( cart.id ) }
+												%i.fa.fa-pencil
+												Edit
+										%li.divider
+										%li
+											%a{ href: cart_admin_path( cart ), data: { method: 'delete', confirm: 'Are you sure?' } }
+												%i.fa.fa-trash-o
+												Delete!
+
+

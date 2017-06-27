@@ -1,5 +1,6 @@
 SwellEcom::Engine.routes.draw do
 
+	resources :cart_admin
 	resources :carts, only: :update
 
 	get '/cart' => 'carts#show'

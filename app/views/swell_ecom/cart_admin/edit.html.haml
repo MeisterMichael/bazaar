@@ -1,0 +1,105 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					= link_to 'Admin', swell_media.admin_index_path
+				%li
+					= link_to 'Cart Admin', cart_admin_index_path
+				%li
+					%strong
+						Edit Cart:
+						= @cart.id
+		.col-xs-2
+
+
+	= form_for @cart, url: cart_admin_path( @cart ) do |f|
+		.row
+			.col-xs-8
+				.row
+					.col-xs-12
+						%h2
+							Cart:
+							= @cart.id
+						
+						%p
+							Created:
+							= @cart.created_at.to_s( :short )
+						%p
+							IP:
+							= @cart.ip
+					
+						%h4
+							Contents
+						%table.table
+							%thead
+								%tr
+									%th Product
+									%th{ style: 'width: 80px' } Price
+									%th.text-right{ style: 'width: 70px' } Quantity
+									%th.text-right{ style: 'width: 100px' } Subtotal
+							%tbody
+								- @cart.cart_items.each do |cart_item|
+									%tr
+										%td
+											= cart_item.item.title
+										%td
+											= number_to_currency (cart_item.price.to_f / 100)
+										%td.text-right
+											= cart_item.quantity
+										%td.text-right= number_to_currency cart_item.subtotal.to_f / 100
+								
+								%tr
+									%td
+									%td
+									%td
+										Subtotal
+									%td.text-right
+										%strong
+											= number_to_currency @cart.subtotal.to_f / 100
+
+								%tr
+									%td
+									%td
+									%td
+										Estimated Tax
+									%td.text-right
+										%strong
+											= number_to_currency @cart.estimated_tax.to_f / 100
+								%tr
+									%td
+									%td
+									%td
+										Estimated Shipping
+									%td.text-right
+										%strong
+											= number_to_currency @cart.estimated_shipping.to_f / 100
+								%tr
+									%td
+									%td
+									%td
+										%h5{ style: 'font-weight:bold;' }
+											Estimated Total
+									%td.text-right
+										%h5{ style: 'font-weight:bold;' }
+											= number_to_currency @cart.estimated_total.to_f / 100
+
+
+			.col-xs-4
+				.well
+					
+					.form-group
+						= f.label :status
+						= f.collection_select :status, SwellEcom::Cart.statuses, :first, :first, {}, class: 'form-control'
+
+					.form-group
+						= label_tag 'Order?'
+						%br
+						- if @cart.order.present?
+							= link_to @cart.order.code, edit_order_admin_path( @cart.order )
+						- else
+							None
+					.form-group
+						= f.submit 'Update', class: 'btn btn-primary'

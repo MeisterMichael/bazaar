@@ -17,26 +17,24 @@ module SwellEcom
 			TaxService.calculate( @order )
 			TransactionService.process( @order, stripe_token: params[:stripeToken] )
 
-			if defined?( Gibbon ) && ENV['MAILCHIMP_API_KEY'].present? && params[:newsletter].present?
-				gibbon = Gibbon::Request.new
-				list_id = ENV['MAILCHIMP_DEFAULT_LIST_ID']
-				list_id ||= gibbon.lists.retrieve(params: {"fields": "lists.id"}).body['lists'].first['id']
-
-				gibbon.lists( list_id ).members.create( body: { email_address: @order.email, status: "pending", merge_fields: { NAME: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}" } } )
+			if params[:newsletter].present?
+				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}" )
 			end
 
 
-			if @order.errors.present?
 
+			if @order.errors.present?
 				set_flash @order.errors.full_messages, :danger
 				redirect_to :back
-
 			else
-
 				session[:cart_count] = 0
-				@cart.destroy
+				session[:cart_id] = nil
+
+				@cart.update( order_id: @order.id, status: 'success' )
 
 				OrderMailer.receipt( @order ).deliver_now
+				#OrderMailer.notify_admin( @order ).deliver_now
+
 				redirect_to swell_ecom.thank_you_order_path( @order.code )
 
 			end
@@ -58,7 +56,7 @@ module SwellEcom
 			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
 			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
 
-
+			@cart.init_checkout!
 
 			add_page_event_data(
 				ecommerce: {
