@@ -3,6 +3,11 @@ module SwellEcom
 
 		before_filter :get_cart, except: [ :index ]
 		
+		def destroy
+			@cart.destroy
+			redirect_to cart_admin_index_path	
+		end
+
 		def edit
 			
 		end
