@@ -30,16 +30,17 @@
 							%i.fa.fa-arrow-up
 						%a{ href: cart_admin_index_path( sort_by: 'subtotal', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
-					%th
-						Items
-					%th
-						IP
+					
 					%th
 						Created
 						%a{ href: cart_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
 						%a{ href: cart_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
+					%th
+						Items
+					%th
+						IP
 					%th Status
 					%th
 				%tbody
@@ -50,12 +51,15 @@
 
 							%td
 								= number_to_currency cart.subtotal / 100.to_f
+							
+							%td
+								= link_to cart.created_at, edit_cart_admin_path( cart.id )
+								%br
+								= "#{time_ago_in_words( cart.created_at )} ago."
 							%td
 								= cart.cart_items.count
 							%td
 								= cart.ip
-							%td
-								= cart.created_at
 							%td
 								.badge{ class: cart.status }
 									= cart.status

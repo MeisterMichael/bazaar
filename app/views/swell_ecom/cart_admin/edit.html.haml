@@ -27,6 +27,8 @@
 						%p
 							Created:
 							= @cart.created_at.to_s( :short )
+							%br
+							= "(#{time_ago_in_words( @cart.created_at )} ago.)"
 						%p
 							IP:
 							= @cart.ip
