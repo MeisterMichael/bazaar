@@ -24,6 +24,7 @@ module SwellEcom
 						'card'  => stripe_token
 					)
 
+					# @todo process subscription if order includes a plan, do something different
 					# Charge the user's card:
 					charge = Stripe::Charge.create(
 						'customer'		=> customer.id,
