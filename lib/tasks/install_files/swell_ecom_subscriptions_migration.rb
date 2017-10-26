@@ -9,6 +9,7 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 
 			t.datetime		:current_period_start_at
 			t.datetime		:current_period_end_at
+			t.datetime		:next_charged_at
 
 			t.integer		:amount
 			t.integer		:trial_amount
@@ -34,13 +35,13 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 
 		create_table :plan do |t|
 
-			t.integer 		:price, default: 0 # cents, recurring price
-			t.string		:interval, default: 'month' #day, week, month, year
-			t.integer		:interval_value, default: 1
-			t.integer		:max_intervals, default: nil # for fixed length subscription
-			t.string		:statement_descriptor
+			t.integer 		:recurring_price # cents
+			t.string		:recurring_interval, default: 'month' #day, week, month, year
+			t.integer		:recurring_interval_value, default: 1
+			t.integer		:recurring_max_intervals, default: nil # for fixed length subscription
+			t.string		:recurring_statement_descriptor
 
-			t.integer 		:trial_price, default: 0 # cents, recurring price
+			t.integer 		:trial_price, default: 0 # cents, recurring trial price
 			t.string		:trial_interval, default: 'month' #day, week, month, year
 			t.integer		:trial_interval_value, default: 1
 			t.integer		:trial_max_intervals, default: 0
@@ -62,8 +63,8 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.datetime		:publish_at
 			t.datetime		:preorder_at
 			t.datetime		:release_at
-			# t.integer 		:suggested_price, default: 0
-			# t.integer 		:price, default: 0
+			t.integer 		:suggested_price, default: 0
+			t.integer 		:price, default: 0
 			t.string 		:currency, default: 'USD'
 			t.integer 		:inventory, default: -1
 			t.string 		:tags, array: true, default: '{}'
@@ -75,6 +76,11 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 		add_index :subscriptions, :category_id
 		add_index :subscriptions, :slug, unique: true
 		add_index :subscriptions, :status
+
+
+		add_column :order_items, :subscription_id, :integer, default: nil
+		add_column :order_items, :subscription_items_id, :integer, default: nil
+
 
 	end
 end

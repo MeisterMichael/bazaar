@@ -3,24 +3,25 @@ module SwellEcom
 	class CheckoutController < ApplicationController
 
 		before_filter :get_order, only: [ :confirm, :create, :index ]
+		before_filter :initialize_services, only: [ :confirm, :create ]
 
 		def confirm
 
-			ShippingService.calculate( @order )
-			TaxService.calculate( @order )
-			TransactionService.calculate( @order )
+			@shipping_service.calculate( @order, order_options )
+			@tax_service.calculate( @order )
+			@transaction_service.calculate( @order, order_options )
 
 		end
 
 		def create
-			ShippingService.calculate( @order )
-			TaxService.calculate( @order )
-			TransactionService.process( @order, stripe_token: params[:stripeToken] )
+
+			@shipping_service.calculate( @order, order_options )
+			@tax_service.calculate( @order )
+			@transaction_service.process( @order, order_options )
 
 			if params[:newsletter].present?
 				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}" )
 			end
-
 
 
 			if @order.errors.present?
@@ -128,6 +129,18 @@ module SwellEcom
 				@order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code
 			end
 
+		end
+
+		def initialize_services
+
+			@shipping_service = SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
+			@tax_service = SwellEcom.tax_service_class.constantize.new( SwellEcom.tax_service_config )
+			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.tax_service_config )
+
+		end
+
+		def order_options
+			params.slice( :stripeToken )
 		end
 
 
