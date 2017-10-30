@@ -3,6 +3,8 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 
 		create_table :subscription do |t|
 			t.references	:user
+			t.references	:plan
+			t.integer		:quantity, default: 1
 
 			t.datetime		:start_at
 			t.datetime		:end_at, default: nil
@@ -26,14 +28,7 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.timestamps
 		end
 
-		create_table :subscription_items do |t|
-			t.references	:user
-			t.references	:plan
-			t.integer		:quantity, default: 1
-			t.timestamps
-		end
-
-		create_table :plan do |t|
+		create_table :subscription_plans do |t|
 
 			t.integer 		:recurring_price # cents
 			t.string		:recurring_interval, default: 'month' #day, week, month, year
@@ -47,7 +42,7 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.integer		:trial_max_intervals, default: 0
 			t.string		:trial_statement_descriptor # a null value default to statement_descriptor
 
-			t.integer		:plan_type, default: 1 # physical, digital
+			t.integer		:subscription_plan_type, default: 1 # physical, digital
 
 			# copied products:
 			t.references 	:category
@@ -56,7 +51,7 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.string 		:slug
 			t.string 		:avatar
 			# t.integer		:default_product_type, default: 1 # physical, digital
-			t.string 		:fulfilled_by, default: 'self' # self, download, amazon, printful
+			# t.string 		:fulfilled_by, default: 'self' # self, download, amazon, printful
 			t.integer		:status, 	default: 0
 			t.text 			:description
 			t.text 			:content
@@ -72,14 +67,13 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.hstore		:properties, default: {}
 			t.timestamps
 		end
-		add_index :subscriptions, :tags, using: 'gin'
-		add_index :subscriptions, :category_id
-		add_index :subscriptions, :slug, unique: true
-		add_index :subscriptions, :status
+		add_index :subscription_plans, :tags, using: 'gin'
+		add_index :subscription_plans, :category_id
+		add_index :subscription_plans, :slug, unique: true
+		add_index :subscription_plans, :status
 
 
 		add_column :order_items, :subscription_id, :integer, default: nil
-		add_column :order_items, :subscription_items_id, :integer, default: nil
 
 
 	end
