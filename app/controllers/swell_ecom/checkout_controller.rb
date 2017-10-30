@@ -135,7 +135,7 @@ module SwellEcom
 
 			@shipping_service = SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
 			@tax_service = SwellEcom.tax_service_class.constantize.new( SwellEcom.tax_service_config )
-			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.tax_service_config )
+			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
 
 		end
 

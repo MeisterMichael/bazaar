@@ -20,10 +20,10 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.string		:interval, default: 'month' #day, week, month, year
 			t.integer		:interval_value, default: 1
 
-			t.string		:payment_gateway
-			t.string		:payment_gateway_subscription_id
-			t.string		:payment_gateway_customer_profile_id
-			t.string		:payment_gateway_customer_payment_profile_id
+			t.string		:provider
+			t.string		:provider_reference
+			t.string		:provider_customer_profile_reference
+			t.string		:provider_customer_payment_profile_reference
 
 			t.timestamps
 		end

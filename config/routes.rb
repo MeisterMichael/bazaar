@@ -13,9 +13,11 @@ SwellEcom::Engine.routes.draw do
 		get :state_input, on: :collection
 	end
 
-	resources :order_admin
+	resources :order_admin do
+		post :refund, on: :member
+	end
 
-	resources :orders do 
+	resources :orders do
 		get :thank_you, on: :member, path: 'thank-you'
 	end
 

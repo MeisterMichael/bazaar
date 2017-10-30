@@ -1,6 +1,6 @@
 module SwellEcom
 	class OrderMailer < ActionMailer::Base
-		
+
 		def notify_admin( order )
 			@order = order
 			subject = "#{SwellMedia.app_name} order of #{@order.order_items.first.title}".truncate(255)
@@ -13,6 +13,14 @@ module SwellEcom
 			subject = "#{SwellMedia.app_name} order of #{@order.order_items.first.title}".truncate(255)
 
 			mail to: @order.email, from: SwellEcom.order_email_from, subject: subject
+		end
+
+		def refund( transaction, args = {} )
+			@transaction = transaction
+			
+			subject = "#{SwellMedia.app_name} refund".truncate(255)
+
+			mail to: transaction.parent.email, from: SwellEcom.order_email_from, subject: subject
 		end
 
 	end

@@ -1,0 +1,11 @@
+
+%h1.text-center
+	Refund
+.text-center
+	Reference Number: #{@transaction.id}
+
+%h3
+
+
+	Total:
+	= number_to_currency @transaction.amount.to_f / 100

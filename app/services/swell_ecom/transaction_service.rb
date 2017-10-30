@@ -16,7 +16,7 @@ module SwellEcom
 
 		end
 
-		def refund( order, amount, args = {} )
+		def refund( args = {} )
 
 			throw Exception.new('TransactionService#refund is an abstract method')
 

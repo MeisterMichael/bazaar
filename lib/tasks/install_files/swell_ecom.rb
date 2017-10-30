@@ -10,7 +10,7 @@ SwellEcom.configure do |config|
 
 	config.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
 
-	# config.transaction_service_class = "SwellEcom::TransactionService::StripeTransactionService"
+	# config.transaction_service_class = "SwellEcom::TransactionServices::StripeTransactionService"
 	# config.transaction_service_config = {}
 
 	# config.shipping_service_class = "SwellEcom::ShippingService"

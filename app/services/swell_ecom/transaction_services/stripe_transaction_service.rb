@@ -1,12 +1,17 @@
 module SwellEcom
 
-	module TransactionService
+	module TransactionServices
 
 		class StripeTransactionService < SwellEcom::TransactionService
 
 			def initialize( args = {} )
 			end
 
+			def cancel_subscription( subscription )
+				# @todo
+				throw Exception.new('@todo StripeTransactionService#cancel_subscription')
+
+			end
 
 			def process( order, args = {} )
 				self.calculate( order )
@@ -69,9 +74,15 @@ module SwellEcom
 
 			end
 
-			def refund( order, amount, args = {} )
+			def refund( args = {} )
+				# @todo
+				throw Exception.new('@todo StripeTransactionService#refund')
 
-				# do something
+			end
+
+			def update_subscription( subscription )
+				# @todo
+				throw Exception.new('@todo StripeTransactionService#refund')
 
 			end
 
