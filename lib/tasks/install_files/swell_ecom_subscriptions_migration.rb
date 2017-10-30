@@ -5,9 +5,13 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.references	:user
 			t.references	:plan
 			t.integer		:quantity, default: 1
+			t.string 		:code
 
 			t.datetime		:start_at
 			t.datetime		:end_at, default: nil
+
+			t.datetime		:trial_start_at, default: nil
+			t.datetime		:trial_end_at, default: nil
 
 			t.datetime		:current_period_start_at
 			t.datetime		:current_period_end_at

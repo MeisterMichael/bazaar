@@ -1,0 +1,65 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					= link_to 'Admin', swell_media.admin_index_path
+				%li
+					= link_to 'Subscription Admin', subscription_admin_index_path
+				%li
+					%strong
+						Edit Subscription:
+						= @subscription.code
+		.col-xs-2
+
+
+	= form_for @subscription, url: subscription_admin_path( @subscription ) do |f|
+		.row
+			.col-xs-8
+				.row
+					.col-xs-12
+						%h2
+							Subscription:
+							= @subscription.code
+						Placed:
+						= @subscription.created_at.to_s( :short )
+						By:
+	
+			.col-xs-4
+				.well
+
+					.form-group
+						= f.label :status
+						= f.collection_select :status, SwellEcom::Subscription.statuses, :first, :first, {}, class: 'form-control'
+
+					.form-group
+						= f.submit 'Update', class: 'btn btn-primary'
+	.row
+		.col-xs-8
+			%h4 Transactions
+			%table.table
+				%thead
+					%tr
+						%th{ style: 'width: 10em' } Type
+						%th{ style: 'width: 10em' } Status
+						%th{ style: 'width: 10em' } Gateway
+						%th Reference
+						%th.text-right{ style: 'width: 10em' } Amount
+						%th{ style: 'width: 4em' } Currency
+				%tbody
+					- @transactions.each do |transaction|
+						%tr
+							%td
+								= transaction.transaction_type
+							%td
+								= transaction.status
+							%td
+								= transaction.provider
+							%td
+								= transaction.try(:reference)
+							%td.text-right
+								= number_to_currency (transaction.amount.to_f / 100)
+							%td
+								= transaction.currency

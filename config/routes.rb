@@ -37,5 +37,9 @@ SwellEcom::Engine.routes.draw do
 		post :generate, on: :member
 	end
 
+	resources :subscription_admin do
+		post :cancel, on: :member
+	end
+
 
 end
