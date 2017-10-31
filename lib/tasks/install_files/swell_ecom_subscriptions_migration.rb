@@ -4,6 +4,7 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 		create_table :subscription do |t|
 			t.references	:user
 			t.references	:plan
+			t.references	:order_item
 			t.integer		:quantity, default: 1
 			t.string 		:code
 
@@ -75,10 +76,6 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 		add_index :subscription_plans, :category_id
 		add_index :subscription_plans, :slug, unique: true
 		add_index :subscription_plans, :status
-
-
-		add_column :order_items, :subscription_id, :integer, default: nil
-
 
 	end
 end
