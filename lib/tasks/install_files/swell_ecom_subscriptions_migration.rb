@@ -77,5 +77,8 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 		add_index :subscription_plans, :slug, unique: true
 		add_index :subscription_plans, :status
 
+
+		add_column :orders, :generated_by, :integer, default: 1
+
 	end
 end
