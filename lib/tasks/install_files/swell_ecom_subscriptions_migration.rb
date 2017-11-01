@@ -7,9 +7,11 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.references	:order_item
 			t.integer		:quantity, default: 1
 			t.string 		:code
+			t.integer		:status, 	default: 0
 
 			t.datetime		:start_at
 			t.datetime		:end_at, default: nil
+			t.datetime		:canceled_at, default: nil
 
 			t.datetime		:trial_start_at, default: nil
 			t.datetime		:trial_end_at, default: nil
@@ -79,6 +81,9 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 
 
 		add_column :orders, :generated_by, :integer, default: 1
+		add_column :orders, :parent_id, :integer, default: nil
+		add_column :orders, :parent_type, :string, default: nil
+		add_index :orders, [ :parent_type, :parent_id ]
 
 	end
 end
