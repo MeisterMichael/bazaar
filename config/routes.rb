@@ -5,7 +5,9 @@ SwellEcom::Engine.routes.draw do
 
 	get '/cart' => 'carts#show'
 
-	resources :cart_items
+	resources :cart_items, except: [ :index, :new, :edit, :update, :show ] do
+		get :create, on: :collection
+	end
 
 	resources :checkout, only: [:new, :create, :index] do
 		post :confirm, on: :collection
