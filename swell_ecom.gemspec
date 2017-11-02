@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency "swell_media"
   s.add_dependency 'tax_cloud'
   s.add_dependency 'stripe' #, :git => 'https://github.com/stripe/stripe-ruby'
+  s.add_dependency 'authorizenet'
 
   s.add_development_dependency "sqlite3"
 end
