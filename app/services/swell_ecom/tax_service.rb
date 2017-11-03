@@ -13,6 +13,8 @@ module SwellEcom
 		end
 
 		def self.calculate_cart( cart )
+			return # @todo deal with tax calculations later.... punted
+
 			country = 'USA'
 			state = 'CA'
 			city = 'San Diego'
@@ -77,7 +79,7 @@ module SwellEcom
 		end
 
 		def self.calculate_order( order )
-
+			return # @todo deal with tax calculations later.... punted
 			return unless ['USA', 'US'].include?( order.shipping_address.geo_country.abbrev || order.shipping_address.country )
 			return if order.order_items.blank?
 
