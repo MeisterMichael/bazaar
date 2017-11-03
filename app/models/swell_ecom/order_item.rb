@@ -5,6 +5,8 @@ module SwellEcom
 		belongs_to :item, polymorphic: true
 		belongs_to :order
 
+		belongs_to :subscription
+
 		enum order_item_type: { 'prod' => 1, 'tax' => 2, 'shipping' => 3, 'discount' => 4 }
 
 	end

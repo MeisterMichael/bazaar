@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.name        = "swell_ecom"
   s.version     = SwellEcom::VERSION
   s.authors     = ["Gk Parish-Philp", "Michael Ferguson"]
-  s.email       = ["gk@playswell.com"]
-  s.homepage    = "http://playswell.com"
+  s.email       = ["gk@groundswellenterprises.com"]
+  s.homepage    = "http://www.groundswellenterprises.com"
   s.summary     = "A simple Ecom Solution for Rails."
   s.description = "A simple Ecom Solution for Rails."
   s.license     = "MIT"
