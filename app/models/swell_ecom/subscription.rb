@@ -7,7 +7,6 @@ module SwellEcom
 
 		belongs_to :user
 		belongs_to :subscription_plan
-		belongs_to :order_item # the order item which generated the subscription
 
 		before_create :generate_order_code
 

@@ -37,13 +37,13 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 		create_table :subscription_plans do |t|
 
 			t.integer 		:recurring_price # cents
-			t.string		:recurring_interval, default: 'month' #day, week, month, year
+			t.string		:recurring_interval_unit, default: 'month' #day, week, month, year
 			t.integer		:recurring_interval_value, default: 1
 			t.integer		:recurring_max_intervals, default: nil # for fixed length subscription
 			t.string		:recurring_statement_descriptor
 
 			t.integer 		:trial_price, default: 0 # cents, recurring trial price
-			t.string		:trial_interval, default: 'month' #day, week, month, year
+			t.string		:trial_interval_unit, default: 'month' #day, week, month, year
 			t.integer		:trial_interval_value, default: 1
 			t.integer		:trial_max_intervals, default: 0
 			t.string		:trial_statement_descriptor # a null value default to statement_descriptor
