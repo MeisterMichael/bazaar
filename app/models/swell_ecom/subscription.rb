@@ -1,6 +1,8 @@
 module SwellEcom
 	class Subscription < ActiveRecord::Base
 
+
+		self.table_name = 'subscriptions'
 		self.table_name = 'subscriptions'
 
 		enum status: { 'canceled' => -1, 'active' => 1 }

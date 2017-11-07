@@ -5,7 +5,7 @@ module SwellEcom
 		def initialize( args = {} )
 		end
 
-		def calculate( obj )
+		def calculate( obj, args = {} )
 
 			return self.calculate_order( obj ) if obj.is_a? Order
 			return self.calculate_cart( obj ) if obj.is_a? Cart
@@ -15,13 +15,13 @@ module SwellEcom
 
 		protected
 
-		def self.calculate_cart( cart )
+		def calculate_cart( cart )
 
 			cart.update estimated_shipping: 0
 
 		end
 
-		def self.calculate_order( order )
+		def calculate_order( order )
 
 			# order.order_items.new item: nil, amount: 1000, label: 'Shipping', order_item_type: 'shipping', tax_code: '11000'
 
