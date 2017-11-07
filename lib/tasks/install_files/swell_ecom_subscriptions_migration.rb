@@ -3,7 +3,7 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 
 		create_table :subscriptions do |t|
 			t.references	:user
-			t.references	:plan
+			t.references	:subscription_plan
 			t.integer		:quantity, default: 1
 			t.string 		:code
 			t.integer		:status, 	default: 0
@@ -23,9 +23,6 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.integer		:trial_amount
 			t.string 		:currency, default: 'USD'
 
-			t.string		:interval, default: 'month' #day, week, month, year
-			t.integer		:interval_value, default: 1
-
 			t.string		:provider
 			t.string		:provider_reference
 			t.string		:provider_customer_profile_reference
@@ -36,14 +33,14 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 
 		create_table :subscription_plans do |t|
 
-			t.integer 		:recurring_price # cents
-			t.string		:recurring_interval_unit, default: 'month' #day, week, month, year
-			t.integer		:recurring_interval_value, default: 1
-			t.integer		:recurring_max_intervals, default: nil # for fixed length subscription
-			t.string		:recurring_statement_descriptor
+			#t.integer 		:recurring_price # cents
+			t.string		:billing_interval_unit, default: 'months' #days
+			t.integer		:billing_interval_value, default: 1
+			#t.integer		:recurring_max_intervals, default: nil # for fixed length subscription
+			t.string		:billing_statement_descriptor
 
 			t.integer 		:trial_price, default: 0 # cents, recurring trial price
-			t.string		:trial_interval_unit, default: 'month' #day, week, month, year
+			t.string		:trial_interval_unit, default: 'month' #day
 			t.integer		:trial_interval_value, default: 1
 			t.integer		:trial_max_intervals, default: 0
 			t.string		:trial_statement_descriptor # a null value default to statement_descriptor
@@ -51,26 +48,32 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.integer		:subscription_plan_type, default: 1 # physical, digital
 
 			# copied products:
-			t.references 	:category
-			t.string 		:title
-			t.string		:caption
-			t.string 		:slug
-			t.string 		:avatar
-			# t.integer		:default_product_type, default: 1 # physical, digital
-			# t.string 		:fulfilled_by, default: 'self' # self, download, amazon, printful
-			t.integer		:status, 	default: 0
-			t.text 			:description
-			t.text 			:content
+			#t.references 	:category
+			t.string		:title
+			#t.string		:caption
+			t.integer		:seq,             default: 1
+			t.string		:slug
+			t.string		:avatar
+			#t.string		:brand_model
+			t.integer		:status,          default: 0
+			t.text			:description
+			t.text			:content
 			t.datetime		:publish_at
-			t.datetime		:preorder_at
-			t.datetime		:release_at
-			t.integer 		:suggested_price, default: 0
-			t.integer 		:price, default: 0
-			t.string 		:currency, default: 'USD'
-			t.integer 		:inventory, default: -1
-			t.string 		:tags, array: true, default: '{}'
-			t.string		:tax_code, default: nil
-			t.hstore		:properties, default: {}
+			t.integer		:price,           default: 0
+			#t.integer		:suggested_price, default: 0
+			t.integer		:shipping_price,  default: 0
+			t.string		:currency,        default: "USD"
+			#t.string		:tags,            default: [],      array: true
+			t.hstore		:properties,      default: {}
+			t.datetime		:created_at
+			t.datetime		:updated_at
+			#t.string		:brand
+			#t.string		:model
+			#t.text			:size_info
+			#t.text			:notes
+			#t.integer		:collection_id
+			t.string		:tax_code,        default: "00000"
+
 			t.timestamps
 		end
 		add_index :subscription_plans, :tags, using: 'gin'
@@ -80,6 +83,7 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 
 		add_column :order_items, :subscription_id, :integer
 		add_index :order_items, [ :subscription_id ]
+
 
 		add_column :orders, :generated_by, :integer, default: 1
 		add_column :orders, :parent_id, :integer, default: nil
