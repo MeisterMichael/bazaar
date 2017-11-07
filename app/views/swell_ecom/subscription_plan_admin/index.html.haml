@@ -1,0 +1,70 @@
+
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					= link_to 'Admin', swell_media.admin_index_path
+				%li
+					%strong
+						Subscription Plan Admin
+						= pluralize @plans.total_count, 'Plan'
+		.col-xs-2
+			%a.btn.btn-success{ data: { toggle: :modal, target: '#new_subscription_plan' } }
+				%i.fa.fa-plus-square
+				New
+	.row
+		.col-xs-6
+			= raw paginate @plans
+		.col-xs-6
+		
+
+	.row
+		.col-xs-12
+			%table.table
+				%thead
+					%th
+						Title
+						%a{ href: subscription_plan_admin_index_path( sort_by: 'title', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: subscription_plan_admin_index_path( sort_by: 'title', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					
+					%th
+						Created
+						%a{ href: subscription_plan_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: subscription_plan_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th Status
+					%th
+				%tbody
+					- @plans.each do |plan|
+						%tr
+							%td
+								= link_to plan.title, edit_subscription_plan_admin_path( plan.id )
+							%td
+								= plan.created_at
+							%td
+								.badge{ class: plan.status }
+									= plan.status
+							%td
+								.btn-group
+									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+										%i.fa.fa-cog
+										%b.caret
+									%ul.dropdown-menu
+										%li
+											%a{ href: edit_subscription_plan_admin_path( plan.id ) }
+												%i.fa.fa-pencil
+												Edit
+										%li.divider
+										%li
+											%a{ href: subscription_plan_admin_path( plan ), data: { method: 'delete', confirm: 'Are you sure?' } }
+												%i.fa.fa-trash-o
+												Delete!
+
+
+= render "new_modal"

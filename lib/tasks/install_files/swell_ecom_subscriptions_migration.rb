@@ -1,7 +1,7 @@
 class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 	def change
 
-		create_table :subscription do |t|
+		create_table :subscriptions do |t|
 			t.references	:user
 			t.references	:plan
 			t.references	:order_item

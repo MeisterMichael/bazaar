@@ -11,7 +11,7 @@ module SwellEcom
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@subscriptions = Subsription.order( "#{sort_by} #{sort_dir}" )
+			@subscriptions = Subscription.order( "#{sort_by} #{sort_dir}" )
 
 			if params[:status].present? && params[:status] != 'all'
 				@subscriptions = eval "@subscriptions.#{params[:status]}"
