@@ -34,15 +34,39 @@
 				.well
 
 					.form-group
-						= f.label :recurring_price
+						= f.label :price
 						.input-group
 							%span.input-group-addon
 								$
-							= f.text_field :recurring_price, value: number_with_precision( (@plan.recurring_price.to_f / 100), :precision => 2 ), class: 'form-control'
-				
-					.form-group
-						= f.label :recurring_interval_unit
-						= f.select :recurring_interval_unit, , {}, class: 'form-control'
+							= f.text_field :price, value: number_with_precision( (@plan.price.to_f / 100), :precision => 2 ), class: 'form-control'
+					.row
+						.form-group
+							= f.label :billing_interval_unit, 'Billing Interval:'
+							.clearfix
+							.col-xs-5
+								= f.text_field :billing_interval_value, class: 'form-control'
+							.col-xs-7
+								= f.select :billing_interval_unit, ['months', 'days'], {}, class: 'form-control'
+
+					.row
+						.form-group
+							%h4
+								Trial
+							.clearfix
+							= f.label :trial_price, :price
+							.input-group
+								%span.input-group-addon
+									$
+								= f.text_field :trial_price, value: number_with_precision( (@plan.trial_price.to_f / 100), :precision => 2 ), class: 'form-control'
+
+							.col-xs-5
+								= f.text_field :trial_interval_value, class: 'form-control'
+							.col-xs-7
+								= f.select :trial_interval_unit, ['months', 'days'], {}, class: 'form-control'
+
+
+
+					%hr
 
 					.form-group
 						= f.label :publish_at

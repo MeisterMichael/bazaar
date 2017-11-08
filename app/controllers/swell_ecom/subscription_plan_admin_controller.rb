@@ -38,13 +38,21 @@ module SwellEcom
 		end
 
 		def update
-			
+
+			params[:subscription_plan][:price] = params[:subscription_plan][:price].to_f * 100 
+			params[:subscription_plan][:trial_price] = params[:subscription_plan][:trial_price].to_f * 100 
+			params[:subscription_plan][:shipping_price] = params[:subscription_plan][:shipping_price].to_f * 100
+
+
+			@plan.attributes = plan_params
+			@plan.save
+			redirect_to :back
 		end
 
 		private
 
 			def plan_params
-				params.require( :subscription_plan ).permit( :title )
+				params.require( :subscription_plan ).permit( :title, :billing_interval_unit, :billing_interval_value, :billing_statement_descriptor, :trial_price, :trial_interval_unit, :trial_interval_value, :trial_max_intervals, :subscription_plan_type, :seq, :avatar, :status, :description, :content, :publish_at, :shipping_price )
 			end
 
 			def get_plan
