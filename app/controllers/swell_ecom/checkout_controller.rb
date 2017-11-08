@@ -17,7 +17,7 @@ module SwellEcom
 
 			@shipping_service.calculate( @order, order_options )
 			@tax_service.calculate( @order )
-			@transaction_service.process( @order, order_options )
+			@transaction_service.process( @order, order_options.merge( credit_card: params[:credit_card] ) )
 
 			if params[:newsletter].present?
 				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}" )
@@ -90,6 +90,44 @@ module SwellEcom
 
 		private
 
+		def get_subscription( order_item )
+
+			plan = order_item.item
+
+			start_at = Time.now
+
+			amount = 1000 # @todo price * qty + shipping + taxes
+			trial_amount = 500 # @todo price * qty + shipping + taxes
+
+			trial_interval = plan.trial_interval_value.try( plan.trial_interval_unit )
+			billing_interval = plan.billing_interval_value.try( plan.billing_interval_unit )
+
+			current_period_end_at = start_at + billing_interval
+
+			if plan.trial_max_intervals > 0
+				trial_start_at = start_at
+				trial_end_at = trial_start_at + trial_interval * plan.trial_max_intervals
+				current_period_end_at = start_at + trial_interval
+			end
+
+			Subscription.new(
+				user: current_user,
+				subscription_plan: order_item.item,
+				quantity: order_item.quantity,
+				status: 'active',
+				start_at: start_at,
+				end_at: end_at,
+				trial_start_at: trial_start_at,
+				trial_end_at: trial_end_at,
+				current_period_start_at: start_at,
+				current_period_end_at: current_period_end_at,
+				next_charged_at: current_period_end_at,
+				amount: amount,
+				trial_amount: trial_amount,
+				currency: order_item.order.currency,
+			)
+		end
+
 		def get_order
 
 			if @cart.nil?
@@ -126,7 +164,8 @@ module SwellEcom
 
 			@order.subtotal = @cart.subtotal
 			@cart.cart_items.each do |cart_item|
-				@order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code
+				order_item = @order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code
+				order_item.subscription = get_subscription( order_item ) if order_item.item.is_a? SubscriptionPlan
 			end
 
 		end
