@@ -33,10 +33,8 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 
 		create_table :subscription_plans do |t|
 
-			#t.integer 		:recurring_price # cents
-			t.string		:billing_interval_unit, default: 'months' #days
+			t.string		:billing_interval_unit, default: 'months' # or days
 			t.integer		:billing_interval_value, default: 1
-			#t.integer		:recurring_max_intervals, default: nil # for fixed length subscription
 			t.string		:billing_statement_descriptor
 
 			t.integer 		:trial_price, default: 0 # cents, recurring trial price
@@ -48,36 +46,24 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.integer		:subscription_plan_type, default: 1 # physical, digital
 
 			# copied products:
-			#t.references 	:category
 			t.string		:title
-			#t.string		:caption
 			t.integer		:seq,             default: 1
 			t.string		:slug
 			t.string		:avatar
-			#t.string		:brand_model
 			t.integer		:status,          default: 0
 			t.text			:description
 			t.text			:content
 			t.datetime		:publish_at
 			t.integer		:price,           default: 0
-			#t.integer		:suggested_price, default: 0
 			t.integer		:shipping_price,  default: 0
 			t.string		:currency,        default: "USD"
-			#t.string		:tags,            default: [],      array: true
 			t.hstore		:properties,      default: {}
 			t.datetime		:created_at
 			t.datetime		:updated_at
-			#t.string		:brand
-			#t.string		:model
-			#t.text			:size_info
-			#t.text			:notes
-			#t.integer		:collection_id
 			t.string		:tax_code,        default: "00000"
 
 			t.timestamps
 		end
-		add_index :subscription_plans, :tags, using: 'gin'
-		add_index :subscription_plans, :category_id
 		add_index :subscription_plans, :slug, unique: true
 		add_index :subscription_plans, :status
 
