@@ -63,7 +63,7 @@ module SwellEcom
 				id: self.id,
 				name: self.title,
 				price: self.price / 100.0,
-				brand: (self.brand || ''),
+				# brand: (self.brand || ''),
 				category: self.product_category.try(:name),
 				variant: '',
 			}
