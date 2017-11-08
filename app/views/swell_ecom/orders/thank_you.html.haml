@@ -29,7 +29,7 @@
 			- @order.order_items.each do |order_item|
 				- unless order_item.prod?
 					.text-right
-						#{order_item.label}: #{number_to_currency order_item.subtotal.to_f / 100}
+						#{order_item.title}: #{number_to_currency order_item.subtotal.to_f / 100}
 			%h3.text-right
 
 
