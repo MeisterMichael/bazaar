@@ -4,19 +4,27 @@ class SwellEcomMigration < ActiveRecord::Migration
 		create_table :carts do |t|
 			t.references	:user
 			t.integer		:status, default: 1
+			t.integer		:subtotal, default: 0
+			t.integer 		:estimated_tax, default: 0
+			t.integer 		:estimated_shipping, default: 0
+			t.integer 		:estimated_total, default: 0
 			t.string		:ip
 			t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
+		add_index :carts, :user_id
 
 		create_table :cart_items do |t|
+			t.references 	:cart
 			t.references 	:item, polymorphic: true
 			t.integer 		:quantity, default: 1
+			t.integer 		:price, default: 0
+			t.integer 		:subtotal, default: 0
 			t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
+		add_index :cart_items, :cart_id
 		add_index :cart_items, [ :item_id, :item_type ]
-
 
 		create_table :geo_addresses do |t|
 			t.references	:user
@@ -56,17 +64,18 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 		create_table :orders do |t|
 			t.references 	:user
-			t.references 	:cart
 			t.references 	:billing_address
 			t.references 	:shipping_address
 			t.string 		:code
 			t.string 		:email
 			t.integer 		:status, default: 0
-
+			t.integer 		:subtotal, default: 0
+			t.integer 		:tax, default: 0
+			t.integer 		:shipping, default: 0
 			t.integer 		:total, defualt: 0
 			t.string 		:currency, default: 'USD'
-
-			t.text 			:customer_comment
+			t.text 			:customer_notes
+			t.text 			:support_notes
 			t.datetime 		:fulfilled_at
 			t.hstore		:properties, 	default: {}
 			t.timestamps
@@ -78,12 +87,13 @@ class SwellEcomMigration < ActiveRecord::Migration
 
 		create_table :order_items do |t|
 			t.references 	:order
-			t.references 	:item, polymorphic: true #product, plan
-			t.integer		:order_item_type, default: 1
+			t.references 	:item, polymorphic: true
+			t.string 		:title
 			t.integer 		:quantity, default: 1
-			t.integer 		:amount, default: 0
+			t.integer 		:price, default: 0
+			t.integer 		:subtotal, default: 0
 			t.string		:tax_code, default: nil
-			t.string		:label
+			t.integer		:order_item_type, default: 1
 			t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
@@ -91,68 +101,75 @@ class SwellEcomMigration < ActiveRecord::Migration
 		add_index :order_items, [ :order_item_type, :order_id ]
 
 
-
 		create_table :products do |t|
-			t.references 	:category
-			t.string 		:title
-			t.string		:caption
-			t.string 		:slug
-			t.string 		:avatar
-			t.integer		:default_product_type, default: 1 # physical, digital
-			t.string 		:fulfilled_by, default: 'self' # self, download, amazon, printful
-			t.integer		:status, 	default: 0
-			t.text 			:description
-			t.text 			:content
-			t.datetime		:publish_at
-			t.datetime		:preorder_at
-			t.datetime		:release_at
-			t.integer 		:suggested_price, default: 0
-			t.integer 		:price, default: 0
-			t.string 		:currency, default: 'USD'
-			t.integer 		:inventory, default: -1
-			t.string 		:tags, array: true, default: '{}'
-			t.string		:tax_code, default: nil
-			t.hstore		:properties, default: {}
-			t.timestamps
+			t.references  :category
+			t.text     :shopify_code
+			t.string   :title
+			t.string   :caption
+			t.integer  :seq,             default: 1
+			t.string   :slug
+			t.string   :avatar
+			t.string   :brand_model
+			t.integer  :status,          default: 0
+			t.text     :description
+			t.text     :content
+			t.datetime :publish_at
+			t.integer  :price,           default: 0
+			t.integer  :suggested_price, default: 0
+			t.integer  :shipping_price,  default: 0
+			t.string   :currency,        default: "USD"
+			t.string   :tags,            default: [],      array: true
+			t.hstore   :properties,      default: {}
+			t.datetime :created_at
+			t.datetime :updated_at
+			t.string   :brand
+			t.string   :model
+			t.text     :size_info
+			t.text     :notes
+			t.integer  :collection_id
+			t.string   :tax_code,        default: "00000"
 		end
 		add_index :products, :tags, using: 'gin'
 		add_index :products, :category_id
 		add_index :products, :slug, unique: true
 		add_index :products, :status
+		add_index :products, :seq
 
-		create_table :product_options do |t|
-			t.references	:product
-			t.string 		:label
-			t.string 		:code
-		end
-		add_index :product_options, [ :product_id, :label ]
-
-		create_table :transactions do |t|
-			t.references 	:parent, polymorphic: true 	# order, subscription
-			t.integer 		:transaction_type   # chargeback, refund, preauth, charge
-			t.string	 	:provider
-			t.string 		:reference
-			t.string 		:message
-			t.integer 		:amount, default: 0
-			t.string 		:currency, default: 'USD'
-			t.integer		:status, default: 1	# declined, approved
-			t.hstore		:properties, 	default: {}
+		create_table :product_variants do |t|
+			t.references 	:product
+			t.string 		:title
+			t.string 		:slug
+			t.string 		:avatar
+			t.string 		:option_name, default: :size
+			t.string 		:option_value
+			t.text 			:description
+			t.integer 		:status, default: 1
+			t.integer 		:seq, default: 1
+			t.integer 		:price, default: 0
+			t.integer 		:shipping_price, default: 0
+			t.integer 		:inventory, default: -1
+			t.hstore 		:properties, default: {}
+			t.datetime 		:publish_at
 			t.timestamps
 		end
-		add_index :transactions, [ :parent_id, :parent_type ]
-		add_index :transactions, [ :transaction_type ]
-		add_index :transactions, [ :reference ]
-		add_index :transactions, [ :status, :reference ]
+		add_index :product_variants, :product_id
+		add_index :product_variants, :seq
+		add_index :product_variants, :slug, unique: true
+		add_index :product_variants, [ :option_name, :option_value ]
 
-
-		# todo:
-		# - product variants
-		# - coupons
-		# - bundles
-		# - inventory?
-		# - deal with subscriptions?
-		# - ?refunds/transactions?
-
+		create_table :transactions do |t|
+			t.references	:parent_obj, polymorphic: true  # order, refund, etc.
+			t.integer		:transaction_type, default: 1 # payment, refund, chargeback
+			t.string 		:provider
+			t.string 		:reference_code
+			t.integer 		:amount, default: 0
+			t.string 		:currency, default: 'USD'
+			t.integer 		:status, default: 1
+			t.hstore 		:properties, default: {}
+			t.timestamps
+		end
+		add_index :transactions, [ :parent_obj_id, :parent_obj_type ]
+		add_index :transactions, :reference_code
 
 	end
 end

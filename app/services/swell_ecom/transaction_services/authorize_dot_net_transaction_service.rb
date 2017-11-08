@@ -6,108 +6,87 @@ module SwellEcom
 
 		class AuthorizeDotNetTransactionService < SwellEcom::TransactionService
 
+			PROVIDER_NAME = 'Authorize.net'
+			ERROR_DUPLICATE_CUSTOMER_PROFILE = 'E00039'
+
 			def initialize( args = {} )
 				@api_login	= args[:API_LOGIN_ID] || ENV['AUTHORIZE_DOT_NET_API_LOGIN_ID']
 				@api_key	= args[:TRANSACTION_API_KEY] || ENV['AUTHORIZE_DOT_NET_TRANSACTION_API_KEY']
 				@gateway	= ( args[:API_LOGIN_ID] || ENV['AUTHORIZE_DOT_NET_GATEWAY'] || :sandbox ).to_sym
 			end
 
-			def cancel_subscription( subscription )
-				# @todo
-			end
-
 			def process( order, args = {} )
 				self.calculate( order )
 				return false if order.errors.present?
 
-				one_time_order_items	= order.order_items.select{ |order_items| order_items.item.is_a? Product }
-				plan_order_items		= order.order_items.select{ |order_items| order_items.item.is_a? SubscriptionPlan }
+				profiles = get_customer_profile( order, credit_card: args[:credit_card] )
+				return false if profiles == false
 
-				plan_order_items.each do |order_item|
-					subscription	= order_item.subscription
-					plan			= order_item.item
+				anet_order = nil
+				# anet_order = AuthorizeNet::Order.new()
+		        # anet_order.invoice_num = order.code
+		        # anet_order.description =  'This order includes invoice num'
+		        # anet_order.po_num = 'PO_12345'
+				# order.order_items.select(&:prod?).each do |order_item|
+				# 	anet_order.add_line_item(
+				# 		order_item.item.code, 		#id
+				# 		order_item.title,			#name
+				# 		nil,						#description
+				# 		order_item.quantity,		#quantity
+				# 		order_item.price / 100.0,	# price
+				# 		1							# taxable
+				# 	)
+				# end
 
-					same_trial_and_billing_interval = plan.billing_interval_unit == plan.trial_interval_unit && plan.billing_interval_value == plan.trial_interval_value
+				# create capture
+				anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+				amount = order.total / 100.0 # convert cents to dollars
+		        response = anet_transaction.create_transaction_auth_capture( amount, profiles[:customer_profile_id], profiles[:payment_profile_id], anet_order )
+				direct_response = response.direct_response
 
-					# if NO trial, or trial is on the same cadence as the rest of
-					# the subscription, then process a single subscription.
-					if same_trial_and_billing_interval || plan.trial_max_intervals == 0
+				puts response.xml
 
-						# offset by one interval, because initial is transacted
-						# now, as part of this order
-						interval_duration = plan.billing_interval_value.try( plan.billing_interval_unit )
-						start_date = subscription.start_at + interval_duration
-
-						process_subscription(
-							order, subscription,
-							:amount			=> subscription.amount,
-							:trial_amount	=> subscription.trial_amount,
-							:schedule => {
-								:length				=> plan.billing_interval_value,
-								:unit				=> plan.billing_interval_unit,
-								:start_date			=> start_date,
-								:total_occurrences	=> nil,
-								:trial_occurrences	=> plan.trial_max_intervals,
-							},
-							:credit_card => args[:credit_card]
-						)
-
-					# if HAS a trial, which is ONE interval, and is NOT the same
-					# candence as the rest of the subscription, then delay the
-					# subscription by the length of the trial, and pay the trial
-					# upfront.
-					else
+				raise Exception.new("create auth capture error: #{response.message_text}") unless response.success?
 
 
-						if plan.trial_max_intervals > 1
+				# process response
+				if response.success? && direct_response.success?
 
-							raise Exception.new('Unsupported Trail Subscription')
+					# if capture is successful, save order, and create transaction.
+					if order.save
 
-							# offset by one interval, because initial is transacted
-							# now, as part of this order
-							# total_occurrences	= plan.trial_max_intervals - 1
-							# trial_duration		= plan.trial_interval_value.try( plan.trial_interval_unit )
-							# start_date = subscription.start_at + interval_duration
-
-							# process_subscription(
-							# 	order, subscription,
-							# 	:amount => subscription.trial_amount,
-							# 	:schedule => {
-							# 		:length				=> subscription.trial_interval_value,
-							# 		:unit				=> subscription.trial_interval_unit,
-							# 		:start_date			=> start_date,
-							# 		:total_occurrences	=> total_occurrences,
-							# 	}
-							# 	:credit_card => args[:credit_card]
-							# )
+						# update any subscriptions with profile ids
+						order.order_items.each do |order_item|
+							if order_item.subscription.present?
+								order_item.subscription.provider = PROVIDER_NAME
+								order_item.subscription.provider_customer_profile_reference = profiles[:customer_profile_id]
+								order_item.subscription.provider_customer_payment_profile_reference = profiles[:payment_profile_id]
+								order_item.subscription.save
+							end
 						end
 
-						# offset by trial duration, as the trial has it's own sub
-						trial_duration	= plan.trial_interval_value.try( plan.trial_interval_unit ) * plan.trial_max_intervals
-						start_date		= subscription.start_at + trial_duration
+						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: direct_response.transaction_id, provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'approved' )
 
-						process_subscription(
-							order, subscription,
-							:amount 		=> subscription.amount,
-							:trial_amount 	=> subscription.trial_amount,
-							:schedule => {
-								:length				=> plan.billing_interval_value,
-								:unit				=> plan.billing_interval_unit,
-								:start_date			=> start_date,
-								:total_occurrences	=> nil,
-							},
-							:credit_card => args[:credit_card]
-						)
+						raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
+
+						return true
 
 					end
+
+				else
+
+					orders.status = 'declined'
+
+					if orders.save
+						Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
+					end
+
+					order.errors.add(:base, :processing_error, message: "Transaction declined.")
 
 				end
 
 
-				process_order( order, :credit_card => args[:credit_card] )
-
 				return false
-
 			end
 
 			def refund( args = {} )
@@ -118,7 +97,7 @@ module SwellEcom
 
 					transaction = Transcation.new( args )
 					transaction.transaction_type	= 'refund'
-					transaction.provider			= 'Authorize.net'
+					transaction.provider			= PROVIDER_NAME
 					transaction.currency			||= transaction.parent.try(:currency)
 
 
@@ -138,11 +117,91 @@ module SwellEcom
 
 			end
 
-			def update_subscription( subscription )
-				# @todo
-			end
+			protected
 
-			# protected
+			def get_customer_profile( order, args = {} )
+				anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+
+				# find an existing customer profile
+				subscriptions = order.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::Subscription ) && order_item.item == PROVIDER_NAME }.collect(&:item)
+				return { customer_profile_id: subscriptions.first.provider_customer_profile_reference, payment_profile_id: subscriptions.first.provider_customer_payment_profile_reference } if subscriptions.present?
+
+				raise Exception.new( 'cannot create payment profile without credit card info' ) unless args[:credit_card].present?
+
+				billing_address_state = order.billing_address.state
+				billing_address_state = order.billing_address.geo_state.try(:name) if billing_address_state.blank?
+				billing_address_state = order.billing_address.geo_state.try(:abbrev) if billing_address_state.blank?
+
+				anet_billing_address = AuthorizeNet::Address.new(
+					:first_name		=> order.billing_address.first_name,
+					:last_name		=> order.billing_address.last_name,
+					# :company		=> nil,
+					:street_address	=> "#{order.billing_address.street}\n#{order.billing_address.street2}".strip,
+					:city			=> order.billing_address.city,
+					:state			=> billing_address_state,
+					:zip			=> order.billing_address.zip,
+					:country		=> order.billing_address.geo_country.name,
+					:phone			=> order.billing_address.phone,
+				)
+
+				credit_card = args[:credit_card]
+				anet_credit_card = AuthorizeNet::CreditCard.new(
+					credit_card[:card_number].gsub(/\s/,''),
+					credit_card[:expiration],
+					card_code: credit_card[:card_code],
+				)
+
+				anet_payment_profile = AuthorizeNet::CIM::PaymentProfile.new(
+					:payment_method		=> anet_credit_card,
+					:billing_address	=> anet_billing_address,
+				)
+
+				anet_customer_profile = AuthorizeNet::CIM::CustomerProfile.new(
+					:email			=> order.user.email,
+					:id				=> order.user.id,
+					:phone			=> order.billing_address.phone,
+					:address		=> anet_billing_address,
+					:description	=> "#{anet_billing_address.first_name} #{anet_billing_address.last_name}"
+				)
+				anet_customer_profile.payment_profiles = anet_payment_profile
+
+
+				# create a new customer profile
+				response = anet_transaction.create_profile( anet_customer_profile )
+				puts response.success?
+				puts response.profile_id
+				puts response.payment_profile_ids
+				puts response.xml
+
+				# recover a customer profile if it already exists.
+				if response.message_code == ERROR_DUPLICATE_CUSTOMER_PROFILE
+					anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+
+					profile_id = response.message_text.match( /(\d{4,})/)[1]
+
+					response = anet_transaction.get_profile( profile_id.to_s )
+					customer_profile_id = response.profile_id
+					customer_payment_profile_id = response.profile.payment_profiles.first.try(:customer_payment_profile_id)
+
+					return { customer_profile_id: customer_profile_id, payment_profile_id: customer_payment_profile_id }
+
+				elsif not( response.success? )
+					raise Exception.new("create profile error #{response.message_text}")
+				end
+
+				if response.success?
+
+					puts response.profile_id
+					puts response.payment_profile_id
+
+					return { customer_profile_id: response.profile_id, payment_profile_id: response.payment_profile_id }
+				else
+					order.errors.add(:base, :processing_error, message: 'Unable to create customer profile')
+
+					return false
+				end
+
+			end
 
 			def process_order( order, args = {} )
 				# @todo process order

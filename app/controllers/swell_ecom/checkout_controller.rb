@@ -157,7 +157,7 @@ module SwellEcom
 				billing_address_attributes = {}
 			end
 
-			@order = Order.new order_attributes.merge( currency: 'usd' )
+			@order = Order.new order_attributes.merge( currency: 'usd', user: current_user )
 			@order.shipping_address = GeoAddress.new shipping_address_attributes.merge( user: current_user )
 			@order.billing_address 	= GeoAddress.new billing_address_attributes.merge( user: current_user )
 
