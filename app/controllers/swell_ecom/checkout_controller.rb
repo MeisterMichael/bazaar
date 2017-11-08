@@ -116,7 +116,6 @@ module SwellEcom
 				quantity: order_item.quantity,
 				status: 'active',
 				start_at: start_at,
-				end_at: end_at,
 				trial_start_at: trial_start_at,
 				trial_end_at: trial_end_at,
 				current_period_start_at: start_at,

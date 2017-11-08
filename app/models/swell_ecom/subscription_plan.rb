@@ -54,9 +54,6 @@ module SwellEcom
 		include FriendlyId
 		friendly_id :slugger, use: [ :slugged, :history ]
 
-		acts_as_taggable_array_on :tags
-
-
 		def self.published( args = {} )
 			where( "subscription_plans.publish_at <= :now", now: Time.zone.now ).active
 		end

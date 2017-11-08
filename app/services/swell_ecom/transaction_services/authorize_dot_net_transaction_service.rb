@@ -146,7 +146,7 @@ module SwellEcom
 
 			def process_order( order, args = {} )
 				# @todo process order
-				throw Exception.new('@todo AuthorizeDotNetTransactionService#process_order')
+				raise Exception.new('@todo AuthorizeDotNetTransactionService#process_order')
 			end
 
 			def process_subscription( order, subscription, args = {} )
@@ -157,8 +157,11 @@ module SwellEcom
 				total_occurrences	= :unlimited
 				total_occurrences	= schedule[:total_occurrences] if schedule[:total_occurrences].present? && schedule[:total_occurrences] > 0
 				trial_occurrences	= schedule[:trial_occurrences]
-				amount				= schedule[:amount]
-				trial_amount		= schedule[:trial_amount]
+
+				amount				= (args[:amount] / 100.0)
+
+				trial_amount		= 0.0
+				trial_amount		= (args[:trial_amount] / 100.0) if args[:trial_amount].present?
 
 				unit_multiplier = 1
 				unit = AuthorizeNet::ARB::Subscription::IntervalUnits::MONTH
@@ -166,10 +169,13 @@ module SwellEcom
 				unit_multiplier = 7 if schedule[:unit] == 'week'
 				length = schedule[:length] * unit_multiplier
 
-				start_date = schedule[:start_at]
+				start_date = schedule[:start_date]
+
+				puts "JSON.pretty_generate schedule"
+				puts JSON.pretty_generate schedule
 
 				anet_credit_card = AuthorizeNet::CreditCard.new(
-					credit_card[:card_number],
+					credit_card[:card_number].gsub(/\s/,''),
 					credit_card[:expiration],
 					card_code: credit_card[:card_code],
 				)
@@ -205,10 +211,11 @@ module SwellEcom
 				)
 
 
-				anet_subscription = AuthorizeNet::ARB::Subscription.new(
+				anet_subscription_attributes = {
+
 					:name => plan.title,
 					:invoice_number => order.code,
-					:description => plan.recurring_statement_descriptor,
+					:description => plan.billing_statement_descriptor,
 					:subscription_id => nil,
 					:customer => anet_customer,
 					:credit_card => anet_credit_card,
@@ -219,25 +226,21 @@ module SwellEcom
 					:length => length,
 					:start_date => start_date,
 					:total_occurrences => total_occurrences,
-					:trial_occurrences => trial_occurrences,
+					:trial_occurrences => trial_occurrences || 0,
 					:amount => amount,
 					:trial_amount => trial_amount,
-				)
+				}
+				puts "anet_subscription_attributes #{JSON.pretty_generate anet_subscription_attributes}"
+				anet_subscription = AuthorizeNet::ARB::Subscription.new( anet_subscription_attributes )
 
 				anet_transaction = AuthorizeNet::ARB::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 
 				response = anet_transaction.create( anet_subscription )
 
-				if response.success?
-					# @todo validate success
-					puts "subscription success #{response.subscription_id}"
-					return true
-				else
-					# @todo handle errors
-					puts "subscription error"
-					raise Exception.new('subscription error')
-					return false
-				end
+
+				raise Exception.new("subscription error #{response.message_text}") unless response.success?
+
+				return true
 			end
 
 		end
