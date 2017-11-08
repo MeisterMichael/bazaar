@@ -1,3 +1,5 @@
+require 'authorizenet'
+
 module SwellEcom
 
 	module TransactionServices
@@ -18,153 +20,91 @@ module SwellEcom
 				self.calculate( order )
 				return false if order.errors.present?
 
-				# @todo
-				throw Exception.new('@todo AuthorizeDotNetTransactionService#process')
-				# process subscription if order includes a plan
-
-				anet_credit_card = AuthorizeNet::CreditCard.new(
-					args[:credit_card][:card_number],
-					args[:credit_card][:expiration],
-					card_code: args[:credit_card][:card_code],
-				)
-
-				anet_customer = AuthorizeNet::Customer.new(
-					:email			=> order.user.email,
-					:id				=> order.user.id.to_s,
-					:phone_number	=> order.billing_address.phone,
-				)
-
-				anet_billing_address = AuthorizeNet::Address.new(
-					:first_name		=> order.billing_address.first_name,
-					:last_name		=> order.billing_address.last_name,
-					# :company		=> nil,
-					:address		=> "#{order.billing_address.street}\n#{order.billing_address.street2}".strip,
-					:city			=> order.billing_address.city,
-					:state			=> order.billing_address.state || order.billing_address.geo_state.try(:name),
-					:zip			=> order.billing_address.zip,
-					:country		=> order.billing_address.geo_country.name,
-					:phone_number	=> order.billing_address.phone,
-				)
-
-				anet_shipping_address = AuthorizeNet::Address.new(
-					:first_name		=> order.shipping_address.first_name,
-					:last_name		=> order.shipping_address.last_name,
-					# :company		=> nil,
-					:address		=> "#{order.shipping_address.street}\n#{order.shipping_address.street2}".strip,
-					:city			=> order.shipping_address.city,
-					:state			=> order.shipping_address.state || order.shipping_address.geo_state.try(:name),
-					:zip			=> order.shipping_address.zip,
-					:country		=> order.shipping_address.geo_country.name,
-				)
-
-
 				one_time_order_items	= order.order_items.select{ |order_items| order_items.item.is_a? Product }
-				plan_order_items		= order.order_items.select{ |order_items| order_items.item.is_a? Plan }
+				plan_order_items		= order.order_items.select{ |order_items| order_items.item.is_a? SubscriptionPlan }
 
 				plan_order_items.each do |order_item|
-					plan			= order_item.item
 					subscription	= order_item.subscription
+					plan			= order_item.item
 
-					recurring_interval_unit_multiplier = 1
-					recurring_interval_unit = AuthorizeNet::ARB::Subscription::IntervalUnits::MONTH
-					recurring_interval_unit = AuthorizeNet::ARB::Subscription::IntervalUnits::DAY if subscription.recurring_interval == 'day' || subscription.recurring_interval == 'week'
-					recurring_interval_unit_multiplier = 7 if subscription.recurring_interval == 'week'
-					recurring_interval_value = plan.recurring_interval_value * recurring_interval_unit_multiplier
-
-					trial_interval_unit_multiplier = 1
-					trial_interval_unit = AuthorizeNet::ARB::Subscription::IntervalUnits::MONTH
-					trial_interval_unit = AuthorizeNet::ARB::Subscription::IntervalUnits::DAY if subscription.trial_interval == 'day' || subscription.trial_interval == 'week'
-					trial_interval_unit_multiplier = 7 if subscription.trial_interval == 'week'
-					trial_interval_value = plan.trial_interval_value * trial_interval_unit_multiplier
-
-					total_occurrences = :unlimited
-					total_occurrences = plan.recurring_max_intervals + plan.trial_max_intervals if plan.recurring_max_intervals.present?
+					same_trial_and_billing_interval = plan.billing_interval_unit == plan.trial_interval_unit && plan.billing_interval_value == plan.trial_interval_value
 
 					# if NO trial, or trial is on the same cadence as the rest of
 					# the subscription, then process a single subscription.
-					if ( recurring_interval_value == trial_interval_value && plan.recurring_interval == plan.trial_interval ) || plan.trial_max_intervals == 0
+					if same_trial_and_billing_interval || plan.trial_max_intervals == 0
 
-						anet_subscription = AuthorizeNet::ARB::Subscription.new(
-							:name => plan.name,
-							:length => recurring_interval_value,
-							:unit => recurring_interval_unit,
-							:start_date => subscription.start_date,
-							:total_occurrences => total_occurrences,
-							:trial_occurrences => plan.trial_max_intervals,
-							:amount => subscription.amount,
-							:trial_amount => subscription.trial_amount,
-							:invoice_number => order.code,
-							:description => plan.recurring_statement_descriptor,
-							:subscription_id => nil,
-							:customer => anet_customer,
-							:credit_card => anet_credit_card,
-							:billing_address => anet_billing_address,
-							:shipping_address => anet_shipping_address,
+						# offset by one interval, because initial is transacted
+						# now, as part of this order
+						interval_duration = plan.billing_interval_value.try( plan.billing_interval_unit )
+						start_date = subscription.start_at + interval_duration
+
+						process_subscription(
+							order, subscription,
+							:amount			=> subscription.amount,
+							:trial_amount	=> subscription.trial_amount,
+							:schedule => {
+								:length				=> plan.billing_interval_value,
+								:unit				=> plan.billing_interval_unit,
+								:start_date			=> start_date,
+								:total_occurrences	=> nil,
+								:trial_occurrences	=> plan.trial_max_intervals,
+							},
+							:credit_card => args[:credit_card]
 						)
-
-						anet_transaction = AuthorizeNet::ARB::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-						response = anet_transaction.create( anet_subscription )
-
-						if response.success?
-							# @todo validate success
-						else
-							# @todo handle errors
-						end
 
 					# if HAS a trial, which is ONE interval, and is NOT the same
 					# candence as the rest of the subscription, then delay the
 					# subscription by the length of the trial, and pay the trial
 					# upfront.
 					else
-						raise Exception.new('Unsupported Trail Subscription') unless plan.trial_max_intervals == 1
 
-
-						# postpone the start of the subscription, by the length
-						# of the trial.
-						trial_duration = plan.trial_interval_value.try( plan.trial_recurring_interval ) * plan.trial_max_intervals
-						recurring_start_date = subscription.start_date + trial_duration
-
-						anet_subscription = AuthorizeNet::ARB::Subscription.new(
-							:name => plan.name,
-							:length => recurring_interval_value,
-							:unit => recurring_interval_unit,
-							:start_date => recurring_start_date,
-							:total_occurrences => total_occurrences,
-							:trial_occurrences => nil,
-							:amount => subscription.amount,
-							:trial_amount => nil,
-							:invoice_number => order.code,
-							:description => plan.recurring_statement_descriptor,
-							:subscription_id => nil,
-							:customer => anet_customer,
-							:credit_card => anet_credit_card,
-							:billing_address => anet_billing_address,
-							:shipping_address => anet_shipping_address,
-						)
-
-
-						anet_transaction = AuthorizeNet::ARB::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-						response = anet_transaction.create( anet_subscription )
-
-						if response.success?
-							# @todo validate success
-						else
-							# @todo handle errors
-						end
 
 						if plan.trial_max_intervals > 1
 
-							# @todo create a trial subscription.
+							raise Exception.new('Unsupported Trail Subscription')
 
+							# offset by one interval, because initial is transacted
+							# now, as part of this order
+							# total_occurrences	= plan.trial_max_intervals - 1
+							# trial_duration		= plan.trial_interval_value.try( plan.trial_interval_unit )
+							# start_date = subscription.start_at + interval_duration
+
+							# process_subscription(
+							# 	order, subscription,
+							# 	:amount => subscription.trial_amount,
+							# 	:schedule => {
+							# 		:length				=> subscription.trial_interval_value,
+							# 		:unit				=> subscription.trial_interval_unit,
+							# 		:start_date			=> start_date,
+							# 		:total_occurrences	=> total_occurrences,
+							# 	}
+							# 	:credit_card => args[:credit_card]
+							# )
 						end
+
+						# offset by trial duration, as the trial has it's own sub
+						trial_duration	= plan.trial_interval_value.try( plan.trial_interval_unit ) * plan.trial_max_intervals
+						start_date		= subscription.start_at + trial_duration
+
+						process_subscription(
+							order, subscription,
+							:amount 		=> subscription.amount,
+							:trial_amount 	=> subscription.trial_amount,
+							:schedule => {
+								:length				=> plan.billing_interval_value,
+								:unit				=> plan.billing_interval_unit,
+								:start_date			=> start_date,
+								:total_occurrences	=> nil,
+							},
+							:credit_card => args[:credit_card]
+						)
 
 					end
 
 				end
 
 
-				# @todo process order
-				order
+				process_order( order, :credit_card => args[:credit_card] )
 
 				return false
 
@@ -200,6 +140,104 @@ module SwellEcom
 
 			def update_subscription( subscription )
 				# @todo
+			end
+
+			# protected
+
+			def process_order( order, args = {} )
+				# @todo process order
+				throw Exception.new('@todo AuthorizeDotNetTransactionService#process_order')
+			end
+
+			def process_subscription( order, subscription, args = {} )
+				schedule	= args[:schedule]
+				credit_card	= args[:credit_card]
+				plan		= subscription.subscription_plan
+
+				total_occurrences	= :unlimited
+				total_occurrences	= schedule[:total_occurrences] if schedule[:total_occurrences].present? && schedule[:total_occurrences] > 0
+				trial_occurrences	= schedule[:trial_occurrences]
+				amount				= schedule[:amount]
+				trial_amount		= schedule[:trial_amount]
+
+				unit_multiplier = 1
+				unit = AuthorizeNet::ARB::Subscription::IntervalUnits::MONTH
+				unit = AuthorizeNet::ARB::Subscription::IntervalUnits::DAY if schedule[:unit] == 'day' || schedule[:unit] == 'week'
+				unit_multiplier = 7 if schedule[:unit] == 'week'
+				length = schedule[:length] * unit_multiplier
+
+				start_date = schedule[:start_at]
+
+				anet_credit_card = AuthorizeNet::CreditCard.new(
+					credit_card[:card_number],
+					credit_card[:expiration],
+					card_code: credit_card[:card_code],
+				)
+
+				customer_id = order.user.try(:id).to_s if order.user.present?
+				anet_customer = AuthorizeNet::Customer.new(
+					:email			=> order.user.try(:email),
+					:id				=> customer_id,
+					:phone_number	=> order.billing_address.phone,
+				)
+
+				anet_billing_address = AuthorizeNet::Address.new(
+					:first_name		=> order.billing_address.first_name,
+					:last_name		=> order.billing_address.last_name,
+					# :company		=> nil,
+					:address		=> "#{order.billing_address.street}\n#{order.billing_address.street2}".strip,
+					:city			=> order.billing_address.city,
+					:state			=> order.billing_address.state || order.billing_address.geo_state.try(:name),
+					:zip			=> order.billing_address.zip,
+					:country		=> order.billing_address.geo_country.name,
+					:phone_number	=> order.billing_address.phone,
+				)
+
+				anet_shipping_address = AuthorizeNet::Address.new(
+					:first_name		=> order.shipping_address.first_name,
+					:last_name		=> order.shipping_address.last_name,
+					# :company		=> nil,
+					:address		=> "#{order.shipping_address.street}\n#{order.shipping_address.street2}".strip,
+					:city			=> order.shipping_address.city,
+					:state			=> order.shipping_address.state || order.shipping_address.geo_state.try(:name),
+					:zip			=> order.shipping_address.zip,
+					:country		=> order.shipping_address.geo_country.name,
+				)
+
+
+				anet_subscription = AuthorizeNet::ARB::Subscription.new(
+					:name => plan.title,
+					:invoice_number => order.code,
+					:description => plan.recurring_statement_descriptor,
+					:subscription_id => nil,
+					:customer => anet_customer,
+					:credit_card => anet_credit_card,
+					:billing_address => anet_billing_address,
+					:shipping_address => anet_shipping_address,
+
+					:unit => unit,
+					:length => length,
+					:start_date => start_date,
+					:total_occurrences => total_occurrences,
+					:trial_occurrences => trial_occurrences,
+					:amount => amount,
+					:trial_amount => trial_amount,
+				)
+
+				anet_transaction = AuthorizeNet::ARB::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+
+				response = anet_transaction.create( anet_subscription )
+
+				if response.success?
+					# @todo validate success
+					puts "subscription success #{response.subscription_id}"
+					return true
+				else
+					# @todo handle errors
+					puts "subscription error"
+					raise Exception.new('subscription error')
+					return false
+				end
 			end
 
 		end
