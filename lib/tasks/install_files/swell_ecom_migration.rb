@@ -162,6 +162,8 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer		:transaction_type, default: 1 # payment, refund, chargeback
 			t.string 		:provider
 			t.string 		:reference_code
+			t.string 		:customer_profile_reference
+			t.string 		:customer_payment_profile_reference
 			t.integer 		:amount, default: 0
 			t.string 		:currency, default: 'USD'
 			t.integer 		:status, default: 1
