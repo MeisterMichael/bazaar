@@ -43,6 +43,12 @@ describe "AuthorizeDotNetTransactionService" do
 		expect(transaction.amount).to eq 12900
 		expect(transaction.signed_amount).to eq 12900
 
+		transaction = transaction_service.process( order, credit_card: credit_card.merge( card_number: '411' ) )
+
+		expect(transaction).to eq false
+		expect(order.errors.present?).to eq true
+		expect(order.errors.full_messages.join('')).to eq "Invalid Payment Information"
+
 	end
 
 	it "should support refunding transactions" do

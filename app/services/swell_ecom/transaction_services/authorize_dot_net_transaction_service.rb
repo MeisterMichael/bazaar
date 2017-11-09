@@ -8,6 +8,7 @@ module SwellEcom
 
 			PROVIDER_NAME = 'Authorize.net'
 			ERROR_DUPLICATE_CUSTOMER_PROFILE = 'E00039'
+			ERROR_INVALID_PAYMENT_PROFILE = 'E00003'
 			CANNOT_REFUND_CHARGE = 'E00027'
 
 			def initialize( args = {} )
@@ -46,7 +47,7 @@ module SwellEcom
 				direct_response = response.direct_response
 
 
-				raise Exception.new("create auth capture error: #{response.message_text}") unless response.success?  # @todo remove
+				# raise Exception.new("create auth capture error: #{response.message_text}") unless response.success?  # @todo remove
 
 
 				# process response
@@ -74,7 +75,6 @@ module SwellEcom
 					end
 
 				else
-					puts response.xml
 
 					orders.status = 'declined'
 
@@ -268,9 +268,11 @@ module SwellEcom
 
 				else
 
-					puts response.xml
-					order.errors.add(:base, :processing_error, message: 'Unable to create customer profile')
-					raise Exception.new("create profile error #{response.message_text}") # @todo remove
+					if response.message_code == ERROR_INVALID_PAYMENT_PROFILE
+						order.errors.add(:base, :processing_error, message: 'Invalid Payment Information')
+					else
+						order.errors.add(:base, :processing_error, message: 'Unable to create customer profile')
+					end
 
 				end
 
