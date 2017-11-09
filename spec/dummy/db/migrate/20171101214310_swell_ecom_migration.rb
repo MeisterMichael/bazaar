@@ -9,7 +9,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:estimated_shipping, default: 0
 			t.integer 		:estimated_total, default: 0
 			t.string		:ip
-			t.hstore		:properties, 	default: {}
+			# t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
 		add_index :carts, :user_id
@@ -20,7 +20,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:quantity, default: 1
 			t.integer 		:price, default: 0
 			t.integer 		:subtotal, default: 0
-			t.hstore		:properties, 	default: {}
+			# t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
 		add_index :cart_items, :cart_id
@@ -77,7 +77,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.text 			:customer_notes
 			t.text 			:support_notes
 			t.datetime 		:fulfilled_at
-			t.hstore		:properties, 	default: {}
+			# t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
 		add_index 	:orders, [ :user_id, :billing_address_id, :shipping_address_id ], name: 'user_id_addr_indx'
@@ -94,7 +94,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:subtotal, default: 0
 			t.string		:tax_code, default: nil
 			t.integer		:order_item_type, default: 1
-			t.hstore		:properties, 	default: {}
+			# t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
 		add_index :order_items, [ :item_id, :item_type, :order_id ]
@@ -119,7 +119,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer  :shipping_price,  default: 0
 			t.string   :currency,        default: "USD"
 			t.string   :tags,            default: [],      array: true
-			t.hstore   :properties,      default: {}
+			# t.hstore   :properties,      default: {}
 			t.datetime :created_at
 			t.datetime :updated_at
 			t.string   :brand
@@ -148,7 +148,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:price, default: 0
 			t.integer 		:shipping_price, default: 0
 			t.integer 		:inventory, default: -1
-			t.hstore 		:properties, default: {}
+			# t.hstore 		:properties, default: {}
 			t.datetime 		:publish_at
 			t.timestamps
 		end
@@ -167,7 +167,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:amount, default: 0
 			t.string 		:currency, default: 'USD'
 			t.integer 		:status, default: 1
-			t.hstore 		:properties, default: {}
+			# t.hstore 		:properties, default: {}
 			t.timestamps
 		end
 		add_index :transactions, [ :parent_obj_id, :parent_obj_type ]

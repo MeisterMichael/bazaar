@@ -59,7 +59,7 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.integer		:price,           default: 0
 			t.integer		:shipping_price,  default: 0
 			t.string		:currency,        default: "USD"
-			t.hstore		:properties,      default: {}
+			# t.hstore		:properties,      default: {}
 			t.datetime		:created_at
 			t.datetime		:updated_at
 			t.string		:tax_code,        default: "00000"

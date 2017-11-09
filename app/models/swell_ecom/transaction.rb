@@ -7,6 +7,22 @@ module SwellEcom
 		enum status: { 'declined' => -1, 'approved' => 1 }
 		belongs_to :parent_obj, polymorphic: true # subscription, order
 
+		def negative?
+			void? || chargeback? || refund?
+		end
+
+		def positive?
+			charge?
+		end
+
+		def signed_amount
+			if negative?
+				-amount
+			else
+				amount
+			end
+		end
+
 		def self.negative
 			where( 'transaction_type < 0' )
 		end

@@ -13,7 +13,7 @@ module SwellEcom
 			def initialize( args = {} )
 				@api_login	= args[:API_LOGIN_ID] || ENV['AUTHORIZE_DOT_NET_API_LOGIN_ID']
 				@api_key	= args[:TRANSACTION_API_KEY] || ENV['AUTHORIZE_DOT_NET_TRANSACTION_API_KEY']
-				@gateway	= ( args[:API_LOGIN_ID] || ENV['AUTHORIZE_DOT_NET_GATEWAY'] || :sandbox ).to_sym
+				@gateway	= ( args[:GATEWAY] || ENV['AUTHORIZE_DOT_NET_GATEWAY'] || :sandbox ).to_sym
 			end
 
 			def process( order, args = {} )
@@ -149,12 +149,22 @@ module SwellEcom
 					else
 						# OR create a refund that is unlinked to the transaction
 						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-						response = anet_transaction.create_transaction_refund(
-							nil,
+						# anet_transaction.set_fields(:trans_id => nil)
+						anet_transaction.create_transaction(
+							:refund,
 							refund_dollar_amount,
 							transaction.customer_profile_reference,
-							transaction.customer_payment_profile_reference
+							transaction.customer_payment_profile_reference,
+							nil, #order
+							{}, #options
 						)
+
+						# response = anet_transaction.create_transaction_refund(
+						# 	nil,
+						# 	refund_dollar_amount,
+						# 	transaction.customer_profile_reference,
+						# 	transaction.customer_payment_profile_reference
+						# )
 
 					end
 				end
@@ -168,7 +178,7 @@ module SwellEcom
 					transaction.reference_code = direct_response.transaction_id
 
 					# if capture is successful, create transaction.
-					return true if transaction.save
+					return transaction if transaction.save
 
 					raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present? # @todo remove
 
@@ -252,7 +262,9 @@ module SwellEcom
 
 				elsif response.success?
 
-					return { customer_profile_id: response.profile_id, payment_profile_id: response.payment_profile_id }
+					customer_payment_profile_id = response.payment_profile_ids.last
+
+					return { customer_profile_id: response.profile_id, payment_profile_id: customer_payment_profile_id }
 
 				else
 

@@ -19,7 +19,7 @@ class SwellMediaMigration < ActiveRecord::Migration
 		t.integer			:availability, 					default: 1 	# anyone, logged_in, just_me
 		t.integer 			:seq
 		t.string 			:slug
-		t.hstore			:properties, default: {}
+		# t.hstore			:properties, default: {}
 		t.timestamps
 	end
 	add_index :categories, :user_id
@@ -40,7 +40,7 @@ class SwellMediaMigration < ActiveRecord::Migration
 		t.string		:sub_type
 		t.string		:http_referrer
 		t.integer		:status, 							default: 1
-		t.hstore		:properties, default: {}
+		# t.hstore		:properties, default: {}
 		t.timestamps
 	end
 	add_index :contacts, [ :email, :type ]
@@ -100,7 +100,7 @@ class SwellMediaMigration < ActiveRecord::Migration
 		t.integer		:status, 						default: 1
 		t.integer		:availability, 					default: 1	# anyone, logged_in, just_me
 		t.datetime		:publish_at
-		t.hstore		:properties, default: {}
+		# t.hstore		:properties, default: {}
 		t.string 		:tags, array: true, default: '{}'
 
 		t.timestamps
@@ -119,7 +119,7 @@ class SwellMediaMigration < ActiveRecord::Migration
 		t.references 	:media
 		t.references	:user
 		t.integer			:status, 						default: 1
-		t.json				:versioned_attributes, default: '{}'
+		# t.json				:versioned_attributes, default: '{}'
 
 		t.timestamps
 	end

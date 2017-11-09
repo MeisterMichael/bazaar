@@ -91,8 +91,8 @@ class SwellUsersMigration < ActiveRecord::Migration
 
 			## Token authenticatable
 			t.string		:authentication_token
-			t.hstore		:properties, default: {}
-			t.hstore		:settings
+			# t.hstore		:properties, default: {}
+			# t.hstore		:settings
 
 			t.timestamps
 		end

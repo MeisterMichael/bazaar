@@ -29,7 +29,7 @@ class SwellAssetsMigration < ActiveRecord::Migration
 			t.integer		:status, 						default: 1
 			t.integer		:availability, 					default: 1	# anyone, logged_in, just_me
 
-			t.hstore		:properties, default: {}
+			# t.hstore		:properties, default: {}
 			t.timestamps
 		end
 

@@ -5,6 +5,10 @@ require 'rspec/rails'
 require 'rspec/autorun'
 require 'factory_bot_rails'
 
+if ActiveRecord::Migrator.needs_migration?
+  ActiveRecord::Migrator.migrate(File.expand_path("../dummy/db/migrate", __FILE__))
+end
+
 Rails.backtrace_cleaner.remove_silencers!
 
 # Load support files
