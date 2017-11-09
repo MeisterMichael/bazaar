@@ -93,8 +93,8 @@ module SwellEcom
 			def refund( args = {} )
 				# assumes :amount, and :charge_transaction
 				charge_transaction	= args.delete( :charge_transaction )
-				order				= args.delete( :order )
-				charge_transaction	||= order.transactions.charge.first if order.present?
+				parent				= args.delete( :order ) || args.delete( :parent )
+				charge_transaction	||= Transaction.where( parent: parent ).charge.first if parent.present?
 				anet_transaction_id = args.delete( :transaction_id )
 
 				raise Exception.new( "charge_transaction must be an approved charge." ) unless charge_transaction.nil? || ( charge_transaction.charge? && charge_transaction.approved? )
