@@ -33,7 +33,7 @@ module SwellEcom
 				direct_response = response.direct_response
 
 
-				# raise Exception.new("create auth capture error: #{response.message_text}") unless response.success?  # @todo remove
+				# raise Exception.new("create auth capture error: #{response.message_text}") unless response.success?
 
 
 				# process response
@@ -54,7 +54,8 @@ module SwellEcom
 
 						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: direct_response.transaction_id, customer_profile_reference: profiles[:customer_profile_id], customer_payment_profile_reference: profiles[:payment_profile_id], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'approved' )
 
-						raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present? # @todo remove
+						# sanity check
+						raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 
 						return transaction
 
@@ -62,7 +63,7 @@ module SwellEcom
 
 				else
 
-					puts response.xml
+					# puts response.xml
 
 					orders.status = 'declined'
 
@@ -166,17 +167,22 @@ module SwellEcom
 					transaction.reference_code = direct_response.transaction_id
 
 					# if capture is successful, create transaction.
-					return transaction if transaction.save
+					transaction.save
 
-					raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present? # @todo remove
+					# sanity check
+					raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 
+					return transaction
 
 				else
-					puts response.xml # @todo remove
+					# puts response.xml
 
 					transaction.status = 'declined'
+					transaction.message = response.message_text
 					transaction.save
-					raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present? # @todo remove
+
+					# sanity check
+					raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 
 				end
 
@@ -212,7 +218,9 @@ module SwellEcom
 				)
 
 				credit_card = args[:credit_card]
-				# @todo VALIDATE Credit card information
+				# @todo VALIDATE Credit card number
+				# @todo VALIDATE Credit card expirey
+				# @todo VALIDATE Credit card card code
 
 				anet_credit_card = AuthorizeNet::CreditCard.new(
 					credit_card[:card_number].gsub(/\s/,''),
@@ -258,7 +266,7 @@ module SwellEcom
 
 				else
 
-					puts response.xml
+					# puts response.xml
 
 					if response.message_code == ERROR_INVALID_PAYMENT_PROFILE
 						order.errors.add(:base, :processing_error, message: 'Invalid Payment Information')
