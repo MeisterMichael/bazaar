@@ -8,6 +8,7 @@ module SwellEcom
 
 			PROVIDER_NAME = 'Authorize.net'
 			ERROR_DUPLICATE_CUSTOMER_PROFILE = 'E00039'
+			CANNOT_REFUND_CHARGE = 'E00027'
 
 			def initialize( args = {} )
 				@api_login	= args[:API_LOGIN_ID] || ENV['AUTHORIZE_DOT_NET_API_LOGIN_ID']
@@ -94,10 +95,11 @@ module SwellEcom
 				charge_transaction	= args.delete( :charge_transaction )
 				order				= args.delete( :order )
 				charge_transaction	||= order.transactions.charge.first if order.present?
+				anet_transaction_id = args.delete( :transaction_id )
 
 				raise Exception.new( "charge_transaction must be an approved charge." ) unless charge_transaction.nil? || ( charge_transaction.charge? && charge_transaction.approved? )
 
-				transaction = Transcation.new( args )
+				transaction = SwellEcom::Transaction.new( args )
 				transaction.transaction_type	= 'refund'
 				transaction.provider			= PROVIDER_NAME
 
@@ -110,20 +112,50 @@ module SwellEcom
 					transaction.customer_payment_profile_reference ||= charge_transaction.customer_payment_profile_reference
 
 					transaction.amount = charge_transaction.amount unless args[:amount].present?
+
+					anet_transaction_id ||= charge_transaction.reference_code
+
+				elsif anet_transaction_id.present?
+
+					charge_transaction = SwellEcom::Transaction.charge.approved.find_by( provider: PROVIDER_NAME, reference_code: anet_transaction_id )
+
 				end
 
-				raise Exception.new('Cannot refund 0 amounts') if transaction.amount == 0
+				raise Exception.new('unable to find transaction') if anet_transaction_id.nil?
 
 				# convert cents to dollars
-				refund_amount = transaction.amount / 100.0
+				refund_dollar_amount = transaction.amount / 100.0
 
 				anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 				response = anet_transaction.create_transaction_refund(
-					transaction.reference_code,
-					refund_amount,
+					anet_transaction_id,
+					refund_dollar_amount,
 					transaction.customer_profile_reference,
 					transaction.customer_payment_profile_reference
 				)
+
+				if response.message_code == CANNOT_REFUND_CHARGE
+					# if you cannot refund it, that means the origonal charge
+					# hasn't been settled yet, so you...
+
+					if transaction.amount == charge_transaction.amount
+						# have to void (but only if the refund is for the total amount)
+						transaction.transaction_type = 'void'
+						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+						response = anet_transaction.create_transaction_void(anet_transaction_id)
+
+					else
+						# OR create a refund that is unlinked to the transaction
+						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+						response = anet_transaction.create_transaction_refund(
+							nil,
+							refund_dollar_amount,
+							transaction.customer_profile_reference,
+							transaction.customer_payment_profile_reference
+						)
+
+					end
+				end
 
 				direct_response = response.direct_response
 
