@@ -2,8 +2,8 @@
 module SwellEcom
 	class CheckoutController < ApplicationController
 
-		before_filter :get_order, only: [ :confirm, :create, :index ]
 		before_filter :initialize_services, only: [ :confirm, :create ]
+		before_filter :get_order, only: [ :confirm, :create, :index ]
 
 		def confirm
 
@@ -96,21 +96,18 @@ module SwellEcom
 
 			start_at = Time.now
 
-			amount = 1000 # @todo price * qty + shipping + taxes
-			trial_amount = 500 # @todo price * qty + shipping + taxes
-
 			trial_interval = plan.trial_interval_value.try( plan.trial_interval_unit )
 			billing_interval = plan.billing_interval_value.try( plan.billing_interval_unit )
 
 			current_period_end_at = start_at + billing_interval
 
-			if plan.trial_max_intervals > 0
+			if plan.trial?
 				trial_start_at = start_at
 				trial_end_at = trial_start_at + trial_interval * plan.trial_max_intervals
 				current_period_end_at = start_at + trial_interval
 			end
 
-			Subscription.new(
+			subscription = Subscription.new(
 				user: current_user,
 				subscription_plan: order_item.item,
 				quantity: order_item.quantity,
@@ -121,10 +118,40 @@ module SwellEcom
 				current_period_start_at: start_at,
 				current_period_end_at: current_period_end_at,
 				next_charged_at: current_period_end_at,
-				amount: amount,
-				trial_amount: trial_amount,
 				currency: order_item.order.currency,
 			)
+
+			# calculate subscriptions amounts
+			if @transaction_service.present?
+
+				order = Order.new(
+					billing_address: order_item.order.billing_address,
+					shipping_address: order_item.order.shipping_address,
+				)
+				order.order_items.new item: subscription, price: plan.price, subtotal: plan.price * order_item.quantity, order_item_type: 'prod', quantity: order_item.quantity, title: order_item.title, tax_code: order_item.tax_code
+				@shipping_service.calculate( order )
+				@tax_service.calculate( order )
+				@transaction_service.calculate( order )
+
+				subscription.amount = order.total
+
+				if plan.trial?
+
+					trial_order = Order.new(
+						billing_address: order_item.order.billing_address,
+						shipping_address: order_item.order.shipping_address,
+					)
+					trial_order.order_items.new item: subscription, price: plan.trial_price, subtotal: plan.trial_price * order_item.quantity, order_item_type: 'prod', quantity: order_item.quantity, title: order_item.title, tax_code: order_item.tax_code
+					@shipping_service.calculate( trial_order )
+					@tax_service.calculate( trial_order )
+					@transaction_service.calculate( trial_order )
+
+					subscription.trial_amount = trial_order.total
+
+				end
+			end
+
+			subscription
 		end
 
 		def get_order
