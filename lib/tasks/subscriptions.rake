@@ -19,6 +19,7 @@ namespace :swell_ecom do
 				billing_address: subscription.billing_address,
 				shipping_address: subscription.shipping_address,
 			)
+			
 			if subscription.trial?
 				order.order_items.new item: subscription, price: plan.trial_price, subtotal: plan.trial_price * order_item.quantity, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
 			else
@@ -27,26 +28,20 @@ namespace :swell_ecom do
 
 			@shipping_service.calculate( order )
 			@tax_service.calculate( order )
+			@transaction_service.process( order )
 
-			if @transaction_service.process( order )
-				# @todo send receipt via email
-			else
+			if order.errors.present?
+
 				# mark subscription as failed if the transaction failed
 				subscription.failed!
+
+			else
+
+				OrderMailer.receipt( @order ).deliver_now
+
 			end
 
-
-
-
 		end
-
-	end
-
-	task :send_subscription_reminders do
-
-		reminder_day = Time.now + 1.week
-
-		# @todo remind subscribers of upcoming renewals
 
 	end
 

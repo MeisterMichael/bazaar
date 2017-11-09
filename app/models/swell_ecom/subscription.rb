@@ -16,9 +16,12 @@ module SwellEcom
 		before_create :generate_order_code
 
 		def trial?
-			# @todo implement logic to determine if subscription is currently a trial
-			current_interval = nil
-			self.subscription_plan.trial? && current_interval <= self.subscription_plan.trial_max_intervals
+			if not( self.persisted? ) && self.subscription_plan.trial?
+				return true
+			else
+				interval_count = SwellEcom::OrderItem.where( item: self ).count + 1
+				return self.subscription_plan.trial? && interval_count <= self.subscription_plan.trial_max_intervals
+			end
 		end
 
 		private
