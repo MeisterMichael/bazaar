@@ -4,6 +4,8 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 		create_table :subscriptions do |t|
 			t.references	:user
 			t.references	:subscription_plan
+			t.references 	:billing_address
+			t.references 	:shipping_address
 			t.integer		:quantity, default: 1
 			t.string 		:code
 			t.integer		:status, 	default: 0

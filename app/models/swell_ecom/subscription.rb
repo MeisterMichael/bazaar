@@ -10,7 +10,16 @@ module SwellEcom
 		belongs_to :user
 		belongs_to :subscription_plan
 
+		belongs_to 	:billing_address, class_name: 'GeoAddress'
+		belongs_to 	:shipping_address, class_name: 'GeoAddress'
+
 		before_create :generate_order_code
+
+		def trial?
+			# @todo implement logic to determine if subscription is currently a trial
+			current_interval = nil
+			self.subscription_plan.trial? && current_interval <= self.subscription_plan.trial_max_intervals
+		end
 
 		private
 

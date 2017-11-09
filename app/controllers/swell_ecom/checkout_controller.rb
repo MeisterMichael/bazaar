@@ -110,6 +110,8 @@ module SwellEcom
 			subscription = Subscription.new(
 				user: current_user,
 				subscription_plan: order_item.item,
+				billing_address: order_item.order.billing_address,
+				shipping_address: order_item.order.shipping_address,
 				quantity: order_item.quantity,
 				status: 'active',
 				start_at: start_at,
@@ -125,8 +127,8 @@ module SwellEcom
 			if @transaction_service.present?
 
 				order = Order.new(
-					billing_address: order_item.order.billing_address,
-					shipping_address: order_item.order.shipping_address,
+					billing_address: subscription.billing_address,
+					shipping_address: subscription.shipping_address,
 				)
 				order.order_items.new item: subscription, price: plan.price, subtotal: plan.price * order_item.quantity, order_item_type: 'prod', quantity: order_item.quantity, title: order_item.title, tax_code: order_item.tax_code
 				@shipping_service.calculate( order )
@@ -138,8 +140,8 @@ module SwellEcom
 				if plan.trial?
 
 					trial_order = Order.new(
-						billing_address: order_item.order.billing_address,
-						shipping_address: order_item.order.shipping_address,
+						billing_address: subscription.billing_address,
+						shipping_address: subscription.shipping_address,
 					)
 					trial_order.order_items.new item: subscription, price: plan.trial_price, subtotal: plan.trial_price * order_item.quantity, order_item_type: 'prod', quantity: order_item.quantity, title: order_item.title, tax_code: order_item.tax_code
 					@shipping_service.calculate( trial_order )
