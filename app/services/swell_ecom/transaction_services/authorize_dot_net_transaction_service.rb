@@ -69,7 +69,7 @@ module SwellEcom
 
 						raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present? # @todo remove
 
-						return true
+						return transaction
 
 					end
 
@@ -78,12 +78,14 @@ module SwellEcom
 
 					orders.status = 'declined'
 
+					transaction = false
 					if orders.save
-						Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_id], customer_payment_profile_reference: profiles[:payment_profile_id], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
+						transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_id], customer_payment_profile_reference: profiles[:payment_profile_id], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
 					end
 
 					order.errors.add(:base, :processing_error, message: "Transaction declined.")
 
+					return transaction
 				end
 
 
