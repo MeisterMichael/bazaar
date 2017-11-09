@@ -12,4 +12,4 @@ gemspec
 
 # To use a debugger
 # gem 'byebug', group: [:development, :test]
-
+gem 'swell_media', git: 'git://github.com/Groundswell/swell_media.git'
