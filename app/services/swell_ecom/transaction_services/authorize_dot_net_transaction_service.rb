@@ -76,6 +76,8 @@ module SwellEcom
 
 				else
 
+					puts response.xml
+
 					orders.status = 'declined'
 
 					transaction = false
@@ -267,6 +269,8 @@ module SwellEcom
 					return { customer_profile_id: response.profile_id, payment_profile_id: customer_payment_profile_id }
 
 				else
+
+					puts response.xml
 
 					if response.message_code == ERROR_INVALID_PAYMENT_PROFILE
 						order.errors.add(:base, :processing_error, message: 'Invalid Payment Information')
