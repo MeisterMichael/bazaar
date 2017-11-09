@@ -25,20 +25,6 @@ module SwellEcom
 				return false if profiles == false
 
 				anet_order = nil
-				# anet_order = AuthorizeNet::Order.new()
-		        # anet_order.invoice_num = order.code
-		        # anet_order.description =  'This order includes invoice num'
-		        # anet_order.po_num = 'PO_12345'
-				# order.order_items.select(&:prod?).each do |order_item|
-				# 	anet_order.add_line_item(
-				# 		order_item.item.code, 		#id
-				# 		order_item.title,			#name
-				# 		nil,						#description
-				# 		order_item.quantity,		#quantity
-				# 		order_item.price / 100.0,	# price
-				# 		1							# taxable
-				# 	)
-				# end
 
 				# create capture
 				anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
@@ -226,6 +212,8 @@ module SwellEcom
 				)
 
 				credit_card = args[:credit_card]
+				# @todo VALIDATE Credit card information
+
 				anet_credit_card = AuthorizeNet::CreditCard.new(
 					credit_card[:card_number].gsub(/\s/,''),
 					credit_card[:expiration],
