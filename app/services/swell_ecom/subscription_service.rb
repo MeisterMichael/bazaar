@@ -17,6 +17,7 @@ class SubscriptionService
 		@shipping_service 		||= SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
 		@tax_service			||= SwellEcom.tax_service_class.constantize.new( SwellEcom.tax_service_config )
 		@transaction_service	||= SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
+		@fulfilment_service		||= SwellEcom.fulfilment_service_class.constantize.new( SwellEcom.fulfilment_service_config )
 
 		# create order, process transaction
 
@@ -44,6 +45,7 @@ class SubscriptionService
 
 		else
 
+			@fulfilment_service.fulfill_order( @order )
 			OrderMailer.receipt( @order ).deliver_now
 
 		end
