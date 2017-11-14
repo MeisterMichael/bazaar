@@ -31,6 +31,10 @@
 							%i.fa.fa-arrow-up
 						%a{ href: subscription_plan_admin_index_path( sort_by: 'title', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
+					%th
+						Price
+					%th
+						Every
 					
 					%th
 						Created
@@ -45,8 +49,15 @@
 						%tr
 							%td
 								= link_to plan.title, edit_subscription_plan_admin_path( plan.id )
+							
 							%td
-								= plan.created_at
+								= number_to_currency plan.price.to_f / 100
+							%td
+								= plan.billing_interval_value
+								= plan.billing_interval_unit
+
+							%td
+								= plan.created_at.to_s( :short )
 							%td
 								.badge{ class: plan.status }
 									= plan.status

@@ -19,8 +19,8 @@ module SwellEcom
 
 		def destroy
 			@plan.archive!
-			set_flash 'Product archived'
-			redirect_to product_admin_index_path
+			set_flash 'Plan archived'
+			redirect_to subscription_plan_admin_index_path
 		end
 
 
