@@ -32,32 +32,46 @@ module SwellEcom
 			end
 
 			def calculate_order( order )
-				
+
 				shipping_amount = order.order_items.shipping.sum(:subtotal) / 100.0
 				order_total = order.total / 100.0
+
+				nexus_addresses = []
+				if @nexus_address.present?
+					nexus_addresses << {
+						:address_id => @nexus_address[:address_id],
+						:country => @nexus_address[:country],
+						:zip => @nexus_address[:zip],
+						:state => @nexus_address[:state],
+						:city => @nexus_address[:city],
+						:street => @nexus_address[:street]
+					}
+				end
+
+				line_items = []
+				order.order_items.each do |order_item|
+					if order_item.prod?
+						line_items << {
+							:quantity => order_item.quantity,
+							:unit_price => (order_item.price / 100.0),
+							:product_tax_code => order_item.tax_code,
+						}
+					end
+				end
 
 				order_info = {
 				    :to_country => order.shipping_address.geo_country.abbrev,
 				    :to_zip => order.shipping_address.zip,
 				    :to_city => order.shipping_address.city,
 				    :to_state => order.shipping_address.geo_state.abbrev,
-				    :from_country => @warehouse_address[:country] || @origin_address[:country] || 'US',
+				    :from_country => @warehouse_address[:country] || @origin_address[:country],
 				    :from_zip => @warehouse_address[:zip] || @origin_address[:zip],
 				    :from_city => @warehouse_address[:city] || @origin_address[:city],
 				    :from_state => @warehouse_address[:state] || @origin_address[:state],
 				    :amount => order_total - shipping_amount,
 				    :shipping => shipping_amount,
-				    :nexus_addresses => [{:address_id => @nexus_address[:address_id],
-				                          :country => @nexus_address[:country] || 'US',
-				                          :zip => @nexus_address[:zip],
-				                          :state => @nexus_address[:state],
-				                          :city => @nexus_address[:city],
-				                          :street => @nexus_address[:street] }],
-				    :line_items => order.order_items.select{|order_item| order_item.prod?}.collect{|order_item| {
-						:quantity => order_item.quantity,
-						:unit_price => (order_item.price / 100.0),
-						:product_tax_code => order_item.item.tax_code
-					} }
+				    :nexus_addresses => nexus_addresses,
+				    :line_items => line_items,
 				}
 
 				tax_for_order = @client.tax_for_order( order_info )
