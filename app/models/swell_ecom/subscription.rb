@@ -5,12 +5,24 @@ module SwellEcom
 		self.table_name = 'subscriptions'
 		self.table_name = 'subscriptions'
 
-		enum status: { 'canceled' => -1, 'active' => 1 }
+		enum status: { 'canceled' => -1, 'failed' => 0, 'active' => 1 }
 
 		belongs_to :user
 		belongs_to :subscription_plan
 
+		belongs_to 	:billing_address, class_name: 'GeoAddress'
+		belongs_to 	:shipping_address, class_name: 'GeoAddress'
+
 		before_create :generate_order_code
+
+		def trial?
+			if not( self.persisted? ) && self.subscription_plan.trial?
+				return true
+			else
+				interval_count = SwellEcom::OrderItem.where( item: self ).count + 1
+				return self.subscription_plan.trial? && interval_count <= self.subscription_plan.trial_max_intervals
+			end
+		end
 
 		private
 

@@ -80,7 +80,7 @@
 								%tr
 									-# %td avatar
 									%td
-										=order_item.label
+										=order_item.title
 									%td= number_to_currency (order_item.price / 100.0)
 									%td.text-right
 										=order_item.quantity
@@ -109,7 +109,7 @@
 						%div
 							.pull-right
 								#{number_to_currency order_item.subtotal.to_f / 100}
-							#{order_item.label}:
+							#{order_item.title}:
 				%div{ style: 'font-weight: bold;' }
 					.pull-right
 						= number_to_currency @order.total.to_f / 100

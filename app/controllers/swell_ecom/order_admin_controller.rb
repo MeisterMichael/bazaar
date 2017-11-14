@@ -28,7 +28,7 @@ module SwellEcom
 			refund_amount = ( params[:amount].to_f * 100 ).to_i
 
 			# @todo check that refund amount doesn't exceed charges?
-			# amount_net = Transaction.approved.credit.where( parent: @order ).sum(:amount) - Transaction.approved.debit.where( parent: @order ).sum(:amount)
+			# amount_net = Transaction.approved.positive.where( parent: @order ).sum(:amount) - Transaction.approved.negative.where( parent: @order ).sum(:amount)
 
 			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
 

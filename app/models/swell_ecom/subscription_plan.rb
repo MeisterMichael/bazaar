@@ -3,34 +3,6 @@ module SwellEcom
 
 		self.table_name = 'subscription_plans'
 
-		if defined?( Elasticsearch::Model )
-
-			include Elasticsearch::Model
-
-			settings index: { number_of_shards: 1 } do
-				mappings dynamic: 'false' do
-					indexes :id, type: 'integer'
-					indexes :category_id, type: 'integer'
-					indexes :category_name, analyzer: 'english', index_options: 'offsets'
-					indexes :raw_category_name, index: :not_analyzed
-					indexes :slug, index: :not_analyzed
-					indexes :created_at, type: 'date'
-					indexes :title, analyzer: 'english', index_options: 'offsets'
-					indexes :title_downcase_raw, type: :string, index: :not_analyzed
-					indexes :description, analyzer: 'english', index_options: 'offsets'
-					indexes :published?, type: 'boolean'
-
-					indexes :tags, type: 'nested' do
-						indexes :name, analyzer: 'english', index_options: 'offsets'
-						indexes :raw_name, index: :not_analyzed
-						indexes :name_downcase, analyzer: 'english', index_options: 'offsets'
-						indexes :raw_name_downcase, index: :not_analyzed
-					end
-				end
-			end
-
-		end
-
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 
 		validates		:title, presence: true, unless: :allow_blank_title?
@@ -54,9 +26,6 @@ module SwellEcom
 		include FriendlyId
 		friendly_id :slugger, use: [ :slugged, :history ]
 
-		acts_as_taggable_array_on :tags
-
-
 		def self.published( args = {} )
 			where( "subscription_plans.publish_at <= :now", now: Time.zone.now ).active
 		end
@@ -66,7 +35,7 @@ module SwellEcom
 				id: self.id,
 				name: self.title,
 				price: self.price / 100.0,
-				brand: (self.brand || ''),
+				# brand: (self.brand || ''),
 				category: self.product_category.try(:name),
 				variant: '',
 			}
@@ -132,21 +101,10 @@ module SwellEcom
 			self.tags = tags_csv.split(/,\s*/)
 		end
 
-		def as_indexed_json(options={})
-			{
-				id:					self.id,
-				category_id:		self.category_id,
-				category_name:		self.product_category.try( :name ),
-				raw_category_name:	self.product_category.try( :name ),
-				slug:				self.slug,
-				created_at:			self.created_at,
-				title: 				self.title,
-				title_downcase_raw: self.title.try(:downcase),
-				description:		self.description,
-				published?:			self.published?,
-				tags:				self.tags.collect{ |tag| { name: tag, raw_name: tag, name_downcase: tag.downcase, raw_name_downcase: tag.downcase } },
-			}.as_json
+		def trial?
+			self.trial_max_intervals > 0
 		end
+
 
 		private
 			def allow_blank_title?

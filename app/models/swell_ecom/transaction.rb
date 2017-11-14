@@ -3,15 +3,31 @@ module SwellEcom
 	class Transaction < ActiveRecord::Base
 		self.table_name = 'transactions'
 
-		enum transaction_type: { 'chargeback' => -2, 'refund' => -1, 'preauth' => 0, 'charge' => 1 }
+		enum transaction_type: { 'void' => -3, 'chargeback' => -2, 'refund' => -1, 'preauth' => 0, 'charge' => 1 }
 		enum status: { 'declined' => -1, 'approved' => 1 }
-		belongs_to :parent, polymorphic: true # subscription, order
+		belongs_to :parent_obj, polymorphic: true # subscription, order
 
-		def self.debit
+		def negative?
+			void? || chargeback? || refund?
+		end
+
+		def positive?
+			charge?
+		end
+
+		def signed_amount
+			if negative?
+				-amount
+			else
+				amount
+			end
+		end
+
+		def self.negative
 			where( 'transaction_type < 0' )
 		end
 
-		def self.credit
+		def self.positive
 			where( 'transaction_type > 0' )
 		end
 
