@@ -109,6 +109,10 @@ module SwellEcom
 			active? && publish_at < Time.zone.now
 		end
 
+		def sku
+			"prod-#{self.slug}"
+		end
+
 		# e.g. Product.record_search( category_name: 'Shirts', text: 'live amrap' )
 		# e.g. Product.record_search( category_id: 1, text: 'live amrap' )
 		# e.g. Product.record_search( text: 'live amrap' )

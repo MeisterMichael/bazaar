@@ -24,6 +24,14 @@ module SwellEcom
 			end
 		end
 
+		def order
+			Order.joins(:order_items).where( order_items: { subscription_id: self.id } ).first
+		end
+
+		def sku
+			subscription_plan.sku
+		end
+
 		private
 
 		def generate_order_code
