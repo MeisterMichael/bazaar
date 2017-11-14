@@ -72,14 +72,20 @@ module SwellEcom
 				end
 
 				tax_order_items = []
-				tax_order_items << order.order_items.new( amount: (tax_breakdown.country_tax_collectable * 100).to_i, label: "Taxes (#{tax_geo[:country]})", order_item_type: 'taxes' ) if tax_breakdown.country_tax_collectable != 0.0
-				tax_order_items << order.order_items.new( amount: (tax_breakdown.state_tax_collectable * 100).to_i, label: "Taxes (#{tax_geo[:state]})", order_item_type: 'taxes' ) if tax_breakdown.state_tax_collectable != 0.0
-				tax_order_items << order.order_items.new( amount: (tax_breakdown.city_tax_collectable * 100).to_i, label: "Taxes (#{tax_geo[:city]})", order_item_type: 'taxes' ) if tax_breakdown.city_tax_collectable != 0.0
+				
+				tax_order_items << order.order_items.new( amount: (tax_breakdown.country_tax_collectable * 100).to_i, label: "Taxes (#{tax_geo[:country]})", order_item_type: 'taxes' ) if tax_breakdown.country_tax_collectable.present? && tax_breakdown.country_tax_collectable != 0.0
+				tax_order_items << order.order_items.new( amount: (tax_breakdown.state_tax_collectable * 100).to_i, label: "Taxes (#{tax_geo[:state]})", order_item_type: 'taxes' ) if tax_breakdown.state_tax_collectable.present? && tax_breakdown.state_tax_collectable != 0.0
+				tax_order_items << order.order_items.new( amount: (tax_breakdown.city_tax_collectable * 100).to_i, label: "Taxes (#{tax_geo[:city]})", order_item_type: 'taxes' ) if tax_breakdown.city_tax_collectable.present? && tax_breakdown.city_tax_collectable != 0.0
+				tax_order_items << order.order_items.new( amount: (tax_breakdown.special_district_tax_collectable * 100).to_i, label: "Taxes (district)", order_item_type: 'taxes' ) if tax_breakdown.special_district_tax_collectable.present? && tax_breakdown.special_district_tax_collectable != 0.0
+
+				tax_order_items << order.order_items.new( amount: (tax_breakdown.gst * 100).to_i, label: "Taxes (GST)", order_item_type: 'taxes' ) if tax_breakdown.gst.present? && tax_breakdown.gst != 0.0
+				tax_order_items << order.order_items.new( amount: (tax_breakdown.pst * 100).to_i, label: "Taxes (PST)", order_item_type: 'taxes' ) if tax_breakdown.pst.present? && tax_breakdown.pst != 0.0
+				tax_order_items << order.order_items.new( amount: (tax_breakdown.qst * 100).to_i, label: "Taxes (QST)", order_item_type: 'taxes' ) if tax_breakdown.qst.present? && tax_breakdown.qst != 0.0
 
 				puts tax_order_items
 				die()
 
-				return tax_for_order
+				return order
 
 			end
 
