@@ -31,6 +31,7 @@ module SwellEcom
 			end
 
 			def calculate_order( order )
+				return # @todo
 				shipping_amount = order.order_items.shipping.sum(:subtotal) / 100.0
 				order_total = order.total / 100.0
 
