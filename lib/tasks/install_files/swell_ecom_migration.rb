@@ -167,6 +167,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.integer 		:amount, default: 0
 			t.string 		:currency, default: 'USD'
 			t.integer 		:status, default: 1
+			t.text			:message, default: nil
 			t.hstore 		:properties, default: {}
 			t.timestamps
 		end
