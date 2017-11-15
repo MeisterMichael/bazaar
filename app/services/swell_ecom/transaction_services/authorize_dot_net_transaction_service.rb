@@ -63,14 +63,12 @@ module SwellEcom
 
 				else
 
-					# puts response.xml
+					puts response.xml
 
-					orders.status = 'declined'
+					order.status = 'declined'
 
 					transaction = false
-					if orders.save
-						transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_id], customer_payment_profile_reference: profiles[:payment_profile_id], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
-					end
+					transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_id], customer_payment_profile_reference: profiles[:payment_profile_id], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
 
 					order.errors.add(:base, :processing_error, message: "Transaction declined.")
 
@@ -253,8 +251,26 @@ module SwellEcom
 					profile_id = response.message_text.match( /(\d{4,})/)[1]
 
 					response = anet_transaction.get_profile( profile_id.to_s )
+
+					profile = response.profile
 					customer_profile_id = response.profile_id
-					customer_payment_profile_id = response.profile.payment_profiles.first.try(:customer_payment_profile_id)
+
+					customer_payment_profile = profile.payment_profiles.find do |payment_profile|
+						payment_profile.payment_method.card_number.end_with?( anet_credit_card.card_number[-4,4] )
+					end
+
+					if customer_payment_profile.present?
+
+						customer_payment_profile_id = customer_payment_profile.try(:customer_payment_profile_id)
+
+					else
+
+						# create a new payment profile for existing customer
+						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+						response = anet_transaction.create_payment_profile( anet_payment_profile, profile )
+						customer_payment_profile_id = response.payment_profile_id
+
+					end
 
 					return { customer_profile_id: customer_profile_id, payment_profile_id: customer_payment_profile_id }
 

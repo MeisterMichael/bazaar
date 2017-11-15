@@ -34,7 +34,7 @@ module SwellEcom
 			def calculate_order( order )
 
 				shipping_amount = order.order_items.shipping.sum(:subtotal) / 100.0
-				order_total = order.total / 100.0
+				order_total = order.order_items.prod.sum(:subtotal) / 100.0
 
 				nexus_addresses = []
 				if @nexus_address.present?
@@ -88,14 +88,14 @@ module SwellEcom
 
 				tax_order_items = []
 
-				tax_order_items << order.order_items.new( amount: (tax_breakdown.country_tax_collectable * 100).to_i, label: "Taxes (#{tax_geo[:country]})", order_item_type: 'taxes' ) if tax_breakdown.country_tax_collectable.present? && tax_breakdown.country_tax_collectable != 0.0
-				tax_order_items << order.order_items.new( amount: (tax_breakdown.state_tax_collectable * 100).to_i, label: "Taxes (#{tax_geo[:state]})", order_item_type: 'taxes' ) if tax_breakdown.state_tax_collectable.present? && tax_breakdown.state_tax_collectable != 0.0
-				tax_order_items << order.order_items.new( amount: (tax_breakdown.city_tax_collectable * 100).to_i, label: "Taxes (#{tax_geo[:city]})", order_item_type: 'taxes' ) if tax_breakdown.city_tax_collectable.present? && tax_breakdown.city_tax_collectable != 0.0
-				tax_order_items << order.order_items.new( amount: (tax_breakdown.special_district_tax_collectable * 100).to_i, label: "Taxes (district)", order_item_type: 'taxes' ) if tax_breakdown.special_district_tax_collectable.present? && tax_breakdown.special_district_tax_collectable != 0.0
+				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.country_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:country]})", order_item_type: 'tax' ) if tax_breakdown.country_tax_collectable.present? && tax_breakdown.country_tax_collectable != 0.0
+				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.state_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:state]})", order_item_type: 'tax' ) if tax_breakdown.state_tax_collectable.present? && tax_breakdown.state_tax_collectable != 0.0
+				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.city_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:city]})", order_item_type: 'tax' ) if tax_breakdown.city_tax_collectable.present? && tax_breakdown.city_tax_collectable != 0.0
+				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.special_district_tax_collectable * 100).to_i, title: "Taxes (district)", order_item_type: 'tax' ) if tax_breakdown.special_district_tax_collectable.present? && tax_breakdown.special_district_tax_collectable != 0.0
 
-				tax_order_items << order.order_items.new( amount: (tax_breakdown.gst * 100).to_i, label: "Taxes (GST)", order_item_type: 'taxes' ) if tax_breakdown.gst.present? && tax_breakdown.gst != 0.0
-				tax_order_items << order.order_items.new( amount: (tax_breakdown.pst * 100).to_i, label: "Taxes (PST)", order_item_type: 'taxes' ) if tax_breakdown.pst.present? && tax_breakdown.pst != 0.0
-				tax_order_items << order.order_items.new( amount: (tax_breakdown.qst * 100).to_i, label: "Taxes (QST)", order_item_type: 'taxes' ) if tax_breakdown.qst.present? && tax_breakdown.qst != 0.0
+				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.gst * 100).to_i, title: "Tax (GST)", order_item_type: 'tax' ) if tax_breakdown.gst.present? && tax_breakdown.gst != 0.0
+				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.pst * 100).to_i, title: "Tax (PST)", order_item_type: 'tax' ) if tax_breakdown.pst.present? && tax_breakdown.pst != 0.0
+				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.qst * 100).to_i, title: "Tax (QST)", order_item_type: 'tax' ) if tax_breakdown.qst.present? && tax_breakdown.qst != 0.0
 
 
 				return order
