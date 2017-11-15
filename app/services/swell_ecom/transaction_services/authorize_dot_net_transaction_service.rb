@@ -194,7 +194,7 @@ module SwellEcom
 				anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 
 				# find an existing customer profile
-				subscriptions = order.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::Subscription ) && order_item.item == PROVIDER_NAME }.collect(&:item)
+				subscriptions = order.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::Subscription ) && order_item.item.provider == PROVIDER_NAME }.collect(&:item)
 				return { customer_profile_id: subscriptions.first.provider_customer_profile_reference, payment_profile_id: subscriptions.first.provider_customer_payment_profile_reference } if subscriptions.present?
 
 				raise Exception.new( 'cannot create payment profile without credit card info' ) unless args[:credit_card].present?

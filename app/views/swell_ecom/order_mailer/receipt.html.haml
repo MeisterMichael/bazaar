@@ -24,12 +24,12 @@
 
 					- else
 						%strong
-							= order_item.item.title
+							= order_item.title
 				%td{ style: 'padding: 8px;text-align: right;' }
 					= order_item.quantity
 				%td{ style: 'padding: 8px;text-align: right;' }
 					= number_to_currency order_item.subtotal.to_f / 100
-				
+
 %br
 - @order.order_items.each do |order_item|
 	- unless order_item.prod?
