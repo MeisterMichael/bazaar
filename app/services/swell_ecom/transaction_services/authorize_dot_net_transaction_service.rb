@@ -63,7 +63,7 @@ module SwellEcom
 
 				else
 
-					puts response.xml
+					puts response.xml unless Rails.env.production?
 
 					order.status = 'declined'
 
@@ -173,7 +173,7 @@ module SwellEcom
 					return transaction
 
 				else
-					# puts response.xml
+					puts response.xml unless Rails.env.production?
 
 					transaction.status = 'declined'
 					transaction.message = response.message_text
@@ -282,7 +282,7 @@ module SwellEcom
 
 				else
 
-					# puts response.xml
+					puts response.xml unless Rails.env.production?
 
 					if response.message_code == ERROR_INVALID_PAYMENT_PROFILE
 						order.errors.add(:base, :processing_error, message: 'Invalid Payment Information')

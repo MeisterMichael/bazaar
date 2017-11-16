@@ -9,6 +9,7 @@ spec/test_app/.sass-cache
 spec/dummy/log/*.log
 .env
 spec/dummy/db/*.sqlite3
+spec/dummy/db/*.sqlite3-journal
 
 .idea
 

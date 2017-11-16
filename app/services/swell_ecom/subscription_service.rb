@@ -2,26 +2,37 @@ module SwellEcom
 
 	class SubscriptionService
 
+		def initialize( args = {} )
+
+			@shipping_service		= args[:shipping_service]
+			@tax_service			= args[:tax_service]
+			@transaction_service	= args[:transaction_service]
+
+			@shipping_service 		||= SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
+			@tax_service			||= SwellEcom.tax_service_class.constantize.new( SwellEcom.tax_service_config )
+			@transaction_service	||= SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
+
+		end
+
 		def charge_subscriptions( args = {} )
 
 			now = args[:now] || Time.now
 
 			SwellEcom::Subscription.active.where( 'next_charged_at < :now', now: now ).find_each do |subscription|
 
-				charge_subscription( subscription )
+				charge_subscription( subscription, now: now )
 
 			end
 
 		end
 
-		def charge_subscription( subscription )
+		def charge_subscription( subscription, args = {} )
+			time_now = args[:now] || Time.now
 
-			@shipping_service 		||= SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
-			@tax_service			||= SwellEcom.tax_service_class.constantize.new( SwellEcom.tax_service_config )
-			@transaction_service	||= SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
+			raise Exception.new("Subscription #{subscription.id } isn't ready to renew yet.  Currently it's #{time_now}, but subscription doesn't renew until #{subscription.next_charged_at}") unless subscription.next_charged_at < time_now
+			raise Exception.new("Subscription #{subscription.id } isn't active, so can't be charged.") unless subscription.active?
 
-			# create order, process transaction
-
+			# create order
 			plan = subscription.subscription_plan
 
 			order = Order.new(
@@ -47,10 +58,12 @@ module SwellEcom
 				order.order_items.new item: subscription, price: plan.price, subtotal: plan.price * subscription.quantity, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
 			end
 
+			# process order
 			@shipping_service.calculate( order )
 			@tax_service.calculate( order )
 			@transaction_service.process( order )
 
+			# handle response
 			if order.errors.present?
 
 				# mark subscription as failed if the transaction failed
@@ -59,6 +72,7 @@ module SwellEcom
 			else
 				order.save
 
+				# update the subscriptions next date
 				subscription.current_period_start_at = subscription.current_period_start_at + interval
 				subscription.current_period_end_at = subscription.current_period_end_at + interval
 				subscription.next_charged_at = subscription.next_charged_at + interval
@@ -68,7 +82,7 @@ module SwellEcom
 
 			end
 
-			subscription
+			order
 
 		end
 
