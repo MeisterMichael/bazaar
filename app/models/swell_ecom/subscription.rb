@@ -15,6 +15,11 @@ module SwellEcom
 
 		before_create :generate_order_code
 
+		def self.ready_for_next_charge( time_now = nil )
+			time_now ||= Time.now
+			active.where( 'next_charged_at < :now', now: time_now )
+		end
+
 		def is_next_interval_a_trial?
 			return false unless self.subscription_plan.trial?
 
@@ -28,6 +33,11 @@ module SwellEcom
 
 		def order
 			Order.joins(:order_items).where( order_items: { subscription_id: self.id } ).first
+		end
+
+		def ready_for_next_charge?( time_now = nil )
+			time_now ||= Time.now
+			self.active? && self.next_charged_at < time_now
 		end
 
 		def sku

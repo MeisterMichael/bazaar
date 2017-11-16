@@ -15,6 +15,7 @@ module SwellEcom
 		belongs_to	:parent, polymorphic: true
 
 		has_many 	:order_items, dependent: :destroy
+		has_many	:transactions, as: :parent_obj
 
 		has_one 	:cart, dependent: :destroy
 

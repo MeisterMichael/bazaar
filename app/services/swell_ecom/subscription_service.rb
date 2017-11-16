@@ -14,18 +14,6 @@ module SwellEcom
 
 		end
 
-		def charge_subscriptions( args = {} )
-
-			now = args[:now] || Time.now
-
-			SwellEcom::Subscription.active.where( 'next_charged_at < :now', now: now ).find_each do |subscription|
-
-				charge_subscription( subscription, now: now )
-
-			end
-
-		end
-
 		def charge_subscription( subscription, args = {} )
 			time_now = args[:now] || Time.now
 
@@ -77,9 +65,7 @@ module SwellEcom
 				subscription.current_period_end_at = subscription.current_period_end_at + interval
 				subscription.next_charged_at = subscription.next_charged_at + interval
 				subscription.save
-
-				OrderMailer.receipt( order ).deliver_now
-
+				
 			end
 
 			order
