@@ -16,7 +16,17 @@ describe "SubscriptionService" do
 
 		subscription
 	}
+	let(:new_trial1_subscription) {
 
+		subscription_plan = SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 1, price: 12900 )
+		subscription = SwellEcom::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now )
+
+		order = SwellEcom::Order.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
+		order.order_items.new item: subscription_plan, subscription: subscription, price: subscription_plan.trial_price, subtotal: subscription_plan.trial_price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
+		@transaction_service.process( order, credit_card: credit_card )
+
+		subscription
+	}
 
 	before :all do
 		@api_login	= ENV['AUTHORIZE_DOT_NET_API_LOGIN_ID']
@@ -35,7 +45,7 @@ describe "SubscriptionService" do
 
 	end
 
-	it "should charge an active subscription" do
+	it "should charge an active subscription with active trial" do
 
 		subscription = new_trial2_subscription
 
@@ -71,5 +81,44 @@ describe "SubscriptionService" do
 		expect( subscription.next_charged_at - last_current_period_start_at >= 1.week ).to eq true
 
 	end
+
+
+	it "should charge an active subscription with inactive trial" do
+
+		subscription = new_trial1_subscription
+
+		last_current_period_start_at	= subscription.current_period_start_at
+		last_current_period_end_at		= subscription.current_period_end_at
+		last_next_charged_at			= subscription.next_charged_at
+
+		sleep 2.25.minutes # sleep 2 minutes to get over the duplicate window
+
+		subscription_service = SwellEcom::SubscriptionService.new( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service )
+
+		order = subscription_service.charge_subscription( subscription )
+
+		order.should be_instance_of(SwellEcom::Order)
+		expect(order.status).to eq 'placed'
+		expect(order.generated_by).to eq 'system_generaged'
+		expect(order.total).to eq 12900
+		expect(order.parent).to eq subscription
+		expect(order.billing_address).to eq subscription.billing_address
+		expect(order.shipping_address).to eq subscription.shipping_address
+		expect(order.user).to eq subscription.user
+		expect(order.email).to eq subscription.user.email
+		expect(order.currency).to eq subscription.currency
+		expect(order.order_items.prod.count).to eq 1
+
+		order.order_items.prod.each do |order_item|
+			expect(order_item.item).to eq subscription
+			expect(order_item.subtotal).to eq 12900
+		end
+
+		expect( subscription.current_period_start_at - last_current_period_start_at >= 1.week ).to eq true
+		expect( subscription.current_period_end_at - last_current_period_start_at >= 1.week ).to eq true
+		expect( subscription.next_charged_at - last_current_period_start_at >= 1.week ).to eq true
+
+	end
+
 
 end
