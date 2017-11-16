@@ -7,15 +7,11 @@ module SwellEcom
 
 		validates		:title, presence: true, unless: :allow_blank_title?
 
-		attr_accessor	:category_name
-
 		include SwellMedia::Concerns::URLConcern
 		include SwellMedia::Concerns::AvatarAsset
 		#include SwellMedia::Concerns::ExpiresCache
 
 		mounted_at '/subscriptions'
-
-		belongs_to 	:product_category, foreign_key: :category_id
 
 		after_create :on_create
 		after_update :on_update

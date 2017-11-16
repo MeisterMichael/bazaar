@@ -123,36 +123,6 @@ module SwellEcom
 				currency: order_item.order.currency,
 			)
 
-			# calculate subscriptions amounts
-			if @transaction_service.present?
-
-				order = Order.new(
-					billing_address: subscription.billing_address,
-					shipping_address: subscription.shipping_address,
-				)
-				order.order_items.new item: subscription, price: plan.price, subtotal: plan.price * order_item.quantity, order_item_type: 'prod', quantity: order_item.quantity, title: order_item.title, tax_code: order_item.tax_code
-				@shipping_service.calculate( order )
-				@tax_service.calculate( order )
-				@transaction_service.calculate( order )
-
-				subscription.amount = order.total
-
-				if plan.trial?
-
-					trial_order = Order.new(
-						billing_address: subscription.billing_address,
-						shipping_address: subscription.shipping_address,
-					)
-					trial_order.order_items.new item: subscription, price: plan.trial_price, subtotal: plan.trial_price * order_item.quantity, order_item_type: 'prod', quantity: order_item.quantity, title: order_item.title, tax_code: order_item.tax_code
-					@shipping_service.calculate( trial_order )
-					@tax_service.calculate( trial_order )
-					@transaction_service.calculate( trial_order )
-
-					subscription.trial_amount = trial_order.total
-
-				end
-			end
-
 			subscription
 		end
 
