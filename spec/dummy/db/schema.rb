@@ -419,6 +419,7 @@ ActiveRecord::Schema.define(version: 20171101214311) do
     t.integer  "amount",                             default: 0
     t.string   "currency",                           default: "USD"
     t.integer  "status",                             default: 1
+    t.text     "message"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -89,6 +89,10 @@ module SwellEcom
 			end
 		end
 
+		def sku
+			"sub-#{self.slug}"
+		end
+
 		def tags_csv
 			self.tags.join(',')
 		end

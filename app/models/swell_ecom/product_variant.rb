@@ -25,6 +25,10 @@ module SwellEcom
 			return "#{self.option_name}#{separator}#{self.option_value}"
 		end
 
+		def sku
+			"prod-#{self.product.slug}-#{self.slug}"
+		end
+
 		def tax_code
 			self.product.tax_code
 		end
