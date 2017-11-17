@@ -307,8 +307,15 @@ GEM
       temple (>= 0.8.0)
       tilt
     hashie (3.5.6)
+    http (2.2.2)
+      addressable (~> 2.3)
+      http-cookie (~> 1.0)
+      http-form_data (~> 1.0.1)
+      http_parser.rb (~> 0.6.0)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
+    http-form_data (1.0.3)
+    http_parser.rb (0.6.0)
     httpclient (2.8.3)
     httpi (2.4.2)
       rack
@@ -341,12 +348,15 @@ GEM
       nokogiri (>= 1.5.9)
     mail (2.7.0)
       mini_mime (>= 0.1.1)
+    memoizable (0.4.2)
+      thread_safe (~> 0.3, >= 0.3.1)
     mime-types (3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
     mini_mime (1.0.0)
     mini_portile2 (2.3.0)
     minitest (5.10.3)
+    model_attribute (3.2.0)
     multi_json (1.12.2)
     multipart-post (2.0.0)
     netrc (0.11.0)
@@ -465,6 +475,11 @@ GEM
       activesupport (>= 3.0)
       i18n
       savon (>= 2.0)
+    taxjar-ruby (2.0.0)
+      addressable (~> 2.3)
+      http (~> 2.2.2)
+      memoizable (~> 0.4.0)
+      model_attribute (~> 3.2)
     temple (0.8.0)
     thor (0.20.0)
     thread_safe (0.3.6)
@@ -496,6 +511,7 @@ DEPENDENCIES
   sqlite3
   swell_ecom!
   swell_media!
+  taxjar-ruby
 
 BUNDLED WITH
    1.16.0.pre.2

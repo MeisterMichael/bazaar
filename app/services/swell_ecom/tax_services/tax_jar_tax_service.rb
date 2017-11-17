@@ -78,7 +78,8 @@ module SwellEcom
 				tax_breakdown = tax_for_order.breakdown
 				tax_geo = nil
 
-				# puts tax_for_order.to_json
+				# puts JSON.pretty_generate order_info
+				puts tax_for_order.to_json
 
 				if tax_for_order.tax_source == 'destination'
 					tax_geo = { country: order_info[:from_country], state: order_info[:from_state], city: order_info[:from_city] }
@@ -88,14 +89,40 @@ module SwellEcom
 
 				tax_order_items = []
 
-				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.country_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:country]})", order_item_type: 'tax' ) if tax_breakdown.country_tax_collectable.present? && tax_breakdown.country_tax_collectable != 0.0
-				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.state_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:state]})", order_item_type: 'tax' ) if tax_breakdown.state_tax_collectable.present? && tax_breakdown.state_tax_collectable != 0.0
-				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.city_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:city]})", order_item_type: 'tax' ) if tax_breakdown.city_tax_collectable.present? && tax_breakdown.city_tax_collectable != 0.0
-				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.special_district_tax_collectable * 100).to_i, title: "Taxes (district)", order_item_type: 'tax' ) if tax_breakdown.special_district_tax_collectable.present? && tax_breakdown.special_district_tax_collectable != 0.0
+				if not( tax_breakdown.country_tax_collectable.nil? ) && tax_breakdown.country_tax_collectable.abs > 0.0
+					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.country_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:country]})", order_item_type: 'tax' )
+					puts "Tax (#{tax_geo[:country]})"
+				end
 
-				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.gst * 100).to_i, title: "Tax (GST)", order_item_type: 'tax' ) if tax_breakdown.gst.present? && tax_breakdown.gst != 0.0
-				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.pst * 100).to_i, title: "Tax (PST)", order_item_type: 'tax' ) if tax_breakdown.pst.present? && tax_breakdown.pst != 0.0
-				tax_order_items << order.order_items.new( subtotal: (tax_breakdown.qst * 100).to_i, title: "Tax (QST)", order_item_type: 'tax' ) if tax_breakdown.qst.present? && tax_breakdown.qst != 0.0
+				county_tax_collectable
+
+				if not( tax_breakdown.state_tax_collectable.nil? ) && tax_breakdown.state_tax_collectable.abs > 0.0
+					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.state_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:state]})", order_item_type: 'tax' )
+					puts "Tax (#{tax_geo[:state]})"
+				end
+
+				if not( tax_breakdown.city_tax_collectable.nil? ) && tax_breakdown.city_tax_collectable.abs > 0.0
+					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.city_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:city]})", order_item_type: 'tax' )
+					puts "Tax (#{tax_geo[:city]})"
+				end
+
+				if not( tax_breakdown.special_district_tax_collectable.nil? ) && tax_breakdown.special_district_tax_collectable.abs > 0.0
+					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.special_district_tax_collectable * 100).to_i, title: "Taxes (district)", order_item_type: 'tax' )
+					puts "Taxes (district)"
+				end
+
+				if tax_breakdown.gst.present? && tax_breakdown.gst != 0.0
+					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.gst * 100).to_i, title: "Tax (GST)", order_item_type: 'tax' )
+					puts "Tax (GST)"
+				end
+				if tax_breakdown.pst.present? && tax_breakdown.pst != 0.0
+					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.pst * 100).to_i, title: "Tax (PST)", order_item_type: 'tax' )
+					puts "Tax (PST)"
+				end
+				if tax_breakdown.qst.present? && tax_breakdown.qst != 0.0
+					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.qst * 100).to_i, title: "Tax (QST)", order_item_type: 'tax' )
+					puts "Tax (QST)"
+				end
 
 
 				return order

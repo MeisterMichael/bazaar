@@ -183,16 +183,19 @@ describe "SubscriptionService" do
 
 	it "should not charge inactive" do
 		# @todo
+		expect( false ).to eq true
 	end
 
 
 	it "should not charge if subscription is not yet past next_charged_at" do
 		# @todo
+		expect( false ).to eq true
 	end
 
 
 	it "should handle expired credit cards" do
 		# @todo
+		expect( false ).to eq true
 	end
 
 end
