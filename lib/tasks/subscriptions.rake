@@ -16,7 +16,8 @@ namespace :swell_ecom do
 
 			rescue Exception => e
 
-				# @todo log error, and carry on
+				puts "Exception: #{e.message}"
+				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 
 			end
 
