@@ -68,6 +68,7 @@ class SwellEcomMigration < ActiveRecord::Migration
 			t.references 	:shipping_address
 			t.string 		:code
 			t.string 		:email
+			t.string		:ip
 			t.integer 		:status, default: 0
 			t.integer 		:subtotal, default: 0
 			t.integer 		:tax, default: 0
