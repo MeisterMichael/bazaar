@@ -79,7 +79,7 @@ module SwellEcom
 				tax_geo = nil
 
 				# puts JSON.pretty_generate order_info
-				puts tax_for_order.to_json
+				# puts JSON.pretty_generate JSON.parse( tax_for_order.to_json )
 
 				if tax_for_order.tax_source == 'destination'
 					tax_geo = { country: order_info[:from_country], state: order_info[:from_state], city: order_info[:from_city] }
@@ -87,43 +87,50 @@ module SwellEcom
 					tax_geo = { country: order_info[:from_country], state: order_info[:from_state], city: order_info[:from_city] }
 				end
 
-				tax_order_items = []
+				tax_order_item = order.order_items.new( subtotal: (tax_for_order.amount_to_collect * 100).to_i, title: "Tax", order_item_type: 'tax' )
+
 
 				if not( tax_breakdown.country_tax_collectable.nil? ) && tax_breakdown.country_tax_collectable.abs > 0.0
-					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.country_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:country]})", order_item_type: 'tax' )
-					puts "Tax (#{tax_geo[:country]})"
+					tax_order_item.properties = tax_order_item.properties.merge( 'country_tax_collectable' => (tax_breakdown.country_tax_collectable * 100).to_i ) if tax_order_item.respond_to?( :properties )
+					# puts "Tax (#{tax_geo[:country]}) #{tax_breakdown.country_tax_collectable}"
 				end
 
-				county_tax_collectable
+				if not( tax_breakdown.county_tax_collectable.nil? ) && tax_breakdown.county_tax_collectable.abs > 0.0
+					tax_order_item.properties = tax_order_item.properties.merge( 'county_tax_collectable' => (tax_breakdown.county_tax_collectable * 100).to_i ) if tax_order_item.respond_to?( :properties )
+					# puts "Tax (county) #{tax_breakdown.county_tax_collectable}"
+				end
 
 				if not( tax_breakdown.state_tax_collectable.nil? ) && tax_breakdown.state_tax_collectable.abs > 0.0
-					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.state_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:state]})", order_item_type: 'tax' )
-					puts "Tax (#{tax_geo[:state]})"
+					tax_order_item.properties = tax_order_item.properties.merge( 'state_tax_collectable' => (tax_breakdown.state_tax_collectable * 100).to_i ) if tax_order_item.respond_to?( :properties )
+					# puts "Tax (#{tax_geo[:state]}) #{tax_breakdown.state_tax_collectable}"
 				end
 
 				if not( tax_breakdown.city_tax_collectable.nil? ) && tax_breakdown.city_tax_collectable.abs > 0.0
-					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.city_tax_collectable * 100).to_i, title: "Tax (#{tax_geo[:city]})", order_item_type: 'tax' )
-					puts "Tax (#{tax_geo[:city]})"
+					tax_order_item.properties = tax_order_item.properties.merge( 'city_tax_collectable' => (tax_breakdown.city_tax_collectable * 100).to_i ) if tax_order_item.respond_to?( :properties )
+					# puts "Tax (#{tax_geo[:city]}) #{tax_breakdown.city_tax_collectable}"
 				end
 
 				if not( tax_breakdown.special_district_tax_collectable.nil? ) && tax_breakdown.special_district_tax_collectable.abs > 0.0
-					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.special_district_tax_collectable * 100).to_i, title: "Taxes (district)", order_item_type: 'tax' )
-					puts "Taxes (district)"
+					tax_order_item.properties = tax_order_item.properties.merge( 'special_district_tax_collectable' => (tax_breakdown.special_district_tax_collectable * 100).to_i ) if tax_order_item.respond_to?( :properties )
+					# puts "Taxes (district) #{tax_breakdown.special_district_tax_collectable}"
 				end
 
 				if tax_breakdown.gst.present? && tax_breakdown.gst != 0.0
-					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.gst * 100).to_i, title: "Tax (GST)", order_item_type: 'tax' )
-					puts "Tax (GST)"
-				end
-				if tax_breakdown.pst.present? && tax_breakdown.pst != 0.0
-					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.pst * 100).to_i, title: "Tax (PST)", order_item_type: 'tax' )
-					puts "Tax (PST)"
-				end
-				if tax_breakdown.qst.present? && tax_breakdown.qst != 0.0
-					tax_order_items << order.order_items.new( subtotal: (tax_breakdown.qst * 100).to_i, title: "Tax (QST)", order_item_type: 'tax' )
-					puts "Tax (QST)"
+					tax_order_item.properties = tax_order_item.properties.merge( 'gst' => (tax_breakdown.gst * 100).to_i ) if tax_order_item.respond_to?( :properties )
+					# puts "Tax (GST) #{tax_breakdown.gst}"
 				end
 
+				if tax_breakdown.pst.present? && tax_breakdown.pst != 0.0
+					tax_order_item.properties = tax_order_item.properties.merge( 'pst' => (tax_breakdown.pst * 100).to_i ) if tax_order_item.respond_to?( :properties )
+					# puts "Tax (PST) #{tax_breakdown.pst}"
+				end
+
+				if tax_breakdown.qst.present? && tax_breakdown.qst != 0.0
+					tax_order_item.properties = tax_order_item.properties.merge( 'qst' => (tax_breakdown.qst * 100).to_i ) if tax_order_item.respond_to?( :properties )
+					# puts "Tax (QST) #{tax_breakdown.qst}"
+				end
+
+				# puts JSON.pretty_generate tax_order_item.properties if tax_order_item.respond_to?( :properties )
 
 				return order
 
