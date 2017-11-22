@@ -24,7 +24,6 @@ describe "TaxJarTaxService" do
 
 		tax_jar_service = SwellEcom::TaxServices::TaxJarTaxService.new( @default_args )
 
-		# @todo
 		expect( tax_jar_service.is_a?( SwellEcom::TaxServices::TaxJarTaxService ) ).to eq true
 	end
 
@@ -41,6 +40,8 @@ describe "TaxJarTaxService" do
 
 		expect( tax_order_items.count ).to eq 1
 		expect( tax_order_items.collect(&:subtotal).sum ).to eq 8
+
+		# @todo add more coverage for different states.
 
 	end
 
