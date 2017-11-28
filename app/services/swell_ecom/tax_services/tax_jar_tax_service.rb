@@ -60,10 +60,10 @@ module SwellEcom
 				end
 
 				order_info = {
-				    :to_country => order.shipping_address.geo_country.abbrev,
+				    :to_country => order.shipping_address.geo_country.try(:abbrev),
 				    :to_zip => order.shipping_address.zip,
 				    :to_city => order.shipping_address.city,
-				    :to_state => order.shipping_address.geo_state.abbrev,
+				    :to_state => order.shipping_address.geo_state.try(:abbrev),
 				    :from_country => @warehouse_address[:country] || @origin_address[:country],
 				    :from_zip => @warehouse_address[:zip] || @origin_address[:zip],
 				    :from_city => @warehouse_address[:city] || @origin_address[:city],
