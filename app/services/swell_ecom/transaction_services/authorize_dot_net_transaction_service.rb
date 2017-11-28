@@ -1,4 +1,5 @@
 require 'authorizenet'
+require 'credit_card_validations'
 
 module SwellEcom
 
@@ -216,9 +217,18 @@ module SwellEcom
 				)
 
 				credit_card = args[:credit_card]
-				# @todo VALIDATE Credit card number
-				# @todo VALIDATE Credit card expirey
-				# @todo VALIDATE Credit card card code
+
+				# VALIDATE Credit card number
+				unless CreditCardValidations::Detector.new(credit_card[:card_number]).valid?
+					order.errors.add(:base, message: 'Invalid Credit Card Number')
+					return false
+				end
+
+				# VALIDATE Credit card expirey
+				unless ( (month,year) = credit_card[:expiration].split('/') ) && month && year && Time.new( ( year.to_i > 100 ? year : "#{Time.new.year.to_s[-4,2]}#{year}" ), month ) > Time.now.end_of_month
+					order.errors.add(:base, message: 'Credit Card has Expirated')
+					return false
+				end
 
 				anet_credit_card = AuthorizeNet::CreditCard.new(
 					credit_card[:card_number].gsub(/\s/,''),

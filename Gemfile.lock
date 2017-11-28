@@ -32,6 +32,7 @@ PATH
   specs:
     swell_ecom (0.0.1)
       authorizenet
+      credit_card_validations
       stripe
       swell_media
       tax_cloud
@@ -84,7 +85,7 @@ GEM
       nokogiri
     arel (6.0.4)
     attr_required (1.0.1)
-    authorizenet (1.9.1)
+    authorizenet (1.9.4)
       activesupport (>= 4.2.6)
       nokogiri (~> 1.6, >= 1.6.4)
       roxml (= 3.3.1)
@@ -117,6 +118,9 @@ GEM
     coffee-script-source (1.12.2)
     concurrent-ruby (1.0.5)
     crass (1.0.2)
+    credit_card_validations (3.4.0)
+      activemodel (>= 3, <= 6)
+      activesupport (>= 3, <= 6)
     devise (4.3.0)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
