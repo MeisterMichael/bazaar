@@ -219,14 +219,19 @@ module SwellEcom
 				credit_card = args[:credit_card]
 
 				# VALIDATE Credit card number
-				unless CreditCardValidations::Detector.new(credit_card[:card_number]).valid?
-					order.errors.add(:base, message: 'Invalid Credit Card Number')
+				credit_card_dector = CreditCardValidations::Detector.new(credit_card[:card_number])
+				unless credit_card_dector.valid?
+					order.errors.add(:base, 'Invalid Credit Card Number')
 					return false
 				end
 
 				# VALIDATE Credit card expirey
-				unless ( (month,year) = credit_card[:expiration].split('/') ) && month && year && Time.new( ( year.to_i > 100 ? year : "#{Time.new.year.to_s[-4,2]}#{year}" ), month ) > Time.now.end_of_month
-					order.errors.add(:base, message: 'Credit Card has Expirated')
+				expiration_parts = credit_card[:expiration].split('/')
+				expiration_month = expiration_parts[0]
+				expiration_year	 = ( expiration_parts[1].to_i > 100 ? expiration_parts[1] : "#{Time.now.year.to_s[-4,2]}#{expiration_parts[1]}" )
+				expiration_time = Time.new( expiration_year, expiration_month ) if expiration_parts.count == 2
+				unless expiration_time.present? && expiration_time > Time.now.end_of_month
+					order.errors.add(:base, 'Credit Card has Expirated')
 					return false
 				end
 

@@ -33,6 +33,8 @@ describe "AuthorizeDotNetTransactionService" do
 		transaction_service	= SwellEcom::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
 		order = new_subscription_plan_order
 
+
+
 		transaction = transaction_service.process( order, credit_card: credit_card )
 
 		transaction.should be_instance_of(SwellEcom::Transaction)
@@ -43,17 +45,41 @@ describe "AuthorizeDotNetTransactionService" do
 		expect(transaction.amount).to eq 12900
 		expect(transaction.signed_amount).to eq 12900
 
+
+		# Test 4 digit expiration
+		transaction = transaction_service.process( order, credit_card: credit_card.merge( expiration: '12/'+(Time.now + 1.year).strftime('%Y') ) )
+
+		transaction.should be_instance_of(SwellEcom::Transaction)
+		expect(order.errors.present?).to eq false
+		expect(transaction.errors.present?).to eq false
+		expect(transaction.approved?).to eq true
+		expect(transaction.charge?).to eq true
+		expect(transaction.amount).to eq 12900
+		expect(transaction.signed_amount).to eq 12900
+
+
+
+		# Bad credit card
 		bad_credit_card = credit_card.merge( card_number: '411' )
 		transaction = transaction_service.process( order, credit_card: bad_credit_card )
 		expect(transaction).to eq false
 		expect(order.errors.present?).to eq true
-		expect(order.errors.full_messages.join('')).to eq "Invalid Payment Information"
+		expect(order.errors.full_messages.join('')).to eq "Invalid Credit Card Number"
+		order.errors.clear
 
 		bad_credit_card = credit_card.merge( expiration: '01/11' )
 		transaction = transaction_service.process( order, credit_card: bad_credit_card )
 		expect(transaction).to eq false
 		expect(order.errors.present?).to eq true
-		expect(order.errors.full_messages.join('')).to eq "Invalid Payment Information"
+		expect(order.errors.full_messages.join('')).to eq "Credit Card has Expirated"
+		order.errors.clear
+
+		bad_credit_card = credit_card.merge( expiration: '01/2011' )
+		transaction = transaction_service.process( order, credit_card: bad_credit_card )
+		expect(transaction).to eq false
+		expect(order.errors.present?).to eq true
+		expect(order.errors.full_messages.join('')).to eq "Credit Card has Expirated"
+		order.errors.clear
 
 	end
 
