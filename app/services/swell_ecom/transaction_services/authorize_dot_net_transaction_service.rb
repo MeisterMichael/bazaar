@@ -242,8 +242,8 @@ module SwellEcom
 				)
 
 				anet_customer_profile = AuthorizeNet::CIM::CustomerProfile.new(
-					:email			=> order.user.email,
-					:id				=> order.user.id,
+					:email			=> order.user.try(:email) || order.email,
+					:id				=> order.user.try(:id),
 					:phone			=> order.billing_address.phone,
 					:address		=> anet_billing_address,
 					:description	=> "#{anet_billing_address.first_name} #{anet_billing_address.last_name}"
