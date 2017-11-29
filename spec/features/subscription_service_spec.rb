@@ -133,9 +133,9 @@ describe "SubscriptionService" do
 		expect(order.transactions.count).to eq 1
 		expect(order.transactions.approved.count).to eq 1
 
-		expect( subscription.current_period_start_at - last_current_period_start_at >= 1.week ).to eq true
-		expect( subscription.current_period_end_at - last_current_period_start_at >= 1.week ).to eq true
-		expect( subscription.next_charged_at - last_current_period_start_at >= 1.week ).to eq true
+		expect( subscription.current_period_start_at - last_current_period_start_at ).to eq 1.week
+		expect( subscription.current_period_end_at - last_current_period_end_at ).to eq 1.week
+		expect( subscription.next_charged_at - last_next_charged_at ).to eq 1.week
 
 	end
 
@@ -174,9 +174,9 @@ describe "SubscriptionService" do
 		expect(order.transactions.count).to eq 1
 		expect(order.transactions.approved.count).to eq 1
 
-		expect( subscription.current_period_start_at - last_current_period_start_at >= 4.weeks ).to eq true
-		expect( subscription.current_period_end_at - last_current_period_start_at >= 4.weeks ).to eq true
-		expect( subscription.next_charged_at - last_current_period_start_at >= 4.weeks ).to eq true
+		expect( subscription.current_period_start_at - last_current_period_start_at ).to eq 4.weeks
+		expect( subscription.current_period_end_at - last_current_period_end_at ).to eq 4.weeks
+		expect( subscription.next_charged_at - last_next_charged_at ).to eq 4.weeks
 
 	end
 

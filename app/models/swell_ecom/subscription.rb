@@ -3,7 +3,6 @@ module SwellEcom
 
 
 		self.table_name = 'subscriptions'
-		self.table_name = 'subscriptions'
 
 		enum status: { 'canceled' => -1, 'failed' => 0, 'active' => 1 }
 
@@ -14,6 +13,7 @@ module SwellEcom
 		belongs_to 	:shipping_address, class_name: 'GeoAddress'
 
 		before_create :generate_order_code
+		before_create :initialize_timestamps
 
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now
@@ -50,6 +50,31 @@ module SwellEcom
 			self.code = loop do
   				token = SecureRandom.urlsafe_base64( 6 )
   				break token unless Subscription.exists?( code: token )
+			end
+		end
+
+		def initialize_timestamps
+			# Fill in any timestamp blanks
+
+			if self.subscription_plan.present?
+
+				self.start_at ||= self.created_at
+				self.current_period_start_at ||= self.start_at
+
+				trial_interval = self.subscription_plan.trial_interval_value.try( self.subscription_plan.trial_interval_unit )
+				billing_interval = self.subscription_plan.billing_interval_value.try( self.subscription_plan.billing_interval_unit )
+
+				if self.subscription_plan.trial?
+
+					self.trial_start_at ||= self.start_at
+					self.trial_end_at ||= self.trial_start_at + trial_interval * self.subscription_plan.trial_max_intervals
+
+					self.current_period_end_at ||= self.current_period_start_at + trial_interval
+				end
+				self.current_period_end_at ||= self.current_period_start_at + billing_interval
+
+				self.next_charged_at ||= self.current_period_end_at
+
 			end
 		end
 	end
