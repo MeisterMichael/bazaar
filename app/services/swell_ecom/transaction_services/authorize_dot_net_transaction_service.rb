@@ -19,10 +19,12 @@ module SwellEcom
 			end
 
 			def process( order, args = {} )
+				credit_card_info = args[:credit_card]
+
 				self.calculate( order )
 				return false if order.errors.present?
 
-				profiles = get_customer_profile( order, credit_card: args[:credit_card] )
+				profiles = get_customer_profile( order, credit_card: credit_card_info )
 				return false if profiles == false
 
 				anet_order = nil
@@ -54,6 +56,19 @@ module SwellEcom
 						end
 
 						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: direct_response.transaction_id, customer_profile_reference: profiles[:customer_profile_id], customer_payment_profile_reference: profiles[:payment_profile_id], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'approved' )
+
+						if credit_card_info.present?
+
+							credit_card_dector = CreditCardValidations::Detector.new( credit_card_info[:card_number] )
+
+							transaction.properties = transaction.properties.merge( {
+								'credit_card_ending_in' => credit_card_dector.number[-4,4],
+								'credit_card_brand' => credit_card_dector.brand,
+							} )
+
+							transaction.save
+
+						end
 
 						# sanity check
 						raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
