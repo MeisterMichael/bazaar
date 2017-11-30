@@ -74,7 +74,17 @@ module SwellEcom
 				    :line_items => line_items,
 				}
 
-				tax_for_order = @client.tax_for_order( order_info )
+				begin
+					tax_for_order = @client.tax_for_order( order_info )
+				rescue Taxjar::Error::BadRequest => ex
+					if ex.message.include?( 'is not used within to_state' )
+						order.errors.add :shipping_address, :invalid, message: "Zip #{order_info[:to_zip]} is not used within #{order_info[:to_state]}"
+						return order
+					else
+						raise ex
+					end
+
+				end
 				tax_breakdown = tax_for_order.breakdown
 				tax_geo = nil
 
