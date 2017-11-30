@@ -61,10 +61,12 @@ module SwellEcom
 
 							credit_card_dector = CreditCardValidations::Detector.new( credit_card_info[:card_number] )
 
-							transaction.properties = transaction.properties.merge( {
+							new_properties = {
 								'credit_card_ending_in' => credit_card_dector.number[-4,4],
 								'credit_card_brand' => credit_card_dector.brand,
-							} )
+							}
+
+							transaction.properties = transaction.properties.merge( new_properties ) if transaction.respond_to?( :properties )
 
 							transaction.save
 
