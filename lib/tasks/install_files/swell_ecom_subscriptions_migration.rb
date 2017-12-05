@@ -30,6 +30,8 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.string		:provider_customer_profile_reference
 			t.string		:provider_customer_payment_profile_reference
 
+			t.datetime		:payment_profile_expires_at, default: nil
+
 			t.timestamps
 		end
 

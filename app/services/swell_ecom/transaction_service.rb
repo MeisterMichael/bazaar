@@ -22,6 +22,17 @@ module SwellEcom
 
 		end
 
+		def self.parse_credit_card_expiry( expiration )
+			return nil if expiration.nil?
+
+			expiration_parts = expiration.split('/')
+			expiration_month = expiration_parts[0]
+			expiration_year	 = ( expiration_parts[1].to_i > 100 ? expiration_parts[1] : "#{Time.now.year.to_s[-4,2]}#{expiration_parts[1]}" )
+			expiration_time = Time.new( expiration_year, expiration_month ).end_of_month if expiration_parts.count == 2
+
+			expiration_time
+		end
+
 		protected
 
 		def calculate_cart( cart )

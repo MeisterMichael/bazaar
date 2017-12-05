@@ -243,12 +243,12 @@ module SwellEcom
 				end
 
 				# VALIDATE Credit card expirey
-				expiration_parts = credit_card[:expiration].split('/')
-				expiration_month = expiration_parts[0]
-				expiration_year	 = ( expiration_parts[1].to_i > 100 ? expiration_parts[1] : "#{Time.now.year.to_s[-4,2]}#{expiration_parts[1]}" )
-				expiration_time = Time.new( expiration_year, expiration_month ) if expiration_parts.count == 2
-				unless expiration_time.present? && expiration_time > Time.now.end_of_month
-					order.errors.add(:base, 'Credit Card has Expirated')
+				expiration_time = SwellEcom::TransactionService.parse_credit_card_expiry( credit_card[:expiration] )
+				if expiration_time.nil?
+					order.errors.add(:base, 'Credit Card Expired is required')
+					return false
+				elsif expiration_time.end_of_month < Time.now.end_of_month
+					order.errors.add(:base, 'Credit Card has Expired')
 					return false
 				end
 

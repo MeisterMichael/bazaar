@@ -65,7 +65,7 @@ module SwellEcom
 				subscription.current_period_end_at = subscription.current_period_end_at + interval
 				subscription.next_charged_at = subscription.next_charged_at + interval
 				subscription.save
-				
+
 			end
 
 			order

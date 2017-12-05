@@ -165,6 +165,7 @@ module SwellEcom
 			@cart.cart_items.each do |cart_item|
 				order_item = @order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code
 				order_item.subscription = get_subscription( order_item ) if order_item.item.is_a? SubscriptionPlan
+				order_item.subscription.payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( params[:credit_card][:expiration] ) if params[:credit_card].present?
 			end
 
 		end
