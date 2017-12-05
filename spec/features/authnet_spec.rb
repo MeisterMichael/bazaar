@@ -45,6 +45,7 @@ describe "AuthorizeDotNetTransactionService" do
 		expect(transaction.amount).to eq 12900
 		expect(transaction.signed_amount).to eq 12900
 
+		sleep 2.25.minutes # sleep 2 minutes to get over the duplicate window
 
 		# Test 4 digit expiration
 		transaction = transaction_service.process( order, credit_card: credit_card.merge( expiration: '12/'+(Time.now + 1.year).strftime('%Y') ) )
@@ -57,7 +58,7 @@ describe "AuthorizeDotNetTransactionService" do
 		expect(transaction.amount).to eq 12900
 		expect(transaction.signed_amount).to eq 12900
 
-
+		sleep 2.25.minutes # sleep 2 minutes to get over the duplicate window
 
 		# Bad credit card
 		bad_credit_card = credit_card.merge( card_number: '411' )
@@ -71,14 +72,14 @@ describe "AuthorizeDotNetTransactionService" do
 		transaction = transaction_service.process( order, credit_card: bad_credit_card )
 		expect(transaction).to eq false
 		expect(order.errors.present?).to eq true
-		expect(order.errors.full_messages.join('')).to eq "Credit Card has Expirated"
+		expect(order.errors.full_messages.join('')).to eq "Credit Card has Expired"
 		order.errors.clear
 
 		bad_credit_card = credit_card.merge( expiration: '01/2011' )
 		transaction = transaction_service.process( order, credit_card: bad_credit_card )
 		expect(transaction).to eq false
 		expect(order.errors.present?).to eq true
-		expect(order.errors.full_messages.join('')).to eq "Credit Card has Expirated"
+		expect(order.errors.full_messages.join('')).to eq "Credit Card has Expired"
 		order.errors.clear
 
 	end

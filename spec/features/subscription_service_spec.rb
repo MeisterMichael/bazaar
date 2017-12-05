@@ -182,20 +182,50 @@ describe "SubscriptionService" do
 
 
 	it "should not charge inactive" do
-		# @todo write tests
-		expect( false ).to eq true
+
+		subscription_service = SwellEcom::SubscriptionService.new( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service )
+		subscription = new_trial1_subscription
+
+		subscription.status = 'canceled'
+		expect{ order = subscription_service.charge_subscription( subscription ) }.to raise_error("Subscription #{subscription.id} isn't active, so can't be charged.")
+
+
+		subscription.status = 'failed'
+		expect{ order = subscription_service.charge_subscription( subscription ) }.to raise_error("Subscription #{subscription.id} isn't active, so can't be charged.")
+
+		subscription.status = 'active'
+		order = subscription_service.charge_subscription( subscription )
+		order.should be_instance_of(SwellEcom::Order)
+
 	end
 
 
 	it "should not charge if subscription is not yet past next_charged_at" do
-		# @todo write tests
-		expect( false ).to eq true
+
+		subscription_service = SwellEcom::SubscriptionService.new( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service )
+		subscription = new_trial1_subscription
+		time_now = Time.now
+
+		subscription.next_charged_at = time_now + 10.minutes
+		expect{ order = subscription_service.charge_subscription( subscription, now: time_now ) }.to raise_error("Subscription #{subscription.id} isn't ready to renew yet.  Currently it's #{time_now}, but subscription doesn't renew until #{subscription.next_charged_at}")
+
 	end
 
-
 	it "should handle expired credit cards" do
-		# @todo write tests
-		expect( false ).to eq true
+
+		subscription_service = SwellEcom::SubscriptionService.new( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service )
+		subscription = new_trial1_subscription
+		time_now = Time.now + 2.years
+
+		expect( subscription.status ).to eq 'active'
+		order = subscription_service.charge_subscription( subscription )
+		expect( subscription.status ).to eq 'failed'
+
+		order.should be_instance_of(SwellEcom::Order)
+		expect( order.status ).to eq 'failed'
+		expect( order.errors.present? ).to eq true
+		expect( order.errors.to_json ).to eq ''
+
 	end
 
 end
