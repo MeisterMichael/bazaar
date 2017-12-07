@@ -89,8 +89,8 @@ module SwellEcom
 				tax_geo = nil
 
 				unless tax_breakdown.present?
-					puts JSON.pretty_generate order_info
-					puts JSON.pretty_generate JSON.parse( tax_for_order.to_json )
+					# puts JSON.pretty_generate order_info
+					# puts JSON.pretty_generate JSON.parse( tax_for_order.to_json )
 					return order
 				end
 
