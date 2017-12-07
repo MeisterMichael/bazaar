@@ -15,6 +15,9 @@ module SwellEcom
 		before_create :generate_order_code
 		before_create :initialize_timestamps
 
+		accepts_nested_attributes_for :user
+		accepts_nested_attributes_for :billing_address
+
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now
 			active.where( 'next_charged_at < :now', now: time_now )

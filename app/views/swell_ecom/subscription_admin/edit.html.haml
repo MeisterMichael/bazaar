@@ -25,7 +25,68 @@
 							= @subscription.code
 						Placed:
 						= @subscription.created_at.to_s( :short )
-						By:
+						
+						
+						= f.fields_for :user do |uf|
+							.form-group
+								= uf.label :email
+								= uf.text_field :email, class: 'form-control'
+
+						%h2 Billing Address
+						= f.fields_for :billing_address do |baf|
+							.form-group
+								= baf.label :first_name
+								= baf.text_field :first_name, class: 'form-control'
+							.form-group
+								= baf.label :last_name
+								= baf.text_field :last_name, class: 'form-control'
+							.form-group
+								= baf.label :street
+								= baf.text_field :street, class: 'form-control'
+							.form-group
+								= baf.label :street2
+								= baf.text_field :street2, class: 'form-control'
+							.row
+								.col-sm-6
+									.form-group
+										= baf.label :city
+										= baf.text_field :city, class: 'form-control'
+								.col-sm-3
+									.form-group
+										= baf.label :state
+										= baf.collection_select :state, SwellEcom::GeoState.where( geo_country_id: 1 ), :id, :name, {}, { class: "form-control", required: true }
+								.col-sm-3
+									.form-group
+										= baf.label :zip
+										= baf.text_field :zip, class: 'form-control'
+
+						%h2 Shipping Address
+						= f.fields_for :shipping_address do |saf|
+							.form-group
+								= saf.label :first_name
+								= saf.text_field :first_name, class: 'form-control'
+							.form-group
+								= saf.label :last_name
+								= saf.text_field :last_name, class: 'form-control'
+							.form-group
+								= saf.label :street
+								= saf.text_field :street, class: 'form-control'
+							.form-group
+								= saf.label :street2
+								= saf.text_field :street2, class: 'form-control'
+							.row
+								.col-sm-6
+									.form-group
+										= saf.label :city
+										= saf.text_field :city, class: 'form-control'
+								.col-sm-3
+									.form-group
+										= saf.label :state
+										= saf.collection_select :state, SwellEcom::GeoState.where( geo_country_id: 1 ), :id, :name, {}, { class: "form-control", required: true }
+								.col-sm-3
+									.form-group
+										= saf.label :zip
+										= saf.text_field :zip, class: 'form-control'
 	
 			.col-xs-4
 				.well
@@ -33,6 +94,9 @@
 					.form-group
 						= f.label :status
 						= f.collection_select :status, SwellEcom::Subscription.statuses, :first, :first, {}, class: 'form-control'
+					.form-group
+						= f.label :next_charged_at, 'Next Charge'
+						= f.text_field :next_charged_at, class: 'form-control'
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'

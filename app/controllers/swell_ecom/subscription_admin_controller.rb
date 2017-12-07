@@ -30,9 +30,9 @@ module SwellEcom
 
 			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
 
-			if @transaction_service.update_subscription( @subscription )
+			#if @transaction_service.update_subscription( @subscription )
 
-				@subscription.save
+			if @subscription.update( subscription_params )
 				set_flash "Subscription updated successfully", :success
 
 			else
@@ -47,7 +47,7 @@ module SwellEcom
 
 		private
 			def subscription_params
-				params.require( :subscription ).permit( :next_charged_at, :amount, :trial_amount )
+				params.require( :subscription ).permit( :next_charged_at, :amount, :trial_amount, user_attributes: [ :first_name, :last_name, :email ] )
 			end
 
 			def get_subscription
