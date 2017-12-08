@@ -26,13 +26,16 @@ module SwellEcom
 
 
 		def update
+			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first
 			@subscription.attributes = subscription_params
 
 			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
 
 			#if @transaction_service.update_subscription( @subscription )
 
-			if @subscription.update( subscription_params )
+			die
+
+			if @subscription.save
 				set_flash "Subscription updated successfully", :success
 
 			else

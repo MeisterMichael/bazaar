@@ -34,12 +34,15 @@
 
 						%h2 Billing Address
 						= f.fields_for :billing_address do |baf|
-							.form-group
-								= baf.label :first_name
-								= baf.text_field :first_name, class: 'form-control'
-							.form-group
-								= baf.label :last_name
-								= baf.text_field :last_name, class: 'form-control'
+							.row
+								.col-sm-6
+									.form-group
+										= baf.label :first_name
+										= baf.text_field :first_name, class: 'form-control'
+								.col-sm-6
+									.form-group
+										= baf.label :last_name
+										= baf.text_field :last_name, class: 'form-control'
 							.form-group
 								= baf.label :street
 								= baf.text_field :street, class: 'form-control'
@@ -53,8 +56,8 @@
 										= baf.text_field :city, class: 'form-control'
 								.col-sm-3
 									.form-group
-										= baf.label :state
-										= baf.collection_select :state, SwellEcom::GeoState.where( geo_country_id: 1 ), :id, :name, {}, { class: "form-control", required: true }
+										= baf.label :geo_state_id, 'State'
+										= baf.collection_select :geo_state_id, SwellEcom::GeoState.where( geo_country_id: 1 ), :id, :name, {}, { class: "form-control", required: true }
 								.col-sm-3
 									.form-group
 										= baf.label :zip
@@ -81,8 +84,8 @@
 										= saf.text_field :city, class: 'form-control'
 								.col-sm-3
 									.form-group
-										= saf.label :state
-										= saf.collection_select :state, SwellEcom::GeoState.where( geo_country_id: 1 ), :id, :name, {}, { class: "form-control", required: true }
+										= saf.label :geo_state_id, 'State'
+										= saf.collection_select :geo_state_id, SwellEcom::GeoState.where( geo_country_id: 1 ), :id, :name, {}, { class: "form-control", required: true }
 								.col-sm-3
 									.form-group
 										= saf.label :zip
