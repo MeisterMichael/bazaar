@@ -88,8 +88,12 @@ module SwellEcom
 				tax_breakdown = tax_for_order.breakdown
 				tax_geo = nil
 
-				# puts JSON.pretty_generate order_info
-				# puts JSON.pretty_generate JSON.parse( tax_for_order.to_json )
+				unless tax_breakdown.present?
+					# puts JSON.pretty_generate order_info
+					# puts JSON.pretty_generate JSON.parse( tax_for_order.to_json )
+					return order
+				end
+
 
 				if tax_for_order.tax_source == 'destination'
 					tax_geo = { country: order_info[:from_country], state: order_info[:from_state], city: order_info[:from_city] }
