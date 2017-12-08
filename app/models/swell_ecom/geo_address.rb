@@ -6,6 +6,12 @@ module SwellEcom
 		belongs_to	:geo_country
 		belongs_to 	:user
 
+		validates	:first_name, presence: true, allow_blank: false
+		validates	:last_name, presence: true, allow_blank: false
+		validates	:street, presence: true, allow_blank: false
+		validates	:city, presence: true, allow_blank: false
+		validates	:zip, presence: true, allow_blank: false
+
 		enum status: { 'active' => 1, 'trash' => 2 }
 
 		def full_name
