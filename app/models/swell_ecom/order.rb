@@ -9,12 +9,12 @@ module SwellEcom
 		before_create :generate_order_code
 
 
-		belongs_to 	:billing_address, class_name: 'GeoAddress'
-		belongs_to 	:shipping_address, class_name: 'GeoAddress'
+		belongs_to 	:billing_address, class_name: 'GeoAddress', validate: true
+		belongs_to 	:shipping_address, class_name: 'GeoAddress', validate: true
 		belongs_to 	:user
 		belongs_to	:parent, polymorphic: true
 
-		has_many 	:order_items, dependent: :destroy
+		has_many 	:order_items, dependent: :destroy, validate: true
 		has_many	:transactions, as: :parent_obj
 
 		has_one 	:cart, dependent: :destroy
