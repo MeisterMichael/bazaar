@@ -12,6 +12,8 @@ module SwellEcom
 			ERROR_INVALID_PAYMENT_PROFILE = 'E00003'
 			CANNOT_REFUND_CHARGE = 'E00027'
 
+			WHITELISTED_ERROR_MESSAGES = [ 'The credit card has expired' ]
+
 			def initialize( args = {} )
 				@api_login	= args[:API_LOGIN_ID] || ENV['AUTHORIZE_DOT_NET_API_LOGIN_ID']
 				@api_key	= args[:TRANSACTION_API_KEY] || ENV['AUTHORIZE_DOT_NET_TRANSACTION_API_KEY']
@@ -88,7 +90,12 @@ module SwellEcom
 					transaction = false
 					transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_id], customer_payment_profile_reference: profiles[:payment_profile_id], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
 
-					order.errors.add(:base, :processing_error, message: "Transaction declined.")
+					if WHITELISTED_ERROR_MESSAGES.include? response.message_text
+						order.errors.add(:base, :processing_error, message: response.message_text )
+					else
+						order.errors.add(:base, :processing_error, message: "Transaction declined.")
+					end
+
 
 					return transaction
 				end
