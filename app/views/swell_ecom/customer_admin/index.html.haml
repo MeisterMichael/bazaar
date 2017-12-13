@@ -1,0 +1,90 @@
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					= link_to 'Admin', swell_media.admin_index_path
+				%li
+					%strong
+						Customer Admin
+
+		.col-xs-2
+			-#%a.btn.btn-success{ data: { toggle: :modal, target: '#new_user' } }
+				%i.fa.fa-plus-square
+				New
+	.row
+		.col-xs-6
+			= raw paginate @users
+		.col-xs-6
+			= form_tag customer_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= text_field_tag :q, params[:q], class: 'form-control'
+				= submit_tag 'Search', class: 'btn btn-primary'
+				= link_to 'Clear', customer_admin_index_path, class: 'btn btn-default btn-xs'
+
+	.row
+		.col-xs-12
+			%table.table
+				%thead
+					%th
+						Name
+						%a{ href: customer_admin_index_path( sort_by: 'name', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: customer_admin_index_path( sort_by: 'name', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th
+						Email
+						%a{ href: customer_admin_index_path( sort_by: 'email', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: customer_admin_index_path( sort_by: 'email', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th Status
+					%th # Orders
+					%th # Subs
+					%th
+						Joined
+						%a{ href: customer_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: customer_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th
+				%tbody
+					- @users.each do |user|
+						%tr
+							%td
+								= link_to user.to_s, edit_customer_admin_path( user.id )
+							%td
+								= link_to user.email, edit_customer_admin_path( user.id )
+							%td
+								.badge{ class: user.status }
+									= user.status
+
+							%td
+								= @order_counts[user.id] || 'N/A'
+
+							%td
+								- if @subscription_counts[user.id]
+									= @active_subscription_counts[user.id] || '0'
+									\/
+									= @subscription_counts[user.id] || '0'
+								- else
+									N/A
+
+							%td
+								= user.created_at.to_s( :slashed_time )
+
+							%td
+								.btn-group
+									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+										%i.fa.fa-cog
+										%b.caret
+									%ul.dropdown-menu
+										%li
+											%a{ href: edit_customer_admin_path( user.id ) }
+												%i.fa.fa-pencil
+												Edit
+										%li.divider
+										%li
+											%a{ href: swell_media.user_admin_path( user ), data: { method: 'delete', confirm: 'Are you sure?' } }
+												%i.fa.fa-trash-o
+												Delete!

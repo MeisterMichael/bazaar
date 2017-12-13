@@ -15,6 +15,8 @@ SwellEcom::Engine.routes.draw do
 		get :state_input, on: :collection
 	end
 
+	resources :customer_admin
+
 	resources :order_admin do
 		post :refund, on: :member
 	end
@@ -45,7 +47,7 @@ SwellEcom::Engine.routes.draw do
 	resources :subscription_plan_admin
 
 	resources :subscription_plans
-	resources :subscriptions do 
+	resources :subscriptions do
 		post :cancel, on: :member
 	end
 
