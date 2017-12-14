@@ -193,11 +193,16 @@
 					.well.white-well
 						%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.email
 
+				.pull-right
+					%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
 				%h5
 					Billing Address
 				.well.white-well
 					= raw @order.billing_address.to_html
 
+
+				.pull-right
+					%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
 				%h5
 					Shipping Address
 				.well.white-well
@@ -206,3 +211,5 @@
 
 = render 'swell_ecom/order_admin/refund_modal'
 = render 'swell_ecom/order_admin/support_notes_modal'
+= render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_address' }
+= render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Billing Address', attribute: 'billing_address' }

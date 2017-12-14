@@ -19,6 +19,7 @@ SwellEcom::Engine.routes.draw do
 
 	resources :order_admin do
 		post :refund, on: :member
+		post :address, on: :member
 	end
 
 	resources :orders do

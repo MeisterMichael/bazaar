@@ -3,8 +3,41 @@ module SwellEcom
 
 		before_filter :get_order, except: [ :index ]
 
+		def address
+			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
+			address = GeoAddress.create( address_attributes.merge( user: @order.user ) )
+
+			if address.errors.present?
+
+				set_flash address.errors.full_messages, :danger
+
+			else
+
+				attribute_name = params[:attribute] == 'billing_address' ? 'billing_address' : 'shipping_address'
+				@order.update( attribute_name => address )
+
+				set_flash "Address Updated", :success
+
+			end
+			redirect_to :back
+		end
+
 		def edit
 			@transactions = Transaction.where( parent_obj: @order )
+
+
+			@billing_countries 	= SwellEcom::GeoCountry.all
+			@shipping_countries = SwellEcom::GeoCountry.all
+
+			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:only] ) if SwellEcom.billing_countries[:only].present?
+			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:except] ) if SwellEcom.billing_countries[:except].present?
+
+			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
+			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
+
+			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
+			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
+
 		end
 
 		def index
