@@ -154,6 +154,20 @@
 							%td
 								= transaction.currency
 
+					%tr
+						%td
+							&nbsp;
+						%td
+							&nbsp;
+						%td
+							&nbsp;
+						%td
+							&nbsp;
+						%td.text-right
+							= number_to_currency( @transactions.approved.to_a.sum(&:signed_amount) / 100.0 )
+						%td
+							&nbsp;
+
 
 
 = render 'swell_ecom/order_admin/refund_modal'

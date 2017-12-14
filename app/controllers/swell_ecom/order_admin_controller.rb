@@ -44,7 +44,8 @@ module SwellEcom
 
 			else
 
-				OrderMailer.refund( @transaction ).deliver_now
+				@order.refunded!
+				# OrderMailer.refund( @transaction ).deliver_now # send emails on a cron
 				set_flash "Refund successful", :success
 
 			end
