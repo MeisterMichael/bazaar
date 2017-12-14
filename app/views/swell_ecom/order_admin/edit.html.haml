@@ -27,7 +27,7 @@
 						= @order.created_at.to_s( :short )
 						By:
 						= @order.email
-						%table.table
+						%table.table.table-light.table-bordered
 							%thead
 								%tr
 									%th Product
@@ -119,7 +119,7 @@
 	.row
 		.col-xs-8
 			%h4 Transactions
-			%table.table
+			%table.table.table-light.table-bordered
 				%thead
 					%tr
 						%th{ style: 'width: 10em' } Type

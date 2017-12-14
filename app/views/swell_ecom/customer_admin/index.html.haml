@@ -20,11 +20,12 @@
 			= form_tag customer_admin_index_path, method: :get, class: 'pull-right form-inline' do
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
-				= link_to 'Clear', customer_admin_index_path, class: 'btn btn-default btn-xs'
+				= link_to 'Clear', customer_admin_index_path, class: 'btn btn-default'
 
 	.row
 		.col-xs-12
-			%table.table
+
+			%table.table.table-light.table-bordered
 				%thead
 					%th
 						Name

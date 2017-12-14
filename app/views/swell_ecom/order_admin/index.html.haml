@@ -19,11 +19,11 @@
 				= select_tag :status, options_from_collection_for_select( SwellEcom::Order.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
-				= link_to 'Clear', order_admin_index_path, class: 'btn btn-default btn-xs'
+				= link_to 'Clear', order_admin_index_path, class: 'btn btn-default'
 
 	.row
 		.col-xs-12
-			%table.table
+			%table.table.table-light.table-bordered
 				%thead
 					%th
 						Code
@@ -53,7 +53,7 @@
 							%td
 								= link_to order.code, edit_order_admin_path( order.id )
 							%td
-								= link_to order.email, edit_order_admin_path( order.id )
+								= link_to (order.email || order.user.try(:email) || 'N/A'), edit_order_admin_path( order.id )
 							%td
 								= number_to_currency ( order.total || 0 ) / 100.to_f
 							%td
