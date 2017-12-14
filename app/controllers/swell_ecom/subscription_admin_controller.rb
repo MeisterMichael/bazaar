@@ -4,7 +4,7 @@ module SwellEcom
 		before_filter :get_subscription, except: [ :index ]
 
 		def edit
-			@transactions = Transaction.where( parent_obj: @subscription )
+			@orders = Order.where( parent: @subscription )
 		end
 
 		def index

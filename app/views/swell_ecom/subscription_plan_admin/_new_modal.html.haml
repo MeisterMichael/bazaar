@@ -5,7 +5,7 @@
 				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
 					&times;
 				%h4.modal-title
-					New Product
+					New Plan
 			= form_for SwellEcom::SubscriptionPlan.new, url: swell_ecom.subscription_plan_admin_index_path do |f|
 				.modal-body
 					= f.label :title

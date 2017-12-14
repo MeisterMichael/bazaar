@@ -38,7 +38,13 @@
 								- @order.order_items.prod.each do |order_item|
 									%tr
 										%td
-											= order_item.title
+											- if order_item.subscription.present?
+												%a{ href: edit_subscription_admin_path( order_item.subscription ) }
+													= order_item.title
+													(#{order_item.subscription.code})
+											- else
+												= order_item.title
+
 										%td
 											= number_to_currency (order_item.price.to_f / 100)
 										%td.text-right

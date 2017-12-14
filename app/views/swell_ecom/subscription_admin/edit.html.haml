@@ -25,8 +25,8 @@
 							= @subscription.code
 						Placed:
 						= @subscription.created_at.to_s( :short )
-						
-						
+
+
 						= f.fields_for :user do |uf|
 							.form-group
 								= uf.label :email
@@ -90,7 +90,7 @@
 									.form-group
 										= saf.label :zip
 										= saf.text_field :zip, class: 'form-control'
-	
+
 			.col-xs-4
 				.well
 
@@ -105,28 +105,36 @@
 						= f.submit 'Update', class: 'btn btn-primary'
 	.row
 		.col-xs-8
-			%h4 Transactions
+			%h4 Orders
 			%table.table.table-light.table-bordered
 				%thead
-					%tr
-						%th{ style: 'width: 10em' } Type
-						%th{ style: 'width: 10em' } Status
-						%th{ style: 'width: 10em' } Gateway
-						%th Reference
-						%th.text-right{ style: 'width: 10em' } Amount
-						%th{ style: 'width: 4em' } Currency
+					%th
+						Code
+					%th
+						Total
+					%th
+						Created
+					%th Status
 				%tbody
-					- @transactions.each do |transaction|
+					- if ( order = @subscription.order ).present?
 						%tr
 							%td
-								= transaction.transaction_type
+								= link_to order.code, edit_order_admin_path( order.id )
 							%td
-								= transaction.status
+								= number_to_currency ( order.total || 0 ) / 100.to_f
 							%td
-								= transaction.provider
+								= order.created_at
 							%td
-								= transaction.try(:reference)
-							%td.text-right
-								= number_to_currency (transaction.amount.to_f / 100)
+								.badge{ class: order.status }
+									= order.status
+					- @orders.each do |order|
+						%tr
 							%td
-								= transaction.currency
+								= link_to order.code, edit_order_admin_path( order.id )
+							%td
+								= number_to_currency ( order.total || 0 ) / 100.to_f
+							%td
+								= order.created_at
+							%td
+								.badge{ class: order.status }
+									= order.status
