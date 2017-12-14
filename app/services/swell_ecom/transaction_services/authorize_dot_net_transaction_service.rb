@@ -137,6 +137,12 @@ module SwellEcom
 
 				raise Exception.new('unable to find transaction') if anet_transaction_id.nil?
 
+				if transaction.amount <= 0
+					transaction.status = 'declined'
+					transaction.errors.add(:base, "Refund amount must be greater than 0")
+					return transaction
+				end
+
 				# convert cents to dollars
 				refund_dollar_amount = transaction.amount / 100.0
 
@@ -193,10 +199,7 @@ module SwellEcom
 					transaction.save
 
 					# sanity check
-					raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
-
-					return transaction
-
+					# raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 				else
 					puts response.xml unless Rails.env.production?
 
@@ -205,12 +208,11 @@ module SwellEcom
 					transaction.save
 
 					# sanity check
-					raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
+					# raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 
 				end
 
-				return false
-
+				transaction
 			end
 
 			protected

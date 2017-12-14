@@ -124,6 +124,10 @@
 						= f.submit 'Update', class: 'btn btn-primary'
 	.row
 		.col-xs-8
+			.pull-right
+				%a.btn.btn-success{ data: { toggle: :modal, target: '#refund_order' } }
+					%i.fa.fa-plus-square
+					Refund
 			%h4 Transactions
 			%table.table.table-light.table-bordered
 				%thead
@@ -150,10 +154,6 @@
 							%td
 								= transaction.currency
 
-			= form_for @order, url: refund_order_admin_path( @order ), method: :POST, html: { class: 'form-inline' } do |f|
-				.well
-					.form-group
-						= number_field_tag :amount, '', min: 0.01, step: 0.01, class: 'form-control'
 
-					.form-group
-						= f.submit 'Refund', class: 'btn btn-primary'
+
+= render 'swell_ecom/order_admin/refund_modal'

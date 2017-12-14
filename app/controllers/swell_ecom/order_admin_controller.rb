@@ -38,6 +38,10 @@ module SwellEcom
 
 				set_flash @transaction.errors.full_messages, :danger
 
+			elsif @transaction.declined?
+
+				set_flash @transaction.message, :danger
+
 			else
 
 				OrderMailer.refund( @transaction ).deliver_now
