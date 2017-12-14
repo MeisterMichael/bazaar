@@ -17,10 +17,12 @@ module SwellEcom
 
 		def refund( transaction, args = {} )
 			@transaction = transaction
-			
+
 			subject = "#{SwellMedia.app_name} refund".truncate(255)
 
-			mail to: transaction.parent.email, from: SwellEcom.order_email_from, subject: subject
+			email = transaction.parent_obj.email || transaction.parent_obj.user.try(:email)
+
+			mail to: email, from: SwellEcom.order_email_from, subject: subject
 		end
 
 	end
