@@ -32,7 +32,7 @@ module SwellEcom
 
 			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
 
-			@transaction = @transaction_service.refund( amount: refund_amount, parent: @order )
+			@transaction = @transaction_service.refund( amount: refund_amount, order: @order )
 
 			if @transaction.errors.present?
 
