@@ -61,6 +61,15 @@
 							%td
 								.badge{ class: order.status }
 									= order.status
+
+								- if order.fulfilled_at.present?
+									.badge{ class: 'fulfilled', title: order.fulfilled_at.to_s( :short ) }
+										%span.fa.fa-circle
+										fulfilled
+								- else
+									.badge{ class: 'unfulfilled' }
+										%span.fa.fa-circle-o
+										unfulfilled
 							%td
 								.btn-group
 									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
