@@ -3,6 +3,25 @@ module SwellEcom
 
 		before_filter :get_subscription, except: [ :index ]
 
+		def address
+			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
+			address = GeoAddress.create( address_attributes.merge( user: @subscription.user ) )
+
+			if address.errors.present?
+
+				set_flash address.errors.full_messages, :danger
+
+			else
+
+				attribute_name = params[:attribute] == 'billing_address' ? 'billing_address' : 'shipping_address'
+				@subscription.update( attribute_name => address )
+
+				set_flash "Address Updated", :success
+
+			end
+			redirect_to :back
+		end
+
 		def edit
 			@orders = Order.where( parent: @subscription )
 		end

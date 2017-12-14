@@ -7,10 +7,8 @@
 				%h4.modal-title
 					Edit #{ args[:title] }
 					%small
-						#{@order.code}
-						by
-						#{@order.email}
-			= form_for @order.try(args[:attribute]), url: address_order_admin_path( @order, attribute: args[:attribute] ), method: :POST, html: {} do |f|
+						#{@subscription.code}
+			= form_for @subscription.try(args[:attribute]), url: address_subscription_admin_path( @subscription, attribute: args[:attribute] ), method: :POST, html: {} do |f|
 				.modal-body
 					.form-group
 						%label
@@ -68,7 +66,7 @@
 					.form-group
 						%label
 							%span Phone Number
-						= f.telephone_field :phone, value: (@order.try(args[:attribute]).phone || '+1'), class: 'form-control telephone_formatted', required: true
+						= f.telephone_field :phone, value: (@subscription.try(args[:attribute]).phone || '+1'), class: 'form-control telephone_formatted', required: true
 						.help-block.with-errors
 
 

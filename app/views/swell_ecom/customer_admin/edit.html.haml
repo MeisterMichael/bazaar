@@ -10,104 +10,111 @@
 = form_for @user, url: customer_admin_path( @user ), method: :put do |f|
 	.row
 		.col-xs-8
-			.row
-				.col-xs-6
-					= f.label :first_name
-					= f.text_field :first_name, class: 'form-control'
-				.col-xs-6
-					= f.label :last_name
-					= f.text_field :last_name, class: 'form-control'
+			.well.white-well
+				.row{ style: 'margin-top: 0;' }
+					.col-xs-6
+						= f.label :first_name
+						= f.text_field :first_name, class: 'form-control'
+					.col-xs-6
+						= f.label :last_name
+						= f.text_field :last_name, class: 'form-control'
 
-			.row
-				.col-xs-6
-					= f.label :email
-					= f.text_field :email, class: 'form-control'
-				.col-xs-6
-					= f.label :name, 'User Name'
-					= f.text_field :name, class: 'form-control'
+				.row
+					.col-xs-6
+						= f.label :email
+						= f.text_field :email, class: 'form-control'
+					.col-xs-6
+						= f.label :name, 'User Name'
+						= f.text_field :name, class: 'form-control'
 
+				.row
+					.col-xs-6
+						.input-group
+							= f.label :status
+							= f.collection_select :status, SwellMedia.registered_user_class.constantize.statuses, :first, :first, {}, class: 'form-control'
+
+				%div{ style: 'text-align: right;' }
+					= f.submit 'Update', class: 'btn btn-primary'
 			.row
 				.col-xs-12
-					%h2 Orders
-					%table.table.table-light.table-bordered
-						%thead
-							%th
-								Code
-							%th
-								Total
-								-# %a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'asc' ) }
-								-# 	%i.fa.fa-arrow-up
-								-# %a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'desc' ) }
-								-# 	%i.fa.fa-arrow-down
-							%th
-								Created
-								-# %a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
-								-# 	%i.fa.fa-arrow-up
-								-# %a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
-								-# 	%i.fa.fa-arrow-down
-							%th Status
-						%tbody
-							- if @orders.blank?
-								%tr
-									%td{ colspan: 4 }
-										\- No Orders Found -
-							- @orders.each do |order|
-								%tr
-									%td
-										= link_to order.code, edit_order_admin_path( order.id )
-									%td
-										= number_to_currency ( order.total || 0 ) / 100.to_f
-									%td
-										= order.created_at
-									%td
-										.badge{ class: order.status }
-											= order.status
+					%h4 Orders
+					.well.white-well
+						%table.table.table-light.table-bordered{ style: 'margin: 0' }
+							%thead
+								%th
+									Code
+								%th
+									Total
+									-# %a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'asc' ) }
+									-# 	%i.fa.fa-arrow-up
+									-# %a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'desc' ) }
+									-# 	%i.fa.fa-arrow-down
+								%th
+									Created
+									-# %a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+									-# 	%i.fa.fa-arrow-up
+									-# %a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
+									-# 	%i.fa.fa-arrow-down
+								%th Status
+							%tbody
+								- if @orders.blank?
+									%tr
+										%td{ colspan: 4 }
+											\- No Orders Found -
+								- @orders.each do |order|
+									%tr
+										%td
+											= link_to order.code, edit_order_admin_path( order.id )
+										%td
+											= number_to_currency ( order.total || 0 ) / 100.to_f
+										%td
+											= order.created_at
+										%td
+											.badge{ class: order.status }
+												= order.status
+
+											- if order.fulfilled_at.present?
+												.badge{ class: 'fulfilled', title: order.fulfilled_at.to_s( :short ) }
+													%span.fa.fa-circle
+													fulfilled
+											- else
+												.badge{ class: 'unfulfilled' }
+													%span.fa.fa-circle-o
+													unfulfilled
 
 
 
-					%h2 Subscriptions
-					%table.table.table-light.table-bordered
-						%thead
-							%th
-								Code
+					%h4 Subscriptions
+					.well.white-well
+						%table.table.table-light.table-bordered{ style: 'margin: 0' }
+							%thead
+								%th
+									Code
 
-							%th
-								Total
-								%a{ href: subscription_admin_index_path( sort_by: 'total', sort_dir: 'asc' ) }
-									%i.fa.fa-arrow-up
-								%a{ href: subscription_admin_index_path( sort_by: 'total', sort_dir: 'desc' ) }
-									%i.fa.fa-arrow-down
-							%th
-								Created
-								-# %a{ href: subscription_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
-								-# 	%i.fa.fa-arrow-up
-								-# %a{ href: subscription_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
-								-# 	%i.fa.fa-arrow-down
-							%th Status
-						%tbody
-							- if @subscriptions.blank?
-								%tr
-									%td{ colspan: 4 }
-										\- No Subscriptions Found -
-							- @subscriptions.each do |subscription|
-								%tr
-									%td
-										= link_to subscription.code, edit_subscription_admin_path( subscription.id )
-									%td
-										= number_to_currency ( subscription.amount || 0 ) / 100.to_f
-									%td
-										= subscription.created_at
-									%td
-										.badge{ class: subscription.status }
-											= subscription.status
+								%th
+									Total
+								%th
+									Created
+								%th Status
+							%tbody
+								- if @subscriptions.blank?
+									%tr
+										%td{ colspan: 4 }
+											\- No Subscriptions Found -
+								- @subscriptions.each do |subscription|
+									%tr
+										%td
+											= link_to subscription.code, edit_subscription_admin_path( subscription.id )
+										%td
+											= number_to_currency ( subscription.amount || 0 ) / 100.to_f
+										%td
+											= subscription.created_at
+										%td
+											.badge{ class: subscription.status }
+												= subscription.status
 
 		.col-xs-4
-			.input-group
-				= f.label :created_at, 'Joined'
-				%div= @user.created_at
-			.input-group
-				= f.label :status
-				= f.collection_select :status, SwellMedia.registered_user_class.constantize.statuses, :first, :first, {}, class: 'form-control'
-
-			.input-group
-				= f.submit 'Update', class: 'btn btn-primary'
+			.well.white-well
+				.input-group
+					= f.label :created_at, 'Joined'
+					%div= @user.created_at
