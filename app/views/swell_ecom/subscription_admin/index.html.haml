@@ -50,7 +50,10 @@
 							%td
 								= link_to subscription.code, edit_subscription_admin_path( subscription.id )
 							%td
-								= subscription.user.email
+								- if subscription.user.full_name.strip.present?
+									= subscription.user.full_name
+								- else
+									= (subscription.user.email || 'N/A')
 							%td
 								= number_to_currency ( subscription.amount || 0 ) / 100.to_f
 							%td
