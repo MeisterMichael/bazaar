@@ -26,7 +26,7 @@ module SwellEcom
 				self.calculate( order )
 				return false if order.errors.present?
 
-				profiles = get_customer_profile( order, credit_card: credit_card_info )
+				profiles = get_order_customer_profile( order, credit_card: credit_card_info )
 				return false if profiles == false
 
 				anet_order = nil
@@ -34,7 +34,7 @@ module SwellEcom
 				# create capture
 				anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 				amount = order.total / 100.0 # convert cents to dollars
-		        response = anet_transaction.create_transaction_auth_capture( amount, profiles[:customer_profile_id], profiles[:payment_profile_id], anet_order )
+		        response = anet_transaction.create_transaction_auth_capture( amount, profiles[:customer_profile_reference], profiles[:customer_payment_profile_reference], anet_order )
 				direct_response = response.direct_response
 
 
@@ -51,13 +51,13 @@ module SwellEcom
 						order.order_items.each do |order_item|
 							if order_item.subscription.present?
 								order_item.subscription.provider = PROVIDER_NAME
-								order_item.subscription.provider_customer_profile_reference = profiles[:customer_profile_id]
-								order_item.subscription.provider_customer_payment_profile_reference = profiles[:payment_profile_id]
+								order_item.subscription.provider_customer_profile_reference = profiles[:customer_profile_reference]
+								order_item.subscription.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
 								order_item.subscription.save
 							end
 						end
 
-						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: direct_response.transaction_id, customer_profile_reference: profiles[:customer_profile_id], customer_payment_profile_reference: profiles[:payment_profile_id], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'approved' )
+						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: direct_response.transaction_id, customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'approved' )
 
 						if credit_card_info.present?
 
@@ -88,7 +88,7 @@ module SwellEcom
 					order.status = 'declined'
 
 					transaction = false
-					transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_id], customer_payment_profile_reference: profiles[:payment_profile_id], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
+					transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
 
 					if WHITELISTED_ERROR_MESSAGES.include? response.message_text
 						order.errors.add(:base, :processing_error, message: response.message_text )
@@ -215,49 +215,77 @@ module SwellEcom
 				transaction
 			end
 
+			def update_subscription_payment_profile( subscription, args = {} )
+				payment_profile = request_payment_profile( subscription.user, subscription.billing_address, args[:credit_card], errors: subscription.errors )
+
+				credit_card_dector = CreditCardValidations::Detector.new( args[:credit_card][:card_number] )
+
+				new_properties = {
+					'credit_card_ending_in' => credit_card_dector.number[-4,4],
+					'credit_card_brand' => credit_card_dector.brand,
+				}
+
+				subscription.provider = PROVIDER_NAME
+				subscription.provider_customer_profile_reference = payment_profile[:customer_profile_reference]
+				subscription.provider_customer_payment_profile_reference = payment_profile[:customer_payment_profile_reference]
+				subscription.properties = subscription.properties.merge( new_properties )
+				subscription.payment_profile_expires_at	= SwellEcom::TransactionService.parse_credit_card_expiry( args[:credit_card][:expiration] ) if subscription.respond_to?(:payment_profile_expires_at)
+
+				subscription.save
+
+			end
+
 			protected
 
-			def get_customer_profile( order, args = {} )
-				anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-
+			def get_order_customer_profile( order, args = {} )
 				# find an existing customer profile
 				subscriptions = order.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::Subscription ) && order_item.item.provider == PROVIDER_NAME }.collect(&:item)
-				return { customer_profile_id: subscriptions.first.provider_customer_profile_reference, payment_profile_id: subscriptions.first.provider_customer_payment_profile_reference } if subscriptions.present?
+				return { customer_profile_reference: subscriptions.first.provider_customer_profile_reference, customer_payment_profile_reference: subscriptions.first.provider_customer_payment_profile_reference } if subscriptions.present?
 
 				raise Exception.new( 'cannot create payment profile without credit card info' ) unless args[:credit_card].present?
 
-				billing_address_state = order.billing_address.state
-				billing_address_state = order.billing_address.geo_state.try(:name) if billing_address_state.blank?
-				billing_address_state = order.billing_address.geo_state.try(:abbrev) if billing_address_state.blank?
+				payment_profile = request_payment_profile( order.user, order.billing_address, args[:credit_card], email: order.email, errors: order.errors )
+
+				return payment_profile if payment_profile && order.errors.blank?
+
+				return false
+			end
+
+
+			def request_payment_profile( user, billing_address, credit_card, args={} )
+				anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+				errors = args[:errors]
+
+				billing_address_state = billing_address.state
+				billing_address_state = billing_address.geo_state.try(:name) if billing_address_state.blank?
+				billing_address_state = billing_address.geo_state.try(:abbrev) if billing_address_state.blank?
 
 				anet_billing_address = AuthorizeNet::Address.new(
-					:first_name		=> order.billing_address.first_name,
-					:last_name		=> order.billing_address.last_name,
+					:first_name		=> billing_address.first_name,
+					:last_name		=> billing_address.last_name,
 					# :company		=> nil,
-					:street_address	=> "#{order.billing_address.street}\n#{order.billing_address.street2}".strip,
-					:city			=> order.billing_address.city,
+					:street_address	=> "#{billing_address.street}\n#{billing_address.street2}".strip,
+					:city			=> billing_address.city,
 					:state			=> billing_address_state,
-					:zip			=> order.billing_address.zip,
-					:country		=> order.billing_address.geo_country.name,
-					:phone			=> order.billing_address.phone,
+					:zip			=> billing_address.zip,
+					:country		=> billing_address.geo_country.name,
+					:phone			=> billing_address.phone,
 				)
-
-				credit_card = args[:credit_card]
 
 				# VALIDATE Credit card number
 				credit_card_dector = CreditCardValidations::Detector.new(credit_card[:card_number])
 				unless credit_card_dector.valid?
-					order.errors.add(:base, 'Invalid Credit Card Number')
+					errors.add( :base, 'Invalid Credit Card Number' ) if errors
 					return false
 				end
 
 				# VALIDATE Credit card expirey
 				expiration_time = SwellEcom::TransactionService.parse_credit_card_expiry( credit_card[:expiration] )
 				if expiration_time.nil?
-					order.errors.add(:base, 'Credit Card Expired is required')
+					errors.add( :base, 'Credit Card Expired is required') if errors
 					return false
 				elsif expiration_time.end_of_month < Time.now.end_of_month
-					order.errors.add(:base, 'Credit Card has Expired')
+					errors.add( :base, 'Credit Card has Expired') if errors
 					return false
 				end
 
@@ -273,9 +301,9 @@ module SwellEcom
 				)
 
 				anet_customer_profile = AuthorizeNet::CIM::CustomerProfile.new(
-					:email			=> order.user.try(:email) || order.email,
-					:id				=> order.user.try(:id),
-					:phone			=> order.billing_address.phone,
+					:email			=> args[:email] || user.try(:email),
+					:id				=> user.try(:id),
+					:phone			=> billing_address.phone,
 					:address		=> anet_billing_address,
 					:description	=> "#{anet_billing_address.first_name} #{anet_billing_address.last_name}"
 				)
@@ -313,28 +341,31 @@ module SwellEcom
 
 					end
 
-					return { customer_profile_id: customer_profile_id, payment_profile_id: customer_payment_profile_id }
+
+					return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
 
 				elsif response.success?
 
 					customer_payment_profile_id = response.payment_profile_ids.last
 
-					return { customer_profile_id: response.profile_id, payment_profile_id: customer_payment_profile_id }
+					return { customer_profile_reference: response.profile_id, customer_payment_profile_reference: customer_payment_profile_id }
 
 				else
 
 					puts response.xml unless Rails.env.production?
 
 					if response.message_code == ERROR_INVALID_PAYMENT_PROFILE
-						order.errors.add(:base, :processing_error, message: 'Invalid Payment Information')
+						errors.add( :base, 'Invalid Payment Information') if errors
 					else
-						order.errors.add(:base, :processing_error, message: 'Unable to create customer profile')
+						errors.add( :base, 'Unable to create customer profile') if errors
 					end
 
 				end
 
 				return false
+
 			end
+
 
 		end
 
