@@ -145,6 +145,8 @@ module SwellEcom
 				end
 
 				# puts JSON.pretty_generate tax_order_item.properties if tax_order_item.respond_to?( :properties )
+				order.tax = tax_order_item.subtotal
+
 
 				return order
 
