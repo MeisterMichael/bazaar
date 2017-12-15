@@ -7,6 +7,8 @@ module SwellEcom
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
 			address = GeoAddress.create( address_attributes.merge( user: @subscription.user ) )
 
+
+
 			if address.errors.present?
 
 				set_flash address.errors.full_messages, :danger
@@ -14,6 +16,7 @@ module SwellEcom
 			else
 
 				attribute_name = params[:attribute] == 'billing_address' ? 'billing_address' : 'shipping_address'
+				# @todo trash the old address if it's no long used by any orders or subscriptions
 				@subscription.update( attribute_name => address )
 
 				set_flash "Address Updated", :success

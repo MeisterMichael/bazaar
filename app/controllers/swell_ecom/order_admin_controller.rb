@@ -14,6 +14,7 @@ module SwellEcom
 			else
 
 				attribute_name = params[:attribute] == 'billing_address' ? 'billing_address' : 'shipping_address'
+				# @todo trash the old address if it's no long used by any orders or subscriptions
 				@order.update( attribute_name => address )
 
 				set_flash "Address Updated", :success
