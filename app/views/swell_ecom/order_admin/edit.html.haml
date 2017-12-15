@@ -43,10 +43,10 @@
 							- @order.order_items.prod.each do |order_item|
 								%tr
 									%td
-										- if order_item.subscription.present?
-											%a{ href: edit_subscription_admin_path( order_item.subscription ) }
+										- if ( subscription = order_item.subscription ).present? || ( subscription = order_item.item ).is_a?( SwellEcom::Subscription )
+											%a{ href: edit_subscription_admin_path( subscription ) }
 												= order_item.title
-												(#{order_item.subscription.code})
+												(#{subscription.code})
 										- else
 											= order_item.title
 

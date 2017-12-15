@@ -45,6 +45,7 @@ SwellEcom::Engine.routes.draw do
 	resources :subscription_admin do
 		post :cancel, on: :member
 		post :address, on: :member
+		post :payment_profile, on: :member
 	end
 	resources :subscription_plan_admin
 

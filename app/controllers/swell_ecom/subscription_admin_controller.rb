@@ -59,6 +59,36 @@ module SwellEcom
 			@subscriptions = @subscriptions.page( params[:page] )
 		end
 
+		def payment_profile
+			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
+
+			address_attributes = params.require( :subscription ).require( :billing_address_attributes ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
+			address = GeoAddress.create( address_attributes.merge( user: @subscription.user ) )
+
+			if address.errors.present?
+
+				set_flash address.errors.full_messages, :danger
+
+			else
+
+				@subscription.billing_address = address
+
+				@transaction_service.update_subscription_payment_profile( @subscription, credit_card: params[:credit_card] )
+
+				if @subscription.errors.present?
+
+					set_flash @subscription.errors.full_messages, :danger
+
+				else
+
+					set_flash "Payment Profile Updated", :success
+
+				end
+
+			end
+
+			redirect_to :back
+		end
 
 		def update
 			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first

@@ -65,7 +65,7 @@
 							%td
 								= current_user.to_local_tz(subscription.next_charged_at).to_s(:short)
 							%td
-								= current_user.to_local_tz(subscription.payment_profile_expires_at).strftime('%m/%Y')
+								= subscription.payment_profile_expires_at.strftime('%m/%Y')
 							%td
 								.badge{ class: subscription.status }
 									= subscription.status

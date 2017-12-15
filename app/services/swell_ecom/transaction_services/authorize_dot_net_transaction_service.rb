@@ -218,6 +218,8 @@ module SwellEcom
 			def update_subscription_payment_profile( subscription, args = {} )
 				payment_profile = request_payment_profile( subscription.user, subscription.billing_address, args[:credit_card], errors: subscription.errors )
 
+				return false unless payment_profile
+
 				credit_card_dector = CreditCardValidations::Detector.new( args[:credit_card][:card_number] )
 
 				new_properties = {
