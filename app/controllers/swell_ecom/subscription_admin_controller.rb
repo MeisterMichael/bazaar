@@ -26,7 +26,7 @@ module SwellEcom
 		end
 
 		def edit
-			@orders = Order.where( parent: @subscription )
+			@orders = Order.where( parent: @subscription ).order( created_at: :desc )
 
 			@billing_countries 	= SwellEcom::GeoCountry.all
 			@shipping_countries = SwellEcom::GeoCountry.all

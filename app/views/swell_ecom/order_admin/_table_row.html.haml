@@ -1,0 +1,41 @@
+%tr
+	%td
+		= link_to order.code, edit_order_admin_path( order.id )
+	%td
+		= order.created_at.to_s(:short)
+	- if args[:customer] != false
+		%td
+			%a{ href: edit_order_admin_path( order.id ) }
+				- if order.user.present? && order.user.full_name.strip.present?
+					= order.user.full_name
+				- else
+					= (order.email || order.user.try(:email) || 'N/A')
+	%td
+		.badge{ class: order.status }
+			= order.status
+	%td
+		- if order.fulfilled_at.present?
+			.badge{ class: 'fulfilled', title: order.fulfilled_at.to_s( :short ) }
+				fulfilled
+		- else
+			.badge{ class: 'unfulfilled' }
+				%span.fa.fa-circle-o
+				unfulfilled
+	%td
+		= number_to_currency ( order.total || 0 ) / 100.to_f
+	- if args[:controls]
+		%td
+			.btn-group
+				%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+					%i.fa.fa-cog
+					%b.caret
+				%ul.dropdown-menu
+					%li
+						%a{ href: edit_order_admin_path( order.id ) }
+							%i.fa.fa-pencil
+							Edit
+					%li.divider
+					%li
+						%a{ href: order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
+							%i.fa.fa-trash-o
+							Delete!

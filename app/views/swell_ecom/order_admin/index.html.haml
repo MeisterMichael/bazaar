@@ -19,63 +19,36 @@
 		.col-xs-12
 			%table.table.table-light.table-bordered
 				%thead
-					%th
+					%th{ style: 'width: 10em' }
 						Code
+					%th{ style: 'width: 10em' }
+						Created
+						%a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
 					%th
 						Customer
 						%a{ href: order_admin_index_path( sort_by: 'email', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
 						%a{ href: order_admin_index_path( sort_by: 'email', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
-					%th
+					%th{ style: 'width: 11em' } Order Status
+					%th{ style: 'width: 11em' } Fulfillment Status
+					%th{ style: 'width: 10em' }
 						Total
 						%a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
 						%a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
-					%th
-						Created
-						%a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
-							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
-							%i.fa.fa-arrow-down
-					%th Status
-					%th
+					%th{ style: 'width: 6em' }
 				%tbody
-					- @orders.each do |order|
+					- if @orders.blank?
 						%tr
-							%td
-								= link_to order.code, edit_order_admin_path( order.id )
-							%td
-								= link_to (order.email || order.user.try(:email) || 'N/A'), edit_order_admin_path( order.id )
-							%td
-								= number_to_currency ( order.total || 0 ) / 100.to_f
-							%td
-								= order.created_at
-							%td
-								.badge{ class: order.status }
-									= order.status
-
-								- if order.fulfilled_at.present?
-									.badge{ class: 'fulfilled', title: order.fulfilled_at.to_s( :short ) }
-										%span.fa.fa-circle
-										fulfilled
-								- else
-									.badge{ class: 'unfulfilled' }
-										%span.fa.fa-circle-o
-										unfulfilled
-							%td
-								.btn-group
-									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
-										%i.fa.fa-cog
-										%b.caret
-									%ul.dropdown-menu
-										%li
-											%a{ href: edit_order_admin_path( order.id ) }
-												%i.fa.fa-pencil
-												Edit
-										%li.divider
-										%li
-											%a{ href: order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
-												%i.fa.fa-trash-o
-												Delete!
+							%td{ colspan: 7 }
+								\- No Orders Found -
+					- @orders.each do |order|
+						= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: true }
+	.row
+		.col-xs-6
+			= raw paginate @orders

@@ -191,6 +191,8 @@
 								Edit
 						%h5
 							Customer
+						%div
+							%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.full_name
 						%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.email
 
 				.well.white-well

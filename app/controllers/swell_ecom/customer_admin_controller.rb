@@ -5,10 +5,10 @@ module SwellEcom
 		def edit
 			@user = SwellMedia.registered_user_class.constantize.friendly.find( params[:id] )
 
-			@subscriptions = SwellEcom::Subscription.where( user: @user )
-			@orders = SwellEcom::Order.where( user: @user )
+			@subscriptions = SwellEcom::Subscription.where( user: @user ).order( created_at: :desc )
+			@orders = SwellEcom::Order.where( user: @user ).order( created_at: :desc )
 			# @user_events = SwellMedia::UserEvent.where( guest_session_id: SwellMedia::GuestSession.where( user_id: @user.id ).pluck( :id ) ).order( created_at: :asc ).page(params[:page]).per(50)
-
+			@preferred_address = SwellEcom::GeoAddress.find_by( user: @user, preferred: true )
 		end
 
 
@@ -35,7 +35,10 @@ module SwellEcom
 			@order_counts = Hash[*SwellEcom::Order.where( user: @users ).group(:user_id).pluck('user_id, count(id) "orders"').to_a.flatten]
 			@active_subscription_counts = Hash[*SwellEcom::Subscription.active.where( user: @users ).group(:user_id).pluck('user_id, count(id) "subscriptions"').to_a.flatten]
 			@subscription_counts = Hash[*SwellEcom::Subscription.where( user: @users ).group(:user_id).pluck('user_id, count(id) "subscriptions"').to_a.flatten]
-
+			@geo_addresses = {}
+			SwellEcom::GeoAddress.where( user: @users, preferred: true ).each do |geo_address|
+				@geo_addresses[ geo_address.user_id ] = geo_address
+			end
 		end
 
 		def update

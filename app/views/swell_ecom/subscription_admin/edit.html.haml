@@ -25,51 +25,20 @@
 						%th
 							Code
 						%th
-							Total
-						%th
 							Created
-						%th Status
+						%th Order Status
+						%th Fulfillment Status
+						%th
+							Total
 					%tbody
+						- if @orders.blank? && @subscription.order.blank?
+							%tr
+								%td{ colspan: 5 }
+									\- No Orders Found -
 						- if ( order = @subscription.order ).present?
-							%tr
-								%td
-									= link_to order.code, edit_order_admin_path( order.id )
-								%td
-									= number_to_currency ( order.total || 0 ) / 100.to_f
-								%td
-									= order.created_at
-								%td
-									.badge{ class: order.status }
-										= order.status
-
-									- if order.fulfilled_at.present?
-										.badge{ class: 'fulfilled', title: order.fulfilled_at.to_s( :short ) }
-											%span.fa.fa-circle
-											fulfilled
-									- else
-										.badge{ class: 'unfulfilled' }
-											%span.fa.fa-circle-o
-											unfulfilled
+							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
 						- @orders.each do |order|
-							%tr
-								%td
-									= link_to order.code, edit_order_admin_path( order.id )
-								%td
-									= number_to_currency ( order.total || 0 ) / 100.to_f
-								%td
-									= order.created_at
-								%td
-									.badge{ class: order.status }
-										= order.status
-
-									- if order.fulfilled_at.present?
-										.badge{ class: 'fulfilled', title: order.fulfilled_at.to_s( :short ) }
-											%span.fa.fa-circle
-											fulfilled
-									- else
-										.badge{ class: 'unfulfilled' }
-											%span.fa.fa-circle-o
-											unfulfilled
+							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
 		.col-xs-4
 			.well.white-well
 
@@ -90,6 +59,9 @@
 						Edit
 				%h5
 					Customer
+
+				%div
+					%a{ href: edit_customer_admin_path( @subscription.user ) }= @subscription.user.full_name
 				%a{ href: edit_customer_admin_path( @subscription.user ) }= @subscription.user.email
 
 

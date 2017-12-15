@@ -22,43 +22,18 @@
 						%th
 							Code
 						%th
-							Total
-							-# %a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'asc' ) }
-							-# 	%i.fa.fa-arrow-up
-							-# %a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'desc' ) }
-							-# 	%i.fa.fa-arrow-down
-						%th
 							Created
-							-# %a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
-							-# 	%i.fa.fa-arrow-up
-							-# %a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
-							-# 	%i.fa.fa-arrow-down
-						%th Status
+						%th Order Status
+						%th Fulfillment Status
+						%th
+							Total
 					%tbody
 						- if @orders.blank?
 							%tr
 								%td{ colspan: 4 }
 									\- No Orders Found -
 						- @orders.each do |order|
-							%tr
-								%td
-									= link_to order.code, edit_order_admin_path( order.id )
-								%td
-									= number_to_currency ( order.total || 0 ) / 100.to_f
-								%td
-									= order.created_at
-								%td
-									.badge{ class: order.status }
-										= order.status
-
-									- if order.fulfilled_at.present?
-										.badge{ class: 'fulfilled', title: order.fulfilled_at.to_s( :short ) }
-											%span.fa.fa-circle
-											fulfilled
-									- else
-										.badge{ class: 'unfulfilled' }
-											%span.fa.fa-circle-o
-											unfulfilled
+							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
 
 
 
@@ -92,7 +67,16 @@
 										= subscription.status
 
 		.col-xs-4
+
 			.well.white-well
+				%h4 Contact Info
+				= mail_to @user.email, @user.email
+			- if @preferred_address.present?
+				.well.white-well
+					%h4 Default Address
+					= raw @preferred_address.to_html
+			.well.white-well
+				%h4 Profile
 				= form_for @user, url: customer_admin_path( @user ), method: :put do |f|
 					.form-group
 						= f.label :first_name

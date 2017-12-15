@@ -23,37 +23,30 @@
 							%i.fa.fa-arrow-up
 						%a{ href: customer_admin_index_path( sort_by: 'name', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
-					%th
-						Email
-						%a{ href: customer_admin_index_path( sort_by: 'email', sort_dir: 'asc' ) }
-							%i.fa.fa-arrow-up
-						%a{ href: customer_admin_index_path( sort_by: 'email', sort_dir: 'desc' ) }
-							%i.fa.fa-arrow-down
-					%th Status
-					%th # Orders
-					%th # Subs
-					%th
+					%th{ style: 'width: 20em' } Location
+					%th.text-right{ style: 'width: 8em' } Orders
+					%th.text-right{ style: 'width: 8em' } Active Subs
+					%th{ style: 'width: 10em' }
 						Joined
 						%a{ href: customer_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
 						%a{ href: customer_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
-					%th
+					%th{ style: 'width: 6em' }
 				%tbody
 					- @users.each do |user|
 						%tr
 							%td
 								= link_to user.to_s, edit_customer_admin_path( user.id )
 							%td
-								= link_to user.email, edit_customer_admin_path( user.id )
-							%td
-								.badge{ class: user.status }
-									= user.status
-
-							%td
+								- if @geo_addresses[user.id].present?
+									#{@geo_addresses[user.id].state_name}, #{@geo_addresses[user.id].geo_country.name}
+								- else
+									N/A
+							%td.text-right
 								= @order_counts[user.id] || 'N/A'
 
-							%td
+							%td.text-right
 								- if @subscription_counts[user.id]
 									= @active_subscription_counts[user.id] || '0'
 									\/
@@ -62,7 +55,7 @@
 									N/A
 
 							%td
-								= user.created_at.to_s( :slashed_time )
+								= user.created_at.to_s( :short )
 
 							%td
 								.btn-group
