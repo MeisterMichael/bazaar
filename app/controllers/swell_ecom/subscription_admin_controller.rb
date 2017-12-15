@@ -53,7 +53,7 @@ module SwellEcom
 			end
 
 			if params[:q].present?
-				@subscriptions = @subscriptions.joins(:user).where( "users.email like :q", q: "'%#{params[:q].downcase}%'" )
+				@subscriptions = @subscriptions.joins(:user).where( "users.email like LOWER(:q) OR subscriptions.code like :q", q: "%#{params[:q].strip}%" )
 			end
 
 			@subscriptions = @subscriptions.page( params[:page] )
