@@ -9,6 +9,8 @@ module SwellEcom
 			@orders = SwellEcom::Order.where( user: @user ).order( created_at: :desc )
 			# @user_events = SwellMedia::UserEvent.where( guest_session_id: SwellMedia::GuestSession.where( user_id: @user.id ).pluck( :id ) ).order( created_at: :asc ).page(params[:page]).per(50)
 			@preferred_address = SwellEcom::GeoAddress.find_by( user: @user, preferred: true )
+
+			@addresses = SwellEcom::GeoAddress.where( user: @user ).order('preferred DESC, created_at DESC')
 		end
 
 

@@ -77,7 +77,7 @@
 						Publishing Settings
 					.form-group
 						= f.label :publish_at
-						= f.text_field :publish_at, class: 'form-control datepicker'
+						= f.text_field :publish_at, value: current_user.to_local_tz( @plan.publish_at ), class: 'form-control datepicker'
 
 					.form-group
 						= f.label :status

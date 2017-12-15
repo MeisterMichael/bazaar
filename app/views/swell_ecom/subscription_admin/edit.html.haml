@@ -48,7 +48,7 @@
 						= f.collection_select :status, SwellEcom::Subscription.statuses, :first, :first, {}, class: 'form-control'
 					.form-group
 						= f.label :next_charged_at, 'Next Charge'
-						= f.text_field :next_charged_at, class: 'form-control'
+						= f.text_field :next_charged_at, value: current_user.to_local_tz( @subscription.next_charged_at ), class: 'form-control'
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'

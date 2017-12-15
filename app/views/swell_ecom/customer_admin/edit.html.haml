@@ -66,11 +66,19 @@
 									.badge{ class: subscription.status }
 										= subscription.status
 
+			.well.white-well
+				%h4 Addresses
+				.row{ style: 'margin-top: 0' }
+					- @addresses.each do |address|
+						.col-xs-6
+							.well{ style: ( address.preferred ? 'font-weight: bold;' : '' ) }
+								= raw address.to_html
 		.col-xs-4
 
 			.well.white-well
 				%h4 Contact Info
-				= mail_to @user.email, @user.email
+				%div= mail_to @user.email, @user.email
+				%div=@user.phone
 			- if @preferred_address.present?
 				.well.white-well
 					%h4 Default Address
@@ -88,6 +96,10 @@
 					.form-group
 						= f.label :email
 						= f.text_field :email, class: 'form-control'
+					.form-group
+						= f.label :phone
+						= f.text_field :phone, class: 'form-control'
+
 					.form-group
 						= f.label :name, 'User Name'
 						= f.text_field :name, class: 'form-control'
