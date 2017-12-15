@@ -37,7 +37,7 @@
 						%a{ href: subscription_plan_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th Status
-					%th
+					%th{ style: 'width: 6em' }
 				%tbody
 					- @plans.each do |plan|
 						%tr
