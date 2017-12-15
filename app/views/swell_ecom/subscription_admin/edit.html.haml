@@ -35,9 +35,9 @@
 							%tr
 								%td{ colspan: 5 }
 									\- No Orders Found -
-						- if ( order = @subscription.order ).present?
-							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
 						- @orders.each do |order|
+							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
+						- if ( order = @subscription.order ).present?
 							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
 		.col-xs-4
 			.well.white-well

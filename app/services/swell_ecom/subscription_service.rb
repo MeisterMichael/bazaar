@@ -49,13 +49,14 @@ module SwellEcom
 			# process order
 			@shipping_service.calculate( order )
 			@tax_service.calculate( order )
-			@transaction_service.process( order )
+			transaction = @transaction_service.process( order )
 
 			# handle response
-			if order.errors.present?
+			if order.errors.present? || !transaction || not( transaction.approved? )
 
 				# mark subscription as failed if the transaction failed
 				subscription.failed!
+				order.errors.add(:base, :processing_error, 'Transaction failed') if !transaction || not( transaction.approved? )
 
 			else
 				order.save

@@ -167,7 +167,7 @@
 									%td
 										= transaction.provider
 									%td
-										= transaction.try(:reference)
+										= transaction.reference_code
 									%td.text-right
 										= number_to_currency (transaction.amount.to_f / 100)
 									%td

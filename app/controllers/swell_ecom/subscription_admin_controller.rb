@@ -66,10 +66,6 @@ module SwellEcom
 
 			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
 
-			#if @transaction_service.update_subscription( @subscription )
-
-			die
-
 			if @subscription.save
 				set_flash "Subscription updated successfully", :success
 

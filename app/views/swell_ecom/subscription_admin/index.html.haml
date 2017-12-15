@@ -36,6 +36,12 @@
 							%i.fa.fa-arrow-up
 						%a{ href: subscription_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
+					%th
+						Next Charge
+						%a{ href: subscription_admin_index_path( sort_by: 'next_charged_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: subscription_admin_index_path( sort_by: 'next_charged_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
 					%th Status
 					%th
 				%tbody
@@ -48,7 +54,9 @@
 							%td
 								= number_to_currency ( subscription.amount || 0 ) / 100.to_f
 							%td
-								= subscription.created_at
+								= subscription.created_at.to_s(:short)
+							%td
+								= subscription.next_charged_at.to_s(:short)
 							%td
 								.badge{ class: subscription.status }
 									= subscription.status
