@@ -5,6 +5,8 @@ module SwellEcom
 		def edit
 			@user = SwellMedia.registered_user_class.constantize.friendly.find( params[:id] )
 
+			@comments = SwellSocial::UserPost.where( parent_obj: @user.id ).order( created_at: :desc ).page( params[:page] ).per(10) if defined?( SwellSocial )
+
 			@subscriptions = SwellEcom::Subscription.where( user: @user ).order( created_at: :desc )
 			@orders = SwellEcom::Order.where( user: @user ).order( created_at: :desc )
 			# @user_events = SwellMedia::UserEvent.where( guest_session_id: SwellMedia::GuestSession.where( user_id: @user.id ).pluck( :id ) ).order( created_at: :asc ).page(params[:page]).per(50)

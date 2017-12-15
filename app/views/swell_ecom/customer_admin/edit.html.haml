@@ -66,6 +66,30 @@
 									.badge{ class: subscription.status }
 										= subscription.status
 
+			-# unless @comments.nil?
+
+				.well.white-well
+					%h4 Timeline
+					.row
+						.col-xs-12
+							= render 'swell_social/comments/new_comment', parent_obj: @user, args: {}
+					- if @comments.blank?
+						.row
+							.col-xs-12
+								\- No Timeline Entries Found -
+					- @comments.each do |comment|
+
+						.comment_block.well[comment]
+							%strong
+								= comment.user
+							= time_ago_in_words( comment.created_at )
+							ago
+							.content
+								%blockquote.small.color-white{ style: 'margin-bottom: 0;' }
+									= raw comment.content
+
+
+
 			.well.white-well
 				%h4 Addresses
 				.row{ style: 'margin-top: 0' }
