@@ -4,14 +4,8 @@
 .container-fluid
 	.row
 		.col-xs-10
-			%ul.breadcrumb
-				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					%strong
-						Order Admin
-						= "(#{pluralize @orders.total_count, 'Order'})"
-	.row
+			%h2 Orders
+	.row{ style: 'margin-top: 0' }
 		.col-xs-6
 			= raw paginate @orders
 		.col-xs-6

@@ -2,18 +2,8 @@
 .container-fluid
 	.row
 		.col-xs-10
-			%ul.breadcrumb
-				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					%strong
-						Customer Admin
-
-		.col-xs-2
-			-#%a.btn.btn-success{ data: { toggle: :modal, target: '#new_user' } }
-				%i.fa.fa-plus-square
-				New
-	.row
+			%h2 Customers
+	.row{ style: 'margin-top: 0' }
 		.col-xs-6
 			= raw paginate @users
 		.col-xs-6

@@ -5,11 +5,9 @@
 		.col-xs-10
 			%ul.breadcrumb
 				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					= link_to 'Order Admin', order_admin_index_path
-				%li
-					%strong= @order.code
+					%a{ href: order_admin_index_path }
+						%i.fa.fa-angle-left
+						Orders
 			%h2
 				%strong= @order.code
 				%small= @order.created_at.to_s( :short )
@@ -20,19 +18,20 @@
 	= form_for @order, url: order_admin_path( @order ) do |f|
 		.row
 			.col-xs-8
-
-				%h4
-					Order Details
-					%small
-						- if @order.fulfilled_at.present?
-							.badge{ class: 'fulfilled', title: @order.fulfilled_at.to_s( :short ) }
-								%i.fa.fa-circle
-								fulfilled
-						- else
-							.badge{ class: 'unfulfilled' }
-								%i.fa.fa-circle-o
-								unfulfilled
 				.well.white-well
+
+					%h4
+						Order Details
+						%small
+							- if @order.fulfilled_at.present?
+								.badge{ class: 'fulfilled', title: @order.fulfilled_at.to_s( :short ) }
+									%i.fa.fa-circle
+									fulfilled
+							- else
+								.badge{ class: 'unfulfilled' }
+									%i.fa.fa-circle-o
+									unfulfilled
+
 					%table.table.table-light.table-bordered{ style: 'margin: 0' }
 						%thead
 							%tr
@@ -138,15 +137,17 @@
 									%a.btn.btn-success{ data: { toggle: :modal, target: '#refund_order' } }
 										%i.fa.fa-plus-square
 										Refund
-				.pull-right
-					%a{ href: '#', data: { toggle: :modal, target: '#edit_support_notes_order' } }
-						Edit
-				%h4
-					Support Notes
-				.well.white-well=@order.support_notes || 'N/A'
-
-				%h4 Transactions
 				.well.white-well
+
+					.pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#edit_support_notes_order' } }
+							Edit
+					%h4
+						Support Notes
+					=@order.support_notes || 'N/A'
+
+				.well.white-well
+					%h4 Transactions
 					%table.table.table-light.table-bordered{ style: 'margin: 0;' }
 						%thead
 							%tr
@@ -174,10 +175,9 @@
 
 
 			.col-xs-4
-				%h5
-					Status
 				.well.white-well
-
+					%h5
+						Status
 					.form-group
 						= f.collection_select :status, SwellEcom::Order.statuses, :first, :first, {}, class: 'form-control'
 
@@ -185,27 +185,27 @@
 						= f.submit 'Update', class: 'btn btn-primary'
 
 				- if @order.user.present?
-					.pull-right
-						%a{ href: edit_customer_admin_path( @order.user ) }
-							Edit
-					%h5
-						Customer
 					.well.white-well
+						.pull-right
+							%a{ href: edit_customer_admin_path( @order.user ) }
+								Edit
+						%h5
+							Customer
 						%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.email
 
-				.pull-right
-					%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
-				%h5
-					Billing Address
 				.well.white-well
+					.pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
+					%h5
+						Billing Address
 					= raw @order.billing_address.to_html
 
 
-				.pull-right
-					%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
-				%h5
-					Shipping Address
 				.well.white-well
+					.pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
+					%h5
+						Shipping Address
 					= raw @order.shipping_address.to_html
 
 

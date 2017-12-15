@@ -5,11 +5,9 @@
 		.col-xs-10
 			%ul.breadcrumb
 				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					= link_to 'Subscription Admin', subscription_admin_index_path
-				%li
-					%strong= @subscription.code
+					%a{ href: subscription_admin_index_path }
+						%i.fa.fa-angle-left
+						Subscriptions
 			%h2
 				%strong= @subscription.code
 				%small= @subscription.created_at.to_s( :short )
@@ -20,8 +18,8 @@
 	.row
 		.col-xs-8
 
-			%h4 Orders
 			.well.white-well
+				%h4 Orders
 				%table.table.table-light.table-bordered{ style: 'margin:0;' }
 					%thead
 						%th
@@ -86,28 +84,28 @@
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
-			.pull-right
-				%a{ href: edit_customer_admin_path( @subscription.user ) }
-					Edit
-			%h5
-				Customer
 			.well.white-well
+				.pull-right
+					%a{ href: edit_customer_admin_path( @subscription.user ) }
+						Edit
+				%h5
+					Customer
 				%a{ href: edit_customer_admin_path( @subscription.user ) }= @subscription.user.email
 
 
-			.pull-right
-				%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
-			%h5
-				Billing Address
 			.well.white-well
+				.pull-right
+					%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
+				%h5
+					Billing Address
 				= raw @subscription.billing_address.to_html
 
 
-			.pull-right
-				%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
-			%h5
-				Shipping Address
 			.well.white-well
+				.pull-right
+					%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
+				%h5
+					Shipping Address
 				= raw @subscription.shipping_address.to_html
 
 = render 'swell_ecom/subscription_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_address' }

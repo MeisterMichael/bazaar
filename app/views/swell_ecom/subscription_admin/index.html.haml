@@ -4,14 +4,8 @@
 .container-fluid
 	.row
 		.col-xs-10
-			%ul.breadcrumb
-				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					%strong
-						Subscription Admin
-						= "(#{pluralize @subscriptions.total_count, 'Subscription'})"
-	.row
+			%h2 Subscriptions
+	.row{ style: 'margin-top: 0' }
 		.col-xs-6
 			= raw paginate @subscriptions
 		.col-xs-6
@@ -29,7 +23,7 @@
 						Code
 					%th
 						Customer
-						
+
 					%th
 						Total
 						%a{ href: subscription_admin_index_path( sort_by: 'total', sort_dir: 'asc' ) }
