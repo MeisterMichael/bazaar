@@ -10,7 +10,7 @@
 						Plans
 			%h2
 				%strong= @plan.title
-				%small= @plan.created_at.to_s( :short )
+				%small= current_user.to_local_tz(@plan.created_at).to_s( :short )
 
 		.col-xs-2
 

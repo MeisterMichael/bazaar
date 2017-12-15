@@ -2,7 +2,7 @@
 	%td
 		= link_to order.code, edit_order_admin_path( order.id )
 	%td
-		= order.created_at.to_s(:short)
+		= current_user.to_local_tz(order.created_at).to_s(:short)
 	- if args[:customer] != false
 		%td
 			%a{ href: edit_order_admin_path( order.id ) }
@@ -15,7 +15,7 @@
 			= order.status
 	%td
 		- if order.fulfilled_at.present?
-			.badge{ class: 'fulfilled', title: order.fulfilled_at.to_s( :short ) }
+			.badge{ class: 'fulfilled', title: current_user.to_local_tz(order.fulfilled_at).to_s( :short ) }
 				fulfilled
 		- else
 			.badge{ class: 'unfulfilled' }

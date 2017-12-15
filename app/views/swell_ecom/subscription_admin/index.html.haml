@@ -57,9 +57,9 @@
 							%td
 								= number_to_currency ( subscription.amount || 0 ) / 100.to_f
 							%td
-								= subscription.created_at.to_s(:short)
+								= current_user.to_local_tz(subscription.created_at).to_s(:short)
 							%td
-								= subscription.next_charged_at.to_s(:short)
+								= current_user.to_local_tz(subscription.next_charged_at).to_s(:short)
 							%td
 								.badge{ class: subscription.status }
 									= subscription.status

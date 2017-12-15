@@ -51,7 +51,7 @@
 								= plan.billing_interval_unit
 
 							%td
-								= plan.created_at.to_s( :short )
+								= current_user.to_local_tz(plan.created_at).to_s( :short )
 							%td
 								.badge{ class: plan.status }
 									= plan.status

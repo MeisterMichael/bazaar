@@ -63,7 +63,7 @@
 							%td
 								= number_to_currency product.price.to_f / 100
 							%td
-								= product.publish_at.to_s( :short )
+								= current_user.to_local_tz(product.publish_at).to_s( :short )
 							%td
 								= product.seq
 							%td

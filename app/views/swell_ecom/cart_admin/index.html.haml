@@ -53,7 +53,7 @@
 								= number_to_currency cart.subtotal / 100.to_f
 
 							%td
-								= link_to cart.created_at, edit_cart_admin_path( cart.id )
+								= link_to current_user.to_local_tz(cart.created_at).to_s(:short), edit_cart_admin_path( cart.id )
 								%br
 								= "#{time_ago_in_words( cart.created_at )} ago."
 							%td

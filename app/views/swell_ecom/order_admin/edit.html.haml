@@ -10,7 +10,7 @@
 						Orders
 			%h2
 				%strong= @order.code
-				%small= @order.created_at.to_s( :short )
+				%small=current_user.to_local_tz(@order.created_at).to_s( :short )
 
 		.col-xs-2
 
@@ -24,7 +24,7 @@
 						Order Details
 						%small
 							- if @order.fulfilled_at.present?
-								.badge{ class: 'fulfilled', title: @order.fulfilled_at.to_s( :short ) }
+								.badge{ class: 'fulfilled', title: current_user.to_local_tz(@order.fulfilled_at).to_s( :short ) }
 									%i.fa.fa-circle
 									fulfilled
 							- else

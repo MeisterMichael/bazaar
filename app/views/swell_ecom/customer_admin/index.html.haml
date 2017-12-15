@@ -55,7 +55,7 @@
 									N/A
 
 							%td
-								= user.created_at.to_s( :short )
+								= current_user.to_local_tz(user.created_at).to_s( :short )
 
 							%td
 								.btn-group

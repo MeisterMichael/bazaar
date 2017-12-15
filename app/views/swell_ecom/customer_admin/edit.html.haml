@@ -9,7 +9,7 @@
 					Customers
 		%h2
 			%strong= @user
-			%small=@user.created_at.to_s( :short )
+			%small=current_user.to_local_tz(@user.created_at).to_s( :short )
 	.col-xs-12
 		%h1
 
@@ -61,7 +61,7 @@
 								%td
 									= number_to_currency ( subscription.amount || 0 ) / 100.to_f
 								%td
-									= subscription.created_at
+									= current_user.to_local_tz(subscription.created_at).to_s(:short)
 								%td
 									.badge{ class: subscription.status }
 										= subscription.status

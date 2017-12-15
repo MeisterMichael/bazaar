@@ -23,16 +23,16 @@
 						%h2
 							Cart:
 							= @cart.id
-						
+
 						%p
 							Created:
-							= @cart.created_at.to_s( :short )
+							= current_user.to_local_tz(@cart.created_at).to_s( :short )
 							%br
 							= "(#{time_ago_in_words( @cart.created_at )} ago.)"
 						%p
 							IP:
 							= @cart.ip
-					
+
 						%h4
 							Contents
 						%table.table.table-light.table-bordered
@@ -52,7 +52,7 @@
 										%td.text-right
 											= cart_item.quantity
 										%td.text-right= number_to_currency cart_item.subtotal.to_f / 100
-								
+
 								%tr
 									%td
 									%td
@@ -91,7 +91,7 @@
 
 			.col-xs-4
 				.well
-					
+
 					.form-group
 						= f.label :status
 						= f.collection_select :status, SwellEcom::Cart.statuses, :first, :first, {}, class: 'form-control'
