@@ -2,9 +2,9 @@ module SwellEcom
 	class GeoAddress < ActiveRecord::Base
 		self.table_name = 'geo_addresses'
 
-		belongs_to	:geo_state
+		belongs_to	:geo_state, required: false
 		belongs_to	:geo_country
-		belongs_to 	:user
+		belongs_to 	:user, required: false
 
 		validates	:first_name, presence: true, allow_blank: false
 		validates	:last_name, presence: true, allow_blank: false

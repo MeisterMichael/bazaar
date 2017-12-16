@@ -1,7 +1,7 @@
 module SwellEcom
 	class CartAdminController < SwellMedia::AdminController
 
-		before_filter :get_cart, except: [ :index ]
+		before_action :get_cart, except: [ :index ]
 		
 		def destroy
 			@cart.destroy

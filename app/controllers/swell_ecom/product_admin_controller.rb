@@ -1,7 +1,7 @@
 module SwellEcom
 	class ProductAdminController < SwellMedia::AdminController
 
-		before_filter :get_product, except: [ :create, :index ]
+		before_action :get_product, except: [ :create, :index ]
 
 		def index
 			sort_by = params[:sort_by] || 'seq'

@@ -1,7 +1,7 @@
 module SwellEcom
 	class SubscriptionAdminController < SwellMedia::AdminController
 
-		before_filter :get_subscription, except: [ :index ]
+		before_action :get_subscription, except: [ :index ]
 
 		def address
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )

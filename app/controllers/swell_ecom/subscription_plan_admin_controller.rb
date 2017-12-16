@@ -1,7 +1,7 @@
 module SwellEcom
 	class SubscriptionPlanAdminController < SwellMedia::AdminController
 
-		before_filter :get_plan, except: [ :create, :index ]
+		before_action :get_plan, except: [ :create, :index ]
 
 		def create
 			@plan = SubscriptionPlan.new( plan_params )

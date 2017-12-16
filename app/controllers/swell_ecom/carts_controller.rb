@@ -2,7 +2,7 @@ module SwellEcom
 	class CartsController < ApplicationController
 		# really just to show the user's cart
 
-		before_filter :get_cart
+		before_action :get_cart
 
 		def show
 			@cart ||= Cart.new( ip: request.ip )

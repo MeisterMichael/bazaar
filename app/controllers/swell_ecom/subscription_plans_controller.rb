@@ -1,7 +1,7 @@
 module SwellEcom
 	class SubscriptionPlansController < ApplicationController
 
-		before_filter :get_plan, except: [ :index ]
+		before_action :get_plan, except: [ :index ]
 
 		def show
 			

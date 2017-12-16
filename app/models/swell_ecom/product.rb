@@ -43,7 +43,7 @@ module SwellEcom
 
 		mounted_at '/store'
 
-		belongs_to 	:product_category, foreign_key: :category_id
+		belongs_to 	:product_category, foreign_key: :category_id, required: false
 		has_many 	:product_options
 		has_many 	:product_variants
 
