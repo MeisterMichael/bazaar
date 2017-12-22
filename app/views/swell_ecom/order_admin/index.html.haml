@@ -23,23 +23,23 @@
 						Code
 					%th{ style: 'width: 10em' }
 						Created
-						%a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], q: params[:q], sort_by: 'created_at', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], q: params[:q], sort_by: 'created_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th
 						Customer
-						%a{ href: order_admin_index_path( sort_by: 'email', sort_dir: 'asc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], q: params[:q], sort_by: 'email', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( sort_by: 'email', sort_dir: 'desc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], q: params[:q], sort_by: 'email', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th{ style: 'width: 11em' } Order Status
 					%th{ style: 'width: 11em' } Fulfillment Status
 					%th{ style: 'width: 10em' }
 						Total
-						%a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'asc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], q: params[:q], sort_by: 'total', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'desc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], q: params[:q], sort_by: 'total', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th{ style: 'width: 6em' }
 				%tbody

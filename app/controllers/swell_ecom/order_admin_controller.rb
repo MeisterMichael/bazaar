@@ -2,6 +2,7 @@ module SwellEcom
 	class OrderAdminController < SwellMedia::AdminController
 
 		before_filter :get_order, except: [ :index ]
+		before_action :init_search_service, only: [:index]
 
 		def address
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
@@ -45,17 +46,9 @@ module SwellEcom
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@orders = Order.order( "#{sort_by} #{sort_dir}" )
-
-			if params[:status].present? && params[:status] != 'all'
-				@orders = eval "@orders.#{params[:status]}"
-			end
-
-			if params[:q].present?
-				@orders = @orders.where( "email like :q", q: "'%#{params[:q].downcase}%'" )
-			end
-
-			@orders = @orders.page( params[:page] )
+			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
+			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 		end
 
 		def refund
@@ -105,6 +98,10 @@ module SwellEcom
 
 			def get_order
 				@order = Order.find_by( id: params[:id] )
+			end
+
+			def init_search_service
+				@search_service = EcomSearchService.new
 			end
 
 	end

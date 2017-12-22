@@ -2,6 +2,8 @@ module SwellEcom
 
 	class CustomerAdminController < SwellMedia::AdminController
 
+		before_action :init_search_service, only: [:index]
+
 		def edit
 			@user = SwellMedia.registered_user_class.constantize.friendly.find( params[:id] )
 
@@ -21,20 +23,8 @@ module SwellEcom
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@users = SwellMedia.registered_user_class.constantize.order( "#{sort_by} #{sort_dir}" )
-
-
-			( params[:filters] || [] ).each do |key, value|
-
-				@users = @users.where( key => value ) unless value.blank?
-
-			end
-
-			if params[:q].present?
-				@users = @users.where( "name like :q OR first_name like :q OR last_name like :q OR email like :q", q: "%#{params[:q]}%" )
-			end
-
-			@users = @users.page( params[:page] )
+			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			@users = @search_service.customer_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			@order_counts = Hash[*SwellEcom::Order.where( user: @users ).group(:user_id).pluck('user_id, count(id) "orders"').to_a.flatten]
 			@active_subscription_counts = Hash[*SwellEcom::Subscription.active.where( user: @users ).group(:user_id).pluck('user_id, count(id) "subscriptions"').to_a.flatten]
@@ -60,6 +50,10 @@ module SwellEcom
 		private
 			def user_params
 				params.require( :user ).permit( :name, :first_name, :last_name, :email, :short_bio, :bio, :shipping_name, :address1, :address2, :city, :state, :zip, :phone, :role, :status )
+			end
+
+			def init_search_service
+				@search_service = EcomSearchService.new
 			end
 
 	end
