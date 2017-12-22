@@ -1,11 +1,12 @@
 module SwellEcom
 
 	class CustomerAdminController < SwellMedia::AdminController
-
+		helper_method :policy
 		before_action :init_search_service, only: [:index]
 
 		def edit
 			@user = SwellMedia.registered_user_class.constantize.friendly.find( params[:id] )
+			authorize( @user, :customer_admin_edit? )
 
 			@comments = SwellSocial::UserPost.where( parent_obj: @user.id ).order( created_at: :desc ).page( params[:page] ).per(10) if defined?( SwellSocial )
 
@@ -19,6 +20,7 @@ module SwellEcom
 
 
 		def index
+			authorize( SwellMedia.registered_user_class.constantize, :customer_admin? )
 
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
@@ -37,6 +39,7 @@ module SwellEcom
 
 		def update
 			@user = SwellMedia.registered_user_class.constantize.friendly.find( params[:id] )
+			authorize( @user, :customer_admin_update? )
 			@user.attributes = user_params
 
 			if @user.save

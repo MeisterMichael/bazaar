@@ -1,10 +1,12 @@
 module SwellEcom
 	class OrderAdminController < SwellMedia::AdminController
+		helper_method :policy
 
 		before_filter :get_order, except: [ :index ]
 		before_action :init_search_service, only: [:index]
 
 		def address
+			authorize( @order, :admin_update? )
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
 			address = GeoAddress.create( address_attributes.merge( user: @order.user ) )
 
@@ -25,6 +27,8 @@ module SwellEcom
 		end
 
 		def edit
+			authorize( @order, :admin_show? )
+
 			@transactions = Transaction.where( parent_obj: @order )
 
 
@@ -43,6 +47,7 @@ module SwellEcom
 		end
 
 		def index
+			authorize( SwellEcom::Order, :admin? )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
@@ -52,6 +57,7 @@ module SwellEcom
 		end
 
 		def refund
+			authorize( @order, :admin_refund? )
 			refund_amount = ( params[:amount].to_f * 100 ).to_i
 
 			# check that refund amount doesn't exceed charges?
@@ -82,6 +88,7 @@ module SwellEcom
 
 
 		def update
+			authorize( @order, :admin_update? )
 			@order.attributes = order_params
 
 			if @order.status_changed? && ( @order.status == 'fulfilled' && @order.status_was == 'placed' )

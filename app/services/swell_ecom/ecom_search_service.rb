@@ -2,8 +2,19 @@ module SwellEcom
 
 	class EcomSearchService
 
-		def search( term, args={} )
+		def search( term, filters = {}, options = {} )
 
+			addresses = self.address_search( term, filters[:address] || {}, options )
+			customers = self.customer_search( term, filters[:customer] || {}, options.merge( addresses: addresses ) )
+			subscriptions = self.subscription_search( term, filters[:subscription] || {}, options.merge( addresses: addresses, customers: customers ) )
+			orders = self.order_search( term, filters[:order] || {}, options.merge( addresses: addresses, customers: customers ) )
+
+			{
+				addresses: addresses,
+				customers: customers,
+				subscriptions: subscriptions,
+				orders: orders,
+			}
 		end
 
 		def customer_search( term, filters = {}, options = {} )

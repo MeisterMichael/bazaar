@@ -6,9 +6,10 @@
 		.col-xs-10
 			%h2 Plans
 		.col-xs-2
-			%a.btn.btn-success{ data: { toggle: :modal, target: '#new_subscription_plan' } }
-				%i.fa.fa-plus-square
-				New
+			- if policy(SwellEcom::SubscriptionPlan).admin_create?
+				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_subscription_plan' } }
+					%i.fa.fa-plus-square
+					New
 	.row{ style: 'margin-top: 0' }
 		.col-xs-6
 			= raw paginate @plans
@@ -56,20 +57,23 @@
 								.badge{ class: plan.status }
 									= plan.status
 							%td
-								.btn-group
-									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
-										%i.fa.fa-cog
-										%b.caret
-									%ul.dropdown-menu
-										%li
-											%a{ href: edit_subscription_plan_admin_path( plan.id ) }
-												%i.fa.fa-pencil
-												Edit
-										%li.divider
-										%li
-											%a{ href: subscription_plan_admin_path( plan ), data: { method: 'delete', confirm: 'Are you sure?' } }
-												%i.fa.fa-trash-o
-												Delete!
+								- if policy(plan).admin_edit? || policy(plan).admin_destroy?
+									.btn-group
+										%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+											%i.fa.fa-cog
+											%b.caret
+										%ul.dropdown-menu
+											- if policy(plan).admin_edit?
+												%li
+													%a{ href: edit_subscription_plan_admin_path( plan.id ) }
+														%i.fa.fa-pencil
+														Edit
+												%li.divider
+											- if policy(plan).admin_destroy?
+												%li
+													%a{ href: subscription_plan_admin_path( plan ), data: { method: 'delete', confirm: 'Are you sure?' } }
+														%i.fa.fa-trash-o
+														Delete!
 
 
 = render "new_modal"

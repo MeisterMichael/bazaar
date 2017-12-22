@@ -25,17 +25,20 @@
 		= number_to_currency ( order.total || 0 ) / 100.to_f
 	- if args[:controls]
 		%td
-			.btn-group
-				%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
-					%i.fa.fa-cog
-					%b.caret
-				%ul.dropdown-menu
-					%li
-						%a{ href: edit_order_admin_path( order.id ) }
-							%i.fa.fa-pencil
-							Edit
-					%li.divider
-					%li
-						%a{ href: order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
-							%i.fa.fa-trash-o
-							Delete!
+			- if policy(order).admin_edit? || policy(order).admin_destroy?
+				.btn-group
+					%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+						%i.fa.fa-cog
+						%b.caret
+					%ul.dropdown-menu
+						- if policy(order).admin_edit?
+							%li
+								%a{ href: edit_order_admin_path( order.id ) }
+									%i.fa.fa-pencil
+									Edit
+							%li.divider
+						- if policy(order).admin_destroy?
+							%li
+								%a{ href: order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
+									%i.fa.fa-trash-o
+									Delete!

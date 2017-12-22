@@ -1,14 +1,15 @@
 module SwellEcom
 	class SubscriptionAdminController < SwellMedia::AdminController
+		helper_method :policy
 
 		before_filter :get_subscription, except: [ :index ]
 		before_action :init_search_service, only: [:index]
 
 		def address
+			authorize( @subscription, :admin_update? )
+
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
 			address = GeoAddress.create( address_attributes.merge( user: @subscription.user ) )
-
-
 
 			if address.errors.present?
 
@@ -27,6 +28,7 @@ module SwellEcom
 		end
 
 		def edit
+			authorize( @subscription, :admin_edit? )
 			@orders = Order.where( parent: @subscription ).order( created_at: :desc )
 
 			@billing_countries 	= SwellEcom::GeoCountry.all
@@ -44,6 +46,7 @@ module SwellEcom
 		end
 
 		def index
+			authorize( SwellEcom::Subscription, :admin? )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
@@ -54,6 +57,8 @@ module SwellEcom
 		end
 
 		def payment_profile
+			authorize( @subscription, :admin_update? )
+
 			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
 
 			address_attributes = params.require( :subscription ).require( :billing_address_attributes ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
@@ -85,6 +90,7 @@ module SwellEcom
 		end
 
 		def update
+			authorize( @subscription, :admin_update? )
 			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first
 			@subscription.attributes = subscription_params
 
