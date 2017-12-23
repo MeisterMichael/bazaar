@@ -44,7 +44,11 @@
 								%tr
 									%td
 										- if ( subscription = order_item.subscription ).present? || ( subscription = order_item.item ).is_a?( SwellEcom::Subscription )
-											%a{ href: edit_subscription_admin_path( subscription ) }
+											- if policy(subscription).admin_edit?
+												%a{ href: edit_subscription_admin_path( subscription ) }
+													= order_item.title
+													(#{subscription.code})
+											- else
 												= order_item.title
 												(#{subscription.code})
 										- else
@@ -139,7 +143,7 @@
 											%i.fa.fa-plus-square
 											Refund
 				.well.white-well
-					- if policy(@order).admin_edit?
+					- if policy(@order).admin_update?
 						.pull-right
 							%a{ href: '#', data: { toggle: :modal, target: '#edit_support_notes_order' } }
 								Edit
@@ -179,7 +183,7 @@
 				.well.white-well
 					%h5
 						Status
-					- if policy(@order).admin_edit?
+					- if policy(@order).admin_update?
 						.form-group
 							= f.collection_select :status, SwellEcom::Order.statuses, :first, :first, {}, class: 'form-control'
 
@@ -191,15 +195,19 @@
 
 				- if @order.user.present?
 					.well.white-well
-						- if policy(@order).admin_edit?
+						- if policy(@order.user).customer_admin_edit?
 							.pull-right
 								%a{ href: edit_customer_admin_path( @order.user ) }
 									Edit
 						%h5
 							Customer
-						%div
-							%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.full_name
-						%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.email
+						- if policy(@order.user).customer_admin_edit?
+							%div
+								%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.full_name
+							%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.email
+						- else
+							%div= @order.user.full_name
+							= @order.user.email
 
 				.well.white-well
 					-# .pull-right
@@ -210,7 +218,7 @@
 
 
 				.well.white-well
-					- if policy(@order).admin_edit?
+					- if policy(@order).admin_update?
 						.pull-right
 							%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
 					%h5

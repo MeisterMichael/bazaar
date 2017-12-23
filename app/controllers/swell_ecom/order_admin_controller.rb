@@ -27,7 +27,7 @@ module SwellEcom
 		end
 
 		def edit
-			authorize( @order, :admin_show? )
+			authorize( @order, :admin_edit? )
 
 			@transactions = Transaction.where( parent_obj: @order )
 
