@@ -1,0 +1,8 @@
+.container
+	.row
+		.col-xs-12.col-md-6
+			%h2 My Orders
+			- @orders.each do |order|
+				.row
+					.col-xs-12
+						%a{ href: swell_ecom.my_order_path( order.code ) }=order.code
