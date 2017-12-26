@@ -1,0 +1,16 @@
+.container
+	.row
+		.col-xs-12
+			%h2 Your Account
+		.col-xs-12.col-md-6
+			%h3 My Orders
+			- @orders.limit(5).each do |order|
+				= render 'swell_ecom/your_orders/well', order: order, args: {}
+			- if @orders.count > 5
+				%a{ href: swell_ecom.your_orders_path() } More
+		.col-xs-12.col-md-6
+			%h3 My Subscriptions
+			- @subscriptions.limit(5).each do |subscription|
+				= render 'swell_ecom/your_subscriptions/well', subscription: subscription, args: {}
+			- if @subscriptions.count > 5
+				%a{ href: swell_ecom.your_subscriptions_path() } More

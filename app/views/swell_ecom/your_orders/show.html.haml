@@ -1,0 +1,54 @@
+.container
+	.row
+		.col-xs-12
+			%a{ href: swell_ecom.your_account_index_path() } My Account
+			>
+			%a{ href: swell_ecom.your_orders_path() } My Orders
+			> Order Details
+			%h2 Order Details
+			Ordered on #{current_user.to_local_tz(@order.created_at).to_s( :basic_short )}
+			%span.horizontal-separator="|"
+			Order# #{@order.code}
+	.row
+		.col-xs-12.col-md-10
+			.well
+				.row
+					.col-xs-12.col-md-3
+						%h5{ style: 'margin-bottom: 0.2em;' } Shipping Address
+						= raw @order.shipping_address.to_html
+					.col-xs-12.col-md-6
+						%h5{ style: 'margin-bottom: 0.2em;' } Payment Method
+						- if ( transaction = @order.transactions.approved.charge.first).present? && transaction.properties['credit_card_brand'].present?
+							#{transaction.properties['credit_card_brand'].upcase} **** #{transaction.properties['credit_card_ending_in']}
+					.col-xs-12.col-md-3
+						%h5{ style: 'margin-bottom: 0.2em;' } Order Summary
+						.row
+							.col-xs-8 Item(s) Subtotal
+							.col-xs-4.text-right= number_to_currency @order.order_items.prod.sum(:subtotal) / 100.0
+						.row
+							.col-xs-8 Shipping & Handling
+							.col-xs-4.text-right= number_to_currency @order.order_items.shipping.sum(:subtotal) / 100.0
+
+						.row{ style: 'margin-top: 0.5em;' }
+							.col-xs-8 Total before tax
+							.col-xs-4.text-right= number_to_currency (@order.order_items.prod.sum(:subtotal) + @order.order_items.shipping.sum(:subtotal)) / 100.0
+						.row
+							.col-xs-8 Estimated tax to be collected
+							.col-xs-4.text-right= number_to_currency @order.order_items.tax.sum(:subtotal) / 100.0
+
+						.row{ style: 'margin-top: 0.5em;' }
+							.col-xs-8.bold Grand Total
+							.col-xs-4.text-right= number_to_currency @order.total / 100.0
+						- if ( negative_transactions = @order.transactions.approved.negative ).present?
+							.row{ style: 'margin-top: 0.5em;' }
+								.col-xs-8 Refunds
+								.col-xs-4.text-right= number_to_currency -negative_transactions.sum(:amount) / 100.0
+
+							.row{ style: 'margin-top: 0.5em;' }
+								.col-xs-8.bold Net Total
+								.col-xs-4.text-right= number_to_currency (@order.total-negative_transactions.sum(:amount)) / 100.0
+
+
+	.row
+		.col-xs-12.col-md-6
+			= render 'swell_ecom/your_orders/well', order: @order, args: {}

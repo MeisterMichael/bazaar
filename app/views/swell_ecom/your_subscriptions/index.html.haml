@@ -1,0 +1,8 @@
+.container
+	.row
+		.col-xs-12.col-md-8
+			%h2 My Subscriptions
+			- @subscriptions.each do |subscription|
+				= render 'swell_ecom/your_subscriptions/well', subscription: subscription, args: {}
+
+			%div= raw paginate @subscriptions

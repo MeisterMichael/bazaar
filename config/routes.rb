@@ -26,13 +26,6 @@ SwellEcom::Engine.routes.draw do
 		get :thank_you, on: :member, path: 'thank-you'
 	end
 
-	resources :my, only: [:index], path: 'me'
-	resources :my_account, only: [:index] do
-		put :update, on: :collection, path: ''
-	end
-	resources :my_orders, only: [:index, :show]
-	resources :my_subscriptions, only: [:index, :show]
-
 	resources :products, path: :store do
 		# for single-item quick buy
 		get :buy, on: :member
@@ -60,6 +53,10 @@ SwellEcom::Engine.routes.draw do
 	resources :subscriptions do
 		post :cancel, on: :member
 	end
+
+	resources :your_account, only: [:index]
+	resources :your_orders, only: [:index, :show]
+	resources :your_subscriptions, only: [:index, :show]
 
 
 end

@@ -1,0 +1,13 @@
+.container
+	.row
+		.col-xs-12
+			%a{ href: swell_ecom.your_account_index_path() } My Account
+			>
+			%a{ href: swell_ecom.your_subscriptions_path() } My Subscriptions
+			> Subscription Details
+			%h2 Subscription Details
+			Subscribed on #{current_user.to_local_tz(@subscription.created_at).to_s( :basic_short )}
+			%span.horizontal-separator="|"
+			Subscription# #{@subscription.code}
+		.col-xs-12.col-md-6
+			= render 'swell_ecom/your_subscriptions/well', subscription: @subscription, args: {}
