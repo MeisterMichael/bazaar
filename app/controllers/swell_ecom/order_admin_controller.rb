@@ -58,7 +58,7 @@ module SwellEcom
 
 		def refund
 			authorize( @order, :admin_refund? )
-			refund_amount = ( params[:amount].to_f * 100 ).to_i
+			refund_amount = ( params[:amount].to_f * 100 ).round
 
 			# check that refund amount doesn't exceed charges?
 			# amount_net = Transaction.approved.positive.where( parent: @order ).sum(:amount) - Transaction.approved.negative.where( parent: @order ).sum(:amount)
