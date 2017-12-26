@@ -6,12 +6,13 @@
 			%a{ href: swell_ecom.your_orders_path() } My Orders
 			> Order Details
 			%h2 Order Details
-			Ordered on #{current_user.to_local_tz(@order.created_at).to_s( :basic_short )}
-			%span.horizontal-separator="|"
-			Order# #{@order.code}
+			%p
+				Ordered on #{current_user.to_local_tz(@order.created_at).to_s( :basic_short )}
+				%span.horizontal-separator="|"
+				Order# #{@order.code}
 	.row
 		.col-xs-12.col-md-10
-			.well
+			.well{ style: 'background: #fff' }
 				.row
 					.col-xs-12.col-md-3
 						%h5{ style: 'margin-bottom: 0.2em;' } Shipping Address
@@ -48,7 +49,37 @@
 								.col-xs-8.bold Net Total
 								.col-xs-4.text-right= number_to_currency (@order.total-negative_transactions.sum(:amount)) / 100.0
 
+				%hr
+				%h5{ style: 'margin-bottom: 0.2em;' } Transactions
+				%table.table
+					%thead
+						%tr
+							%th Amount
+							%th Payment Method
+							%th Status
+					%tbody
+						- @order.transactions.each do |transaction|
+							%tr{ style: ( transaction.declined? ? 'color: #aaa;' : '' ) }
+								%td
+									- if transaction.negative?
+										= number_to_currency -transaction.amount / 100.0
+									- else
+										= number_to_currency transaction.amount / 100.0
+								%td
+									- if transaction.properties['credit_card_brand'].present?
+										#{transaction.properties['credit_card_brand'].upcase} **** #{transaction.properties['credit_card_ending_in']}
+								%td
+									= transaction.status
+
+				%div{ style: 'margin-top: 0.5em;' }
+					Total: #{number_to_currency @order.transactions.approved.sum(:amount) / 100.0}
+
+
 
 	.row
-		.col-xs-12.col-md-6
-			= render 'swell_ecom/your_orders/well', order: @order, args: {}
+		.col-xs-12.col-md-10
+			.well
+				%h5{ style: 'margin-bottom: 20px' } #{pluralize @order.order_items.prod.count, "Item"}
+				%div{ style: 'padding: 20px;margin: 1px -20px -20px -20px;background: #fff;' }
+					- @order.order_items.prod.each do |order_item|
+						= render 'swell_ecom/your_orders/order_item', order_item: order_item, args: {}

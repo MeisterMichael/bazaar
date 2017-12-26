@@ -9,8 +9,9 @@ module SwellEcom
 
 		def show
 			@subscription = SwellEcom::Subscription.where( user: current_user ).find_by( code: params[:id] )
+			@orders = @subscription.orders.order( created_at: :desc ).page(params[:page]).per(5)
 			raise ActionController::RoutingError.new( 'Not Found' ) unless @subscription.present?
-			set_page_meta( title: "Subscription \# #{@subscription.code}" )
+			set_page_meta( title: "Subscription Details \##{@subscription.code} " )
 		end
 
 	end

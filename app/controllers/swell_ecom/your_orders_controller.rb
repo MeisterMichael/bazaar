@@ -10,7 +10,7 @@ module SwellEcom
 		def show
 			@order = SwellEcom::Order.where( user: current_user ).find_by( code: params[:id] )
 			raise ActionController::RoutingError.new( 'Not Found' ) unless @order.present?
-			set_page_meta( title: "Order \# #{@order.code}" )
+			set_page_meta( title: "Order Details \##{@order.code}" )
 		end
 
 	end

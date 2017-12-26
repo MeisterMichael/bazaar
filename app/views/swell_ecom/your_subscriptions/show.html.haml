@@ -6,8 +6,61 @@
 			%a{ href: swell_ecom.your_subscriptions_path() } My Subscriptions
 			> Subscription Details
 			%h2 Subscription Details
-			Subscribed on #{current_user.to_local_tz(@subscription.created_at).to_s( :basic_short )}
-			%span.horizontal-separator="|"
-			Subscription# #{@subscription.code}
-		.col-xs-12.col-md-6
-			= render 'swell_ecom/your_subscriptions/well', subscription: @subscription, args: {}
+			%p
+				Subscribed on #{current_user.to_local_tz(@subscription.created_at).to_s( :basic_short )}
+				%span.horizontal-separator="|"
+				Subscription# #{@subscription.code}
+				- if @subscription.failed?
+					%span.horizontal-separator="|"
+					%span.subscription-status.subscription-status-failed RENEWAL FAILURE
+				- elsif @subscription.canceled?
+					%span.horizontal-separator="|"
+					%span.subscription-status.subscription-status-canceled CANCELED
+
+	.row
+		.col-xs-12.col-md-10
+			- if @subscription.failed?
+				.alert.alert-danger
+					Subscription is discontinued due to payment failure.  Please update payment information to resume subscription.
+
+			.well{ style: 'background: #fff' }
+				.row
+					.col-xs-12.col-md-3
+						%h5{ style: 'margin-bottom: 0.2em;' } Shipping Address
+						= raw @subscription.shipping_address.to_html
+					.col-xs-12.col-md-4
+						%h5{ style: 'margin-bottom: 0.2em;' } Payment Method
+						- if @subscription.properties['credit_card_brand'].present?
+							#{@subscription.properties['credit_card_brand'].upcase} **** #{@subscription.properties['credit_card_ending_in']}
+					.col-xs-12.col-md-5
+						%h5{ style: 'margin-bottom: 0.2em;' } Subscription Summary
+						%p
+							- if ( plan = @subscription.subscription_plan ).trial_interval_value > 0
+								- if plan.trial_max_intervals > 1
+									#{plan.trial_max_intervals} X
+								- else
+									ONE
+								= number_to_human plan.trial_interval_value
+								= plan.trial_interval_unit.singularize
+								- if plan.trial_max_intervals > 1
+									trial periods
+								- else
+									trial period
+								then, once
+
+							every
+							= pluralize plan.billing_interval_value, plan.billing_interval_unit.singularize
+						- if @subscription.active?
+							%p
+								Next interval starts on #{current_user.to_local_tz(@subscription.next_charged_at).to_s( :basic_short )}
+
+	.row
+		.col-xs-12
+			%h5{ style: 'margin-bottom: 0.2em;' } Order History
+	- @orders.each do |order|
+		.row
+			.col-xs-12.col-md-10= render 'swell_ecom/your_orders/well', order: order, args: {}
+
+	.row
+		.col-xs-12
+			%div= raw paginate @orders

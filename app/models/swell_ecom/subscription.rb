@@ -38,6 +38,10 @@ module SwellEcom
 			Order.joins(:order_items).where( order_items: { subscription_id: self.id } ).first
 		end
 
+		def orders
+			Order.where( "orders.id = :order_id OR (orders.parent_type = :subscription_type AND orders.parent_id = :subscription_id)", subscription_id: self.id, subscription_type: SwellEcom::Subscription.base_class.name, order_id: self.order.id )
+		end
+
 		def ready_for_next_charge?( time_now = nil )
 			time_now ||= Time.now
 			self.active? && self.next_charged_at < time_now

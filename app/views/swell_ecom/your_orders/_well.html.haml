@@ -15,31 +15,4 @@
 				%a{ href: swell_ecom.your_order_path( order.code ) } Order Details
 	%div{ style: 'padding: 20px;margin: 10px -20px -20px -20px;background: #fff;' }
 		- order.order_items.prod.each do |order_item|
-			.row
-				.col-xs-12{ style: 'padding-bottom: 0.5em;' }
-					- if order.canceled?
-						%h5{ style: 'margin:0;' } Canceled
-						%div Your shipment was canceled.
-					- elsif order.declined?
-						%h5{ style: 'margin:0;' } Declined
-						%div Your payment was declined.
-					- elsif order.delivered?
-						%h5{ style: 'margin:0;' } Delivered
-						%div Your package was delivered.
-					- elsif order.fulfilled_at.present?
-						%h5{ style: 'margin:0;' } Shipped #{current_user.to_local_tz(order.fulfilled_at).to_s( :basic_shorter )}
-						%div Your package was shipped
-				.col-xs-3
-					- if order_item.item.respond_to? :avatar
-						%img.img.img-responsive.center-block{ src: order_item.item.avatar || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAQAAADa613fAAAAa0lEQVR42u3PMREAAAgEID+5KexrBHcPGpDpeiEiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIpcF+EhsNXJGzzsAAAAASUVORK5CYII=' }
-					- elsif order_item.item.is_a? SwellEcom::Subscription
-						%img.img.img-responsive.center-block{ src: order_item.item.subscription_plan.avatar || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAQAAADa613fAAAAa0lEQVR42u3PMREAAAgEID+5KexrBHcPGpDpeiEiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIpcF+EhsNXJGzzsAAAAASUVORK5CYII=' }
-					- else
-						%img.img.img-responsive.center-block{ src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAQAAADa613fAAAAa0lEQVR42u3PMREAAAgEID+5KexrBHcPGpDpeiEiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIpcF+EhsNXJGzzsAAAAASUVORK5CYII=' }
-
-				.col-xs-9
-					= order_item.title
-					- if ( subscription = ( order_item.subscription || order_item.item ) ).is_a? SwellEcom::Subscription
-						%div{ style: 'color: #aaa;' } SUBSCRIPTION # #{subscription.code}
-						%div
-							%a{ href: swell_ecom.your_subscription_path( subscription.code ) } Subscription Details
+			= render 'swell_ecom/your_orders/order_item', order_item: order_item, args: {}
