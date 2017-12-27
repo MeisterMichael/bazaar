@@ -31,7 +31,10 @@
 					.col-xs-12.col-md-4
 						%h5{ style: 'margin-bottom: 0.2em;' } Payment Method
 						- if @subscription.properties['credit_card_brand'].present?
-							#{@subscription.properties['credit_card_brand'].upcase} **** #{@subscription.properties['credit_card_ending_in']}
+							%div #{@subscription.properties['credit_card_brand'].upcase} **** #{@subscription.properties['credit_card_ending_in']}
+						- unless @subscription.canceled?
+							%a{ href: '#', data: { toggle: :modal, target: '#update_payment_info_modal' } }
+								Edit
 					.col-xs-12.col-md-5
 						%h5{ style: 'margin-bottom: 0.2em;' } Subscription Summary
 						%p
@@ -64,3 +67,5 @@
 	.row
 		.col-xs-12
 			%div= raw paginate @orders
+
+= render 'swell_ecom/your_subscriptions/update_payment_info_modal'

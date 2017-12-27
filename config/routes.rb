@@ -56,7 +56,7 @@ SwellEcom::Engine.routes.draw do
 
 	resources :your_account, only: [:index]
 	resources :your_orders, only: [:index, :show]
-	resources :your_subscriptions, only: [:index, :show]
+	resources :your_subscriptions, only: [:index, :show, :update]
 
 
 end
