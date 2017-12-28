@@ -48,20 +48,29 @@ module SwellEcom
 
 				end
 
-
+				# @todo REQUIRES TESTING!!!!!
 				@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
 				# @transaction_service.process( @order, order_options.merge( credit_card: params[:credit_card] ) )
-				@transaction_service.update_subscription_payment_profile( @subscription, params )
+				if @transaction_service.update_subscription_payment_profile( @subscription, params )
+
+					# if subscription was failed, set the status to active and
+					# next charge date to now ( if it was set to be charged
+					# sometime in the past )
+					if @subscription.failed?
+
+						@subscription.status = 'active'
+						@subscription.next_charged_at = Time.now if @subscription.next_charged_at < Time.now
+						@subscription.save
+
+					end
+				end
 
 			end
 
-			# @todo update other subscription info?
-			# if params[:subscription].present? && @subscription.errors.blank?
-			# end
-
-
 			if @subscription.errors.present?
 				set_flash @subscription.errors.full_messages, :danger
+			else
+				set_flash "Subscription updated succesfully.", :success
 			end
 
 			redirect_to :back
