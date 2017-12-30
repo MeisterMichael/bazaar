@@ -299,7 +299,7 @@ module SwellEcom
 
 				anet_credit_card = AuthorizeNet::CreditCard.new(
 					credit_card[:card_number].gsub(/\s/,''),
-					credit_card[:expiration],
+					credit_card[:expiration].gsub(/\//,''),
 					card_code: credit_card[:card_code],
 				)
 
