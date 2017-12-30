@@ -9,6 +9,7 @@ module SwellEcom
 
 			PROVIDER_NAME = 'Authorize.net'
 			ERROR_DUPLICATE_CUSTOMER_PROFILE = 'E00039'
+			ERROR_DUPLICATE_CUSTOMER_PAYMENT_PROFILE = 'E00039'
 			ERROR_INVALID_PAYMENT_PROFILE = 'E00003'
 			CANNOT_REFUND_CHARGE = 'E00027'
 
@@ -339,6 +340,14 @@ module SwellEcom
 					response = anet_transaction.create_payment_profile( anet_payment_profile, profile )
 					puts response.xml if @enable_debug
 					customer_payment_profile_id = response.payment_profile_id
+
+					if not( response.success? ) && response.message_code == ERROR_DUPLICATE_CUSTOMER_PAYMENT_PROFILE
+						
+						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+						response = anet_transaction.update_payment_profile( anet_payment_profile, profile )
+						puts response.xml if @enable_debug
+
+					end
 
 
 					return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
