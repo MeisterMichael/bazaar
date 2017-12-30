@@ -342,7 +342,7 @@ module SwellEcom
 					customer_payment_profile_id = response.payment_profile_id
 
 					if not( response.success? ) && response.message_code == ERROR_DUPLICATE_CUSTOMER_PAYMENT_PROFILE
-						
+						anet_payment_profile.customer_payment_profile_id = customer_payment_profile_id
 						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 						response = anet_transaction.update_payment_profile( anet_payment_profile, profile )
 						puts response.xml if @enable_debug
