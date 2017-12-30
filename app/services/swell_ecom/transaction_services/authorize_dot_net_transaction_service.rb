@@ -334,23 +334,11 @@ module SwellEcom
 					profile = response.profile
 					customer_profile_id = response.profile_id
 
-					customer_payment_profile = profile.payment_profiles.find do |payment_profile|
-						payment_profile.payment_method.card_number.end_with?( anet_credit_card.card_number[-4,4] )
-					end
-
-					if customer_payment_profile.present?
-
-						customer_payment_profile_id = customer_payment_profile.try(:customer_payment_profile_id)
-
-					else
-
-						# create a new payment profile for existing customer
-						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-						response = anet_transaction.create_payment_profile( anet_payment_profile, profile )
-						puts response.xml if @enable_debug
-						customer_payment_profile_id = response.payment_profile_id
-
-					end
+					# create a new payment profile for existing customer
+					anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+					response = anet_transaction.create_payment_profile( anet_payment_profile, profile )
+					puts response.xml if @enable_debug
+					customer_payment_profile_id = response.payment_profile_id
 
 
 					return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
