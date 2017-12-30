@@ -18,6 +18,7 @@ module SwellEcom
 				@api_login	= args[:API_LOGIN_ID] || ENV['AUTHORIZE_DOT_NET_API_LOGIN_ID']
 				@api_key	= args[:TRANSACTION_API_KEY] || ENV['AUTHORIZE_DOT_NET_TRANSACTION_API_KEY']
 				@gateway	= ( args[:GATEWAY] || ENV['AUTHORIZE_DOT_NET_GATEWAY'] || :sandbox ).to_sym
+				@enable_debug = not( Rails.env.production? ) || ENV['AUTHORIZE_DOT_NET_DEBUG'] == '1' || @gateway == :sandbox
 			end
 
 			def process( order, args = {} )
@@ -83,7 +84,7 @@ module SwellEcom
 
 				else
 
-					puts response.xml unless Rails.env.production?
+					puts response.xml if @enable_debug
 
 					order.status = 'declined'
 
@@ -201,7 +202,7 @@ module SwellEcom
 					# sanity check
 					# raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 				else
-					puts response.xml unless Rails.env.production?
+					puts response.xml if @enable_debug
 
 					transaction.status = 'declined'
 					transaction.message = response.message_text
@@ -354,7 +355,7 @@ module SwellEcom
 
 				else
 
-					puts response.xml unless Rails.env.production?
+					puts response.xml if @enable_debug
 
 					if response.message_code == ERROR_INVALID_PAYMENT_PROFILE
 						errors.add( :base, 'Invalid Payment Information') if errors
