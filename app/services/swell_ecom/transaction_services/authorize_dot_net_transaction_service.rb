@@ -41,6 +41,7 @@ module SwellEcom
 
 				# raise Exception.new("create auth capture error: #{response.message_text}") unless response.success?
 
+				puts response.xml if @enable_debug
 
 				# process response
 				if response.success? && direct_response.success?
@@ -155,6 +156,8 @@ module SwellEcom
 					transaction.customer_payment_profile_reference
 				)
 
+				puts response.xml if @enable_debug
+
 				if response.message_code == CANNOT_REFUND_CHARGE
 					# if you cannot refund it, that means the origonal charge
 					# hasn't been settled yet, so you...
@@ -165,6 +168,7 @@ module SwellEcom
 						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 						response = anet_transaction.create_transaction_void(anet_transaction_id)
 
+						puts response.xml if @enable_debug
 					else
 						# OR create a refund that is unlinked to the transaction
 						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
@@ -318,7 +322,10 @@ module SwellEcom
 
 				# recover a customer profile if it already exists.
 				if response.message_code == ERROR_DUPLICATE_CUSTOMER_PROFILE
+					puts response.xml if @enable_debug
+
 					anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+
 
 					profile_id = response.message_text.match( /(\d{4,})/)[1]
 
@@ -340,6 +347,7 @@ module SwellEcom
 						# create a new payment profile for existing customer
 						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 						response = anet_transaction.create_payment_profile( anet_payment_profile, profile )
+						puts response.xml if @enable_debug
 						customer_payment_profile_id = response.payment_profile_id
 
 					end
