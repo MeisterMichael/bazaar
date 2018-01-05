@@ -3,12 +3,12 @@ require "spec_helper"
 describe "SubscriptionService" do
 
 	let(:user) { ::User.create( email: "#{(0...20).map { (65 + rand(26)).chr }.join}@groundswellent.com", first_name: 'Michael', last_name: (0...8).map { (65 + rand(26)).chr }.join ) }
-	let(:address) { SwellEcom::GeoAddress.new( first_name: 'Michael', last_name: (0...8).map { (65 + rand(26)).chr }.join, zip: '92126', phone: "1#{(0...10).map { (rand(8)+1).to_s }.join}", city: 'San Diego', geo_country: SwellEcom::GeoCountry.new( name: 'United States', abbrev: 'US' ), geo_state: SwellEcom::GeoState.new( name: 'California', abbrev: 'CA' ) ) }
+	let(:address) { SwellEcom::GeoAddress.new( first_name: 'Michael', last_name: (0...8).map { (65 + rand(26)).chr }.join, zip: '92126', street: '123 Test st', phone: "1#{(0...10).map { (rand(8)+1).to_s }.join}", city: 'San Diego', geo_country: SwellEcom::GeoCountry.new( name: 'United States', abbrev: 'US' ), geo_state: SwellEcom::GeoState.new( name: 'California', abbrev: 'CA' ) ) }
 	let(:credit_card) { { card_number: '4111111111111111', expiration: '12/'+(Time.now + 1.year).strftime('%y'), card_code: '1234' } }
 	let(:new_trial2_subscription) {
 
 		subscription_plan = SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 2, price: 12900, billing_interval_unit: 'weeks', billing_interval_value: 4, trial_interval_unit: 'days', trial_interval_value: 7 )
-		subscription = SwellEcom::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now )
+		subscription = SwellEcom::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now, provider: 'Authorize.net' )
 
 		order = SwellEcom::Order.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
 		order.order_items.new item: subscription_plan, subscription: subscription, price: subscription_plan.trial_price, subtotal: subscription_plan.trial_price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
@@ -19,7 +19,7 @@ describe "SubscriptionService" do
 	let(:new_trial1_subscription) {
 
 		subscription_plan = SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 1, price: 12900, billing_interval_unit: 'weeks', billing_interval_value: 4, trial_interval_unit: 'days', trial_interval_value: 7 )
-		subscription = SwellEcom::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now )
+		subscription = SwellEcom::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now, provider: 'Authorize.net' )
 
 		order = SwellEcom::Order.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
 		order.order_items.new item: subscription_plan, subscription: subscription, price: subscription_plan.trial_price, subtotal: subscription_plan.trial_price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
