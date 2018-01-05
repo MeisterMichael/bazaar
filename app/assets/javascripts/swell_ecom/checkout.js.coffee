@@ -1,4 +1,5 @@
 #= require ./plugins/jquery.payment
+#= require ./plugins/jquery.card
 #= require ./plugins/validator.js
 #= require ./custom/stripe_integration.js
 #= require ./plugins/jquery.caret.js
@@ -41,6 +42,20 @@ $ ->
 			old_value = $(target).val() unless $(target).is('select')
 			$(target).replaceWith( $(data).find( target ) )
 			$(target).val(old_value) unless $(target).is('select')
+
+	$('.card-form-group .card-preview').each ->
+		$form = $(this).parents('form')
+		$form.card({
+			container: '.card-preview',
+			formSelectors: {
+				numberInput: '.card-number',
+				expiryInput: '.expiry',
+				cvcInput: '.cvc'
+			},
+			placeholders: {
+				name: '',
+			}
+		})
 
 	$('[data-stripe=number]').payment('formatCardNumber');
 	$('[data-stripe=cvc]').payment('formatCardCVC');
