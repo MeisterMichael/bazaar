@@ -48,9 +48,8 @@ module SwellEcom
 
 				end
 
-				# @todo REQUIRES TESTING!!!!!
 				@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
-				# @transaction_service.process( @order, order_options.merge( credit_card: params[:credit_card] ) )
+				
 				if @transaction_service.update_subscription_payment_profile( @subscription, params )
 
 					# if subscription was failed, set the status to active and
