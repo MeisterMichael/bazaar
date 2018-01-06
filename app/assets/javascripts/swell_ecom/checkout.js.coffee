@@ -9,15 +9,29 @@ $ ->
 
 	$.fn.validator.Constructor.INPUT_SELECTOR = '.collapse.collapse-ignore.in '+$.fn.validator.Constructor.INPUT_SELECTOR+', '+$.fn.validator.Constructor.INPUT_SELECTOR+':not(.collapse.collapse-ignore :input)'
 
-	$('.checkout_form').validator(
-		#custom: {
+	$('.checkout_form, .payment_info_form').validator(
+		custom: {
+			cardnumber: ($el) ->
+				if $el.hasClass('jp-card-invalid')
+					return 'Invalid value.'
+				return
+
+			cardexpiry: ($el) ->
+				if $el.hasClass('jp-card-invalid')
+					return 'Invalid date.'
+				return
+
+			cardcvc: ($el) ->
+				if $el.hasClass('jp-card-invalid')
+					return 'Invalid value.'
+				return
 		#	zipcode: ($el) ->
 		#	 	matchValue = $el.data('phone')
 		#	  	# foo
 		#	 	if $el.val() != matchValue
 		#	    	return 'Hey, that\'s not valid! It\'s gotta be ' + matchValue
 		#	  	return
-		#}
+		}
 	)
 
 	$('form.disable_submit_after_submit').submit ->
@@ -57,8 +71,5 @@ $ ->
 			}
 		})
 
-	$('[data-stripe=number]').payment('formatCardNumber');
-	$('[data-stripe=cvc]').payment('formatCardCVC');
-	$('[data-stripe=exp]').payment('formatCardExpiry');
 	$('.telephone_formatted').each ()->
 		$(this).mobilePhoneNumber({ defaultPrefix: '+1' });

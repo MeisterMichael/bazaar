@@ -67,7 +67,7 @@
 		.form-group
 			%label
 				%span Card Number
-			= text_field_tag 'credit_card[card_number]', '', class: 'card-number form-control', size: 20, :autocomplete => "cc-number", required: true
+			= text_field_tag 'credit_card[card_number]', '', class: 'card-number form-control', size: 20, :autocomplete => "cc-number", required: true, data: { cardnumber: true }
 			.help-block.with-errors
 
 		.row
@@ -75,11 +75,11 @@
 				.form-group
 					%label
 						%span Expiration (MM/YY)
-					= text_field_tag 'credit_card[expiration]', '', class: 'expiry form-control', :size => "9", :autocomplete => "cc-exp", required: true
+					= text_field_tag 'credit_card[expiration]', '', class: 'expiry form-control', :size => "9", :autocomplete => "cc-exp", required: true, data: { cardexpiry: true }
 					.help-block.with-errors
 			.col-xs-12.col-md-6
 				.form-group
 					%label
 						%span CVC
-					= text_field_tag 'credit_card[card_code]', '', class: 'cvc form-control', :size => "4", :autocomplete => "off", required: true
+					= text_field_tag 'credit_card[card_code]', '', class: 'cvc form-control', :size => "4", :autocomplete => "off", required: true, data: { cardcvc: true }
 					.help-block.with-errors
