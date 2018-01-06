@@ -12,12 +12,14 @@ $ ->
 	$('.checkout_form, .payment_info_form').validator(
 		custom: {
 			cardnumber: ($el) ->
-				if $el.hasClass('jp-card-invalid')
+				if ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardNumber( $el.val() ) )
 					return 'Invalid value.'
 				return
 
 			cardexpiry: ($el) ->
-				if $el.hasClass('jp-card-invalid')
+				expiryObjVal = Payment.fns.cardExpiryVal( $el.val() )
+
+				if ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardExpiry( expiryObjVal.month, expiryObjVal.year ) )
 					return 'Invalid date.'
 				return
 
