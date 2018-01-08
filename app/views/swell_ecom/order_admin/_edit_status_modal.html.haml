@@ -1,0 +1,19 @@
+#edit_status_modal.modal.fade
+	.modal-dialog.modal-sm
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Status
+			= form_for @order, url: order_admin_path( @order ) do |f|
+				.modal-body{ style: 'text-align: center;' }
+					.form-group
+						- if policy(@order).admin_update?
+							= f.collection_select :status, SwellEcom::Order.statuses, :first, :first, {}, class: 'form-control'
+						- else
+							=@order.status
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Update', class: 'btn btn-primary'
