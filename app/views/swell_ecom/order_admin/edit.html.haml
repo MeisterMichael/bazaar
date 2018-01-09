@@ -12,11 +12,16 @@
 			- if policy(@order).admin_update?
 				.pull-right
 					- if @order.unfulfilled?
-						%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } } Fulfilled
-					- if @order.unfulfilled? || @order.fulfilled?
-						%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } } Delivered
-					-# if not( @order.payment_canceled? ) && not( @order.unfulfilled? )
-						%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'canceled', payment_status: 'canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel this order?' } } Cancel
+						%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
+							%i.fa.fa-send
+							Fulfilled
+						%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfillment_canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel fulfillment of this order?' } }
+							%i.fa.fa-times
+							Cancel
+					- elsif @order.fulfilled?
+						%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } }
+							%i.fa.fa-check
+							Delivered
 
 
 			%h2
