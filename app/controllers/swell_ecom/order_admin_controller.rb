@@ -105,9 +105,10 @@ module SwellEcom
 			authorize( @order, :admin_update? )
 			@order.attributes = order_params
 
-			if @order.status_changed? && ( @order.status == 'fulfilled' && @order.status_was == 'placed' )
+			if @order.status_changed? && @order.status == 'fulfilled' && ( @order.status_was == 'placed' || @order.fulfilled_at.blank? )
 				@order.fulfilled_at = Time.zone.now
 			end
+
 			@order.save
 			redirect_to :back
 		end

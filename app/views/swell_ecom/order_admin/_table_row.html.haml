@@ -37,6 +37,18 @@
 									%i.fa.fa-pencil
 									Edit
 							%li.divider
+						- if policy(order).admin_update?
+							- unless order.delivered? || order.fulfilled? || order.canceled?
+								%li
+									%a{ href: order_admin_path( order, order: { status: 'fulfilled' } ), data: { method: 'PUT' } }
+										%i.fa.fa-send
+										Fulfilled
+							- unless order.delivered? || order.canceled?
+								%li
+									%a{ href: order_admin_path( order, order: { status: 'delivered' } ), data: { method: 'PUT' } }
+										%i.fa.fa-check
+										Delivered
+							%li.divider
 						- if policy(order).admin_destroy?
 							%li
 								%a{ href: order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
