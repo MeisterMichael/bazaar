@@ -185,15 +185,16 @@
 						%a{ href: '#', data: { toggle: :modal, target: '#edit_status_modal' } } Edit
 				%h5
 					Status:
-					.badge=@order.status.capitalize
+					.badge{ class: @order.payment_status }=@order.payment_status.capitalize
+					.badge{ class: @order.fulfillment_status }=@order.fulfillment_status.capitalize
 				- if policy(@order).admin_update?
 					.text-center
 						- unless @order.delivered? || @order.fulfilled? || @order.canceled?
-							%a.btn.btn-primary{ href: order_admin_path( @order, order: { status: 'fulfilled' } ), data: { method: 'PUT' } } Fulfilled
+							%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } } Fulfilled
 						- unless @order.delivered? || @order.canceled?
-							%a.btn.btn-primary{ href: order_admin_path( @order, order: { status: 'delivered' } ), data: { method: 'PUT' } } Delivered
+							%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } } Delivered
 						-# unless @order.canceled? || @order.fulfilled?
-							%a.btn.btn-default{ href: order_admin_path( @order, order: { status: 'canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel this order?' } } Cancel
+							%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'canceled', payment_status: 'canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel this order?' } } Cancel
 
 
 			- if @order.user.present?

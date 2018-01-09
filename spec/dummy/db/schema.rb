@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171101214311) do
+ActiveRecord::Schema.define(version: 20180108171000) do
 
   create_table "assets", force: :cascade do |t|
     t.integer  "parent_obj_id"
@@ -287,6 +287,8 @@ ActiveRecord::Schema.define(version: 20171101214311) do
     t.integer  "generated_by",        default: 1
     t.integer  "parent_id"
     t.string   "parent_type"
+    t.integer  "payment_status",      default: 0
+    t.integer  "fulfillment_status",  default: 0
   end
 
   add_index "orders", ["code"], name: "index_orders_on_code", unique: true

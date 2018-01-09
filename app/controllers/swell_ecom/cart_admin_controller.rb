@@ -32,10 +32,6 @@ module SwellEcom
 		def update
 			authorize( @cart, :admin_update? )
 			@cart.attributes = cart_params
-
-			if @cart.status_changed? && ( @cart.status == 'fulfilled' && @cart.status_was == 'placed' )
-				@cart.fulfilled_at = Time.zone.now
-			end
 			@cart.save
 			redirect_to :back
 		end

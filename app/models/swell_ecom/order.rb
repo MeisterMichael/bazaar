@@ -3,8 +3,8 @@ module SwellEcom
 	class Order < ActiveRecord::Base
 		self.table_name = 'orders'
 
-		enum payment_status: { 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'pending' => 0, 'paid' => 1 }
-		enum fulfillment_status: { 'fulfillment_canceled' => -3, 'unfulfilled' => 0, 'fulfilled' => 1, 'recieved' => 2 }
+		enum payment_status: { 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'pending' => 0, 'partially_paid' => 1, 'paid' => 2 }
+		enum fulfillment_status: { 'fulfillment_canceled' => -3, 'unfulfilled' => 0, 'partially_fulfulled' => 1, 'fulfilled' => 2, 'delivered' => 2 }
 		enum generated_by: { 'customer_generated' => 1, 'system_generaged' => 2 }
 
 		before_create :generate_order_code

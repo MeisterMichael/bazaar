@@ -31,7 +31,7 @@ module SwellEcom
 			@orders.each do |order|
 				order.attributes = order_params
 
-				if order.status_changed? && ( order.status == 'fulfilled' && order.status_was == 'placed' )
+				if order.fulfillment_status_changed? && order.fulfillment_status == 'fulfilled' && ( order.fulfillment_status == 'unfulfilled' || order.fulfilled_at.blank? )
 					order.fulfilled_at = Time.zone.now
 				end
 				order.save
@@ -105,7 +105,7 @@ module SwellEcom
 			authorize( @order, :admin_update? )
 			@order.attributes = order_params
 
-			if @order.status_changed? && @order.status == 'fulfilled' && ( @order.status_was == 'placed' || @order.fulfilled_at.blank? )
+			if @order.fulfillment_status_changed? && @order.fulfillment_status == 'fulfilled' && ( @order.fulfillment_status == 'unfulfilled' || @order.fulfilled_at.blank? )
 				@order.fulfilled_at = Time.zone.now
 			end
 
@@ -115,7 +115,7 @@ module SwellEcom
 
 		private
 			def order_params
-				params.require( :order ).permit( :email, :status, :support_notes )
+				params.require( :order ).permit( :email, :fulfillment_status, :payment_status, :support_notes )
 			end
 
 			def get_order
