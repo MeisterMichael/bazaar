@@ -55,7 +55,7 @@ module SwellEcom
 
 				# mark subscription as failed if the transaction failed
 				subscription.failed!
-				order.errors.add(:base, :processing_error, 'Transaction failed') if !transaction || not( transaction.approved? )
+				order.errors.add(:base, :processing_error, message: 'Transaction failed') if !transaction || not( transaction.approved? )
 
 			else
 				order.save
