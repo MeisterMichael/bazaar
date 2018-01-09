@@ -206,6 +206,9 @@ module SwellEcom
 					# if capture is successful, create transaction.
 					transaction.save
 
+					# update corresponding order to a payment status of refunded
+					transaction.parent_obj.update payment_status: 'refunded'
+
 					# sanity check
 					# raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 				else
