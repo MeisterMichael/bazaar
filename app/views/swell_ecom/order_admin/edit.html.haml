@@ -36,7 +36,10 @@
 					Order Details
 					%small
 
-						.badge{ class: @order.payment_status }=@order.payment_status
+						.badge{ class: @order.payment_status }
+							- if @order.pending?
+								%i.fa.fa-circle-o
+							=@order.payment_status
 						.badge{ class: @order.fulfillment_status }
 							- if @order.unfulfilled?
 								%i.fa.fa-circle-o

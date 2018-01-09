@@ -66,7 +66,8 @@ module SwellEcom
 			sort_dir = params[:sort_dir] || 'desc'
 
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
-			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
+			filters[ params[:payment_status] ] = true if params[:payment_status].present? && params[:payment_status] != 'all'
+			filters[ params[:fulfillment_status] ] = true if params[:fulfillment_status].present? && params[:fulfillment_status] != 'all'
 			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 		end
 
