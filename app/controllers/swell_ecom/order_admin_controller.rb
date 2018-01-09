@@ -2,7 +2,8 @@ module SwellEcom
 	class OrderAdminController < SwellMedia::AdminController
 		helper_method :policy
 
-		before_filter :get_order, except: [ :index ]
+		before_filter :get_order, except: [ :index, :bulk_update, :bulk_destroy ]
+		before_filter :get_orders, except: [ :bulk_update, :bulk_destroy ]
 		before_action :init_search_service, only: [:index]
 
 		def address
@@ -23,6 +24,19 @@ module SwellEcom
 				set_flash "Address Updated", :success
 
 			end
+			redirect_to :back
+		end
+
+		def bulk_update
+			@orders.each do |order|
+				order.attributes = order_params
+
+				if order.status_changed? && ( order.status == 'fulfilled' && order.status_was == 'placed' )
+					order.fulfilled_at = Time.zone.now
+				end
+				order.save
+			end
+
 			redirect_to :back
 		end
 
@@ -105,6 +119,10 @@ module SwellEcom
 
 			def get_order
 				@order = Order.find_by( id: params[:id] )
+			end
+
+			def get_orders
+				@orders = Order.where( id: params[:id] )
 			end
 
 			def init_search_service

@@ -20,6 +20,8 @@ SwellEcom::Engine.routes.draw do
 	resources :order_admin do
 		post :refund, on: :member
 		post :address, on: :member
+		patch :bulk_update, on: :collection, path: ''
+		put :bulk_update, on: :collection, path: ''
 	end
 
 	resources :orders do
