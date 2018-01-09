@@ -114,7 +114,8 @@ describe "SubscriptionService" do
 		order = subscription_service.charge_subscription( subscription )
 
 		order.should be_instance_of(SwellEcom::Order)
-		expect(order.status).to eq 'placed'
+		expect(order.payment_status).to eq 'paid'
+		expect(order.fulfillment_status).to eq 'unfulfilled'
 		expect(order.generated_by).to eq 'system_generaged'
 		expect(order.total).to eq 99
 		expect(order.parent).to eq subscription
@@ -155,7 +156,8 @@ describe "SubscriptionService" do
 		order = subscription_service.charge_subscription( subscription )
 
 		order.should be_instance_of(SwellEcom::Order)
-		expect(order.status).to eq 'placed'
+		expect(order.payment_status).to eq 'paid'
+		expect(order.fulfillment_status).to eq 'unfulfilled'
 		expect(order.generated_by).to eq 'system_generaged'
 		expect(order.total).to eq 12900
 		expect(order.parent).to eq subscription
@@ -222,7 +224,8 @@ describe "SubscriptionService" do
 		expect( subscription.status ).to eq 'failed'
 
 		order.should be_instance_of(SwellEcom::Order)
-		expect( order.status ).to eq 'failed'
+		expect(order.payment_status).to eq 'declined'
+		expect(order.fulfillment_status).to eq 'unfulfilled'
 		expect( order.errors.present? ).to eq true
 		expect( order.errors.to_json ).to eq ''
 

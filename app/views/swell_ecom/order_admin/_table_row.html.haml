@@ -11,16 +11,15 @@
 				- else
 					= (order.email || order.user.try(:email) || 'N/A')
 	%td
-		.badge{ class: order.status }
-			= order.status
-	%td
-		- if order.fulfilled_at.present?
-			.badge{ class: 'fulfilled', title: current_user.to_local_tz(order.fulfilled_at).to_s( :short ) }
-				fulfilled
-		- else
-			.badge{ class: 'unfulfilled' }
+		.badge{ class: order.payment_status }
+			- if order.pending?
 				%span.fa.fa-circle-o
-				unfulfilled
+			= order.payment_status
+	%td
+		.badge{ class: order.fulfillment_status }
+			- if order.unfulfilled?
+				%span.fa.fa-circle-o
+			= order.fulfillment_status
 	%td
 		= number_to_currency ( order.total || 0 ) / 100.to_f
 	- if args[:controls]
@@ -38,14 +37,14 @@
 									Edit
 							%li.divider
 						- if policy(order).admin_update?
-							- unless order.delivered? || order.fulfilled? || order.canceled?
+							- if order.unfulfilled?
 								%li
-									%a{ href: order_admin_path( order, order: { status: 'fulfilled' } ), data: { method: 'PUT' } }
+									%a{ href: order_admin_path( order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
 										%i.fa.fa-send
 										Fulfilled
-							- unless order.delivered? || order.canceled?
+							- if order.unfulfilled? || order.fulfilled?
 								%li
-									%a{ href: order_admin_path( order, order: { status: 'delivered' } ), data: { method: 'PUT' } }
+									%a{ href: order_admin_path( order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } }
 										%i.fa.fa-check
 										Delivered
 							%li.divider

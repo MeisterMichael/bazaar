@@ -48,6 +48,8 @@ module SwellEcom
 				if response.success? && direct_response.success?
 
 					# if capture is successful, save order, and create transaction.
+					order.payment_status = 'paid'
+
 					if order.save
 
 						# update any subscriptions with profile ids
@@ -88,7 +90,7 @@ module SwellEcom
 
 					puts response.xml if @enable_debug
 
-					order.status = 'declined'
+					order.payment_status = 'declined'
 
 					transaction = false
 					transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
@@ -203,6 +205,9 @@ module SwellEcom
 
 					# if capture is successful, create transaction.
 					transaction.save
+
+					# update corresponding order to a payment status of refunded
+					transaction.parent_obj.update payment_status: 'refunded'
 
 					# sanity check
 					# raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?

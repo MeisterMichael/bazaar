@@ -2,12 +2,23 @@
 
 .container-fluid
 	.row
-		.col-xs-10
+		.col-xs-12
 			%ul.breadcrumb
 				%li
 					%a{ href: order_admin_index_path }
 						%i.fa.fa-angle-left
 						Orders
+
+			- if policy(@order).admin_update?
+				.pull-right
+					- if @order.unfulfilled?
+						%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } } Fulfilled
+					- if @order.unfulfilled? || @order.fulfilled?
+						%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } } Delivered
+					-# if not( @order.payment_canceled? ) && not( @order.unfulfilled? )
+						%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'canceled', payment_status: 'canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel this order?' } } Cancel
+
+
 			%h2
 				%strong= @order.code
 				%small=current_user.to_local_tz(@order.created_at).to_s( :short )
@@ -16,20 +27,23 @@
 
 
 	.row
-		.col-xs-8
+		.col-xs-12.col-sm-8
 			.well.white-well
 
+				.pull-right
+					%a{ href: '#', data: { toggle: :modal, target: '#edit_status_modal' } } Edit
 				%h4
 					Order Details
 					%small
-						- if @order.fulfilled_at.present?
-							.badge.fulfilled{ title: current_user.to_local_tz(@order.fulfilled_at).to_s( :short ) }
-								%i.fa.fa-circle
-								fulfilled
-						- else
-							.badge.unfulfilled
+
+						.badge{ class: @order.payment_status }
+							- if @order.pending?
 								%i.fa.fa-circle-o
-								unfulfilled
+							=@order.payment_status
+						.badge{ class: @order.fulfillment_status }
+							- if @order.unfulfilled?
+								%i.fa.fa-circle-o
+							=@order.fulfillment_status
 
 				%table.table.table-light.table-bordered{ style: 'margin: 0' }
 					%thead
@@ -95,13 +109,13 @@
 									= number_to_currency ( @order.total || 0 ).to_f / 100
 
 				.row
-					.col-xs-8
+					.col-xs-12.col-md-6.col-lg-8
 						%h4
 							Customer Notes
 						.well
 							= raw @order.customer_notes || 'N/A'
 
-					.col-xs-4
+					.col-xs-12.col-md-6.col-lg-4
 						- if ( refund_amount = @transactions.approved.negative.to_a.sum(&:signed_amount) ) != 0
 							%table.table.table-light.table-bordered{ style: 'margin:0;' }
 								%tbody
@@ -178,24 +192,7 @@
 									= transaction.currency
 
 
-		.col-xs-4
-			.well.white-well
-				- if policy(@order).admin_update?
-					.pull-right
-						%a{ href: '#', data: { toggle: :modal, target: '#edit_status_modal' } } Edit
-				%h5
-					Status:
-					.badge=@order.status.capitalize
-				- if policy(@order).admin_update?
-					.text-center
-						- unless @order.delivered? || @order.fulfilled? || @order.canceled?
-							%a.btn.btn-primary{ href: order_admin_path( @order, order: { status: 'fulfilled' } ), data: { method: 'PUT' } } Fulfilled
-						- unless @order.delivered? || @order.canceled?
-							%a.btn.btn-primary{ href: order_admin_path( @order, order: { status: 'delivered' } ), data: { method: 'PUT' } } Delivered
-						-# unless @order.canceled? || @order.fulfilled?
-							%a.btn.btn-default{ href: order_admin_path( @order, order: { status: 'canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel this order?' } } Cancel
-
-
+		.col-xs-12.col-sm-4
 			- if @order.user.present?
 				.well.white-well
 					- if policy(@order.user).customer_admin_edit?

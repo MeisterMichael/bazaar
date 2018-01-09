@@ -26,7 +26,6 @@ module SwellEcom
 			order = Order.new(
 				billing_address: subscription.billing_address,
 				shipping_address: subscription.shipping_address,
-				status: 'placed',
 				user: subscription.user,
 				generated_by: 'system_generaged',
 				parent: subscription,

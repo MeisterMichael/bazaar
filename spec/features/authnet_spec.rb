@@ -45,6 +45,7 @@ describe "AuthorizeDotNetTransactionService" do
 		expect(order.errors.full_messages.join('')).to eq ''
 		transaction.should be_instance_of(SwellEcom::Transaction)
 		expect(order.errors.present?).to eq false
+		expect(order.payment_status).to eq 'paid'
 		expect(transaction.errors.present?).to eq false
 		expect(transaction.approved?).to eq true
 		expect(transaction.charge?).to eq true
@@ -58,6 +59,7 @@ describe "AuthorizeDotNetTransactionService" do
 
 		transaction.should be_instance_of(SwellEcom::Transaction)
 		expect(order.errors.present?).to eq false
+		expect(order.payment_status).to eq 'paid'
 		expect(transaction.errors.present?).to eq false
 		expect(transaction.approved?).to eq true
 		expect(transaction.charge?).to eq true
@@ -99,6 +101,7 @@ describe "AuthorizeDotNetTransactionService" do
 
 		transaction.should be_instance_of(SwellEcom::Transaction)
 		expect(order.errors.present?).to eq false
+		expect(order.payment_status).to eq 'paid'
 		expect(transaction.errors.present?).to eq false
 		expect(transaction.approved?).to eq true
 		expect(transaction.charge?).to eq true
@@ -112,6 +115,7 @@ describe "AuthorizeDotNetTransactionService" do
 		expect(refund_transaction.void?).to eq true
 		expect(refund_transaction.negative?).to eq true
 		expect(refund_transaction.approved?).to eq true
+		expect(order.payment_status).to eq 'refunded'
 
 
 	end

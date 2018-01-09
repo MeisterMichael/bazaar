@@ -41,6 +41,8 @@ module SwellEcom
 
 					if charge.present?
 
+						order.payment_status = 'paid'
+
 						order.save
 
 						Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: charge.id, provider: 'Stripe', amount: order.total, currency: order.currency, status: 'approved' )
