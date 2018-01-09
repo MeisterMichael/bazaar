@@ -73,7 +73,6 @@ describe "AuthorizeDotNetTransactionService" do
 		transaction = transaction_service.process( order, credit_card: bad_credit_card )
 		expect(transaction).to eq false
 		expect(order.errors.present?).to eq true
-		expect(order.payment_status).to eq 'declined'
 		expect(order.errors.full_messages.join('')).to eq "Invalid Credit Card Number"
 		order.errors.clear
 
@@ -81,7 +80,6 @@ describe "AuthorizeDotNetTransactionService" do
 		transaction = transaction_service.process( order, credit_card: bad_credit_card )
 		expect(transaction).to eq false
 		expect(order.errors.present?).to eq true
-		expect(order.payment_status).to eq 'declined'
 		expect(order.errors.full_messages.join('')).to eq "Credit Card has Expired"
 		order.errors.clear
 
@@ -89,7 +87,6 @@ describe "AuthorizeDotNetTransactionService" do
 		transaction = transaction_service.process( order, credit_card: bad_credit_card )
 		expect(transaction).to eq false
 		expect(order.errors.present?).to eq true
-		expect(order.payment_status).to eq 'declined'
 		expect(order.errors.full_messages.join('')).to eq "Credit Card has Expired"
 		order.errors.clear
 
