@@ -6,7 +6,12 @@ describe "AuthorizeDotNetTransactionService" do
 	let(:address) { SwellEcom::GeoAddress.new( first_name: 'Michael', last_name: (0...8).map { (65 + rand(26)).chr }.join, zip: '92126', phone: "1#{(0...10).map { (rand(8)+1).to_s }.join}", street: '123 Test St', city: 'San Diego', geo_country: SwellEcom::GeoCountry.new( name: 'United States', abbrev: 'US' ), geo_state: SwellEcom::GeoState.new( name: 'California', abbrev: 'CA' ) ) }
 	let(:trial_subscription_plan) { SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, price: 12900 ) }
 	let(:subscription_plan) { SwellEcom::SubscriptionPlan.new( title: 'Test Subscription Plan', price: 12900 ) }
-	let(:credit_card) { { card_number: '4111111111111111', expiration: '12/'+(Time.now + 1.year).strftime('%y'), card_code: '1234' } }
+	let(:credit_card) {
+		exp_month = (1 + rand(11))
+		exp_month = "0#{exp_month}" if exp_month < 10
+		exp_year = (Time.now + rand(5).year).strftime('%y')
+		return { card_number: '4111111111111111', expiration: "#{exp_month}/#{exp_year}", card_code: '1234' }
+	}
 	let(:new_subscription_plan_order) {
 		order = SwellEcom::Order.new( billing_address: address, shipping_address: address, user: user )
 		order.order_items.new item: subscription_plan, price: subscription_plan.price, subtotal: subscription_plan.price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
@@ -40,6 +45,7 @@ describe "AuthorizeDotNetTransactionService" do
 		expect(order.errors.full_messages.join('')).to eq ''
 		transaction.should be_instance_of(SwellEcom::Transaction)
 		expect(order.errors.present?).to eq false
+		expect(order.payment_status).to eq 'paid'
 		expect(transaction.errors.present?).to eq false
 		expect(transaction.approved?).to eq true
 		expect(transaction.charge?).to eq true
@@ -53,6 +59,7 @@ describe "AuthorizeDotNetTransactionService" do
 
 		transaction.should be_instance_of(SwellEcom::Transaction)
 		expect(order.errors.present?).to eq false
+		expect(order.payment_status).to eq 'paid'
 		expect(transaction.errors.present?).to eq false
 		expect(transaction.approved?).to eq true
 		expect(transaction.charge?).to eq true
@@ -94,6 +101,7 @@ describe "AuthorizeDotNetTransactionService" do
 
 		transaction.should be_instance_of(SwellEcom::Transaction)
 		expect(order.errors.present?).to eq false
+		expect(order.payment_status).to eq 'paid'
 		expect(transaction.errors.present?).to eq false
 		expect(transaction.approved?).to eq true
 		expect(transaction.charge?).to eq true
@@ -107,6 +115,7 @@ describe "AuthorizeDotNetTransactionService" do
 		expect(refund_transaction.void?).to eq true
 		expect(refund_transaction.negative?).to eq true
 		expect(refund_transaction.approved?).to eq true
+		expect(order.payment_status).to eq 'refunded'
 
 
 	end

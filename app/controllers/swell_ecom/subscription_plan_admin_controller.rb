@@ -1,9 +1,12 @@
 module SwellEcom
 	class SubscriptionPlanAdminController < SwellMedia::AdminController
+		helper_method :policy
 
 		before_action :get_plan, except: [ :create, :index ]
 
 		def create
+			authorize( SwellEcom::SubscriptionPlan, :admin_create? )
+
 			@plan = SubscriptionPlan.new( plan_params )
 			@plan.publish_at ||= Time.zone.now
 			@plan.status = 'draft'
@@ -18,13 +21,20 @@ module SwellEcom
 		end
 
 		def destroy
+			authorize( @plan, :admin_destroy? )
 			@plan.archive!
 			set_flash 'Plan archived'
 			redirect_to subscription_plan_admin_index_path
 		end
 
+		def edit
+			authorize( @plan, :admin_edit? )
+		end
+
 
 		def index
+			authorize( SwellEcom::SubscriptionPlan, :admin? )
+
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
@@ -38,14 +48,19 @@ module SwellEcom
 		end
 
 		def update
+			authorize( @plan, :admin_update? )
 
-			params[:subscription_plan][:price] = params[:subscription_plan][:price].to_f * 100 
-			params[:subscription_plan][:trial_price] = params[:subscription_plan][:trial_price].to_f * 100 
+			params[:subscription_plan][:price] = params[:subscription_plan][:price].to_f * 100
+			params[:subscription_plan][:trial_price] = params[:subscription_plan][:trial_price].to_f * 100
 			params[:subscription_plan][:shipping_price] = params[:subscription_plan][:shipping_price].to_f * 100
 
 
 			@plan.attributes = plan_params
-			@plan.save
+			if @plan.save
+				set_flash "Plan Updated", :success
+			else
+				set_flash @plan.errors.full_messages, :danger
+			end
 			redirect_to :back
 		end
 

@@ -26,7 +26,6 @@ module SwellEcom
 			order = Order.new(
 				billing_address: subscription.billing_address,
 				shipping_address: subscription.shipping_address,
-				status: 'placed',
 				user: subscription.user,
 				generated_by: 'system_generaged',
 				parent: subscription,
@@ -56,7 +55,7 @@ module SwellEcom
 
 				# mark subscription as failed if the transaction failed
 				subscription.failed!
-				order.errors.add(:base, :processing_error, 'Transaction failed') if !transaction || not( transaction.approved? )
+				order.errors.add(:base, :processing_error, message: 'Transaction failed') if !transaction || not( transaction.approved? )
 
 			else
 				order.save

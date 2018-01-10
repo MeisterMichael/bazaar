@@ -19,18 +19,18 @@
 				%thead
 					%th
 						Name
-						%a{ href: customer_admin_index_path( sort_by: 'name', sort_dir: 'asc' ) }
+						%a{ href: customer_admin_index_path( status: params[:status], q: params[:q], sort_by: 'name', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: customer_admin_index_path( sort_by: 'name', sort_dir: 'desc' ) }
+						%a{ href: customer_admin_index_path( status: params[:status], q: params[:q], sort_by: 'name', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th{ style: 'width: 20em' } Location
 					%th.text-right{ style: 'width: 8em' } Orders
 					%th.text-right{ style: 'width: 8em' } Active Subs
 					%th{ style: 'width: 10em' }
 						Joined
-						%a{ href: customer_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+						%a{ href: customer_admin_index_path( status: params[:status], q: params[:q], sort_by: 'created_at', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: customer_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
+						%a{ href: customer_admin_index_path( status: params[:status], q: params[:q], sort_by: 'created_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th{ style: 'width: 6em' }
 				%tbody

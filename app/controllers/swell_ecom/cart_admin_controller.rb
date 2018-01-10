@@ -2,17 +2,20 @@ module SwellEcom
 	class CartAdminController < SwellMedia::AdminController
 
 		before_action :get_cart, except: [ :index ]
-		
+
 		def destroy
+			authorize( @cart, :admin_destroy? )
 			@cart.destroy
-			redirect_to cart_admin_index_path	
+			redirect_to cart_admin_index_path
 		end
 
 		def edit
-			
+			authorize( @cart, :admin_edit? )
+
 		end
 
 		def index
+			authorize( SwellEcom::Cart, :admin? )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
@@ -25,13 +28,10 @@ module SwellEcom
 			@carts = @carts.page( params[:page] )
 		end
 
-		
+
 		def update
+			authorize( @cart, :admin_update? )
 			@cart.attributes = cart_params
-		
-			if @cart.status_changed? && ( @cart.status == 'fulfilled' && @cart.status_was == 'placed' )
-				@cart.fulfilled_at = Time.zone.now
-			end
 			@cart.save
 			redirect_to :back
 		end

@@ -1,9 +1,13 @@
 module SwellEcom
 	class OrderAdminController < SwellMedia::AdminController
+		helper_method :policy
 
-		before_action :get_order, except: [ :index ]
+		before_action :get_order, except: [ :index, :bulk_update, :bulk_destroy ]
+		before_action :get_orders, except: [ :bulk_update, :bulk_destroy ]
+		before_action :init_search_service, only: [:index]
 
 		def address
+			authorize( @order, :admin_update? )
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
 			address = GeoAddress.create( address_attributes.merge( user: @order.user ) )
 
@@ -23,7 +27,22 @@ module SwellEcom
 			redirect_to :back
 		end
 
+		def bulk_update
+			@orders.each do |order|
+				order.attributes = order_params
+
+				if order.fulfillment_status_changed? && order.fulfillment_status == 'fulfilled' && ( order.fulfillment_status == 'unfulfilled' || order.fulfilled_at.blank? )
+					order.fulfilled_at = Time.zone.now
+				end
+				order.save
+			end
+
+			redirect_to :back
+		end
+
 		def edit
+			authorize( @order, :admin_edit? )
+
 			@transactions = Transaction.where( parent_obj: @order )
 
 
@@ -42,24 +61,19 @@ module SwellEcom
 		end
 
 		def index
+			authorize( SwellEcom::Order, :admin? )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@orders = Order.order( "#{sort_by} #{sort_dir}" )
-
-			if params[:status].present? && params[:status] != 'all'
-				@orders = eval "@orders.#{params[:status]}"
-			end
-
-			if params[:q].present?
-				@orders = @orders.where( "email like :q", q: "'%#{params[:q].downcase}%'" )
-			end
-
-			@orders = @orders.page( params[:page] )
+			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			filters[ params[:payment_status] ] = true if params[:payment_status].present? && params[:payment_status] != 'all'
+			filters[ params[:fulfillment_status] ] = true if params[:fulfillment_status].present? && params[:fulfillment_status] != 'all'
+			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 		end
 
 		def refund
-			refund_amount = ( params[:amount].to_f * 100 ).to_i
+			authorize( @order, :admin_refund? )
+			refund_amount = ( params[:amount].to_f * 100 ).round
 
 			# check that refund amount doesn't exceed charges?
 			# amount_net = Transaction.approved.positive.where( parent: @order ).sum(:amount) - Transaction.approved.negative.where( parent: @order ).sum(:amount)
@@ -89,22 +103,32 @@ module SwellEcom
 
 
 		def update
+			authorize( @order, :admin_update? )
 			@order.attributes = order_params
 
-			if @order.status_changed? && ( @order.status == 'fulfilled' && @order.status_was == 'placed' )
+			if @order.fulfillment_status_changed? && @order.fulfillment_status == 'fulfilled' && ( @order.fulfillment_status == 'unfulfilled' || @order.fulfilled_at.blank? )
 				@order.fulfilled_at = Time.zone.now
 			end
+
 			@order.save
 			redirect_to :back
 		end
 
 		private
 			def order_params
-				params.require( :order ).permit( :email, :status, :support_notes )
+				params.require( :order ).permit( :email, :fulfillment_status, :payment_status, :support_notes )
 			end
 
 			def get_order
 				@order = Order.find_by( id: params[:id] )
+			end
+
+			def get_orders
+				@orders = Order.where( id: params[:id] )
+			end
+
+			def init_search_service
+				@search_service = EcomSearchService.new
 			end
 
 	end

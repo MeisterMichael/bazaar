@@ -9,6 +9,7 @@ module SwellEcom
 
 			PROVIDER_NAME = 'Authorize.net'
 			ERROR_DUPLICATE_CUSTOMER_PROFILE = 'E00039'
+			ERROR_DUPLICATE_CUSTOMER_PAYMENT_PROFILE = 'E00039'
 			ERROR_INVALID_PAYMENT_PROFILE = 'E00003'
 			CANNOT_REFUND_CHARGE = 'E00027'
 
@@ -18,6 +19,7 @@ module SwellEcom
 				@api_login	= args[:API_LOGIN_ID] || ENV['AUTHORIZE_DOT_NET_API_LOGIN_ID']
 				@api_key	= args[:TRANSACTION_API_KEY] || ENV['AUTHORIZE_DOT_NET_TRANSACTION_API_KEY']
 				@gateway	= ( args[:GATEWAY] || ENV['AUTHORIZE_DOT_NET_GATEWAY'] || :sandbox ).to_sym
+				@enable_debug = not( Rails.env.production? ) || ENV['AUTHORIZE_DOT_NET_DEBUG'] == '1' || @gateway == :sandbox
 			end
 
 			def process( order, args = {} )
@@ -40,11 +42,14 @@ module SwellEcom
 
 				# raise Exception.new("create auth capture error: #{response.message_text}") unless response.success?
 
+				puts response.xml if @enable_debug
 
 				# process response
 				if response.success? && direct_response.success?
 
 					# if capture is successful, save order, and create transaction.
+					order.payment_status = 'paid'
+
 					if order.save
 
 						# update any subscriptions with profile ids
@@ -83,9 +88,9 @@ module SwellEcom
 
 				else
 
-					puts response.xml unless Rails.env.production?
+					puts response.xml if @enable_debug
 
-					order.status = 'declined'
+					order.payment_status = 'declined'
 
 					transaction = false
 					transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
@@ -154,6 +159,8 @@ module SwellEcom
 					transaction.customer_payment_profile_reference
 				)
 
+				puts response.xml if @enable_debug
+
 				if response.message_code == CANNOT_REFUND_CHARGE
 					# if you cannot refund it, that means the origonal charge
 					# hasn't been settled yet, so you...
@@ -164,6 +171,7 @@ module SwellEcom
 						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 						response = anet_transaction.create_transaction_void(anet_transaction_id)
 
+						puts response.xml if @enable_debug
 					else
 						# OR create a refund that is unlinked to the transaction
 						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
@@ -198,10 +206,13 @@ module SwellEcom
 					# if capture is successful, create transaction.
 					transaction.save
 
+					# update corresponding order to a payment status of refunded
+					transaction.parent_obj.update payment_status: 'refunded'
+
 					# sanity check
 					# raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 				else
-					puts response.xml unless Rails.env.production?
+					puts response.xml if @enable_debug
 
 					transaction.status = 'declined'
 					transaction.message = response.message_text
@@ -293,7 +304,7 @@ module SwellEcom
 
 				anet_credit_card = AuthorizeNet::CreditCard.new(
 					credit_card[:card_number].gsub(/\s/,''),
-					credit_card[:expiration],
+					credit_card[:expiration].gsub(/\//,''),
 					card_code: credit_card[:card_code],
 				)
 
@@ -317,7 +328,10 @@ module SwellEcom
 
 				# recover a customer profile if it already exists.
 				if response.message_code == ERROR_DUPLICATE_CUSTOMER_PROFILE
+					puts response.xml if @enable_debug
+
 					anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+
 
 					profile_id = response.message_text.match( /(\d{4,})/)[1]
 
@@ -326,20 +340,17 @@ module SwellEcom
 					profile = response.profile
 					customer_profile_id = response.profile_id
 
-					customer_payment_profile = profile.payment_profiles.find do |payment_profile|
-						payment_profile.payment_method.card_number.end_with?( anet_credit_card.card_number[-4,4] )
-					end
+					# create a new payment profile for existing customer
+					anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+					response = anet_transaction.create_payment_profile( anet_payment_profile, profile )
+					puts response.xml if @enable_debug
+					customer_payment_profile_id = response.payment_profile_id
 
-					if customer_payment_profile.present?
-
-						customer_payment_profile_id = customer_payment_profile.try(:customer_payment_profile_id)
-
-					else
-
-						# create a new payment profile for existing customer
+					if not( response.success? ) && response.message_code == ERROR_DUPLICATE_CUSTOMER_PAYMENT_PROFILE
+						anet_payment_profile.customer_payment_profile_id = customer_payment_profile_id
 						anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-						response = anet_transaction.create_payment_profile( anet_payment_profile, profile )
-						customer_payment_profile_id = response.payment_profile_id
+						response = anet_transaction.update_payment_profile( anet_payment_profile, profile )
+						puts response.xml if @enable_debug
 
 					end
 
@@ -354,7 +365,7 @@ module SwellEcom
 
 				else
 
-					puts response.xml unless Rails.env.production?
+					puts response.xml if @enable_debug
 
 					if response.message_code == ERROR_INVALID_PAYMENT_PROFILE
 						errors.add( :base, 'Invalid Payment Information') if errors

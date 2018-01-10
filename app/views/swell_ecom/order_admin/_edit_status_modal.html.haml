@@ -1,0 +1,26 @@
+#edit_status_modal.modal.fade
+	.modal-dialog.modal-sm
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Status
+			= form_for @order, url: order_admin_path( @order ) do |f|
+				.modal-body{ style: 'text-align: center;' }
+					.form-group
+						=f.label :payment_status
+						- if policy(@order).admin_update?
+							= f.collection_select :payment_status, SwellEcom::Order.payment_statuses, :first, :first, {}, class: 'form-control'
+						- else
+							=@order.payment_status
+					.form-group
+						=f.label :fulfillment_status
+						- if policy(@order).admin_update?
+							= f.collection_select :fulfillment_status, SwellEcom::Order.fulfillment_statuses, :first, :first, {}, class: 'form-control'
+						- else
+							=@order.fulfillment_status
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Update', class: 'btn btn-primary'
