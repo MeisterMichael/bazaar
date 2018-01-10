@@ -9,6 +9,7 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.integer		:availability, default: 1 # anyone, selected_users
 			t.integer		:minimum_prod_subtotal, default: nil
 			t.integer		:minimum_shipping_subtotal, default: nil
+			t.integer		:minimum_tax_subtotal, default: nil
 			t.integer		:limit_per_customer, default: nil
 			t.integer		:limit_global, default: nil
 			t.timestamps
