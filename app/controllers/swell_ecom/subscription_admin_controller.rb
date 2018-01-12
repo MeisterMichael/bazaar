@@ -111,7 +111,7 @@ module SwellEcom
 
 		private
 			def subscription_params
-				params.require( :subscription ).permit( :next_charged_at, :amount, :trial_amount, user_attributes: [ :first_name, :last_name, :email ] )
+				params.require( :subscription ).permit( :next_charged_at, :amount, :trial_amount, :status, user_attributes: [ :first_name, :last_name, :email ] )
 			end
 
 			def get_subscription
