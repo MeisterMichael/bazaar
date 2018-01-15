@@ -302,9 +302,12 @@ module SwellEcom
 					return false
 				end
 
+				formatted_expiration = credit_card[:expiration].gsub(/\s*\/\s*/,'')
+				formatted_number = credit_card[:card_number].gsub(/\s/,'')
+
 				anet_credit_card = AuthorizeNet::CreditCard.new(
-					credit_card[:card_number].gsub(/\s/,''),
-					credit_card[:expiration].gsub(/\//,''),
+					formatted_number,
+					formatted_expiration,
 					card_code: credit_card[:card_code],
 				)
 

@@ -23,7 +23,9 @@ module SwellEcom
 		end
 
 		def self.parse_credit_card_expiry( expiration )
-			return nil if expiration.nil?
+			return nil if expiration.blank?
+
+			expiration = expiration.gsub(/\s+/,'')
 
 			expiration_parts = expiration.split('/')
 			expiration_month = expiration_parts[0]

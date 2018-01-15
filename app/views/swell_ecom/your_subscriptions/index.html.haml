@@ -1,0 +1,10 @@
+.container
+	.row
+		.col-xs-12.col-md-8
+			%a{ href: swell_ecom.your_account_index_path() } My Account
+			> My Subscriptions
+			%h2 My Subscriptions
+			- @subscriptions.each do |subscription|
+				= render 'swell_ecom/your_subscriptions/well', subscription: subscription, args: {}
+
+			%div= raw paginate @subscriptions
