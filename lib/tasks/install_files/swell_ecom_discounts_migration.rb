@@ -15,11 +15,6 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.timestamps
 		end
 
-		create_table :discount_users do |t|
-			t.belongs_to 	:discount
-			t.integer		:user
-		end
-
 		create_table :discount_items do |t|
 			t.references 	:discount
 			t.references 	:applies_to, polymorphic: true, default: nil # nil => everything, product, subscription_plans, categories, ...
@@ -28,6 +23,17 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.integer		:discount_amount
 			t.integer		:discount_type, default: 1 # percent, fixed
 			t.timestamps
+		end
+
+		create_table :discount_users do |t|
+			t.belongs_to 	:discount
+			t.belongs_to	:user
+		end
+
+		create_table :discount_uses do |t|
+			t.belongs_to 	:discount
+			t.belongs_to	:order
+			t.belongs_to	:user
 		end
 
 	end
