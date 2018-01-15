@@ -35,7 +35,12 @@ module SwellEcom
 			@discount_service.calculate_pre_tax( order, args[:discount] )
 			@tax_service.calculate( order, args[:tax] )
 			@discount_service.calculate_post_tax( order, args[:discount] )
-			@transaction_service.process( order, args[:transaction] )
+			
+			if order.errors.present?
+				@transaction_service.calculate( obj, args[:transaction] )
+			else
+				@transaction_service.process( order, args[:transaction] )
+			end
 
 		end
 
