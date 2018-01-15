@@ -7,13 +7,13 @@ module SwellEcom
 
 		def confirm
 
-			@order_service.calculate( @order, trascaction: order_options )
+			@order_service.calculate( @order, trascaction: transaction_options )
 
 		end
 
 		def create
 
-			@order_service.process( @order, trascaction: order_options )
+			@order_service.process( @order, trascaction: transaction_options )
 
 			if params[:newsletter].present?
 				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}" )
@@ -164,13 +164,19 @@ module SwellEcom
 				order_item.subscription.payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( params[:credit_card][:expiration] ) if params[:credit_card].present?
 			end
 
+			if params[:coupon].present? && ( discount = Discount.active.in_progress.find_by( code: params[:coupon] ) ).present?
+
+				order_item = @order.order_items.new item: discount, order_item_type: 'discount'
+
+			end
+
 		end
 
 		def initialize_services
 			@order_service = SwellEcom::OrderService.new
 		end
 
-		def order_options
+		def transaction_options
 			params.slice( :stripeToken, :credit_card )
 		end
 
