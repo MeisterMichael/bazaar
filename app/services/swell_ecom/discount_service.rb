@@ -8,21 +8,36 @@ module SwellEcom
 		def initialize( args = {} )
 		end
 
-		def calculate( obj, args = {} )
+		def calculate_pre_tax( obj, args = {} )
 
-			return self.calculate_order( obj ) if obj.is_a? Order
-			return self.calculate_cart( obj ) if obj.is_a? Cart
+			return self.calculate_pre_tax_order( obj ) if obj.is_a? Order
+			return self.calculate_pre_tax_cart( obj ) if obj.is_a? Cart
+
+		end
+
+		def calculate_post_tax( obj, args = {} )
+
+			return self.calculate_post_tax_order( obj ) if obj.is_a? Order
+			return self.calculate_post_tax_cart( obj ) if obj.is_a? Cart
 
 		end
 
 		protected
 
-		def calculate_cart( cart )
-
+		def calculate_post_tax_cart( cart )
+			# @todo
 		end
 
-		def calculate_order( order )
+		def calculate_post_tax_order( order )
+			# @todo
+		end
 
+		def calculate_pre_tax_cart( cart )
+			# @todo
+		end
+
+		def calculate_pre_tax_order( order )
+			# @todo
 		end
 
 	end

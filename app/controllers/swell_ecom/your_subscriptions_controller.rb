@@ -48,9 +48,9 @@ module SwellEcom
 
 				end
 
-				@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
-				
-				if @transaction_service.update_subscription_payment_profile( @subscription, params )
+				@subscription_service = SubscriptionService.new
+
+				if @subscription_service.update_payment_profile( @subscription, params )
 
 					# if subscription was failed, set the status to active and
 					# next charge date to now ( if it was set to be charged

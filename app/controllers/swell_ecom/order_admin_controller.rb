@@ -78,9 +78,9 @@ module SwellEcom
 			# check that refund amount doesn't exceed charges?
 			# amount_net = Transaction.approved.positive.where( parent: @order ).sum(:amount) - Transaction.approved.negative.where( parent: @order ).sum(:amount)
 
-			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
+			@order_service = SwellEcom::OrderService.new
 
-			@transaction = @transaction_service.refund( amount: refund_amount, order: @order )
+			@transaction = @order_service.refund( amount: refund_amount, order: @order )
 
 			if @transaction.errors.present?
 

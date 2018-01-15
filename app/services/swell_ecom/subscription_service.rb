@@ -4,12 +4,10 @@ module SwellEcom
 
 		def initialize( args = {} )
 
-			@shipping_service		= args[:shipping_service]
-			@tax_service			= args[:tax_service]
-			@transaction_service	= args[:transaction_service]
+			@order_service			= args[:order_service]
+			@order_service			||= SwellEcom::OrderService.new
 
-			@shipping_service 		||= SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
-			@tax_service			||= SwellEcom.tax_service_class.constantize.new( SwellEcom.tax_service_config )
+			@transaction_service	= args[:transaction_service]
 			@transaction_service	||= SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
 
 		end
@@ -46,9 +44,7 @@ module SwellEcom
 			end
 
 			# process order
-			@shipping_service.calculate( order )
-			@tax_service.calculate( order )
-			transaction = @transaction_service.process( order )
+			transaction = @order_service.process( order )
 
 			# handle response
 			if order.errors.present? || !transaction || not( transaction.approved? )
@@ -70,6 +66,10 @@ module SwellEcom
 
 			order
 
+		end
+
+		def update_payment_profile( subscription, args = {} )
+			@transaction_service.update_subscription_payment_profile( subscription, args )
 		end
 
 	end

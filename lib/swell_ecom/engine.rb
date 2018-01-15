@@ -13,14 +13,17 @@ module SwellEcom
 		mattr_accessor :billing_countries
 		mattr_accessor :shipping_countries
 
-		mattr_accessor :transaction_service_class
-		mattr_accessor :transaction_service_config
+		mattr_accessor :discount_service_class
+		mattr_accessor :discount_service_config
 
 		mattr_accessor :shipping_service_class
 		mattr_accessor :shipping_service_config
 
 		mattr_accessor :tax_service_class
 		mattr_accessor :tax_service_config
+
+		mattr_accessor :transaction_service_class
+		mattr_accessor :transaction_service_config
 
 		self.transaction_service_class = "SwellEcom::TransactionServices::StripeTransactionService"
 		self.transaction_service_config = {}

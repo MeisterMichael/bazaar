@@ -7,17 +7,13 @@ module SwellEcom
 
 		def confirm
 
-			@shipping_service.calculate( @order, order_options )
-			@tax_service.calculate( @order )
-			@transaction_service.calculate( @order, order_options )
+			@order_service.calculate( @order, trascaction: order_options )
 
 		end
 
 		def create
 
-			@shipping_service.calculate( @order, order_options )
-			@tax_service.calculate( @order )
-			@transaction_service.process( @order, order_options.merge( credit_card: params[:credit_card] ) )
+			@order_service.process( @order, trascaction: order_options )
 
 			if params[:newsletter].present?
 				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}" )
@@ -171,15 +167,11 @@ module SwellEcom
 		end
 
 		def initialize_services
-
-			@shipping_service = SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
-			@tax_service = SwellEcom.tax_service_class.constantize.new( SwellEcom.tax_service_config )
-			@transaction_service = SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
-
+			@order_service = SwellEcom::OrderService.new
 		end
 
 		def order_options
-			params.slice( :stripeToken )
+			params.slice( :stripeToken, :credit_card )
 		end
 
 
