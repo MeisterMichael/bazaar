@@ -1,4 +1,4 @@
-class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
+class SwellEcomDiscountsMigration < ActiveRecord::Migration
 	def change
 
 		create_table :discounts do |t|
@@ -7,9 +7,9 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 			t.datetime		:start_at
 			t.datetime		:end_at, default: nil
 			t.integer		:availability, default: 1 # anyone, selected_users
-			t.integer		:minimum_prod_subtotal, default: nil
-			t.integer		:minimum_shipping_subtotal, default: nil
-			t.integer		:minimum_tax_subtotal, default: nil
+			t.integer		:minimum_prod_subtotal, default: 0
+			t.integer		:minimum_shipping_subtotal, default: 0
+			t.integer		:minimum_tax_subtotal, default: 0
 			t.integer		:limit_per_customer, default: nil
 			t.integer		:limit_global, default: nil
 			t.timestamps
@@ -27,12 +27,6 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 
 		create_table :discount_users do |t|
 			t.belongs_to 	:discount
-			t.belongs_to	:user
-		end
-
-		create_table :discount_uses do |t|
-			t.belongs_to 	:discount
-			t.belongs_to	:order
 			t.belongs_to	:user
 		end
 

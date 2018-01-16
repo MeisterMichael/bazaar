@@ -21,10 +21,12 @@ module SwellEcom
 
 		def calculate( obj, args = {} )
 
+			args[:discount] ||= {}
+
 			@shipping_service.calculate( obj, args[:shipping] )
-			@discount_service.calculate_pre_tax( obj, args[:discount] )
+			@discount_service.calculate( obj, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
 			@tax_service.calculate( obj, args[:tax] )
-			@discount_service.calculate_post_tax( obj, args[:discount] )
+			@discount_service.calculate( obj, args[:discount] ) # calucate again after taxes
 			@transaction_service.calculate( obj, args[:transaction] )
 
 		end
@@ -32,10 +34,10 @@ module SwellEcom
 		def process( order, args = {} )
 
 			@shipping_service.calculate( order, args[:shipping] )
-			@discount_service.calculate_pre_tax( order, args[:discount] )
+			@discount_service.calculate( order, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
 			@tax_service.calculate( order, args[:tax] )
-			@discount_service.calculate_post_tax( order, args[:discount] )
-			
+			@discount_service.calculate( order, args[:discount] ) # calucate again after taxes
+
 			if order.errors.present?
 				@transaction_service.calculate( obj, args[:transaction] )
 			else
