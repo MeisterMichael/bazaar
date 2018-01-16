@@ -87,6 +87,46 @@ describe "SubscriptionService" do
 
 	end
 
+	it "should be able to calculate mixed fixed and percent discount" do
+		shipping_order_item = new_order.order_items.new( subtotal: 495, order_item_type: 'shipping' )
+
+		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active' )
+
+		percent_discount_item = discount.discount_items.new( discount_amount: 35, discount_type: 'percent', order_item_type: nil )
+		fixed_discount_item = discount.discount_items.new( discount_amount: 10, discount_type: 'fixed', order_item_type: nil )
+
+		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
+
+		@discount_service.calculate( new_order, pre_tax: true )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -218
+
+		@discount_service.calculate( new_order )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -218
+
+
+		percent_discount_item.order_item_type = 'prod'
+		@discount_service.calculate( new_order, pre_tax: true )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -45
+
+		@discount_service.calculate( new_order )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -45
+
+
+		percent_discount_item.order_item_type = 'shipping'
+		@discount_service.calculate( new_order, pre_tax: true )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -183
+
+		@discount_service.calculate( new_order )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -183
+
+	end
+
 	it "should be able to calculate fixed discount with minimum taxes" do
 
 		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active', minimum_tax_subtotal: 10 )
