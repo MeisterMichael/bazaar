@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180108171000) do
+ActiveRecord::Schema.define(version: 20180115160000) do
 
   create_table "assets", force: :cascade do |t|
     t.integer  "parent_obj_id"
@@ -108,6 +108,38 @@ ActiveRecord::Schema.define(version: 20180108171000) do
   end
 
   add_index "contacts", ["email", "type"], name: "index_contacts_on_email_and_type"
+
+  create_table "discount_items", force: :cascade do |t|
+    t.integer  "discount_id"
+    t.integer  "applies_to_id"
+    t.string   "applies_to_type"
+    t.integer  "order_item_type", default: 1
+    t.string   "currency",        default: "USD"
+    t.integer  "discount_amount"
+    t.integer  "discount_type",   default: 1
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "discount_users", force: :cascade do |t|
+    t.integer "discount_id"
+    t.integer "user_id"
+  end
+
+  create_table "discounts", force: :cascade do |t|
+    t.string   "code"
+    t.integer  "status",                    default: 0
+    t.datetime "start_at"
+    t.datetime "end_at"
+    t.integer  "availability",              default: 1
+    t.integer  "minimum_prod_subtotal",     default: 0
+    t.integer  "minimum_shipping_subtotal", default: 0
+    t.integer  "minimum_tax_subtotal",      default: 0
+    t.integer  "limit_per_customer"
+    t.integer  "limit_global"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string   "slug",                      null: false
