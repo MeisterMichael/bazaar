@@ -26,6 +26,7 @@ module SwellEcom
 			discount_items.each do |discount_item|
 				order_items = order.order_items.to_a
 
+				order_items = order_items.select{ |order_item| not( order_item.discount? ) }
 				order_items = order_items.select{ |order_item| order_item.order_item_type == discount_item.order_item_type } unless discount_item.order_item_type.nil?
 
 				if discount_item.applies_to.is_a?( Product ) || discount_item.applies_to.is_a?( SubscriptionPlan )
