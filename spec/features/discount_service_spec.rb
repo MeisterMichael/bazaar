@@ -127,6 +127,38 @@ describe "SubscriptionService" do
 
 	end
 
+	it "should be able to calculate discount for specific products/plans" do
+		product = SwellEcom::Product.new
+
+		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active' )
+		percent_discount_item = discount.discount_items.new( discount_amount: 50, discount_type: 'percent', order_item_type: 'prod', applies_to: product )
+
+		product_order_item = new_order.order_items.new( subtotal: 14900, order_item_type: 'prod', item: product )
+		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
+
+
+		# a product
+		@discount_service.calculate( new_order, pre_tax: true )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -7450
+
+		@discount_service.calculate( new_order )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -7450
+
+
+		# a subscription
+		percent_discount_item.applies_to = new_order.order_items.first.item
+		@discount_service.calculate( new_order, pre_tax: true )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -50
+
+		@discount_service.calculate( new_order )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -50
+
+	end
+
 	it "should be able to calculate fixed discount with minimum taxes" do
 
 		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active', minimum_tax_subtotal: 10 )
