@@ -38,6 +38,35 @@ describe "SubscriptionService" do
 
 	end
 
+	it "should be able to calculate fixed_each" do
+		product = SwellEcom::Product.new
+		product_order_item = new_order.order_items.new( subtotal: 14900, order_item_type: 'prod', item: product, quantity: 2 )
+
+		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active' )
+		discount.discount_items.new( discount_amount: 100, discount_type: 'fixed_each', order_item_type: 'prod' )
+
+		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
+
+		@discount_service.calculate( new_order, pre_tax: true )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -300
+
+		@discount_service.calculate( new_order )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -300
+
+		product_order_item.quantity = 4
+		@discount_service.calculate( new_order, pre_tax: true )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -500
+
+		@discount_service.calculate( new_order )
+		expect(new_order.errors.full_messages.to_s).to eq '[]'
+		expect(discount_order_item.subtotal).to eq -500
+
+
+	end
+
 	it "should be able to calculate percent discount" do
 
 		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active' )

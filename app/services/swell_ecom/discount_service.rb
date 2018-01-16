@@ -42,6 +42,8 @@ module SwellEcom
 					amount = amount + ( subtotal * discount_item.discount_amount / 100.0 ).round
 				elsif discount_item.fixed?
 					amount = amount + discount_item.discount_amount
+				elsif discount_item.fixed_each?
+					amount = amount + discount_item.discount_amount * order_items.sum{|order_item| order_item.quantity }
 				else
 					raise Exception.new('Unsupported discount_item.discount_type')
 				end
