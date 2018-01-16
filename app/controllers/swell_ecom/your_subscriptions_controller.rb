@@ -2,7 +2,7 @@ module SwellEcom
 
 	class YourSubscriptionsController < YourController
 
-		before_filter :get_subscription, except: [ :index ]
+		before_action :get_subscription, except: [ :index ]
 
 		def index
 			set_page_meta( title: "My Subscriptions" )
