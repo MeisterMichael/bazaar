@@ -132,6 +132,8 @@ ActiveRecord::Schema.define(version: 20180115160000) do
     t.datetime "start_at"
     t.datetime "end_at"
     t.integer  "availability",              default: 1
+    t.integer  "duration",                  default: 1
+    t.integer  "duration_amount"
     t.integer  "minimum_prod_subtotal",     default: 0
     t.integer  "minimum_shipping_subtotal", default: 0
     t.integer  "minimum_tax_subtotal",      default: 0
@@ -440,6 +442,7 @@ ActiveRecord::Schema.define(version: 20180115160000) do
     t.string   "provider_customer_payment_profile_reference"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "discount_id"
   end
 
   create_table "transactions", force: :cascade do |t|
