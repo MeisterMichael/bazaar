@@ -1,7 +1,12 @@
 module SwellEcom
 	class Product < ActiveRecord::Base
-
 		self.table_name = 'products'
+
+		include SwellMedia::Concerns::URLConcern
+		include SwellMedia::Concerns::AvatarAsset
+		#include SwellMedia::Concerns::ExpiresCache
+		include SwellEcom::Concerns::MoneyAttributesConcern
+		include FriendlyId
 
 		if defined?( Elasticsearch::Model )
 
@@ -36,12 +41,7 @@ module SwellEcom
 		validates		:title, presence: true, unless: :allow_blank_title?
 
 		attr_accessor	:category_name
-
-		include SwellMedia::Concerns::URLConcern
-		include SwellMedia::Concerns::AvatarAsset
-		#include SwellMedia::Concerns::ExpiresCache
-
-		mounted_at '/store'
+		attr_accessor	:slug_pref
 
 		belongs_to 	:product_category, foreign_key: :category_id, required: false
 		has_many 	:product_options
@@ -51,11 +51,9 @@ module SwellEcom
 		after_update :on_update
 		before_save	:set_publish_at
 
-		attr_accessor	:slug_pref
-
-		include FriendlyId
+		money_attributes :price, :suggested_price, :shipping_price
+		mounted_at '/store'
 		friendly_id :slugger, use: [ :slugged, :history ]
-
 		acts_as_taggable_array_on :tags
 
 

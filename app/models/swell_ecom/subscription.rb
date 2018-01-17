@@ -1,8 +1,8 @@
 module SwellEcom
 	class Subscription < ActiveRecord::Base
-
-
 		self.table_name = 'subscriptions'
+		
+		include SwellEcom::Concerns::MoneyAttributesConcern
 
 		enum status: { 'canceled' => -1, 'failed' => 0, 'active' => 1 }
 
@@ -18,6 +18,8 @@ module SwellEcom
 
 		accepts_nested_attributes_for :user
 		accepts_nested_attributes_for :billing_address
+
+		money_attributes :amount, :trial_amount
 
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now

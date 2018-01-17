@@ -1,16 +1,17 @@
 module SwellEcom
 	class ProductVariant < ActiveRecord::Base
-
 		self.table_name = 'product_variants'
 
-		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
+		include FriendlyId
+		include SwellEcom::Concerns::MoneyAttributesConcern
 
+		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 
 		before_save :set_defaults
 
 		belongs_to :product
 
-		include FriendlyId
+		money_attributes :price, :shipping_price
 		friendly_id :title, use: [ :slugged, :history ]
 
 

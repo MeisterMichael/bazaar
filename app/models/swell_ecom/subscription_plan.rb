@@ -1,15 +1,17 @@
 module SwellEcom
 	class SubscriptionPlan < ActiveRecord::Base
-
 		self.table_name = 'subscription_plans'
+
+		include SwellMedia::Concerns::URLConcern
+		include SwellMedia::Concerns::AvatarAsset
+		#include SwellMedia::Concerns::ExpiresCache
+		include SwellEcom::Concerns::MoneyAttributesConcern
 
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 
 		validates		:title, presence: true, unless: :allow_blank_title?
 
-		include SwellMedia::Concerns::URLConcern
-		include SwellMedia::Concerns::AvatarAsset
-		#include SwellMedia::Concerns::ExpiresCache
+		money_attributes :trial_price, :price, :shipping_price
 
 		mounted_at '/subscriptions'
 

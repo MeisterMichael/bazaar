@@ -2,13 +2,13 @@
 module SwellEcom
 	class Order < ActiveRecord::Base
 		self.table_name = 'orders'
+		include SwellEcom::Concerns::MoneyAttributesConcern
 
 		enum payment_status: { 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'pending' => 0, 'partially_paid' => 1, 'paid' => 2 }
 		enum fulfillment_status: { 'fulfillment_canceled' => -3, 'fulfillment_error' => -1, 'unfulfilled' => 0, 'partially_fulfulled' => 1, 'fulfilled' => 2, 'delivered' => 3 }
 		enum generated_by: { 'customer_generated' => 1, 'system_generaged' => 2 }
 
 		before_create :generate_order_code
-
 
 		belongs_to 	:billing_address, class_name: 'GeoAddress', validate: true, required: true
 		belongs_to 	:shipping_address, class_name: 'GeoAddress', validate: true, required: true
@@ -19,6 +19,8 @@ module SwellEcom
 		has_many	:transactions, as: :parent_obj
 
 		has_one 	:cart, dependent: :destroy
+
+		money_attributes :subtotal, :tax, :shipping, :total
 
 		def self.not_declined
 			where.not( payment_status: -2 )

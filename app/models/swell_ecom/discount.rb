@@ -1,12 +1,27 @@
 module SwellEcom
 	class Discount < ActiveRecord::Base
 		self.table_name = 'discounts'
+		include SwellEcom::Concerns::MoneyAttributesConcern
+
+		enum status: { 'archived' => -1, 'draft' => 0, 'active' => 1 }
+		enum availability: { 'anyone' => 1, 'selected_users' => 2 }
 
 		has_many :discount_items
 		has_many :discount_users
 
-		enum status: { 'archived' => -1, 'draft' => 0, 'active' => 1 }
-		enum availability: { 'anyone' => 1, 'selected_users' => 2 }
+		money_attributes :minimum_prod_subtotal, :minimum_tax_subtotal, :minimum_shipping_subtotal
+
+		def first_discount_item
+			@first_discount_item ||= self.discount_items.first
+			@first_discount_item
+		end
+
+		def first_discount_item=(discount_item)
+		end
+
+		def first_discount_item_attributes=( attrs )
+			first_discount_item.attributes = attrs
+		end
 
 		def in_progress?( args = {} )
 			args[:now] ||= Time.now
