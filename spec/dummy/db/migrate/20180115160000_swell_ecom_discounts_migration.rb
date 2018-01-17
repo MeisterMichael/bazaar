@@ -2,6 +2,8 @@ class SwellEcomDiscountsMigration < ActiveRecord::Migration
 	def change
 
 		create_table :discounts do |t|
+			t.string 		:title
+			t.text 			:description
 			t.string 		:code
 			t.integer		:status, 	default: 0
 			t.datetime		:start_at

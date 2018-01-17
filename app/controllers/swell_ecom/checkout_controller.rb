@@ -159,7 +159,7 @@ module SwellEcom
 			@order.subtotal = @cart.subtotal
 
 			discount = Discount.active.in_progress.find_by( code: params[:coupon] ) if params[:coupon].present?
-			order_item = @order.order_items.new( item: discount, order_item_type: 'discount' ) if discount.present?
+			order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 
 			@cart.cart_items.each do |cart_item|
 				order_item = @order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code

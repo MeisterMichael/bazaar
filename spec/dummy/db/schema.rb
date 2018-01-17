@@ -129,6 +129,8 @@ ActiveRecord::Schema.define(version: 20180115160000) do
   end
 
   create_table "discounts", force: :cascade do |t|
+    t.string   "title"
+    t.text     "description"
     t.string   "code"
     t.integer  "status",                    default: 0
     t.datetime "start_at"
