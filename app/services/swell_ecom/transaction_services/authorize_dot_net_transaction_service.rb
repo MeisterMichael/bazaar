@@ -321,7 +321,8 @@ module SwellEcom
 					:id				=> user.try(:id),
 					:phone			=> billing_address.phone,
 					:address		=> anet_billing_address,
-					:description	=> "#{anet_billing_address.first_name} #{anet_billing_address.last_name}"
+					:description	=> "#{anet_billing_address.first_name} #{anet_billing_address.last_name}",
+					:ip				=> args[:ip] || ( user.try(:ip).blank? ? nil : user.try(:ip) ),
 				)
 				anet_customer_profile.payment_profiles = anet_payment_profile
 
