@@ -7,8 +7,6 @@ class SwellEcomDiscountsMigration < ActiveRecord::Migration
 			t.datetime		:start_at
 			t.datetime		:end_at, default: nil
 			t.integer		:availability, default: 1 # anyone, selected_users
-			t.integer		:duration, default: 1 # once charge only, set amount of charges, all charges
-			t.integer		:duration_amount, default: nil
 			t.integer		:minimum_prod_subtotal, default: 0
 			t.integer		:minimum_shipping_subtotal, default: 0
 			t.integer		:minimum_tax_subtotal, default: 0
@@ -21,6 +19,8 @@ class SwellEcomDiscountsMigration < ActiveRecord::Migration
 			t.references 	:discount
 			t.references 	:applies_to, polymorphic: true, default: nil # nil => everything, product, subscription_plans, categories, ...
 			t.integer		:order_item_type, default: 1 # prod, shipping, taxes
+			t.integer		:minimum_orders, default: 0
+			t.integer		:maximum_orders, default: 1
 			t.string 		:currency, default: 'USD'
 			t.integer		:discount_amount
 			t.integer		:discount_type, default: 1 # percent, fixed

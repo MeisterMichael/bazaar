@@ -156,18 +156,17 @@ module SwellEcom
 			@order.shipping_address = GeoAddress.new shipping_address_attributes.merge( user: current_user )
 			@order.billing_address 	= GeoAddress.new billing_address_attributes.merge( user: current_user )
 			@order.ip = client_ip if @order.respond_to?(:ip)
-
 			@order.subtotal = @cart.subtotal
+
+			discount = Discount.active.in_progress.find_by( code: params[:coupon] ) if params[:coupon].present?
+			order_item = @order.order_items.new( item: discount, order_item_type: 'discount' ) if discount.present?
+
 			@cart.cart_items.each do |cart_item|
 				order_item = @order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code
-				order_item.subscription = get_subscription( order_item ) if order_item.item.is_a? SubscriptionPlan
+				order_item.subscription = get_subscription( order_item, discount: discount ) if order_item.item.is_a? SubscriptionPlan
+
+				order_item.subscription.discount = discount
 				order_item.subscription.payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( params[:credit_card][:expiration] ) if params[:credit_card].present?
-			end
-
-			if params[:coupon].present? && ( discount = Discount.active.in_progress.find_by( code: params[:coupon] ) ).present?
-
-				order_item = @order.order_items.new item: discount, order_item_type: 'discount'
-
 			end
 
 		end

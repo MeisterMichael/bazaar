@@ -7,7 +7,6 @@ module SwellEcom
 
 		enum status: { 'archived' => -1, 'draft' => 0, 'active' => 1 }
 		enum availability: { 'anyone' => 1, 'selected_users' => 2 }
-		enum duration: { 'one_charge_only' => 1, 'amount_of_charges' => 2, 'all_charges' => 2 }
 
 		def in_progress?( args = {} )
 			args[:now] ||= Time.now

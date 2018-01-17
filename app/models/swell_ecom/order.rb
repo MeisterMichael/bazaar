@@ -20,6 +20,9 @@ module SwellEcom
 
 		has_one 	:cart, dependent: :destroy
 
+		def self.not_declined
+			where.not( payment_status: -2 )
+		end
 
 		private
 

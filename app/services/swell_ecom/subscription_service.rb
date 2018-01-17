@@ -43,6 +43,10 @@ module SwellEcom
 				order.order_items.new item: subscription, price: plan.price, subtotal: plan.price * subscription.quantity, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
 			end
 
+			# apply the subscription discount to new orders
+			discount = subscription.discount
+			order.order_items.new( item: discount, order_item_type: 'discount' ) if discount.present? && discount.active? && discount.in_progress?( now: time_now )
+
 			# process order
 			transaction = @order_service.process( order )
 

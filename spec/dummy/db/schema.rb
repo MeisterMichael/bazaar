@@ -114,6 +114,8 @@ ActiveRecord::Schema.define(version: 20180115160000) do
     t.integer  "applies_to_id"
     t.string   "applies_to_type"
     t.integer  "order_item_type", default: 1
+    t.integer  "minimum_orders",  default: 0
+    t.integer  "maximum_orders",  default: 1
     t.string   "currency",        default: "USD"
     t.integer  "discount_amount"
     t.integer  "discount_type",   default: 1
@@ -132,8 +134,6 @@ ActiveRecord::Schema.define(version: 20180115160000) do
     t.datetime "start_at"
     t.datetime "end_at"
     t.integer  "availability",              default: 1
-    t.integer  "duration",                  default: 1
-    t.integer  "duration_amount"
     t.integer  "minimum_prod_subtotal",     default: 0
     t.integer  "minimum_shipping_subtotal", default: 0
     t.integer  "minimum_tax_subtotal",      default: 0
