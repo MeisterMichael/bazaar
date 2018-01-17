@@ -5,7 +5,7 @@ module SwellEcom
 		before_action :get_cart
 
 		def show
-			@cart ||= Cart.new( ip: request.ip )
+			@cart ||= Cart.new( ip: client_ip )
 
 			add_page_event_data(
 				ecommerce: {

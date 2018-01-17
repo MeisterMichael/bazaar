@@ -155,7 +155,7 @@ module SwellEcom
 			@order = Order.new order_attributes.merge( currency: 'usd', user: current_user )
 			@order.shipping_address = GeoAddress.new shipping_address_attributes.merge( user: current_user )
 			@order.billing_address 	= GeoAddress.new billing_address_attributes.merge( user: current_user )
-			@order.ip = request.ip if @order.respond_to?(:ip)
+			@order.ip = client_ip if @order.respond_to?(:ip)
 
 			@order.subtotal = @cart.subtotal
 			@cart.cart_items.each do |cart_item|
