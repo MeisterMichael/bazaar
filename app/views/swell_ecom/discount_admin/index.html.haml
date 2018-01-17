@@ -1,0 +1,79 @@
+
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%h2 Plans
+		.col-xs-2
+			- if policy(SwellEcom::Discount).admin_create?
+				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_discount_modal' } }
+					%i.fa.fa-plus-square
+					New
+	.row{ style: 'margin-top: 0' }
+		.col-xs-6
+			= raw paginate @discounts
+		.col-xs-6
+
+
+	.row
+		.col-xs-12
+			%table.table.table-light.table-bordered
+				%thead
+					%th
+						Title
+						%a{ href: discount_admin_index_path( sort_by: 'title', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: discount_admin_index_path( sort_by: 'title', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th
+						Start At
+						%a{ href: discount_admin_index_path( sort_by: 'start_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: discount_admin_index_path( sort_by: 'start_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th
+						End At
+						%a{ href: discount_admin_index_path( sort_by: 'end_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: discount_admin_index_path( sort_by: 'end_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th Status
+					%th{ style: 'width: 6em' }
+				%tbody
+					- if @discounts.blank?
+						%tr
+							%td{ colspan: 5 }
+								\- No Discounts Found -
+					- @discounts.each do |discount|
+						%tr
+							%td
+								= link_to discount.title, edit_discount_admin_path( discount.id )
+							%td
+								= current_user.to_local_tz(discount.start_at).to_s( :short )
+							%td
+								= current_user.to_local_tz(discount.end_at).to_s( :short )
+							%td
+								.badge{ class: discount.status }
+									= discount.status
+							%td
+								- if policy(discount).admin_edit? || policy(discount).admin_destroy?
+									.btn-group
+										%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+											%i.fa.fa-cog
+											%b.caret
+										%ul.dropdown-menu
+											- if policy(discount).admin_edit?
+												%li
+													%a{ href: edit_discount_admin_path( discount.id ) }
+														%i.fa.fa-pencil
+														Edit
+												%li.divider
+											- if policy(discount).admin_destroy?
+												%li
+													%a{ href: discount_admin_path( discount ), data: { method: 'delete', confirm: 'Are you sure?' } }
+														%i.fa.fa-trash-o
+														Delete!
+
+
+= render "new_modal"
