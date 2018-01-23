@@ -23,11 +23,11 @@
 							%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } }
 								%i.fa.fa-check
 								Delivered
-				- elsif @order.unfulfilled?
-					.pull-right
-						%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfillment_canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel fulfillment of this order?' } }
-							%i.fa.fa-times
-							Cancel
+						- elsif @order.unfulfilled?
+							.pull-right
+								%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfillment_canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel fulfillment of this order?' } }
+									%i.fa.fa-times
+									Cancel
 
 
 			%h2
