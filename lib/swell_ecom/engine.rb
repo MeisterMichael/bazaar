@@ -23,7 +23,7 @@ module SwellEcom
 		mattr_accessor :tax_service_config
 
 		mattr_accessor :order_code_prefix
-		mattr_accessor :order_code_prostfix
+		mattr_accessor :order_code_postfix
 
 		self.transaction_service_class = "SwellEcom::TransactionServices::StripeTransactionService"
 		self.transaction_service_config = {}
@@ -42,7 +42,7 @@ module SwellEcom
 		self.shipping_countries = { only: 'US' }
 
 		self.order_code_prefix = nil
-		self.order_code_prostfix = nil
+		self.order_code_postfix = nil
 	end
 
 	# this function maps the vars from your app into your engine
