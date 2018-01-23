@@ -28,6 +28,8 @@ module SwellEcom
 		mattr_accessor :subscription_code_prefix
 		mattr_accessor :subscription_code_postfix
 
+		mattr_accessor :automated_fulfillment
+
 		self.transaction_service_class = "SwellEcom::TransactionServices::StripeTransactionService"
 		self.transaction_service_config = {}
 
@@ -49,6 +51,8 @@ module SwellEcom
 
 		self.subscription_code_prefix = nil
 		self.subscription_code_postfix = nil
+
+		self.automated_fulfillment = false
 	end
 
 	# this function maps the vars from your app into your engine

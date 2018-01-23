@@ -37,16 +37,17 @@
 									Edit
 							%li.divider
 						- if policy(order).admin_update?
-							- if order.unfulfilled?
-								%li
-									%a{ href: order_admin_path( order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
-										%i.fa.fa-send
-										Fulfilled
-							- if order.fulfilled?
-								%li
-									%a{ href: order_admin_path( order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } }
-										%i.fa.fa-check
-										Delivered
+							- unless SwellEcom.automated_fulfillment
+								- if order.unfulfilled?
+									%li
+										%a{ href: order_admin_path( order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
+											%i.fa.fa-send
+											Fulfilled
+								- if order.fulfilled?
+									%li
+										%a{ href: order_admin_path( order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } }
+											%i.fa.fa-check
+											Delivered
 
 							- if order.unfulfilled?
 								%li
