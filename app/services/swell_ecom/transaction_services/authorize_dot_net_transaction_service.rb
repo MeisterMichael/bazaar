@@ -270,14 +270,17 @@ module SwellEcom
 				errors = args[:errors]
 
 				billing_address_state = billing_address.state
-				billing_address_state = billing_address.geo_state.try(:name) if billing_address_state.blank?
 				billing_address_state = billing_address.geo_state.try(:abbrev) if billing_address_state.blank?
+				billing_address_state = billing_address.geo_state.try(:name) if billing_address_state.blank?
+
+				street_address = billing_address.street
+				street_address = "#{street_address}\n#{billing_address.street2}" if billing_address.street2.present?
 
 				anet_billing_address = AuthorizeNet::Address.new(
 					:first_name		=> billing_address.first_name,
 					:last_name		=> billing_address.last_name,
 					# :company		=> nil,
-					:street_address	=> "#{billing_address.street}\n#{billing_address.street2}".strip,
+					:street_address	=> street_address,
 					:city			=> billing_address.city,
 					:state			=> billing_address_state,
 					:zip			=> billing_address.zip,
