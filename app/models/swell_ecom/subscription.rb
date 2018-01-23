@@ -52,6 +52,8 @@ module SwellEcom
 		def generate_order_code
 			self.code = loop do
   				token = SecureRandom.urlsafe_base64( 6 )
+				token = "#{SwellEcom.subscription_code_prefix}#{token}"if SwellEcom.order_code_prefix.present?
+				token = "#{token}#{SwellEcom.subscription_code_postfix}"if SwellEcom.order_code_postfix.present?
   				break token unless Subscription.exists?( code: token )
 			end
 		end
