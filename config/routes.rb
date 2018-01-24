@@ -56,5 +56,9 @@ SwellEcom::Engine.routes.draw do
 		post :cancel, on: :member
 	end
 
+	resources :zendesk, only: [:index] do
+		get :customer, on: :collection
+	end
+
 
 end
