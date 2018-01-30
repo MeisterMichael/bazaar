@@ -1,19 +1,108 @@
+- cache( "show-#{@product.cache_key}" ) do
+	%section.clearfix.mainContent
+		.container
+			.row.singleProduct
+				.col-xs-12
+					.media
+						.media-left.productSlider
+							#carousel.carousel.slide{ data: { ride: "carousel" }	}
+								.carousel-inner
+									.item.active{ data: { thumb: 0 } }
+										%img{ src: @product.avatar }
+									- @images.each_with_index do |image, idx|
+										.item{ data: { thumb: (idx + 1) } }
+											%img{ src: image.url }
+							.clearfix
+								#thumbcarousel.carousel.slide{ data: { interval: "false" } }
+									.carousel-inner
+										.thumb{ data: { target: "#carousel", 'slide-to' => "0" } }
+											%img{ src: @product.avatar }
+										- @images.each_with_index do |image, idx|
+											.thumb{ data: { target: "#carousel", 'slide-to' => (idx + 1) } }
+												%img{ src: image.url }
+									%a.left.carousel-control{ href: "#thumbcarousel", role: "button", data: { slide: "prev" } }
+										%span.glyphicon.glyphicon-chevron-left
+									%a.right.carousel-control{ href: "#thumbcarousel", role: "button", data: { slide: "next" } }
+										%span.glyphicon.glyphicon-chevron-right
+						.media-body
+							- if @product.product_category.present?
+								%ul.list-inline
+									%li
+										in
+										%a{:href => products_path( category: @product.product_category.slug ) }
+											= @product.product_category.name
 
-.row
-	.col-sm-6.col-md-4
-		= image_tag @product.avatar, class: 'img img-responsive center-block'
-	.col-sm-6.col-md-8
-		%h1
-			= @product.title
-		%div{ style: 'font-weight: bold;font-size: 1.2em;padding-bottom: 1em;margin-bottom: 1em;border-bottom: 1px solid #ccc;' }
+							%h1.content-title
+								= @product.title
+							%h2{ style: 'color:#777;border-bottom: 1px #ddd solid;' }
+								- if @product.price % 100 == 0
+									= number_to_currency( @product.price / 100.to_f, precision: 0 )
+								- else
+									= number_to_currency( @product.price / 100.to_f )
 
-			- if ( @min_price.present? && @max_price.present? ) && @min_price != @max_price
-				#{number_to_currency @min_price.to_f / 100} - #{number_to_currency @max_price / 100}
-			- elsif @min_price.present?
-				#{number_to_currency @min_price.to_f / 100}
+							- if @product.description.present?
+								%p
+									= raw @product.description
+							- else
+								%br
 
-		= render 'shopify_buy_now'
 
-		- if @product.description.present?
-			%div{ style: 'padding-bottom: 1em;margin-bottom: 1em;border-bottom: 1px solid #ccc;' }
-				=@product.description
+							= form_tag cart_items_path, data: { 'add-to-cart' => @product.page_event_data.merge( quantity: 1 ).to_json } do
+								= hidden_field_tag :item_type, @product.class.name
+								= hidden_field_tag :item_id, @product.id
+
+								- if @product.product_variants.published.present?
+									%span.quick-drop
+										%select.select-drop{ name: "variant_id" }
+											- @product.product_variants.published.order( seq: :asc ).each do |var|
+												%option{ value: var.id }
+													= var.option_value
+
+								%span.quick-drop.resizeWidth
+									%select.select-drop#quantity{ name: "quantity" }
+										%option{ value: "1" }
+											1
+										%option{ value: "2" }
+											2
+										%option{ value: "3" }
+											3
+										%option{ value: "4" }
+											4
+										%option{ value: "5" }
+											5
+										%option{ value: "6" }
+											6
+										%option{ value: "7" }
+											7
+								.btn-area
+									= submit_tag 'Add to Cart', class: 'btn btn-primary btn-block'
+
+
+							.tabArea
+								%ul.nav.nav-tabs
+									%li.active
+										%a{ href: "#details", data: { toggle: "tab" } }
+											details
+									%li
+										%a{ href: "#about", data: { toggle: "tab" } }
+											about design
+									%li
+										%a{ href: "#sizing", data: { toggle: "tab" } }
+											sizing & care
+								.tab-content
+									#details.tab-pane.fade.in.active
+										= raw @product.content
+									#about.tab-pane.fade
+										= raw @product.notes
+									#sizing.tab-pane.fade
+										- if @product.size_info.present?
+											= render "swell_ecom/products/size_info/#{@product.size_info}"
+
+			- if @related_products.present?
+				.row.productsContent
+					.col-xs-12
+						.page-header
+							%h4
+								Related Products
+						- @related_products.each do |product|
+							= render 'card', product: product, args: { size: 'col-md-3 col-sm-6 col-xs-12' }
