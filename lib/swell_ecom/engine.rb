@@ -25,6 +25,14 @@ module SwellEcom
 		mattr_accessor :transaction_service_class
 		mattr_accessor :transaction_service_config
 
+		mattr_accessor :order_code_prefix
+		mattr_accessor :order_code_postfix
+
+		mattr_accessor :subscription_code_prefix
+		mattr_accessor :subscription_code_postfix
+
+		mattr_accessor :automated_fulfillment
+
 		self.transaction_service_class = "SwellEcom::TransactionServices::StripeTransactionService"
 		self.transaction_service_config = {}
 
@@ -40,6 +48,14 @@ module SwellEcom
 		self.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
 		self.billing_countries = { only: 'US' }
 		self.shipping_countries = { only: 'US' }
+
+		self.order_code_prefix = nil
+		self.order_code_postfix = nil
+
+		self.subscription_code_prefix = nil
+		self.subscription_code_postfix = nil
+
+		self.automated_fulfillment = false
 	end
 
 	# this function maps the vars from your app into your engine

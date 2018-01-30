@@ -26,6 +26,7 @@ module SwellEcom
 			sort_dir = params[:sort_dir] || 'desc'
 
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			filters[:member] = true
 			@users = @search_service.customer_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			@order_counts = Hash[*SwellEcom::Order.where( user: @users ).group(:user_id).pluck('user_id, count(id) "orders"').to_a.flatten]

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180115160000) do
+ActiveRecord::Schema.define(version: 20180123105300) do
 
   create_table "assets", force: :cascade do |t|
     t.integer  "parent_obj_id"
@@ -297,6 +297,8 @@ ActiveRecord::Schema.define(version: 20180115160000) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "subscription_id"
+    t.string   "sku"
+    t.integer  "parent_id"
   end
 
   add_index "order_items", ["item_id", "item_type", "order_id"], name: "index_order_items_on_item_id_and_item_type_and_order_id"
@@ -414,6 +416,8 @@ ActiveRecord::Schema.define(version: 20180115160000) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "tax_code",                     default: "00000"
+    t.string   "product_sku"
+    t.string   "trial_sku"
   end
 
   add_index "subscription_plans", ["slug"], name: "index_subscription_plans_on_slug", unique: true
