@@ -44,7 +44,29 @@ module SwellEcom
 
 		def preview
 			authorize( @product, :admin_edit? )
-			render "products/show", layout: 'application'
+
+
+			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
+
+			@product_category = @product.product_category
+
+			@related_products = Product.none
+
+			@related_products = @product_category.products.published.where.not( id: @product.id ).limit(6) if @product_category.present?
+
+			set_page_meta( @product.page_meta )
+
+			add_page_event_data(
+				ecommerce: {
+					detail: {
+						actionField: {},
+						products: [ @product.page_event_data ]
+					}
+				}
+			);
+
+
+			render "swell_ecom/products/show", layout: 'application'
 		end
 
 		def update
