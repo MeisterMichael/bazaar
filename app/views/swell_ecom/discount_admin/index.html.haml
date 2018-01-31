@@ -4,7 +4,7 @@
 .container-fluid
 	.row
 		.col-xs-10
-			%h2 Plans
+			%h2 Discounts
 		.col-xs-2
 			- if policy(SwellEcom::Discount).admin_create?
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_discount_modal' } }
@@ -52,7 +52,10 @@
 							%td
 								= current_user.to_local_tz(discount.start_at).to_s( :short )
 							%td
-								= current_user.to_local_tz(discount.end_at).to_s( :short )
+								- if discount.end_at.present?
+									= current_user.to_local_tz(discount.end_at).to_s( :short )
+								- else
+									\-
 							%td
 								.badge{ class: discount.status }
 									= discount.status
