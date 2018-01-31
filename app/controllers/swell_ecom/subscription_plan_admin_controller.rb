@@ -29,7 +29,7 @@ module SwellEcom
 
 		def edit
 			authorize( @plan, :admin_edit? )
-			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
+			@images = SwellMedia::Asset.where( parent_obj: @plan, use: 'gallery' ).active
 		end
 
 
