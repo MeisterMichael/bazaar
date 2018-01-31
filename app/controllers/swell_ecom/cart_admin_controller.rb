@@ -33,7 +33,7 @@ module SwellEcom
 			authorize( @cart, :admin_update? )
 			@cart.attributes = cart_params
 			@cart.save
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		private

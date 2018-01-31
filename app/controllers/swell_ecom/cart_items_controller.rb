@@ -46,7 +46,7 @@ module SwellEcom
 			@line_item.destroy
 			@cart.update subtotal: @cart.subtotal - ( @line_item.item.price * @line_item.quantity )
 			session[:cart_count] -= @line_item.quantity
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 	end
 end

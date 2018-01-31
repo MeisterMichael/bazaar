@@ -33,7 +33,7 @@ module SwellEcom
 				end
 
 			end
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		private

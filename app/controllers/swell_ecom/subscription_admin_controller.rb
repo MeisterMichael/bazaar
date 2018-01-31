@@ -24,7 +24,7 @@ module SwellEcom
 				set_flash "Address Updated", :success
 
 			end
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		def edit
@@ -86,7 +86,7 @@ module SwellEcom
 
 			end
 
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		def update
@@ -104,7 +104,7 @@ module SwellEcom
 			end
 
 
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		private

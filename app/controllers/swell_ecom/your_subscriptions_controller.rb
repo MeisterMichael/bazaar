@@ -40,7 +40,7 @@ module SwellEcom
 
 					if billing_address.errors.present?
 						set_flash billing_address.errors.full_messages, :danger
-						redirect_to :back
+						redirect_back fallback_location: '/admin'
 						return false
 					end
 
@@ -72,7 +72,7 @@ module SwellEcom
 				set_flash "Subscription updated succesfully.", :success
 			end
 
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 
 		end
 

@@ -24,7 +24,7 @@ module SwellEcom
 				set_flash "Address Updated", :success
 
 			end
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		def bulk_update
@@ -37,7 +37,7 @@ module SwellEcom
 				order.save
 			end
 
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		def edit
@@ -111,7 +111,7 @@ module SwellEcom
 			end
 
 			@order.save
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		private

@@ -17,7 +17,7 @@ module SwellEcom
 				redirect_to edit_discount_admin_path( @discount )
 			else
 				set_flash 'Discount could not be created', :error, @discount
-				redirect_to :back
+				redirect_back fallback_location: '/admin'
 			end
 		end
 

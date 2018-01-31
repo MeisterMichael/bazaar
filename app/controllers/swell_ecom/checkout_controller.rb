@@ -23,7 +23,7 @@ module SwellEcom
 
 			if @order.errors.present?
 				set_flash @order.errors.full_messages, :danger
-				redirect_to :back
+				redirect_back fallback_location: '/admin'
 			else
 				session[:cart_count] = 0
 				session[:cart_id] = nil
