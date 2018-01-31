@@ -40,6 +40,10 @@
 					%th Status
 					%th{ style: 'width: 6em' }
 				%tbody
+					- if @plans.blank?
+						%tr
+							%td{ colspan: 6 }
+								\- No Plans Found -
 					- @plans.each do |plan|
 						%tr
 							%td

@@ -34,6 +34,10 @@
 							%i.fa.fa-arrow-down
 					%th{ style: 'width: 6em' }
 				%tbody
+					- if @users.blank?
+						%tr
+							%td{ colspan: 6 }
+								\- No Customers Found -
 					- @users.each do |user|
 						%tr
 							%td

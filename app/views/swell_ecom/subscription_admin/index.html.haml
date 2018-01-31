@@ -51,6 +51,10 @@
 							%i.fa.fa-arrow-down
 					%th{ style: 'width: 6em' }
 				%tbody
+					- if @subscriptions.blank?
+						%tr
+							%td{ colspan: 8 }
+								\- No Subscriptions Found -
 					- @subscriptions.each do |subscription|
 						%tr
 							%td
