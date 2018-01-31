@@ -2,7 +2,7 @@
 	%td
 		= link_to order.code, edit_order_admin_path( order.id )
 	%td
-		= current_user.to_local_tz(order.created_at).to_s(:short)
+		= current_user_tz_easy_read_date_format order.created_at
 	- if args[:customer] != false
 		%td
 			%a{ href: edit_order_admin_path( order.id ) }
