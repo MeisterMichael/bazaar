@@ -52,15 +52,12 @@ SwellEcom::Engine.routes.draw do
 	end
 	resources :subscription_plan_admin
 
-	resources :subscription_plans
-	resources :subscriptions do
-		post :cancel, on: :member
-	end
+	resources :subscription_plans, path: 'subscriptions'
 
 	resources :your_account, only: [:index]
 	resources :your_orders, only: [:index, :show]
-	resources :your_subscriptions, only: [:index, :show, :update]
-	
+	resources :your_subscriptions, only: [:index, :show, :update, :destroy]
+
 	resources :zendesk, only: [:index] do
 		get :customer, on: :collection
 	end

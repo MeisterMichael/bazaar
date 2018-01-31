@@ -2,106 +2,116 @@
 
 .container-fluid
 	.row
-		.col-xs-10
+		.col-xs-12
 			%ul.breadcrumb
 				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					= link_to 'Cart Admin', cart_admin_index_path
-				%li
-					%strong
-						Edit Cart:
-						= @cart.id
-		.col-xs-2
+					%a{ href: cart_admin_index_path }
+						%i.fa.fa-angle-left
+						Carts
 
+
+			%h2
+				%strong
+					Cart##{@cart.id}
+				%small=current_user.to_local_tz(@cart.created_at).to_s( :short )
+
+		.col-xs-2
 
 	= form_for @cart, url: cart_admin_path( @cart ) do |f|
 		.row
 			.col-xs-8
-				.row
-					.col-xs-12
-						%h2
-							Cart:
-							= @cart.id
-
-						%p
-							Created:
-							= current_user.to_local_tz(@cart.created_at).to_s( :short )
-							%br
-							= "(#{time_ago_in_words( @cart.created_at )} ago.)"
-						%p
-							IP:
-							= @cart.ip
-
-						%h4
-							Contents
-						%table.table.table-light.table-bordered
-							%thead
-								%tr
-									%th Product
-									%th{ style: 'width: 80px' } Price
-									%th.text-right{ style: 'width: 70px' } Quantity
-									%th.text-right{ style: 'width: 100px' } Subtotal
-							%tbody
-								- @cart.cart_items.each do |cart_item|
-									%tr
-										%td
-											= cart_item.item.title
-										%td
-											= number_to_currency (cart_item.price.to_f / 100)
-										%td.text-right
-											= cart_item.quantity
-										%td.text-right= number_to_currency cart_item.subtotal.to_f / 100
-
+				.well.white-well
+					%h4
+						Contents
+					%table.table.table-light.table-bordered
+						%thead
+							%tr
+								%th Product
+								%th{ style: 'width: 80px' } Price
+								%th.text-right{ style: 'width: 70px' } Quantity
+								%th.text-right{ style: 'width: 100px' } Subtotal
+						%tbody
+							- @cart.cart_items.each do |cart_item|
 								%tr
 									%td
+										= cart_item.item.title
 									%td
-									%td
-										Subtotal
+										= number_to_currency (cart_item.price.to_f / 100)
 									%td.text-right
-										%strong
-											= number_to_currency @cart.subtotal.to_f / 100
+										= cart_item.quantity
+									%td.text-right= number_to_currency cart_item.subtotal.to_f / 100
 
+							%tr
+								%td
+								%td
+								%td
+									Subtotal
+								%td.text-right
+									%strong
+										= number_to_currency @cart.subtotal.to_f / 100
+
+							%tr
+								%td
+								%td
+								%td
+									Estimated Tax
+								%td.text-right
+									%strong
+										= number_to_currency @cart.estimated_tax.to_f / 100
+							%tr
+								%td
+								%td
+								%td
+									Estimated Shipping
+								%td.text-right
+									%strong
+										= number_to_currency @cart.estimated_shipping.to_f / 100
+							%tr
+								%td
+								%td
+								%td
+									%h5{ style: 'font-weight:bold;' }
+										Estimated Total
+								%td.text-right
+									%h5{ style: 'font-weight:bold;' }
+										= number_to_currency @cart.estimated_total.to_f / 100
+
+
+
+				.well.white-well
+					%h4
+						Order
+					%table.table.table-light.table-bordered{ style: 'margin:0;' }
+						%thead
+							%th{ style: 'width: 10em' }
+								Code
+							%th{ style: 'width: 10em' }
+								Created
+							%th
+								Customer
+							%th{ style: 'width: 11em' }
+								Payment
+							%th{ style: 'width: 11em' }
+								Fulfillment
+							%th{ style: 'width: 10em' }
+								Total
+						%tbody
+							- if @cart.order.present?
+								= render 'swell_ecom/order_admin/table_row', order: @cart.order, args: { controls: false }
+							- else
 								%tr
-									%td
-									%td
-									%td
-										Estimated Tax
-									%td.text-right
-										%strong
-											= number_to_currency @cart.estimated_tax.to_f / 100
-								%tr
-									%td
-									%td
-									%td
-										Estimated Shipping
-									%td.text-right
-										%strong
-											= number_to_currency @cart.estimated_shipping.to_f / 100
-								%tr
-									%td
-									%td
-									%td
-										%h5{ style: 'font-weight:bold;' }
-											Estimated Total
-									%td.text-right
-										%h5{ style: 'font-weight:bold;' }
-											= number_to_currency @cart.estimated_total.to_f / 100
+									%td{ colspan: 5 } No Order
 
 
 			.col-xs-4
-				.well
+				.well.white-well
 
+					.form-group
+						%strong IP:
+						#{@cart.ip || 'N/A'}
 					.form-group
 						= f.label :status
 						= f.collection_select :status, SwellEcom::Cart.statuses, :first, :first, {}, class: 'form-control'
 
-					.form-group
-						= label_tag 'Order?'
-						%br
-						- if @cart.order.present?
-							= link_to @cart.order.code, edit_order_admin_path( @cart.order )
-						- else
-							None
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'

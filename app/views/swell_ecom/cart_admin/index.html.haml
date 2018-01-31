@@ -1,22 +1,20 @@
 
 
 
+
+
 .container-fluid
 	.row
 		.col-xs-10
-			%ul.breadcrumb
-				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					%strong
-						Cart Admin
-						= "(#{pluralize @carts.total_count, 'Cart'})"
-	.row
-		.col-xs-6
+			%h2 Carts
+	.row{ style: 'margin-top: 0' }
+		.col-xs-5
 			= raw paginate @carts
-		.col-xs-6
+			-# = "(#{pluralize @carts.total_count, 'Cart'})"
+		.col-xs-7
 			= form_tag cart_admin_index_path, method: :get, class: 'pull-right form-inline' do
-				= select_tag :status, options_from_collection_for_select( SwellEcom::Cart.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+				= select_tag :status, options_from_collection_for_select( SwellEcom::Cart.statuses, :first, :first, params[:status] ), { prompt: "Cart Status", class: 'form-control' }
+				= submit_tag 'Search', class: 'btn btn-primary'
 
 	.row
 		.col-xs-12

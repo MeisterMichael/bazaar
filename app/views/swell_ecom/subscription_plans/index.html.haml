@@ -1,0 +1,15 @@
+.container
+	.row
+		.col-xs-12
+			%h1
+				Our Subscription Plans
+
+	.row
+		- @plans.each do |plan|
+			.col-sm-4
+				= link_to plan.title, plan.url
+				%center
+					%a{ href: plan.url }
+						%img.img.img-responsive{ src: plan.avatar }
+
+				= plan.price_formatted

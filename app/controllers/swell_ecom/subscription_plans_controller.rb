@@ -3,11 +3,29 @@ module SwellEcom
 
 		before_action :get_plan, except: [ :index ]
 
-		def show
-			
+		def index
+			@plans = SubscriptionPlan.active
 		end
 
-		private 
+		def show
+
+
+			@images = SwellMedia::Asset.where( parent_obj: @plan, use: 'gallery' ).active
+
+			set_page_meta( @plan.page_meta )
+
+			add_page_event_data(
+				ecommerce: {
+					detail: {
+						actionField: {},
+						products: [ @plan.page_event_data ]
+					}
+				}
+			);
+
+		end
+
+		private
 			def get_plan
 				@plan = SubscriptionPlan.friendly.find( params[:id] )
 			end
