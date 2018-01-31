@@ -26,7 +26,7 @@ module SwellEcom
 				redirect_to edit_product_admin_path( @product )
 			else
 				set_flash 'Product could not be created', :error, @product
-				redirect_to :back
+				redirect_back fallback_location: '/admin'
 			end
 		end
 

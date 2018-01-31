@@ -1,6 +1,6 @@
 module SwellEcom
 	class SubscriptionPlanAdminController < SwellMedia::AdminController
-		
+
 
 		before_action :get_plan, except: [ :create, :index ]
 
@@ -16,7 +16,7 @@ module SwellEcom
 				redirect_to edit_subscription_plan_admin_path( @plan )
 			else
 				set_flash 'Plan could not be created', :error, @plan
-				redirect_to :back
+				redirect_back fallback_location: '/admin'
 			end
 		end
 
@@ -29,6 +29,7 @@ module SwellEcom
 
 		def edit
 			authorize( @plan, :admin_edit? )
+			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
 		end
 
 
@@ -61,7 +62,7 @@ module SwellEcom
 			else
 				set_flash @plan.errors.full_messages, :danger
 			end
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		private
