@@ -31,7 +31,7 @@ module SwellEcom
 			end
 
 			subscription = Subscription.new(
-				user: current_user,
+				user: order_item.order.user,
 				subscription_plan: order_item.item,
 				billing_address: order_item.order.billing_address,
 				shipping_address: order_item.order.shipping_address,
