@@ -42,7 +42,7 @@
 					%th Status
 					%th
 				%tbody
-					- if @carts.count == 0
+					- if @carts.blank?
 						%tr
 							%td{ colspan: 7 }
 								\- No Carts Found -
