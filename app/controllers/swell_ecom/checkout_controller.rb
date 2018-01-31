@@ -3,7 +3,7 @@ module SwellEcom
 	class CheckoutController < ApplicationController
 
 		before_action :get_cart
-		before_action :initialize_services, only: [ :confirm, :create ]
+		before_action :initialize_services, only: [ :confirm, :create, :index ]
 		before_action :get_order, only: [ :confirm, :create, :index ]
 
 		def confirm
