@@ -74,11 +74,11 @@ module SwellEcom
 			if subscription.is_next_interval_a_trial?
 				interval = plan.trial_interval_value.try(plan.trial_interval_unit)
 
-				order.order_items.new item: subscription, price: plan.trial_price, sku: plan.trial_sku, subtotal: plan.trial_price * subscription.quantity, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
+				order.order_items.new item: subscription, subscription: subscription, price: plan.trial_price, sku: plan.trial_sku, subtotal: plan.trial_price * subscription.quantity, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
 			else
 				interval = plan.billing_interval_value.try(plan.billing_interval_unit)
 
-				order.order_items.new item: subscription, price: plan.price, sku: plan.product_sku, subtotal: plan.price * subscription.quantity, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
+				order.order_items.new item: subscription, subscription: subscription, price: plan.price, sku: plan.product_sku, subtotal: plan.price * subscription.quantity, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
 			end
 
 			# apply the subscription discount to new orders

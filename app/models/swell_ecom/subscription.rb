@@ -1,14 +1,14 @@
 module SwellEcom
 	class Subscription < ActiveRecord::Base
 		self.table_name = 'subscriptions'
-		
+
 		include SwellEcom::Concerns::MoneyAttributesConcern
 
 		enum status: { 'canceled' => -1, 'failed' => 0, 'active' => 1 }
 
 		belongs_to :user
 		belongs_to :subscription_plan
-		belongs_to :discount
+		belongs_to :discount, required: false
 
 		belongs_to 	:billing_address, class_name: 'GeoAddress'
 		belongs_to 	:shipping_address, class_name: 'GeoAddress'

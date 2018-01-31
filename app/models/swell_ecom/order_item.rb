@@ -8,7 +8,7 @@ module SwellEcom
 		belongs_to :item, polymorphic: true, required: false
 		belongs_to :order
 
-		belongs_to :subscription, required: false
+		belongs_to :subscription, required: false, validate: true
 
 		money_attributes :subtotal, :price
 
