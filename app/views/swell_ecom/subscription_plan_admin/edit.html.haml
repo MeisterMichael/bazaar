@@ -106,6 +106,10 @@
 							.col-xs-7
 								= f.select :billing_interval_unit, ['months', 'days'], {}, class: 'form-control'
 
+					.form-group
+						= f.label :tax_code
+						= f.text_field :tax_code, class: 'form-control'
+
 					%hr
 
 					.form-group
@@ -136,6 +140,11 @@
 					.form-group
 						= f.label :status
 						= f.collection_select :status, SwellEcom::SubscriptionPlan.statuses, :first, :first, {}, class: 'form-control'
+
+					- if @plan.respond_to? :tags
+						.form-group
+							= f.label :tags_csv, 'Tags:'
+							= f.text_field :tags_csv, placeholder: 'Separate tags with commas', class: 'form-control'
 
 					%hr
 

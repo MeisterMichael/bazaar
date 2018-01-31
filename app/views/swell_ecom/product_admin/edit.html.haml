@@ -101,18 +101,16 @@
 												delete
 
 			.col-xs-4
-				.well
-					.form-group
-						= f.label :seq
-						.input-group
-							= f.text_field :seq, class: 'form-control'
+				.well.white-well
+					%h4
+						Product Settings
 					.form-group
 						= f.label :price
 						.input-group
 							%span.input-group-addon
 								$
 							= f.text_field :price, value: number_with_precision( (@product.price.to_f / 100), :precision => 2 ), class: 'form-control'
-					-#.form-group
+					.form-group
 						= f.label :suggested_price
 						.input-group
 							%span.input-group-addon
@@ -127,15 +125,30 @@
 							= f.text_field :shipping_price, value: number_with_precision( (@product.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
 
 					.form-group
+						= f.label :tax_code
+						= f.text_field :tax_code, class: 'form-control'
+
+					.form-group
+						= f.label :size_info
+						= f.text_field :size_info, class: 'form-control'
+
+					%hr
+
+
+					%h4
+						Publishing Settings
+
+					.form-group
+						= f.label :seq
+						.input-group
+							= f.number_field :seq, class: 'form-control'
+
+					.form-group
 						= f.label :publish_at
 						= f.text_field :publish_at, class: 'form-control datepicker'
 					.form-group
 						= f.label :status
 						= f.collection_select :status, SwellEcom::Product.statuses, :first, :first, {}, class: 'form-control'
-
-					.form-group
-						= f.label :tax_code
-						= f.text_field :tax_code, class: 'form-control'
 
 					.form-group
 						= f.label :category_id
@@ -146,9 +159,9 @@
 					.form-group
 						= f.label :tags_csv, 'Tags:'
 						= f.text_field :tags_csv, placeholder: 'Separate tags with commas', class: 'form-control'
-					.form-group
-						= f.label :size_info
-						= f.text_field :size_info, class: 'form-control'
+
+					%hr
+
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
