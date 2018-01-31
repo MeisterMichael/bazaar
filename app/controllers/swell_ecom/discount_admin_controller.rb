@@ -66,7 +66,7 @@ module SwellEcom
 		private
 
 			def discount_params
-				params.require( :discount ).permit( :start_at, :end_at, :status, :title, :description, :availability, :minimum_prod_subtotal_as_money, :minimum_tax_subtotal_as_money, :minimum_shipping_subtotal_as_money, :limit_per_customer, :limit_global, first_discount_item_attributes: [ :discount_type, :discount_amount, :maximum_orders, :minimum_orders, :order_item_type ] )
+				params.require( :discount ).permit( :start_at, :end_at, :status, :title, :code, :description, :availability, :minimum_prod_subtotal_as_money, :minimum_tax_subtotal_as_money, :minimum_shipping_subtotal_as_money, :limit_per_customer, :limit_global, first_discount_item_attributes: [ :discount_type, :discount_amount, :maximum_orders, :minimum_orders, :order_item_type ] )
 			end
 
 			def get_discount
