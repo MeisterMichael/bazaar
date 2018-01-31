@@ -10,7 +10,7 @@ module SwellEcom
 			end
 
 			if @cart.nil?
-				@cart = Cart.create( ip: request.headers['CF-Connecting-IP'] )
+				@cart = Cart.create( ip: client_ip )
 				session[:cart_id] = @cart.id
 			end
 
