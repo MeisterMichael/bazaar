@@ -128,7 +128,7 @@
 						= f.label :tax_code
 						= f.text_field :tax_code, class: 'form-control'
 
-					.form-group
+					-# .form-group
 						= f.label :size_info
 						= f.text_field :size_info, class: 'form-control'
 
@@ -168,53 +168,56 @@
 
 	.row#variants
 		.col-xs-12
-			%h3
-				Variants
-				%a.pull-right.btn.btn-success{ data: { toggle: :modal, target: '#new_variant' } }
+			.well.white-well
+				%a.pull-right{ href: '#new_variant', data: { toggle: :modal, target: '#new_variant' } }
 					%i.fa.fa-plus
-					Add
+					Batch Add
+				%h4
+					Variants
 
-			-# if @product.product_variants.empty?
-				%a.btn{ href: generate_product_variant_path( id: @product.id ), data: { method: :post } }
-					Generate Variants
+				-# if @product.product_variants.empty?
+					%a.btn{ href: generate_product_variant_path( id: @product.id ), data: { method: :post } }
+						Generate Variants
 
-			%table.table.table-light.table-bordered
-				%thead
-					%th Seq
-					%th Title
-					%th Price
-					%th Shipping Price
-					%th Inventory
-					%th
-				- @product.product_variants.order( seq: :asc ).each do |variant|
-					= form_for variant do |f|
+				%table.table.table-light.table-bordered{ style: 'margin:0;' }
+					%thead
+						%th{ style: 'width: 6em' } Seq
+						%th Title
+						%th{ style: 'width: 8em' } Price
+						%th{ style: 'width: 8em' } Shipping Price
+						%th{ style: 'width: 6em' } Inventory
+						%th{ style: 'width: 10em' }
+					- if @product.product_variants.count == 0
 						%tr
-							%td
-								= f.text_field :seq, class: 'form-control'
-							%td{ style: 'width: 33%;' }
-								= f.text_field :title, class: 'form-control'
-							%td
-								.input-group
-									%span.input-group-addon
-										$
-									= f.text_field :price, value: number_with_precision( (variant.price.to_f / 100), :precision => 2 ), class: 'form-control'
-							%td
-								.input-group
-									%span.input-group-addon
-										$
-									= f.text_field :shipping_price, value: number_with_precision( (variant.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
-							%td
-								= f.text_field :inventory, class: 'form-control'
+							%td{ colspan: 6 }
+								\- No Variants Found -
+					- @product.product_variants.order( seq: :asc ).each do |variant|
+						= form_for variant do |f|
+							%tr
+								%td
+									= f.number_field :seq, class: 'form-control'
+								%td{ style: 'width: 33%;' }
+									= f.text_field :title, class: 'form-control'
+								%td
+									.input-group
+										%span.input-group-addon
+											$
+										= f.text_field :price, value: number_with_precision( (variant.price.to_f / 100), :precision => 2 ), class: 'form-control'
+								%td
+									.input-group
+										%span.input-group-addon
+											$
+										= f.text_field :shipping_price, value: number_with_precision( (variant.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
+								%td
+									= f.number_field :inventory, class: 'form-control'
 
-							%td
-								= f.submit 'Update'
-								%a{ href: '' }
-									%i.fa.fa-pencil
-									edit
-								%br
-								%a{ href: product_variant_path( variant.id ), data: { method: :delete, confirm: 'Are you sure?' }, style: 'color:#f00;' }
-									%i.fa.fa-trash
-									delete
+								%td.text-center
+									%button.btn.btn-primary.btn-xs
+										Save
+									-# %a.btn.btn-info.btn-xs{ href: edit_product_variant_path( variant.id ) }
+										Edit
+									%a.btn.btn-danger.btn-xs{ href: product_variant_path( variant.id ), data: { method: :delete, confirm: 'Are you sure?' } }
+										Trash
 
 
 

@@ -86,16 +86,17 @@
 									%li
 										%a{ href: "#about", data: { toggle: "tab" } }
 											about design
-									%li
-										%a{ href: "#sizing", data: { toggle: "tab" } }
-											sizing & care
+									- if @product.size_info.present?
+										%li
+											%a{ href: "#sizing", data: { toggle: "tab" } }
+												sizing & care
 								.tab-content
 									#details.tab-pane.fade.in.active
 										= raw @product.content
 									#about.tab-pane.fade
 										= raw @product.notes
-									#sizing.tab-pane.fade
-										- if @product.size_info.present?
+									- if @product.size_info.present?
+										#sizing.tab-pane.fade
 											= render "swell_ecom/products/size_info/#{@product.size_info}"
 
 			- if @related_products.present?
