@@ -1,7 +1,7 @@
 module SwellEcom
 
 	class CustomerAdminController < SwellMedia::AdminController
-		helper_method :policy
+		
 		before_action :init_search_service, only: [:index]
 
 		def edit

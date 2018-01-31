@@ -1,6 +1,6 @@
 module SwellEcom
 	class DiscountAdminController < SwellMedia::AdminController
-		helper_method :policy
+
 
 		before_action :get_discount, except: [ :create, :index ]
 

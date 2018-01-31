@@ -57,6 +57,18 @@ module SwellEcom
 			return self.apply_options_and_filters( orders, filters, options )
 		end
 
+		def product_search( term, filters = {}, options = {} )
+			products = SwellEcom::Product.all
+
+			if term.present?
+				query = "%#{term.gsub('%','\\\\%')}%"
+
+				products = products.where( "title ILIKE :q OR description ILIKE :q", q: query )
+			end
+
+			return self.apply_options_and_filters( products, filters, options )
+		end
+
 		def subscription_search( term, filters = {}, options = {} )
 			subscriptions = Subscription.all
 

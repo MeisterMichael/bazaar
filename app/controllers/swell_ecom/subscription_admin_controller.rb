@@ -1,6 +1,6 @@
 module SwellEcom
 	class SubscriptionAdminController < SwellMedia::AdminController
-		helper_method :policy
+		
 
 		before_action :get_subscription, except: [ :index ]
 		before_action :init_search_service, only: [:index]

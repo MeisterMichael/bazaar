@@ -1,6 +1,6 @@
 module SwellEcom
 	class SubscriptionPlanAdminController < SwellMedia::AdminController
-		helper_method :policy
+		
 
 		before_action :get_plan, except: [ :create, :index ]
 

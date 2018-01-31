@@ -1,6 +1,6 @@
 module SwellEcom
 	class OrderAdminController < SwellMedia::AdminController
-		helper_method :policy
+		
 
 		before_action :get_order, except: [ :index, :bulk_update, :bulk_destroy ]
 		before_action :get_orders, except: [ :bulk_update, :bulk_destroy ]
