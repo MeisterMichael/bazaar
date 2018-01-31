@@ -4,6 +4,10 @@ module SwellEcom
 
 		before_action :get_subscription, except: [ :index ]
 
+		def destroy
+			# @todo cancel subscription
+		end
+
 		def index
 			set_page_meta( title: "My Subscriptions" )
 			@subscriptions = SwellEcom::Subscription.where( user: current_user ).order( next_charged_at: :desc ).page(params[:page]).per(5)
