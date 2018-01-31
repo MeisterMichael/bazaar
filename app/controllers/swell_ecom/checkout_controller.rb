@@ -130,7 +130,7 @@ module SwellEcom
 
 		def initialize_services
 			@order_service = SwellEcom::OrderService.new
-			@subscription_service = SwellEcom::SubscriptionService.new
+			@subscription_service = SwellEcom::SubscriptionService.new( order_service: @order_service )
 		end
 
 		def transaction_options
