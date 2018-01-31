@@ -12,6 +12,44 @@ module SwellEcom
 
 		end
 
+		def build_subscription( order_item, args = {} )
+			return nil unless order_item.item.is_a? SwellEcom::SubscriptionPlan
+
+			plan = order_item.item
+
+			start_at = args[:start_at] || Time.now
+
+			trial_interval = plan.trial_interval_value.try( plan.trial_interval_unit )
+			billing_interval = plan.billing_interval_value.try( plan.billing_interval_unit )
+
+			current_period_end_at = start_at + billing_interval
+
+			if plan.trial?
+				trial_start_at = start_at
+				trial_end_at = trial_start_at + trial_interval * plan.trial_max_intervals
+				current_period_end_at = start_at + trial_interval
+			end
+
+			subscription = Subscription.new(
+				user: current_user,
+				subscription_plan: order_item.item,
+				billing_address: order_item.order.billing_address,
+				shipping_address: order_item.order.shipping_address,
+				quantity: order_item.quantity,
+				status: 'active',
+				start_at: start_at,
+				trial_start_at: trial_start_at,
+				trial_end_at: trial_end_at,
+				current_period_start_at: start_at,
+				current_period_end_at: current_period_end_at,
+				next_charged_at: current_period_end_at,
+				currency: order_item.order.currency,
+				discount: args[:discount],
+			)
+
+			subscription
+		end
+
 		def charge_subscription( subscription, args = {} )
 			time_now = args[:now] || Time.now
 

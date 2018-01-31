@@ -22,6 +22,9 @@ module SwellEcom
 		def calculate( obj, args = {} )
 
 			args[:discount] ||= {}
+			args[:shipping] ||= {}
+			args[:tax] ||= {}
+			args[:transaction] ||= {}
 
 			@shipping_service.calculate( obj, args[:shipping] )
 			@discount_service.calculate( obj, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
@@ -32,6 +35,11 @@ module SwellEcom
 		end
 
 		def process( order, args = {} )
+
+			args[:discount] ||= {}
+			args[:shipping] ||= {}
+			args[:tax] ||= {}
+			args[:transaction] ||= {}
 
 			@shipping_service.calculate( order, args[:shipping] )
 			@discount_service.calculate( order, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
@@ -48,7 +56,7 @@ module SwellEcom
 
 		def refund( args = {} )
 
-			@transaction_service.refund( args )
+			@transaction_service.refund( args || {} )
 
 		end
 

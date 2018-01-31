@@ -33,14 +33,18 @@ module SwellEcom
 
 		mattr_accessor :automated_fulfillment
 
-		self.transaction_service_class = "SwellEcom::TransactionServices::StripeTransactionService"
-		self.transaction_service_config = {}
+
+		self.discount_service_class = "SwellEcom::DiscountService"
+		self.discount_service_config = {}
 
 		self.shipping_service_class = "SwellEcom::ShippingService"
 		self.shipping_service_config = {}
 
 		self.tax_service_class = "SwellEcom::TaxService"
 		self.tax_service_config = {}
+
+		self.transaction_service_class = "SwellEcom::TransactionServices::StripeTransactionService"
+		self.transaction_service_config = {}
 
 		self.warehouse_address = {}
 		self.nexus_address = {}
