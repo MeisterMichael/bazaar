@@ -30,6 +30,7 @@ module SwellEcom
 
 		def edit
 			authorize( @discount, :admin_edit? )
+			set_page_meta( title: "#{@discount.title} | Discount" )
 		end
 
 
@@ -46,6 +47,8 @@ module SwellEcom
 			end
 
 			@discounts = @discounts.page( params[:page] )
+
+			set_page_meta( title: "Discounts" )
 		end
 
 		def update

@@ -30,6 +30,8 @@ module SwellEcom
 		def edit
 			authorize( @plan, :admin_edit? )
 			@images = SwellMedia::Asset.where( parent_obj: @plan, use: 'gallery' ).active
+
+			set_page_meta( title: "#{@plan.title} | Subscription Plan" )
 		end
 
 
@@ -46,6 +48,8 @@ module SwellEcom
 			end
 
 			@plans = @plans.page( params[:page] )
+
+			set_page_meta( title: "Subscription Plans" )
 		end
 
 		def update

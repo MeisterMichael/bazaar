@@ -1,6 +1,6 @@
 module SwellEcom
 	class OrderAdminController < SwellMedia::AdminController
-		
+
 
 		before_action :get_order, except: [ :index, :bulk_update, :bulk_destroy ]
 		before_action :get_orders, except: [ :bulk_update, :bulk_destroy ]
@@ -58,6 +58,7 @@ module SwellEcom
 			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
 			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
 
+			set_page_meta( title: "#{@order.code} | Order" )
 		end
 
 		def index
@@ -69,6 +70,8 @@ module SwellEcom
 			filters[ params[:payment_status] ] = true if params[:payment_status].present? && params[:payment_status] != 'all'
 			filters[ params[:fulfillment_status] ] = true if params[:fulfillment_status].present? && params[:fulfillment_status] != 'all'
 			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
+
+			set_page_meta( title: "Orders" )
 		end
 
 		def refund

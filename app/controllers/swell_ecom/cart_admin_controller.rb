@@ -11,7 +11,7 @@ module SwellEcom
 
 		def edit
 			authorize( @cart, :admin_edit? )
-
+			set_page_meta( title: "Cart" )
 		end
 
 		def index
@@ -26,6 +26,8 @@ module SwellEcom
 			end
 
 			@carts = @carts.page( params[:page] )
+
+			set_page_meta( title: "Carts" )
 		end
 
 

@@ -1,7 +1,7 @@
 module SwellEcom
 
 	class CustomerAdminController < SwellMedia::AdminController
-		
+
 		before_action :init_search_service, only: [:index]
 
 		def edit
@@ -16,6 +16,8 @@ module SwellEcom
 			@preferred_address = SwellEcom::GeoAddress.find_by( user: @user, preferred: true )
 
 			@addresses = SwellEcom::GeoAddress.where( user: @user ).order('preferred DESC, created_at DESC')
+
+			set_page_meta( title: "#{@user.full_name} | Customer" )
 		end
 
 
@@ -36,6 +38,8 @@ module SwellEcom
 			SwellEcom::GeoAddress.where( user: @users, preferred: true ).each do |geo_address|
 				@geo_addresses[ geo_address.user_id ] = geo_address
 			end
+
+			set_page_meta( title: "Customers" )
 		end
 
 		def update

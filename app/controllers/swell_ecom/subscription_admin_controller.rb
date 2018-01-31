@@ -1,6 +1,6 @@
 module SwellEcom
 	class SubscriptionAdminController < SwellMedia::AdminController
-		
+
 
 		before_action :get_subscription, except: [ :index ]
 		before_action :init_search_service, only: [:index]
@@ -43,6 +43,7 @@ module SwellEcom
 			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @subscription.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
 			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @subscription.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
 
+			set_page_meta( title: "#{@subscription.code} | Subscription" )
 		end
 
 		def index
@@ -54,6 +55,8 @@ module SwellEcom
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
 			@subscriptions = @search_service.subscription_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
+
+			set_page_meta( title: "Subscriptions" )
 		end
 
 		def payment_profile

@@ -12,6 +12,8 @@ module SwellEcom
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
 			filters[:status] = params[:status] if params[:status].present?
 			@products = @search_service.product_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
+
+			set_page_meta( title: "Products" )
 		end
 
 		def create
@@ -40,6 +42,7 @@ module SwellEcom
 		def edit
 			authorize( @product, :admin_edit? )
 			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
+			set_page_meta( title: "#{@product.title} | Product" )
 		end
 
 		def preview
