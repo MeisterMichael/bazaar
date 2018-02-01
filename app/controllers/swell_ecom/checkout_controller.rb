@@ -17,7 +17,7 @@ module SwellEcom
 			@order_service.process( @order, transaction: transaction_options )
 
 			if params[:newsletter].present?
-				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}" )
+				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}", ip: client_ip, user: current_user )
 			end
 
 
@@ -27,6 +27,10 @@ module SwellEcom
 			else
 				session[:cart_count] = 0
 				session[:cart_id] = nil
+
+				# if current user exists, update it's address info with the
+				# billing address, if not already set
+				current_user.update( address1: (current_user.address1 || @order.billing_address.street), address2: (current_user.address2 || @order.billing_address.street2), city: (current_user.city || @order.billing_address.city), state: (current_user.state || @order.billing_address.state_abbrev), zip: (current_user.zip || @order.billing_address.zip), phone: (current_user.phone || @order.billing_address.phone) ) if current_user.present?
 
 				@cart.update( order_id: @order.id, status: 'success' )
 
