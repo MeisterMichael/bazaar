@@ -28,14 +28,23 @@ module SwellEcom
 			def process( order, args = {} )
 				order_info = get_order_info( order )
 
-				order_info[:sales_tax] = order.order_items.select{|order_item| order_item.tax? }.sum(&:subtotal)
+				order_info[:sales_tax] = order.order_items.select{|order_item| order_item.tax? }.sum(&:subtotal).to_f / 100.0
+				tax_for_order = @client.tax_for_order( order_info )
+
+				line_items = tax_for_order.breakdown.line_items.to_a
+				order_info[:line_items].each do |order_info_line_item|
+					tax_line_item = line_items.first
+					line_items.delete(tax_line_item)
+
+					order_info_line_item[:sales_tax] = tax_line_item.tax_collectable
+				end
 
 				begin
 
 					if ( tax_jar_order = @client.show_order( order.code, from_transaction_date: order.created_at.strftime('%Y/%m/%d'), to_transaction_date: order.created_at.strftime('%Y/%m/%d') ) ).present?
 
 						tax_jar_order = @client.update_order( order_info )
-						
+
 					end
 
 				rescue Taxjar::Error::NotFound => e
@@ -174,7 +183,7 @@ module SwellEcom
 				    :from_zip => @warehouse_address[:zip] || @origin_address[:zip],
 				    :from_city => @warehouse_address[:city] || @origin_address[:city],
 				    :from_state => @warehouse_address[:state] || @origin_address[:state],
-				    :amount => order_total - shipping_amount,
+				    :amount => order_total + shipping_amount,
 				    :shipping => shipping_amount,
 				    :nexus_addresses => nexus_addresses,
 				    :line_items => line_items,
