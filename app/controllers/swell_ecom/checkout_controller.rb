@@ -36,6 +36,8 @@ module SwellEcom
 
 				OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now
+				
+				@tax_service.process( order ) if @tax_service.respond_to? :process
 
 				redirect_to swell_ecom.thank_you_order_path( @order.code )
 
