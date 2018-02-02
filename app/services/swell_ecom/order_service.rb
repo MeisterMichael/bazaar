@@ -52,6 +52,7 @@ module SwellEcom
 				@transaction_service.calculate( order, args[:transaction] )
 			else
 				@transaction_service.process( order, args[:transaction] )
+				@tax_service.process( order ) if @tax_service.respond_to? :process
 			end
 
 		end
