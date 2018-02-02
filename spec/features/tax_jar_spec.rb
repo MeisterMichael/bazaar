@@ -93,4 +93,28 @@ describe "TaxJarTaxService" do
 
 	end
 
+	it "should process taxes" do
+
+		tax_jar_service = SwellEcom::TaxServices::TaxJarTaxService.new( @default_args )
+
+		order = new_trial_subscription_plan_order
+		order.save
+
+		expect( tax_jar_service.calculate( order ).is_a?( SwellEcom::Order ) ).to eq true
+
+		tax_order_items = order.order_items.select{|oi| oi.tax? }
+
+		expect( tax_order_items.count ).to eq 1
+		expect( tax_order_items.collect(&:subtotal).sum ).to eq 8
+
+		order.code = "TEST-#{SecureRandom.uuid}"
+		order.created_at = Time.now
+		order.save
+
+		expect( tax_jar_service.process( order ).is_a?( Taxjar::Order ) ).to eq true
+
+		expect( tax_jar_service.process( order ).is_a?( Taxjar::Order ) ).to eq true
+
+	end
+
 end
