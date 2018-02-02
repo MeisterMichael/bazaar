@@ -60,6 +60,8 @@ module SwellEcom
 			else
 				order.save
 
+				@tax_service.process( order ) if @tax_service.respond_to? :process
+
 				# update the subscriptions next date
 				subscription.current_period_start_at = subscription.current_period_start_at + interval
 				subscription.current_period_end_at = subscription.current_period_end_at + interval
