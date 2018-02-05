@@ -78,7 +78,9 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration
 		add_column :orders, :generated_by, :integer, default: 1
 		add_column :orders, :parent_id, :integer, default: nil
 		add_column :orders, :parent_type, :string, default: nil
+		change_column :orders, :status, :integer, default: 1
 		add_index :orders, [ :parent_type, :parent_id ]
+		add_index :orders, :status
 
 	end
 end
