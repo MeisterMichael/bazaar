@@ -35,34 +35,6 @@ module SwellEcom
 			where.not( status: SwellEcom::Order.statuses['trash'] )
 		end
 
-		def provider
-			self.properties['provider']
-		end
-		def provider=(provider)
-			self.properties.merge( 'provider' => provider )
-		end
-
-		def provider_customer_profile_reference
-			self.properties['provider_customer_profile_reference']
-		end
-		def provider_customer_profile_reference=(provider_customer_profile_reference)
-			self.properties.merge( 'provider_customer_profile_reference' => provider_customer_profile_reference )
-		end
-
-		def provider_customer_profile_reference
-			self.properties['provider_customer_profile_reference']
-		end
-		def provider_customer_profile_reference=(provider_customer_profile_reference)
-			self.properties.merge( 'provider_customer_profile_reference' => provider_customer_profile_reference )
-		end
-
-		def provider_customer_payment_profile_reference
-			self.properties['provider_customer_payment_profile_reference']
-		end
-		def provider_customer_payment_profile_reference=(provider_customer_payment_profile_reference)
-			self.properties.merge( 'provider_customer_payment_profile_reference' => provider_customer_payment_profile_reference )
-		end
-
 		private
 
 		def generate_order_code
