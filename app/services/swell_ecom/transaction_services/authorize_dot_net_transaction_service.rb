@@ -50,6 +50,11 @@ module SwellEcom
 				profiles = get_order_customer_profile( order, credit_card: credit_card_info )
 				return false if profiles == false
 
+				order.payment_status = 'payment_method_captured'
+				order.provider = @provider_name
+				order.provider_customer_profile_reference = profiles[:customer_profile_reference]
+				order.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
+
 				anet_order = nil
 
 				# create capture
