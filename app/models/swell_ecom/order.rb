@@ -21,6 +21,13 @@ module SwellEcom
 
 		has_one 	:cart, dependent: :destroy
 
+		def self.not_trash
+			self.where('status != ?', SwellEcom::Order.statuses['trash'])
+		end
+
+		def self.not_archived
+			self.where('status != ?', SwellEcom::Order.statuses['archived'])
+		end
 
 		private
 
