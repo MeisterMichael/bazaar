@@ -15,7 +15,7 @@ module SwellEcom
 		def create
 
 			if @order.pre_order?
-				@order_service.pre_auth( @order, transaction: transaction_options )
+				@order_service.capture_payment_method( @order, transaction: transaction_options )
 			else
 				@order_service.process( @order, transaction: transaction_options )
 			end
@@ -27,7 +27,7 @@ module SwellEcom
 
 			if @order.errors.present?
 				set_flash @order.errors.full_messages, :danger
-				redirect_back fallback_location: '/admin'
+				redirect_back fallback_location: '/checkout'
 			else
 				session[:cart_count] = 0
 				session[:cart_id] = nil

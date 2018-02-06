@@ -34,7 +34,7 @@ module SwellEcom
 
 		end
 
-		def pre_auth( order, args = {} )
+		def capture_payment_method( order, args = {} )
 
 			args[:discount] ||= {}
 			args[:shipping] ||= {}
@@ -51,7 +51,7 @@ module SwellEcom
 			if order.errors.present?
 				@transaction_service.calculate( order, args[:transaction] )
 			else
-				@transaction_service.pre_auth( order, args[:transaction] )
+				@transaction_service.capture_payment_method( order, args[:transaction] )
 			end
 
 		end
@@ -74,6 +74,7 @@ module SwellEcom
 				@transaction_service.calculate( order, args[:transaction] )
 			else
 				@transaction_service.process( order, args[:transaction] )
+				order.active!
 				@tax_service.process( order ) if @tax_service.respond_to? :process
 			end
 

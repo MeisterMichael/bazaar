@@ -20,6 +20,25 @@ module SwellEcom
 				@api_key	= args[:TRANSACTION_API_KEY] || ENV['AUTHORIZE_DOT_NET_TRANSACTION_API_KEY']
 				@gateway	= ( args[:GATEWAY] || ENV['AUTHORIZE_DOT_NET_GATEWAY'] || :sandbox ).to_sym
 				@enable_debug = not( Rails.env.production? ) || ENV['AUTHORIZE_DOT_NET_DEBUG'] == '1' || @gateway == :sandbox
+				@provider_name = args[:provider_name] || "#{PROVIDER_NAME}-#{@api_login}"
+			end
+
+			def capture_payment_method( order, args = {} )
+				credit_card_info = args[:credit_card]
+
+				self.calculate( order )
+				return false if order.errors.present?
+
+				profiles = get_order_customer_profile( order, credit_card: credit_card_info )
+				return false if profiles == false
+
+				order.payment_status = 'payment_method_captured'
+				order.provider = @provider_name
+				order.provider_customer_profile_reference = profiles[:customer_profile_reference]
+				order.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
+
+				return order if order.save
+				return false
 			end
 
 			def process( order, args = {} )
@@ -55,14 +74,14 @@ module SwellEcom
 						# update any subscriptions with profile ids
 						order.order_items.each do |order_item|
 							if order_item.subscription.present?
-								order_item.subscription.provider = PROVIDER_NAME
+								order_item.subscription.provider = @provider_name
 								order_item.subscription.provider_customer_profile_reference = profiles[:customer_profile_reference]
 								order_item.subscription.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
 								order_item.subscription.save
 							end
 						end
 
-						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: direct_response.transaction_id, customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'approved' )
+						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: direct_response.transaction_id, customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved' )
 
 						if credit_card_info.present?
 
@@ -93,7 +112,7 @@ module SwellEcom
 					order.payment_status = 'declined'
 
 					transaction = false
-					transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: PROVIDER_NAME, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
+					transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: @provider_name, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
 
 					if WHITELISTED_ERROR_MESSAGES.include? response.message_text
 						order.errors.add(:base, :processing_error, message: response.message_text )
@@ -120,7 +139,7 @@ module SwellEcom
 
 				transaction = SwellEcom::Transaction.new( args )
 				transaction.transaction_type	= 'refund'
-				transaction.provider			= PROVIDER_NAME
+				transaction.provider			= @provider_name
 
 				if charge_transaction.present?
 
@@ -136,7 +155,7 @@ module SwellEcom
 
 				elsif anet_transaction_id.present?
 
-					charge_transaction = SwellEcom::Transaction.charge.approved.find_by( provider: PROVIDER_NAME, reference_code: anet_transaction_id )
+					charge_transaction = SwellEcom::Transaction.charge.approved.find_by( provider: @provider_name, reference_code: anet_transaction_id )
 
 				end
 
@@ -240,7 +259,7 @@ module SwellEcom
 					'credit_card_brand' => credit_card_dector.brand,
 				}
 
-				subscription.provider = PROVIDER_NAME
+				subscription.provider = @provider_name
 				subscription.provider_customer_profile_reference = payment_profile[:customer_profile_reference]
 				subscription.provider_customer_payment_profile_reference = payment_profile[:customer_payment_profile_reference]
 				subscription.properties = subscription.properties.merge( new_properties )
@@ -253,15 +272,24 @@ module SwellEcom
 			protected
 
 			def get_order_customer_profile( order, args = {} )
-				# find an existing customer profile
-				subscriptions = order.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::Subscription ) && order_item.item.provider == PROVIDER_NAME }.collect(&:item)
-				return { customer_profile_reference: subscriptions.first.provider_customer_profile_reference, customer_payment_profile_reference: subscriptions.first.provider_customer_payment_profile_reference } if subscriptions.present?
 
-				raise Exception.new( 'cannot create payment profile without credit card info' ) unless args[:credit_card].present?
+				if args[:credit_card].present?
 
-				payment_profile = request_payment_profile( order.user, order.billing_address, args[:credit_card], email: order.email, errors: order.errors )
+					payment_profile = request_payment_profile( order.user, order.billing_address, args[:credit_card], email: order.email, errors: order.errors )
 
-				return payment_profile if payment_profile && order.errors.blank?
+					return payment_profile if payment_profile && order.errors.blank?
+
+				else
+
+					return { customer_profile_reference: order.provider_customer_profile_reference, customer_payment_profile_reference: order.provider_customer_payment_profile_reference } if order.provider_customer_profile_reference.present?
+
+					# find an existing customer profile
+					subscriptions = order.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::Subscription ) && order_item.item.provider == @provider_name }.collect(&:item)
+					return { customer_profile_reference: subscriptions.first.provider_customer_profile_reference, customer_payment_profile_reference: subscriptions.first.provider_customer_payment_profile_reference } if subscriptions.present?
+
+					raise Exception.new( 'cannot create payment profile without credit card info' )
+
+				end
 
 				return false
 			end

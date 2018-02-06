@@ -5,7 +5,7 @@ module SwellEcom
 		include SwellEcom::Concerns::MoneyAttributesConcern
 
 		enum status: { 'trash' => -99, 'draft' => 0, 'pre_order' => 1, 'active' => 2, 'archived' => 99 }
-		enum payment_status: { 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'invoice' => 0, 'authorized' => 1, 'paid' => 2 }
+		enum payment_status: { 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'invoice' => 0, 'payment_method_captured' => 1, 'paid' => 2 }
 		enum fulfillment_status: { 'fulfillment_canceled' => -3, 'fulfillment_error' => -1, 'unfulfilled' => 0, 'partially_fulfulled' => 1, 'fulfilled' => 2, 'delivered' => 3 }
 		enum generated_by: { 'customer_generated' => 1, 'system_generaged' => 2 }
 
@@ -33,6 +33,34 @@ module SwellEcom
 
 		def self.not_trash
 			where.not( status: SwellEcom::Order.statuses['trash'] )
+		end
+
+		def provider
+			self.properties['provider']
+		end
+		def provider=(provider)
+			self.properties.merge( 'provider' => provider )
+		end
+
+		def provider_customer_profile_reference
+			self.properties['provider_customer_profile_reference']
+		end
+		def provider_customer_profile_reference=(provider_customer_profile_reference)
+			self.properties.merge( 'provider_customer_profile_reference' => provider_customer_profile_reference )
+		end
+
+		def provider_customer_profile_reference
+			self.properties['provider_customer_profile_reference']
+		end
+		def provider_customer_profile_reference=(provider_customer_profile_reference)
+			self.properties.merge( 'provider_customer_profile_reference' => provider_customer_profile_reference )
+		end
+
+		def provider_customer_payment_profile_reference
+			self.properties['provider_customer_payment_profile_reference']
+		end
+		def provider_customer_payment_profile_reference=(provider_customer_payment_profile_reference)
+			self.properties.merge( 'provider_customer_payment_profile_reference' => provider_customer_payment_profile_reference )
 		end
 
 		private
