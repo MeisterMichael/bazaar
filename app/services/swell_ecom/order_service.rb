@@ -34,6 +34,28 @@ module SwellEcom
 
 		end
 
+		def pre_auth( order, args = {} )
+
+			args[:discount] ||= {}
+			args[:shipping] ||= {}
+			args[:tax] ||= {}
+			args[:transaction] ||= {}
+
+			@shipping_service.calculate( order, args[:shipping] )
+			@discount_service.calculate( order, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
+			@tax_service.calculate( order, args[:tax] )
+			@discount_service.calculate( order, args[:discount] ) # calucate again after taxes
+
+			order.validate
+
+			if order.errors.present?
+				@transaction_service.calculate( order, args[:transaction] )
+			else
+				@transaction_service.pre_auth( order, args[:transaction] )
+			end
+
+		end
+
 		def process( order, args = {} )
 
 			args[:discount] ||= {}

@@ -14,7 +14,11 @@ module SwellEcom
 
 		def create
 
-			@order_service.process( @order, transaction: transaction_options )
+			if @order.pre_order?
+				@order_service.pre_auth( @order, transaction: transaction_options )
+			else
+				@order_service.process( @order, transaction: transaction_options )
+			end
 
 			if params[:newsletter].present?
 				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}", ip: client_ip, user: current_user )
@@ -36,7 +40,7 @@ module SwellEcom
 
 				OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now
-				
+
 				redirect_to swell_ecom.thank_you_order_path( @order.code )
 
 			end
