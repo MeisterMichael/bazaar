@@ -4,6 +4,7 @@ module SwellEcom
 		self.table_name = 'orders'
 		include SwellEcom::Concerns::MoneyAttributesConcern
 
+		enum status: { 'trash' => -99, 'draft' => -98, 'hold' => 0, 'active' => 1, 'archived' => 99 }
 		enum payment_status: { 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'pending' => 0, 'partially_paid' => 1, 'paid' => 2 }
 		enum fulfillment_status: { 'fulfillment_canceled' => -3, 'fulfillment_error' => -1, 'unfulfilled' => 0, 'partially_fulfulled' => 1, 'fulfilled' => 2, 'delivered' => 3 }
 		enum generated_by: { 'customer_generated' => 1, 'system_generaged' => 2 }
@@ -22,8 +23,16 @@ module SwellEcom
 
 		money_attributes :subtotal, :tax, :shipping, :total
 
+		def self.not_archived
+			where.not( status: SwellEcom::Order.statuses['archived'] )
+		end
+
 		def self.not_declined
-			where.not( payment_status: -2 )
+			where.not( payment_status: SwellEcom::Order.payment_statuses['declined'] )
+		end
+
+		def self.not_trash
+			where.not( status: SwellEcom::Order.statuses['trash'] )
 		end
 
 		private

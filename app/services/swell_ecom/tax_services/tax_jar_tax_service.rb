@@ -53,6 +53,15 @@ module SwellEcom
 
 				end
 
+				# @todo process refunds
+				# order.transactions.negative.each do |refund_transaction|
+				# 	refund_info = order_info.merge(
+				# 		transaction_id: "refund-#{refund_transaction.id}",
+				# 		transaction_date: order.created_at.strftime('%Y/%m/%d'),
+				# 		amount: ...
+				# 	)
+				# end
+
 				tax_jar_order
 			end
 
