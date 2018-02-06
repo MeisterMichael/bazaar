@@ -5,11 +5,12 @@ module SwellEcom
 		class StripeTransactionService < SwellEcom::TransactionService
 
 			def initialize( args = {} )
+				@provider_name = args[:provider_name] || 'Stripe'
 			end
 
-			def cancel_subscription( subscription )
+			def capture_payment_method( order, args = {} )
 				# @todo
-				throw Exception.new('@todo StripeTransactionService#cancel_subscription')
+				throw Exception.new('@todo StripeTransactionService#capture_payment_method')
 
 			end
 
@@ -45,7 +46,7 @@ module SwellEcom
 
 						order.save
 
-						Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: charge.id, provider: 'Stripe', amount: order.total, currency: order.currency, status: 'approved' )
+						Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: charge.id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved' )
 
 						return true
 					end
@@ -56,7 +57,7 @@ module SwellEcom
 
 					puts e
 					order.errors.add(:base, :processing_error, message: "cannot be nil")
-					# Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: 'Stripe', amount: order.total, currency: order.currency, status: 'declined' )
+					# Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'declined' )
 
 				rescue Stripe::InvalidRequestError => e
 
@@ -76,15 +77,19 @@ module SwellEcom
 
 			end
 
+			def provider_name
+				@provider_name
+			end
+
 			def refund( args = {} )
 				# @todo
 				throw Exception.new('@todo StripeTransactionService#refund')
 
 			end
 
-			def update_subscription( subscription )
+			def update_subscription_payment_profile( subscription )
 				# @todo
-				throw Exception.new('@todo StripeTransactionService#refund')
+				throw Exception.new('@todo StripeTransactionService#update_subscription_payment_profile')
 
 			end
 

@@ -133,6 +133,10 @@ module SwellEcom
 				return false
 			end
 
+			def provider_name
+				@provider_name
+			end
+
 			def refund( args = {} )
 				# assumes :amount, and :charge_transaction
 				charge_transaction	= args.delete( :charge_transaction )
