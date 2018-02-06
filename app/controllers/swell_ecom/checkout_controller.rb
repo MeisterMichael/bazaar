@@ -14,11 +14,7 @@ module SwellEcom
 
 		def create
 
-			if @order.pre_order?
-				@order_service.capture_payment_method( @order, transaction: transaction_options )
-			else
-				@order_service.process( @order, transaction: transaction_options )
-			end
+			@order_service.process( @order, transaction: transaction_options )
 
 			if params[:newsletter].present?
 				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}", ip: client_ip, user: current_user )
@@ -131,6 +127,8 @@ module SwellEcom
 
 				order_item.subscription = @subscription_service.build_subscription( order_item, discount: discount )
 				order_item.subscription.payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( params[:credit_card][:expiration] ) if order_item.subscription.present? && params[:credit_card].present?
+
+				@order.status = 'pre_order' if order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order?
 
 			end
 

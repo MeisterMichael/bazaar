@@ -34,7 +34,13 @@ module SwellEcom
 
 		end
 
-		def capture_payment_method( order, args = {} )
+		def process( order, args = {} )
+			return self.process_capture_payment_method( order, args ) if order.pre_order?
+			return self.process_purchase( order, args ) if order.active?
+			raise Exception.new( 'OrderService#process: invalid order status' )
+		end
+
+		def process_capture_payment_method( order, args = {} )
 
 			args[:discount] ||= {}
 			args[:shipping] ||= {}
@@ -56,7 +62,7 @@ module SwellEcom
 
 		end
 
-		def process( order, args = {} )
+		def process_purchase( order, args = {} )
 
 			args[:discount] ||= {}
 			args[:shipping] ||= {}
