@@ -8,13 +8,19 @@ module SwellEcom
 
 		def confirm
 
-			@order_service.calculate( @order, transaction: transaction_options )
+			@order_service.calculate( @order,
+				transaction: transaction_options,
+				shipping: shipping_options,
+			)
 
 		end
 
 		def create
 
-			@order_service.process( @order, transaction: transaction_options )
+			@order_service.process( @order,
+				transaction: transaction_options,
+				shipping: shipping_options,
+			)
 
 			if params[:newsletter].present?
 				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}", ip: client_ip, user: current_user )
@@ -139,8 +145,18 @@ module SwellEcom
 			@subscription_service = SwellEcom::SubscriptionService.new( order_service: @order_service )
 		end
 
+		def shipping_options
+			{
+				ip: client_ip,
+				ip_country: client_ip_country,
+			}
+		end
+
 		def transaction_options
-			params.slice( :stripeToken, :credit_card )
+			params.slice( :stripeToken, :credit_card ).merge({
+				ip: client_ip,
+				ip_country: client_ip_country,
+			})
 		end
 
 
