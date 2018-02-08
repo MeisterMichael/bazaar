@@ -81,7 +81,13 @@ module SwellEcom
 			else
 				@transaction_service.process( order, args[:transaction] )
 				order.active!
-				@tax_service.process( order ) if @tax_service.respond_to? :process
+
+				begin
+					@tax_service.process( order ) if @tax_service.respond_to? :process
+				rescue Exception => e
+					puts e.message
+					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				end
 			end
 
 		end
