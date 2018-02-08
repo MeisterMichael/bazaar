@@ -31,12 +31,14 @@ module SwellEcom
 				order_info[:sales_tax] = order.order_items.select{|order_item| order_item.tax? }.sum(&:subtotal).to_f / 100.0
 				tax_for_order = @client.tax_for_order( order_info )
 
-				line_items = tax_for_order.breakdown.line_items.to_a
-				order_info[:line_items].each do |order_info_line_item|
-					tax_line_item = line_items.first
-					line_items.delete(tax_line_item)
+				tax_breakdown = tax_for_order.breakdown
+				if tax_breakdown.present? && ( line_items = tax_breakdown.line_items.to_a ).present?
+					order_info[:line_items].each do |order_info_line_item|
+						tax_line_item = line_items.first
+						line_items.delete(tax_line_item)
 
-					order_info_line_item[:sales_tax] = tax_line_item.tax_collectable
+						order_info_line_item[:sales_tax] = tax_line_item.tax_collectable
+					end
 				end
 
 				begin
