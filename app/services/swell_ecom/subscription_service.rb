@@ -60,18 +60,18 @@ module SwellEcom
 			else
 				order.save
 
+				# update the subscriptions next date
+				subscription.current_period_start_at = subscription.current_period_start_at + interval
+				subscription.current_period_end_at = subscription.current_period_end_at + interval
+				subscription.next_charged_at = subscription.next_charged_at + interval
+				subscription.save
+
 				begin
 					@tax_service.process( order ) if @tax_service.respond_to? :process
 				rescue Exception => e
 					puts e.message
 					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 				end
-
-				# update the subscriptions next date
-				subscription.current_period_start_at = subscription.current_period_start_at + interval
-				subscription.current_period_end_at = subscription.current_period_end_at + interval
-				subscription.next_charged_at = subscription.next_charged_at + interval
-				subscription.save
 
 			end
 
