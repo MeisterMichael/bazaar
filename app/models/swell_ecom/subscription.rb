@@ -4,8 +4,7 @@ module SwellEcom
 
 		include SwellEcom::Concerns::MoneyAttributesConcern
 
-		enum status: { 'canceled' => -1, 'failed' => 0, 'active' => 1 }
-		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
+		enum status: { 'draft' => -3, 'pre_order' => -2, 'canceled' => -1, 'failed' => 0, 'active' => 1 }
 
 		belongs_to :user
 		belongs_to :subscription_plan
