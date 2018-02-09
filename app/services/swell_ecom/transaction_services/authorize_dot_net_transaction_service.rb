@@ -77,14 +77,6 @@ module SwellEcom
 					if order.save
 
 						# update any subscriptions with profile ids
-						order.order_items.each do |order_item|
-							if order_item.subscription.present?
-								order_item.subscription.provider = @provider_name
-								order_item.subscription.provider_customer_profile_reference = profiles[:customer_profile_reference]
-								order_item.subscription.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
-								order_item.subscription.save
-							end
-						end
 
 						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: direct_response.transaction_id, customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved' )
 

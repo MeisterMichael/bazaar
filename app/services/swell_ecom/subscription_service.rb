@@ -12,12 +12,37 @@ module SwellEcom
 
 		end
 
-		def build_subscription( order_item, args = {} )
-			return nil unless order_item.item.is_a? SwellEcom::SubscriptionPlan
+		def subscribe_ordered_plans( order, args = {} )
+			# will only create plans for active orders
+			raise Exception.new('Can only create subscriptions for active orders') unless order.active?
 
-			plan = order_item.item
+			order.order_items.each do |order_item|
+				if order_item.item.is_a? SwellEcom::SubscriptionPlan
 
+					order_item.subscription ||= @subscription_service.subscribe( order.user, order_item.item, args.merge( quantity: order_item.quantity, order: order ) )
+					order_item.save
+
+				end
+			end
+
+		end
+
+		def subscribe( user, plan, args = {} )
 			start_at = args[:start_at] || Time.now
+			quantity = args[:quantity] || 1
+
+			if (order = args[:order]).present?
+
+				args[:billing_address]	||= order.billing_address
+				args[:shipping_address]	||= order.shipping_address
+				args[:currency]			||= order.currency
+				args[:provider]			||= order.provider
+				args[:provider_customer_profile_reference] ||= order.provider_customer_profile_reference
+				args[:provider_customer_payment_profile_reference] ||= order.provider_customer_payment_profile_reference
+
+				args[:discount] = order.order_items.discount.first.try(:item)
+
+			end
 
 			trial_interval = plan.trial_interval_value.try( plan.trial_interval_unit )
 			billing_interval = plan.billing_interval_value.try( plan.billing_interval_unit )
@@ -30,12 +55,12 @@ module SwellEcom
 				current_period_end_at = start_at + trial_interval
 			end
 
-			subscription = Subscription.new(
-				user: order_item.order.user,
-				subscription_plan: order_item.item,
-				billing_address: order_item.order.billing_address,
-				shipping_address: order_item.order.shipping_address,
-				quantity: order_item.quantity,
+			subscription = Subscription.create!(
+				user: user,
+				subscription_plan: plan,
+				billing_address: args[:billing_address],
+				shipping_address: args[:shipping_address],
+				quantity: quantity,
 				status: 'active',
 				start_at: start_at,
 				trial_start_at: trial_start_at,
@@ -43,8 +68,12 @@ module SwellEcom
 				current_period_start_at: start_at,
 				current_period_end_at: current_period_end_at,
 				next_charged_at: current_period_end_at,
-				currency: order_item.order.currency,
+				currency: args[:currency],
 				discount: args[:discount],
+				provider: args[:provider],
+				provider_customer_profile_reference: args[:provider_customer_profile_reference],
+				provider_customer_payment_profile_reference: args[:provider_customer_payment_profile_reference],
+				payment_profile_expires_at: args[:payment_profile_expires_at]
 			)
 
 			subscription

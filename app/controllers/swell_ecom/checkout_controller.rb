@@ -1,6 +1,7 @@
 
 module SwellEcom
 	class CheckoutController < ApplicationController
+		include SwellEcom::CheckoutConcern
 
 		before_action :get_cart
 		before_action :initialize_services, only: [ :confirm, :create, :index ]
@@ -23,7 +24,12 @@ module SwellEcom
 			)
 
 			if params[:newsletter].present?
-				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}", ip: client_ip, user: current_user )
+				SwellMedia::Optin.create(
+					email: @order.email,
+					name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}",
+					ip: @order.ip,
+					user: @order.user
+				)
 			end
 
 
@@ -34,9 +40,12 @@ module SwellEcom
 				session[:cart_count] = 0
 				session[:cart_id] = nil
 
+				payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( params[:credit_card][:expiration] ) if params[:credit_card].present?
+				@subscription_service.subscribe_ordered_plans( @order, payment_profile_expires_at: payment_profile_expires_at ) if @order.active?
+
 				# if current user exists, update it's address info with the
 				# billing address, if not already set
-				current_user.update( address1: (current_user.address1 || @order.billing_address.street), address2: (current_user.address2 || @order.billing_address.street2), city: (current_user.city || @order.billing_address.city), state: (current_user.state || @order.billing_address.state_abbrev), zip: (current_user.zip || @order.billing_address.zip), phone: (current_user.phone || @order.billing_address.phone) ) if current_user.present?
+				update_order_user_address( @order )
 
 				@cart.update( order_id: @order.id, status: 'success' )
 
@@ -130,12 +139,7 @@ module SwellEcom
 
 			@cart.cart_items.each do |cart_item|
 				order_item = @order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code
-
-				order_item.subscription = @subscription_service.build_subscription( order_item, discount: discount )
-				order_item.subscription.payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( params[:credit_card][:expiration] ) if order_item.subscription.present? && params[:credit_card].present?
-
 				@order.status = 'pre_order' if order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order?
-
 			end
 
 		end
