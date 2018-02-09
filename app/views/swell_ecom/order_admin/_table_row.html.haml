@@ -11,12 +11,17 @@
 				- else
 					= (order.email || order.user.try(:email) || 'N/A')
 	%td
-		.badge{ class: order.payment_status }
+		.badge.order_status{ class: order.status }
+			- if order.pre_order? || order.draft?
+				%span.fa.fa-circle-o
+			= order.status.gsub(/_/,' ')
+	%td
+		.badge.order_payment_status{ class: order.payment_status }
 			- if order.invoice?
 				%span.fa.fa-circle-o
 			= order.payment_status.gsub(/_/,' ')
 	%td
-		.badge{ class: order.fulfillment_status }
+		.badge.order_fulfillment_status{ class: order.fulfillment_status }
 			- if order.unfulfilled?
 				%span.fa.fa-circle-o
 			= order.fulfillment_status.gsub(/_/,' ')

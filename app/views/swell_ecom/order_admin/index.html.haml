@@ -10,6 +10,7 @@
 			= raw paginate @orders
 		.col-xs-7
 			= form_tag order_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= select_tag :status, options_from_collection_for_select( SwellEcom::Order.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
 				= select_tag :payment_status, options_from_collection_for_select( SwellEcom::Order.payment_statuses, :first, :first, params[:payment_status] ), { prompt: "Payment Status", class: 'form-control' }
 				= select_tag :fulfillment_status, options_from_collection_for_select( SwellEcom::Order.fulfillment_statuses, :first, :first, params[:fulfillment_status] ), { prompt: "Fulfillment Status", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
@@ -24,33 +25,39 @@
 						Code
 					%th{ style: 'width: 10em' }
 						Created
-						%a{ href: order_admin_index_path( fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'created_at', sort_dir: 'asc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'created_at', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'created_at', sort_dir: 'desc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'created_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th
 						Customer
-						%a{ href: order_admin_index_path( fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'email', sort_dir: 'asc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'email', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'email', sort_dir: 'desc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'email', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th{ style: 'width: 11em' }
+						Status
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'status', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'status', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th{ style: 'width: 11em' }
 						Payment
-						%a{ href: order_admin_index_path( fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'payment_status', sort_dir: 'asc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'payment_status', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'payment_status', sort_dir: 'desc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'payment_status', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th{ style: 'width: 11em' }
 						Fulfillment
-						%a{ href: order_admin_index_path( fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'fulfillment_status', sort_dir: 'asc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'fulfillment_status', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'fulfillment_status', sort_dir: 'desc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'fulfillment_status', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th{ style: 'width: 10em' }
 						Total
-						%a{ href: order_admin_index_path( fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'total', sort_dir: 'asc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'total', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'total', sort_dir: 'desc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'total', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th{ style: 'width: 6em' }
 				%tbody

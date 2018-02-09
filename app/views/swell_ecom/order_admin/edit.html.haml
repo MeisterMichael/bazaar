@@ -10,6 +10,11 @@
 						Orders
 
 			- if policy(@order).admin_update?
+				- if @order.pre_order? || @order.draft?
+					.pull-right
+						%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
+							%i.fa.fa-send
+							Process
 				- if not( SwellEcom.automated_fulfillment )
 					.pull-right
 						- if @order.unfulfilled?
@@ -47,11 +52,15 @@
 					Order Details
 					%small
 
-						.badge{ class: @order.payment_status }
-							- if @order.invoice?
+						.badge.order_status{ class: @order.status }
+							- if @order.pre_order? || @order.draft?
+								%i.fa.fa-circle-o
+							=@order.status.gsub(/_/,' ')
+						.badge.order_payment_status{ class: @order.payment_status }
+							- if @order.invoice? || @order.payment_method_captured?
 								%i.fa.fa-circle-o
 							=@order.payment_status.gsub(/_/,' ')
-						.badge{ class: @order.fulfillment_status }
+						.badge.order_fulfillment_status{ class: @order.fulfillment_status }
 							- if @order.unfulfilled?
 								%i.fa.fa-circle-o
 							=@order.fulfillment_status.gsub(/_/,' ')
@@ -235,6 +244,8 @@
 				%h5
 					Shipping Address
 				= raw @order.shipping_address.to_html
+
+			= render 'fulfillment_tracking'
 
 
 = render 'swell_ecom/order_admin/edit_status_modal'

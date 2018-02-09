@@ -9,6 +9,12 @@
 			= form_for @order, url: order_admin_path( @order ) do |f|
 				.modal-body{ style: 'text-align: center;' }
 					.form-group
+						=f.label :status
+						- if policy(@order).admin_update?
+							= f.collection_select :status, SwellEcom::Order.statuses, :first, :first, {}, class: 'form-control'
+						- else
+							=@order.statuses.gsub(/_/,' ')
+					.form-group
 						=f.label :payment_status
 						- if policy(@order).admin_update?
 							= f.collection_select :payment_status, SwellEcom::Order.payment_statuses, :first, :first, {}, class: 'form-control'

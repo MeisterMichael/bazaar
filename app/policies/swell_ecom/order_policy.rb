@@ -5,6 +5,10 @@ module SwellEcom
 			user.admin?
 		end
 
+		def admin_checkout?
+			user.admin?
+		end
+
 		def admin_create?
 			user.admin?
 		end
