@@ -1,7 +1,7 @@
 
 module SwellEcom
 	class CheckoutController < ApplicationController
-		include SwellEcom::CheckoutConcern
+		include SwellEcom::Concerns::CheckoutConcern
 
 		before_action :get_cart
 		before_action :initialize_services, only: [ :confirm, :create, :index ]
@@ -35,7 +35,13 @@ module SwellEcom
 
 			if @order.errors.present?
 				set_flash @order.errors.full_messages, :danger
-				redirect_back fallback_location: '/checkout'
+				respond_to do |format|
+					format.json {
+					}
+					format.html {
+						redirect_back fallback_location: '/checkout'
+					}
+				end
 			else
 				session[:cart_count] = 0
 				session[:cart_id] = nil
@@ -52,7 +58,14 @@ module SwellEcom
 				OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now
 
-				redirect_to swell_ecom.thank_you_order_path( @order.code )
+
+				respond_to do |format|
+					format.json {
+					}
+					format.html {
+						redirect_to swell_ecom.thank_you_order_path( @order.code )
+					}
+				end
 
 			end
 
