@@ -33,7 +33,12 @@ module SwellEcom
 				end
 
 			end
-			redirect_back fallback_location: '/admin'
+
+			if params[:buy_now]
+				redirect_to swell_ecom.checkout_index_path
+			else
+				redirect_back fallback_location: '/admin'
+			end
 		end
 
 		private
