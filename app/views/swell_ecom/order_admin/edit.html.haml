@@ -50,11 +50,11 @@
 						.badge{ class: @order.payment_status }
 							- if @order.invoice?
 								%i.fa.fa-circle-o
-							=@order.payment_status
+							=@order.payment_status.gsub(/_/,' ')
 						.badge{ class: @order.fulfillment_status }
 							- if @order.unfulfilled?
 								%i.fa.fa-circle-o
-							=@order.fulfillment_status
+							=@order.fulfillment_status.gsub(/_/,' ')
 
 				%table.table.table-light.table-bordered{ style: 'margin: 0' }
 					%thead

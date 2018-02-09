@@ -14,12 +14,12 @@
 		.badge{ class: order.payment_status }
 			- if order.invoice?
 				%span.fa.fa-circle-o
-			= order.payment_status
+			= order.payment_status.gsub(/_/,' ')
 	%td
 		.badge{ class: order.fulfillment_status }
 			- if order.unfulfilled?
 				%span.fa.fa-circle-o
-			= order.fulfillment_status
+			= order.fulfillment_status.gsub(/_/,' ')
 	%td
 		= number_to_currency ( order.total || 0 ) / 100.to_f
 	- if args[:controls]
