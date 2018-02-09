@@ -12,7 +12,7 @@
 					= (order.email || order.user.try(:email) || 'N/A')
 	%td
 		.badge{ class: order.payment_status }
-			- if order.pending?
+			- if order.invoice?
 				%span.fa.fa-circle-o
 			= order.payment_status
 	%td

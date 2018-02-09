@@ -48,7 +48,7 @@
 					%small
 
 						.badge{ class: @order.payment_status }
-							- if @order.pending?
+							- if @order.invoice?
 								%i.fa.fa-circle-o
 							=@order.payment_status
 						.badge{ class: @order.fulfillment_status }
