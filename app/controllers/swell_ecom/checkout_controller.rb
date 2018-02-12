@@ -37,6 +37,7 @@ module SwellEcom
 				set_flash @order.errors.full_messages, :danger
 				respond_to do |format|
 					format.json {
+						render :create
 					}
 					format.html {
 						redirect_back fallback_location: '/checkout'
@@ -55,12 +56,13 @@ module SwellEcom
 
 				@cart.update( order_id: @order.id, status: 'success' )
 
-				OrderMailer.receipt( @order ).deliver_now
+				# OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now
 
 
 				respond_to do |format|
 					format.json {
+						render :create
 					}
 					format.html {
 						redirect_to swell_ecom.thank_you_order_path( @order.code )

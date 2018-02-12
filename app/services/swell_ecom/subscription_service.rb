@@ -19,7 +19,7 @@ module SwellEcom
 			order.order_items.each do |order_item|
 				if order_item.item.is_a? SwellEcom::SubscriptionPlan
 
-					order_item.subscription ||= @subscription_service.subscribe( order.user, order_item.item, args.merge( quantity: order_item.quantity, order: order ) )
+					order_item.subscription ||= self.subscribe( order.user, order_item.item, args.merge( quantity: order_item.quantity, order: order ) )
 					order_item.save
 
 				end
@@ -43,6 +43,9 @@ module SwellEcom
 				args[:discount] = order.order_items.discount.first.try(:item)
 
 			end
+
+			args[:trial_amount]	||= plan.trial_price * quantity
+			args[:amount]		||= plan.price * quantity
 
 			trial_interval = plan.trial_interval_value.try( plan.trial_interval_unit )
 			billing_interval = plan.billing_interval_value.try( plan.billing_interval_unit )
@@ -73,7 +76,9 @@ module SwellEcom
 				provider: args[:provider],
 				provider_customer_profile_reference: args[:provider_customer_profile_reference],
 				provider_customer_payment_profile_reference: args[:provider_customer_payment_profile_reference],
-				payment_profile_expires_at: args[:payment_profile_expires_at]
+				payment_profile_expires_at: args[:payment_profile_expires_at],
+				trial_amount: args[:trial_amount],
+				amount: args[:amount],
 			)
 
 			subscription

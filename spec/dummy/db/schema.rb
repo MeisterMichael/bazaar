@@ -55,6 +55,7 @@ ActiveRecord::Schema.define(version: 20180212100000) do
 
   create_table "carts", force: :cascade do |t|
     t.integer "user_id"
+    t.integer "order_id"
     t.integer "status", default: 1
     t.integer "subtotal", default: 0
     t.integer "estimated_tax", default: 0
@@ -63,6 +64,7 @@ ActiveRecord::Schema.define(version: 20180212100000) do
     t.string "ip"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_carts_on_order_id"
     t.index ["user_id"], name: "index_carts_on_user_id"
   end
 
@@ -225,6 +227,7 @@ ActiveRecord::Schema.define(version: 20180212100000) do
     t.boolean "is_sticky", default: false
     t.boolean "show_title", default: true
     t.datetime "modified_at"
+    t.text "keywords", default: "--- []\n"
     t.string "duration"
     t.integer "cached_char_count", default: 0
     t.integer "cached_word_count", default: 0
@@ -312,7 +315,7 @@ ActiveRecord::Schema.define(version: 20180212100000) do
     t.integer "shipping_address_id"
     t.string "code"
     t.string "email"
-    t.integer "status", default: 0
+    t.integer "status", default: 2
     t.integer "subtotal", default: 0
     t.integer "tax", default: 0
     t.integer "shipping", default: 0
@@ -338,6 +341,7 @@ ActiveRecord::Schema.define(version: 20180212100000) do
     t.index ["email", "status"], name: "index_orders_on_email_and_status"
     t.index ["parent_type", "parent_id"], name: "index_orders_on_parent_type_and_parent_id"
     t.index ["shipping_address_id"], name: "index_orders_on_shipping_address_id"
+    t.index ["status"], name: "index_orders_on_status"
     t.index ["user_id", "billing_address_id", "shipping_address_id"], name: "user_id_addr_indx"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
@@ -452,6 +456,7 @@ ActiveRecord::Schema.define(version: 20180212100000) do
     t.string "provider_reference"
     t.string "provider_customer_profile_reference"
     t.string "provider_customer_payment_profile_reference"
+    t.datetime "payment_profile_expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "discount_id"

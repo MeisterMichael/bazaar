@@ -30,6 +30,8 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration[5.1]
 			t.string		:provider_customer_profile_reference
 			t.string		:provider_customer_payment_profile_reference
 
+			t.datetime		:payment_profile_expires_at, default: nil
+
 			t.timestamps
 		end
 
@@ -76,7 +78,9 @@ class SwellEcomSubscriptionsMigration < ActiveRecord::Migration[5.1]
 		add_column :orders, :generated_by, :integer, default: 1
 		add_column :orders, :parent_id, :integer, default: nil
 		add_column :orders, :parent_type, :string, default: nil
+		change_column :orders, :status, :integer, default: 2
 		add_index :orders, [ :parent_type, :parent_id ]
+		add_index :orders, :status
 
 	end
 end

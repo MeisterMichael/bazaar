@@ -3,6 +3,7 @@ class SwellEcomMigration < ActiveRecord::Migration[5.1]
 
 		create_table :carts do |t|
 			t.references	:user
+			t.references	:order
 			t.integer		:status, default: 1
 			t.integer		:subtotal, default: 0
 			t.integer 		:estimated_tax, default: 0
