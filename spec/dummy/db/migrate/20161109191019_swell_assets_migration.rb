@@ -1,4 +1,4 @@
-class SwellAssetsMigration < ActiveRecord::Migration
+class SwellAssetsMigration < ActiveRecord::Migration[5.1]
 	# V4.0
 
 	def change
@@ -33,7 +33,7 @@ class SwellAssetsMigration < ActiveRecord::Migration
 			t.timestamps
 		end
 
-		add_index :assets, [ :parent_obj_type, :parent_obj_id ]
+		# add_index :assets, [ :parent_obj_type, :parent_obj_id ]
 		add_index :assets, [:parent_obj_id, :parent_obj_type, :asset_type, :use], name: 'swell_media_asset_use_index'
 
 	end

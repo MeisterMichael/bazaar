@@ -1,4 +1,4 @@
-class SwellUsersMigration < ActiveRecord::Migration
+class SwellUsersMigration < ActiveRecord::Migration[5.1]
 	# V2.0
 
 	def change
@@ -19,7 +19,7 @@ class SwellUsersMigration < ActiveRecord::Migration
 			t.integer		:status,		default: 1
 			t.timestamps
 		end
-		add_index :oauth_credentials, :user_id
+		# add_index :oauth_credentials, :user_id
 		add_index :oauth_credentials, :provider
 		add_index :oauth_credentials, :uid
 		add_index :oauth_credentials, :token

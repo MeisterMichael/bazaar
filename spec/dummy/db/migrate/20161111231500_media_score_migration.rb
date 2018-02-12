@@ -1,4 +1,4 @@
-class MediaScoreMigration < ActiveRecord::Migration
+class MediaScoreMigration < ActiveRecord::Migration[5.1]
 
 	def change
 

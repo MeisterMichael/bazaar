@@ -1,4 +1,4 @@
-class SwellMediaMigration < ActiveRecord::Migration
+class SwellMediaMigration < ActiveRecord::Migration[5.1]
 	# V4.0
 
 	def change
@@ -22,8 +22,8 @@ class SwellMediaMigration < ActiveRecord::Migration
 		# t.hstore			:properties, default: {}
 		t.timestamps
 	end
-	add_index :categories, :user_id
-	add_index :categories, :parent_id
+	# add_index :categories, :user_id
+	# add_index :categories, :parent_id
 	add_index :categories, :type
 	add_index :categories, :lft
 	add_index :categories, :rgt
@@ -91,7 +91,7 @@ class SwellMediaMigration < ActiveRecord::Migration
 		t.boolean		:is_sticky,						default: false 		# for forum topics
 		t.boolean		:show_title,					default: true
 		t.datetime		:modified_at 								# because updated_at is inadequate when caching stats, etc.
-		t.text			:keywords, 	array: true, 		default: []
+		t.text			:keywords, 	array: true, 		default: [].to_yaml
 
 		t.string		:duration
 		t.integer		:cached_char_count, 			default: 0
@@ -107,10 +107,10 @@ class SwellMediaMigration < ActiveRecord::Migration
 	end
 
 	add_index :media, :tags, using: 'gin'
-	add_index :media, :user_id
-	add_index :media, :managed_by_id
+	# add_index :media, :user_id
+	# add_index :media, :managed_by_id
 	add_index :media, :public_id
-	add_index :media, :category_id
+	# add_index :media, :category_id
 	add_index :media, :slug, unique: true
 	add_index :media, [ :slug, :type ]
 	add_index :media, [ :status, :availability ]

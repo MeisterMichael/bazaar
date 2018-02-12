@@ -1,4 +1,4 @@
-class SwellEcomOrderItemsMigration < ActiveRecord::Migration
+class SwellEcomOrderItemsMigration < ActiveRecord::Migration[5.1]
 	def change
 
 		add_column :order_items, :sku, :string, default: nil
