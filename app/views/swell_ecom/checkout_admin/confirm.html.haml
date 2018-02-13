@@ -2,8 +2,9 @@
 .container
 	.row
 
-		= form_for @order, as: :order, url: swell_ecom.checkout_index_path(), method: 'POST', html: { class: 'disable_submit_after_submit'} do |f|
-
+		= form_for @order, as: :order, url: swell_ecom.checkout_admin_index_path(), method: 'POST', html: { class: 'disable_submit_after_submit'} do |f|
+			= render 'swell_ecom/checkout_admin/hidden_fields', fields: shipping_options, args: {}
+			= render 'swell_ecom/checkout_admin/hidden_fields', fields: transaction_options, args: {}
 			- @order.order_items.each do |order_item|
 				- if order_item.prod?
 					= hidden_field_tag 'order[order_items][][code]', order_item.item.code
@@ -33,7 +34,6 @@
 				= shipping_address_form.hidden_field :zip, value: @order.shipping_address.zip
 				= shipping_address_form.hidden_field :phone, value: @order.shipping_address.phone
 
-			= hidden_field_tag :stripeToken, params[:stripeToken]
 			= f.hidden_field :customer_notes, class: 'form-control'
 
 			.col-xs-12.col-md-9

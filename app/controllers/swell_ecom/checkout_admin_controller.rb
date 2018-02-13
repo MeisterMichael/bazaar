@@ -1,15 +1,17 @@
 
 module SwellEcom
-	class CheckoutController < ApplicationController
+	class CheckoutAdminController < SwellMedia::AdminController
 		include SwellEcom::Concerns::CheckoutConcern
+		helper_method :shipping_options
+		helper_method :transaction_options
 
-		before_action :get_cart
-		before_action :validate_cart, only: [ :confirm, :create, :index ]
+		before_action :get_user
 		before_action :initialize_services, only: [ :confirm, :create, :index ]
 		before_action :get_order, only: [ :confirm, :create, :index ]
 		before_action :get_geo_addresses, only: :index
 
 		def confirm
+			authorize( @order, :admin_create? )
 
 			@order_service.calculate( @order,
 				transaction: transaction_options,
@@ -19,6 +21,7 @@ module SwellEcom
 		end
 
 		def create
+			authorize( @order, :admin_create? )
 
 			@order_service.process( @order,
 				transaction: transaction_options,
@@ -37,14 +40,8 @@ module SwellEcom
 
 			if @order.errors.present?
 				set_flash @order.errors.full_messages, :danger
-				respond_to do |format|
-					format.json {
-						render :create
-					}
-					format.html {
-						redirect_back fallback_location: '/checkout'
-					}
-				end
+				get_geo_addresses
+				render :index
 			else
 				session[:cart_count] = 0
 				session[:cart_id] = nil
@@ -55,8 +52,6 @@ module SwellEcom
 				# if current user exists, update it's address info with the
 				# billing address, if not already set
 				update_order_user_address( @order )
-
-				@cart.update( order_id: @order.id, status: 'success' )
 
 				OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now
@@ -77,25 +72,11 @@ module SwellEcom
 		end
 
 		def index
-
-			@cart.init_checkout!
-
-			add_page_event_data(
-				ecommerce: {
-					checkout: {
-						actionField: {},
-						products: @cart.cart_items.collect{|cart_item| cart_item.item.page_event_data.merge( quantity: cart_item.quantity ) }
-					}
-				}
-			);
-
-		end
-
-		def new
-			redirect_to checkout_index_path( params.permit(:stripeToken, :credit_card, :coupon, :order ).to_h.merge( controller: nil, action: nil ) )
+			authorize( Order, :admin_checkout? )
 		end
 
 		def state_input
+			authorize( Order, :admin_checkout? )
 
 			@order = Order.new currency: 'usd'
 			@order.shipping_address = GeoAddress.new
@@ -104,40 +85,32 @@ module SwellEcom
 			@address_attribute = ( params[:address_attribute] == 'billing_address' ? :billing_address : :shipping_address )
 			@states = SwellEcom::GeoState.where( geo_country_id: params[:geo_country_id] )
 
-			render layout: false
-
+			render 'swell_ecom/checkout/state_input', layout: false
 		end
 
 
 		protected
 
-		def get_cart
-			@cart ||= Cart.find_by( id: session[:cart_id] )
+		def get_user
+			@user = nil
 		end
 
 		def get_order
 
-			@order = Order.new( get_order_attributes.merge( user: current_user ) )
+			@order = Order.new( get_order_admin_attributes.merge( user: @user ) )
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			discount = Discount.active.in_progress.find_by( code: params[:coupon] ) if params[:coupon].present?
 			order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 
-			@cart.cart_items.each do |cart_item|
-				order_item = @order.order_items.new( item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code )
-				@order.status = 'pre_order' if order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order?
-			end
-
 		end
 
-		def validate_cart
-			if @cart.nil?
-				redirect_back fallback_location: '/cart'
-				return false
-			end
+		def get_order_admin_attributes
+			order_attributes = get_order_attributes
+			order_attributes = order_attributes.merge params.require( :order ).permit( :status, :payment_status, :shipping_status ).to_h if params[:order]
+
+			order_attributes
 		end
-
-
 
 	end
 end

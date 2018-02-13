@@ -55,15 +55,26 @@ module SwellEcom
 								:item_id,
 								:quantity,
 							],
+							:billing_address_attributes => [
+								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
+							],
+							:shipping_address_attributes => [
+								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
+							],
+							:order_items_attributes => [
+								:item_type,
+								:item_id,
+								:quantity,
+							],
 						},
 					]
 				).to_h
 
 				order_attributes = order_attributes[:order] || {}
 
-				order_attributes[:billing_address_attributes]	= order_attributes.delete(:billing_address) || {}
-				order_attributes[:shipping_address_attributes]	= order_attributes.delete(:shipping_address) || {}
-				order_attributes[:order_items_attributes]		= order_attributes.delete(:order_items) if order_attributes.has_key?(:order_items)
+				order_attributes[:billing_address_attributes]	||= order_attributes.delete(:billing_address) || {}
+				order_attributes[:shipping_address_attributes]	||= order_attributes.delete(:shipping_address) || {}
+				order_attributes[:order_items_attributes]		||= order_attributes.delete(:order_items) || []
 
 				order_attributes[:shipping_address_attributes] ||= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
 
@@ -85,6 +96,19 @@ module SwellEcom
 
 				order_attributes
 
+			end
+
+			def initialize_services
+				@order_service = SwellEcom::OrderService.new
+				@subscription_service = SwellEcom::SubscriptionService.new( order_service: @order_service )
+			end
+
+			def shipping_options
+				{ ip: client_ip, ip_country: client_ip_country }
+			end
+
+			def transaction_options
+				params.slice( :stripeToken, :credit_card ).merge({ ip: client_ip, ip_country: client_ip_country })
 			end
 
 		end

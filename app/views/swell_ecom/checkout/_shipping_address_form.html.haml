@@ -22,7 +22,7 @@
 .form-group.address_state_toggle
 	%label
 		%span State
-	= render 'state_input', f: f, states: @shipping_states, id: 'order_shipping_address_state'
+	= render 'swell_ecom/checkout/state_input', f: f, states: @shipping_states, id: 'order_shipping_address_state'
 	.help-block.with-errors
 .form-group
 	%label
