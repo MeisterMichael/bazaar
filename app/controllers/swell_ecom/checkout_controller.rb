@@ -117,12 +117,11 @@ module SwellEcom
 
 		def get_order
 
-			@order = Order.new( get_order_attributes.merge( user: current_user ) )
+			@order = Order.new( get_order_attributes.merge( order_items_attributes: [], user: current_user ) )
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			discount = Discount.active.in_progress.find_by( code: params[:coupon] ) if params[:coupon].present?
 			order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
-
 			@cart.cart_items.each do |cart_item|
 				order_item = @order.order_items.new( item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code )
 				@order.status = 'pre_order' if order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order?

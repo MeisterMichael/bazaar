@@ -85,7 +85,7 @@ module SwellEcom
 						order_item[:title]				= order_item[:item].title
 						order_item[:price]				= order_item[:item].price
 						order_item[:price]				= order_item[:item].trial_price if order_item[:item].is_a?( SubscriptionPlan ) && order_item[:item].trial?
-						order_item[:subtotal]			= order_item[:price] * order_item[:quantity]
+						order_item[:subtotal]			= order_item[:price].to_i * order_item[:quantity].to_i
 						order_item[:tax_code]			= order_item[:item].tax_code
 					end
 				end

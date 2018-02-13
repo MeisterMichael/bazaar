@@ -43,8 +43,6 @@ module SwellEcom
 				get_geo_addresses
 				render :index
 			else
-				session[:cart_count] = 0
-				session[:cart_id] = nil
 
 				payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( params[:credit_card][:expiration] ) if params[:credit_card].present?
 				@subscription_service.subscribe_ordered_plans( @order, payment_profile_expires_at: payment_profile_expires_at ) if @order.active?
