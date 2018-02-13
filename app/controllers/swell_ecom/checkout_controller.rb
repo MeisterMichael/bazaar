@@ -4,8 +4,10 @@ module SwellEcom
 		include SwellEcom::Concerns::CheckoutConcern
 
 		before_action :get_cart
+		before_action :validate_cart, only: [ :confirm, :create, :index ]
 		before_action :initialize_services, only: [ :confirm, :create, :index ]
 		before_action :get_order, only: [ :confirm, :create, :index ]
+		before_action :get_geo_addresses, only: :index
 
 		def confirm
 
@@ -76,18 +78,6 @@ module SwellEcom
 
 		def index
 
-			@billing_countries 	= SwellEcom::GeoCountry.all
-			@shipping_countries = SwellEcom::GeoCountry.all
-
-			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:only] ) if SwellEcom.billing_countries[:only].present?
-			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:except] ) if SwellEcom.billing_countries[:except].present?
-
-			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
-			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
-
-			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
-			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
-
 			@cart.init_checkout!
 
 			add_page_event_data(
@@ -119,7 +109,7 @@ module SwellEcom
 		end
 
 
-		private
+		protected
 
 		def get_cart
 			@cart ||= Cart.find_by( id: session[:cart_id] )
@@ -127,33 +117,14 @@ module SwellEcom
 
 		def get_order
 
-			if @cart.nil?
-				redirect_to '/cart'
-				return false
-			end
-
-			if params[:order].present?
-				order_attributes 			= params.require(:order).permit(:email, :customer_notes)
-				order_items_attributes		= params[:order][:order_items]
-				billing_address_attributes	= params.require(:order).require(:billing_address ).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
-				shipping_address_attributes = params.require(:order).require(:shipping_address).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
-				shipping_address_attributes = billing_address_attributes if params[:same_as_billing]
-			else
-				order_attributes = {}
-				order_items_attributes		= params[:items]
-				shipping_address_attributes = {}
-				billing_address_attributes = {}
-			end
-
-			@order = Order.new order_attributes.merge( currency: 'usd', user: current_user, ip: client_ip, status: 'active' )
-			@order.shipping_address = GeoAddress.new shipping_address_attributes.merge( user: current_user )
-			@order.billing_address 	= GeoAddress.new billing_address_attributes.merge( user: current_user )
+			@order = Order.new( get_order_attributes.merge( user: current_user ) )
+			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			discount = Discount.active.in_progress.find_by( code: params[:coupon] ) if params[:coupon].present?
 			order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 
 			@cart.cart_items.each do |cart_item|
-				order_item = @order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code
+				order_item = @order.order_items.new( item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code )
 				@order.status = 'pre_order' if order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order?
 			end
 
@@ -165,17 +136,18 @@ module SwellEcom
 		end
 
 		def shipping_options
-			{
-				ip: client_ip,
-				ip_country: client_ip_country,
-			}
+			{ ip: client_ip, ip_country: client_ip_country }
 		end
 
 		def transaction_options
-			params.slice( :stripeToken, :credit_card ).merge({
-				ip: client_ip,
-				ip_country: client_ip_country,
-			})
+			params.slice( :stripeToken, :credit_card ).merge({ ip: client_ip, ip_country: client_ip_country })
+		end
+
+		def validate_cart
+			if @cart.nil?
+				redirect_back fallback_location: '/cart'
+				return false
+			end
 		end
 
 

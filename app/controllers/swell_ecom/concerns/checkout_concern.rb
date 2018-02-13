@@ -21,6 +21,72 @@ module SwellEcom
 
 			end
 
+			def get_geo_addresses
+
+				@billing_countries 	= SwellEcom::GeoCountry.all
+				@shipping_countries = SwellEcom::GeoCountry.all
+
+				@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:only] ) if SwellEcom.billing_countries[:only].present?
+				@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:except] ) if SwellEcom.billing_countries[:except].present?
+
+				@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
+				@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
+
+				@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
+				@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
+
+			end
+
+			def get_order_attributes
+				order_attributes = params.permit(
+					order: [
+						:email,
+						:customer_notes,
+						:same_as_billing,
+						{
+							:billing_address => [
+								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
+							],
+							:shipping_address => [
+								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
+							],
+							:order_items => [
+								:item_type,
+								:item_id,
+								:quantity,
+							],
+						},
+					]
+				).to_h
+
+				order_attributes = order_attributes[:order] || {}
+
+				order_attributes[:billing_address_attributes]	= order_attributes.delete(:billing_address) || {}
+				order_attributes[:shipping_address_attributes]	= order_attributes.delete(:shipping_address) || {}
+				order_attributes[:order_items_attributes]		= order_attributes.delete(:order_items) if order_attributes.has_key?(:order_items)
+
+				order_attributes[:shipping_address_attributes] ||= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
+
+				if order_attributes[:order_items_attributes].present?
+					order_attributes[:order_items_attributes].each do |order_item|
+						order_item[:order_item_type] 	= 'prod'
+						order_item[:item]				= order_item[:item_type].constantize.find_by( id: order_item[:item_id] )
+						order_item[:title]				= order_item[:item].title
+						order_item[:price]				= order_item[:item].price
+						order_item[:price]				= order_item[:item].trial_price if order_item[:item].is_a?( SubscriptionPlan ) && order_item[:item].trial?
+						order_item[:subtotal]			= order_item[:price] * order_item[:quantity]
+						order_item[:tax_code]			= order_item[:item].tax_code
+					end
+				end
+
+				order_attributes[:status]	||= 'active'
+				order_attributes[:ip]		||= client_ip
+				order_attributes[:currency]	||= 'usd'
+
+				order_attributes
+
+			end
+
 		end
 	end
 end
