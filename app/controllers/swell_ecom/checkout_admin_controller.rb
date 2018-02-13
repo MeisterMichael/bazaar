@@ -60,7 +60,7 @@ module SwellEcom
 						render :create
 					}
 					format.html {
-						redirect_to swell_ecom.thank_you_order_path( @order.code )
+						redirect_to swell_ecom.thank_you_order_admin_path( @order.code )
 					}
 				end
 

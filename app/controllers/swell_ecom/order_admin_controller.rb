@@ -107,6 +107,12 @@ module SwellEcom
 			redirect_to swell_ecom.edit_order_admin_path( @order )
 		end
 
+		def thank_you
+			@order = Order.find_by( code: params[:id] )
+
+			render 'swell_ecom/orders/thank_you'
+		end
+
 
 		def update
 			authorize( @order, :admin_update? )
