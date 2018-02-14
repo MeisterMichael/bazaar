@@ -1,7 +1,7 @@
 
 .row
 	.col-xs-12{ style: 'padding-bottom: 0.5em;' }
-		- if order_item.order.canceled?
+		- if order_item.order.payment_canceled?
 			%h5{ style: 'margin:0;' } Canceled
 			%div Your shipment was canceled.
 		- elsif order_item.order.declined?
@@ -10,7 +10,7 @@
 		- elsif order_item.order.delivered?
 			%h5{ style: 'margin:0;' } Delivered
 			%div Your package was delivered.
-		- elsif order_item.order.fulfilled_at.present?
+		- elsif order_item.order.fulfilled?
 			%h5{ style: 'margin:0;' } Shipped #{current_user.to_local_tz(order_item.order.fulfilled_at).to_s( :basic_shorter )}
 			%div Your package was shipped
 	.col-xs-3
