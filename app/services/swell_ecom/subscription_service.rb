@@ -42,6 +42,13 @@ module SwellEcom
 
 				args[:discount] = order.order_items.discount.first.try(:item)
 
+				if ( charge_transaction = order.transactions.charge.approved.first ).present?
+
+					args[:credit_card_ending_in]	||= charge_transaction.properties['credit_card_ending_in']
+					args[:credit_card_brand]		||= charge_transaction.properties['credit_card_brand']
+
+				end
+
 			end
 
 			args[:trial_amount]	||= plan.trial_price * quantity
@@ -79,6 +86,10 @@ module SwellEcom
 				payment_profile_expires_at: args[:payment_profile_expires_at],
 				trial_amount: args[:trial_amount],
 				amount: args[:amount],
+				properties: {
+					'credit_card_ending_in'	=> args[:credit_card_ending_in],
+					'credit_card_brand'		=> args[:credit_card_brand],
+				},
 			)
 
 			subscription
@@ -101,6 +112,9 @@ module SwellEcom
 				parent: subscription,
 				email: subscription.user.email,
 				currency: subscription.currency,
+				provider: subscription.provider,
+				provider_customer_profile_reference: subscription.provider_customer_profile_reference,
+				provider_customer_payment_profile_reference: subscription.provider_customer_payment_profile_reference,
 			)
 
 			interval = nil
