@@ -79,7 +79,7 @@ module SwellEcom
 			if order.errors.present?
 				@transaction_service.calculate( order, args[:transaction] )
 			else
-				@transaction_service.process( order, args[:transaction] )
+				transaction = @transaction_service.process( order, args[:transaction] )
 				order.active!
 
 				begin
@@ -89,6 +89,8 @@ module SwellEcom
 					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 				end
 			end
+
+			transaction
 
 		end
 
