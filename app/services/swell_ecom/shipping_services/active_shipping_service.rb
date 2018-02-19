@@ -36,52 +36,29 @@ module SwellEcom
 
 			end
 
-			def calculate_cart( cart, args={} )
-
-				cart.update estimated_shipping: 0
-
-			end
-
-			def calculate_order( order, args={} )
-				service_name = args[:service_name]
-				rates = find_order_rates( order ).sort_by{ |rate| rate[:price] }
-
-				rate = rates.select{ |rate| rate.service_name == service_name }.first if service_name.present?
-				rate ||= rates.first
-
-				price = rate[:price]
-				price = (price * 100).to_i unless price.is_a? Integer
-
-				order.order_items.new item: nil, price: price, subtotal: price, title: 'Shipping', order_item_type: 'shipping', tax_code: '11000', properties: { 'service_name' => rate[:name] }
-
-			end
-
-			def find_order_rates( order )
-				find_rates( order.shipping_address, order.order_items.select{ |order_item| order_item.prod? } )
-			end
-
 			def find_rates( geo_address, line_items )
 				packages = []
 
 				line_items.each do |line_item|
-					item = line_item.item
-					item = item.subscription_plan if item.is_a? SwellEcom::Subscription
 
-					if item.present? && item.respond_to?(:package_shape) && not( item.no_package? )
+					package_shape = line_item.package_shape || 'no_shape'
 
+					unless package_shape == 'no_shape'
 						[1..line_item.quantity].each do |i|
-							if item.cylinder?
+
+							if package_shape == 'cylinder'
 								packages << ActiveShipping::Package.new(
-									  item.package_weight,
-									  [ item.package_length, item.package_width ],
-									  cylinder: true	# cylinders have different volume calculations
-								  )
+									line_item.package_weight,
+									[ line_item.package_length, line_item.package_width ],
+									cylinder: true	# cylinders have different volume calculations
+								)
 							else
 								packages << ActiveShipping::Package.new(
-									item.package_weight,
-									[ item.package_height, item.package_width, item.package_length ],
+									line_item.package_weight,
+									[ line_item.package_height, line_item.package_width, line_item.package_length ],
 								)
 							end
+
 						end
 					end
 				end
@@ -105,7 +82,7 @@ module SwellEcom
 			end
 
 			def process( order, args = {} )
-
+				# @todo
 			end
 
 		end

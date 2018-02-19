@@ -21,19 +21,19 @@ module SwellEcom
 
 		end
 
-		def calculate_order( order, args = {} )
+		def calculate_order( order, args={} )
+			service_name = args[:service_name]
+			rates = find_order_rates( order ).sort_by{ |rate| rate[:price] }
 
-			# order.order_items.new item: nil, amount: 1000, label: 'Shipping', order_item_type: 'shipping', tax_code: '11000'
+			rate = rates.select{ |rate| rate.service_name == service_name }.first if service_name.present?
+			rate ||= rates.first
 
-=begin
-			Taxability Information Code: 11010
-			Transportation, shipping, postage, and similar charges.
-			IMPORTANT: TIC 11010 should only be used if your are charging your customer your actual shipping cost as can be demonstrated by your invoice from your shipping provider.
-			If you offer "Flat Rate Shipping"	(regardless of your actual shipping costs), or if you markup your shipping charges (charing your customers more than your actual shipping cost), you should use Shipping & Handling TIC 11000.
-=end
+			order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: 'Shipping', order_item_type: 'shipping', tax_code: '11000', properties: { 'service_name' => rate[:name], 'carrier' => rate[:carrier] } ) if rate.present?
 
-			return
+		end
 
+		def find_order_rates( order )
+			find_rates( order.shipping_address, order.order_items.select{ |order_item| order_item.prod? } )
 		end
 
 		def find_rates( geo_address, line_items )

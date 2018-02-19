@@ -12,5 +12,34 @@ module SwellEcom
 
 		money_attributes :subtotal, :price
 
+		def package_item
+			package_item = self.item
+			package_item = package_item.subscription_plan if package_item.is_a? SwellEcom::Subscription
+			package_item
+		end
+
+		def package_shape
+			( self.properties['package_shape']  || package_item.package_shape )
+		end
+
+		def package_weight
+			( self.properties['package_weight'] || package_item.package_weight || 0 ).to_f
+		end
+
+		def package_length
+			( self.properties['package_length'] || package_item.package_length || 0 ).to_f
+		end
+
+		def package_width
+			( self.properties['package_width']  || package_item.package_width || 0 ).to_f
+		end
+
+		def package_height
+			( self.properties['package_height'] || package_item.package_height || 0 ).to_f
+		end
+
+
+
+
 	end
 end
