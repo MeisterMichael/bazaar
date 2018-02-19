@@ -3,6 +3,11 @@ module SwellEcom
 	class ShippingService
 
 		def initialize( args = {} )
+			@multiplier_adjustment = 1.00 + ( ( args[:percent_adjustment] || 0 ).to_f / 100.00 )
+			@flat_adjustment = args[:flat_adjustment] || 0
+
+			@code_whitelist = args[:code_whitelist]
+			@code_blacklist = args[:code_blacklist]
 		end
 
 		def calculate( obj, args = {} )
@@ -37,11 +42,25 @@ module SwellEcom
 		end
 
 		def find_rates( geo_address, line_items )
-			[]
+			rates = request_shipping_rates( geo_address, line_items )
+
+			rates = rates.select{ |rate| @code_whitelist.include?( rate[:code] ) } if @code_whitelist.present?
+			rates = rates.select{ |rate| not( @code_blacklist.include?( rate[:code] ) ) } if @code_blacklist.present?
+
+			rates.each do |rate|
+				rate[:price] = rate[:price] * @multiplier_adjustment + @flat_adjustment
+			end
+
+			rates
 		end
 
 		def process( order, args = {} )
+			# @todo
+		end
 
+		protected
+		def request_shipping_rates( geo_address, line_items )
+			[]
 		end
 
 	end

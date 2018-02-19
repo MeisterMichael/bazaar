@@ -10,6 +10,7 @@ module SwellEcom
 		class DHLShippingService < SwellEcom::ShippingService
 
 			def initialize( args = {} )
+				super( args )
 
 				warehouse_address = args[:warehouse] || SwellEcom.warehouse_address
 
@@ -20,7 +21,12 @@ module SwellEcom
 
 			end
 
-			def find_rates( geo_address, line_items )
+			def process( order, args = {} )
+				# @todo
+			end
+
+			protected
+			def request_shipping_rates( geo_address, line_items )
 
 				r = Dhl::GetQuote::Request.new(
 					:site_id => @site_id,
@@ -60,19 +66,16 @@ module SwellEcom
 				end
 
 				response = r.post
+				
 				if response.error?
 					raise "There was an error: #{response.raw_xml}"
 				else
 					# puts "Your cost to ship will be: #{response.total_amount} in #{response.currency_code}."
 					rates = []
-					rates << { name: 'DHL', code: 'DHL', price: response.total_amount, carrier: 'DHL', currency: response.currency_code }
+					rates << { name: 'DHL', code: 'DHL', price: (response.total_amount.to_f * 100).to_i, carrier: 'DHL', currency: response.currency_code }
 				end
 
 				rates
-			end
-
-			def process( order, args = {} )
-				# @todo
 			end
 
 		end

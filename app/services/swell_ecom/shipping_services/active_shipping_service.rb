@@ -22,6 +22,7 @@ module SwellEcom
 		class ActiveShippingService < SwellEcom::ShippingService
 
 			def initialize( args = {} )
+				super( args )
 
 				warehouse_address = args[:warehouse] || SwellEcom.warehouse_address
 				@origin = ActiveShipping::Location.new(
@@ -34,13 +35,16 @@ module SwellEcom
 				args[:class]	||= 'ActiveShipping::USPS'
 				args[:config]	= args[:config].merge( test: true ) unless Rails.env.production?
 
-				@code_whitelist = args[:code_whitelist]
-
 				@shipping_service = args[:class].constantize.new( args[:config] )
 
 			end
 
-			def find_rates( geo_address, line_items )
+			def process( order, args = {} )
+				# @todo
+			end
+
+			protected
+			def request_shipping_rates( geo_address, line_items )
 				packages = []
 
 				line_items.each do |line_item|
@@ -80,13 +84,7 @@ module SwellEcom
 					{ name:	rate.service_name, code: rate.service_code, price: rate.total_price, carrier: rate.carrier, currency: rate.currency }
 				end
 
-				rates = rates.select{ |rate| @code_whitelist.include? rate[:code] } if @code_whitelist.present?
-
 				rates
-			end
-
-			def process( order, args = {} )
-				# @todo
 			end
 
 		end
