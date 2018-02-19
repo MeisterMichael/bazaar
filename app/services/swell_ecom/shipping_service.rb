@@ -7,21 +7,21 @@ module SwellEcom
 
 		def calculate( obj, args = {} )
 
-			return self.calculate_order( obj ) if obj.is_a? Order
-			return self.calculate_cart( obj ) if obj.is_a? Cart
+			return self.calculate_order( obj, args ) if obj.is_a? Order
+			return self.calculate_cart( obj, args ) if obj.is_a? Cart
 
 		end
 
 
 		protected
 
-		def calculate_cart( cart )
+		def calculate_cart( cart, args = {} )
 
 			cart.update estimated_shipping: 0
 
 		end
 
-		def calculate_order( order )
+		def calculate_order( order, args = {} )
 
 			# order.order_items.new item: nil, amount: 1000, label: 'Shipping', order_item_type: 'shipping', tax_code: '11000'
 
@@ -33,6 +33,14 @@ module SwellEcom
 =end
 
 			return
+
+		end
+
+		def find_rates( geo_address, line_items )
+			[]
+		end
+
+		def process( order, args = {} )
 
 		end
 
