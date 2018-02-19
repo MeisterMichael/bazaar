@@ -1,6 +1,15 @@
 
 require 'active_shipping'
-
+# Active Shipping Integrates with:
+# * USPS
+# * USPS Returns
+# * FedEx
+# * Canada Post
+# * New Zealand Post
+# * Shipwire
+# * Stamps
+# * Kunaki
+# * Australia Post
 
 module SwellEcom
 
@@ -19,7 +28,7 @@ module SwellEcom
 				)
 
 				args[:class]	||= 'ActiveShipping::USPS'
-				args[:config]	||= { login: '964NEURO4822' }
+				args[:config]	= args[:config].merge( test: true ) unless Rails.env.production?
 
 				@code_whitelist = args[:code_whitelist]
 
