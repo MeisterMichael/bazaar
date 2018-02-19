@@ -38,6 +38,7 @@ module SwellEcom
 
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
+		enum package_shape: { 'no_package' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		validates		:title, presence: true, unless: :allow_blank_title?
 
