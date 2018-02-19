@@ -1,15 +1,19 @@
 
 require 'active_shipping'
+# Gem requirements
+# => gem 'active_shipping'
+#
 # Active Shipping Integrates with:
-# * USPS
-# * USPS Returns
-# * FedEx
-# * Canada Post
-# * New Zealand Post
-# * Shipwire
-# * Stamps
-# * Kunaki
-# * Australia Post
+# => UPS (< 2.1)
+# => USPS
+# => USPS Returns
+# => FedEx
+# => Canada Post
+# => New Zealand Post
+# => Shipwire
+# => Stamps
+# => Kunaki
+# => Australia Post
 
 module SwellEcom
 

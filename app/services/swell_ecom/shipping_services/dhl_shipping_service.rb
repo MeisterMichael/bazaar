@@ -1,5 +1,7 @@
 
 require 'dhl-get_quote'
+# Gem requirements
+# => gem 'dhl-get_quote'
 
 module SwellEcom
 
