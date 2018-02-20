@@ -14,34 +14,63 @@ module SwellEcom
 		end
 
 		def calculate( obj, args = {} )
-
 			return self.calculate_order( obj, args ) if obj.is_a? Order
 			return self.calculate_cart( obj, args ) if obj.is_a? Cart
-
 		end
 
 		def find_rates( obj, args = {} )
 			return self.find_order_rates( obj, args ) if obj.is_a? Order
+			return self.find_cart_rates( obj, args ) if obj.is_a? Cart
 		end
 
+		def process( order, args = {} )
+			# @todo
+		end
+
+		def validate( geo_address )
+			# @todo
+			not( geo_address.errors.present? )
+		end
 
 		protected
 
 		def calculate_cart( cart, args = {} )
+			rates = find_cart_rates( cart, args )
+			rate = find_default_rate( rates )
 
-			cart.update estimated_shipping: 0
-
+			if rate.present?
+				cart.update( estimated_shipping: rate[:price] )
+			else
+				cart.update( estimated_shipping: 0 )
+			end
 		end
 
 		def calculate_order( order, args={} )
 			service_name = args[:service_name]
 			rates = find_order_rates( order, args ).sort_by{ |rate| rate[:price] }
 
-			rate = rates.select{ |rate| rate[:service_name] == service_name }.first if service_name.present?
-			rate ||= rates.first
+			if service_name.present?
+				rate = rates.select{ |rate| rate[:service_name] == service_name }.first
+			else
+				rate = find_default_rate( rates )
+			end
 
 			order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: 'Shipping', order_item_type: 'shipping', tax_code: '11000', properties: { 'service_name' => rate[:name], 'carrier' => rate[:carrier] } ) if rate.present?
 
+		end
+
+		def find_cart_rates( cart, args = {} )
+			return [] unless args[:ip_country].present?
+			country = SwellEcom::GeoCountry.find_by( abbrev: args[:ip_country].upcase )
+			return [] unless country.present?
+
+			address = SwellEcom::GeoAddress.new( geo_country: country )
+
+			find_address_rates( address, cart.cart_items, args )
+		end
+
+		def find_default_rate( rates )
+			rate = rates.sort_by{ |rate| rate[:price] }.first
 		end
 
 		def find_order_rates( order, args = {} )
@@ -63,11 +92,6 @@ module SwellEcom
 			rates
 		end
 
-		def process( order, args = {} )
-			# @todo
-		end
-
-		protected
 		def request_address_rates( geo_address, line_items )
 			[]
 		end

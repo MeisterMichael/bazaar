@@ -35,6 +35,10 @@ module SwellEcom
 		end
 
 		def process( order, args = {} )
+			@shipping_service.validate( order.shipping_address )
+			@shipping_service.validate( order.billing_address )
+			return false if order.shipping_address.errors.present? || order.billing_address.errors.present?
+
 			return self.process_capture_payment_method( order, args ) if order.pre_order?
 			return self.process_purchase( order, args ) if order.active?
 			raise Exception.new( 'OrderService#process: invalid order status' )
