@@ -5,7 +5,16 @@ module SwellEcom
 		before_action :get_subscription, except: [ :index ]
 
 		def destroy
-			# @todo cancel subscription
+
+			@subscription.canceled!
+
+			if @subscription.errors.present?
+				set_flash @subscription.errors.full_messages, :danger
+			else
+				set_flash "Subscription canceled succesfully.", :success
+			end
+
+			redirect_back fallback_location: your_subscription_path( @subscription.code )
 		end
 
 		def index
@@ -68,6 +77,14 @@ module SwellEcom
 					end
 				end
 
+			else
+
+				subscription_params = params.required(:subscription).permit( :status, :next_charged_at ).to_h
+				subscription_params.delete(:status) unless ['active','canceled'].include?( subscription_params[:status] )
+
+				@subscription.attributes = subscription_params
+				@subscription.save
+
 			end
 
 			if @subscription.errors.present?
@@ -76,7 +93,7 @@ module SwellEcom
 				set_flash "Subscription updated succesfully.", :success
 			end
 
-			redirect_back fallback_location: '/admin'
+			redirect_back fallback_location: your_subscription_path( @subscription.code )
 
 		end
 

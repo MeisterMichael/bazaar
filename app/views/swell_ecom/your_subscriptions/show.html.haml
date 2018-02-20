@@ -1,12 +1,16 @@
 .container
 	.row
-		.col-xs-12
+		.col-xs-12.col-md-10
 			%a{ href: swell_ecom.your_account_index_path() } My Account
 			>
 			%a{ href: swell_ecom.your_subscriptions_path() } My Subscriptions
 			> Subscription Details
 			%h2 Subscription Details
 			%p
+				- if @subscription.active?
+					.pull-right
+						%a.btn.btn-danger{ href: swell_ecom.your_subscription_path( @subscription.code ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
+							Cancel Subscription
 				Subscribed on #{current_user.to_local_tz(@subscription.created_at).to_s( :basic_short )}
 				%span.horizontal-separator="|"
 				Subscription# #{@subscription.code}
@@ -15,7 +19,8 @@
 					%span.subscription-status.subscription-status-failed RENEWAL FAILURE
 				- elsif @subscription.canceled?
 					%span.horizontal-separator="|"
-					%span.subscription-status.subscription-status-canceled CANCELED
+					%strong.subscription-status.subscription-status-canceled.color-red CANCELED
+
 
 	.row
 		.col-xs-12.col-md-10
