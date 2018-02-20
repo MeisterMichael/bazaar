@@ -44,7 +44,7 @@ module SwellEcom
 			end
 
 			protected
-			def request_shipping_rates( geo_address, line_items )
+			def request_address_rates( geo_address, line_items, args = {} )
 				packages = []
 
 				line_items.each do |line_item|
@@ -52,20 +52,24 @@ module SwellEcom
 					package_shape = line_item.package_shape || 'no_shape'
 
 					unless package_shape == 'no_shape'
+
+						options = {}
+
+						dims = []
+						dims = [ line_item.package_height, line_item.package_width, line_item.package_length ] if line_item.package_length && line_item.package_width && line_item.package_height
+
+						if package_shape == 'cylinder'
+							options = { cylinder: true }
+							dims = [ line_item.package_length, line_item.package_width ] if line_item.package_length && line_item.package_width
+						end
+
 						[1..line_item.quantity].each do |i|
 
-							if package_shape == 'cylinder'
-								packages << ActiveShipping::Package.new(
-									line_item.package_weight,
-									[ line_item.package_length, line_item.package_width ],
-									cylinder: true	# cylinders have different volume calculations
-								)
-							else
-								packages << ActiveShipping::Package.new(
-									line_item.package_weight,
-									[ line_item.package_height, line_item.package_width, line_item.package_length ],
-								)
-							end
+							packages << ActiveShipping::Package.new(
+								line_item.package_weight,
+								dims,
+								options
+							)
 
 						end
 					end
@@ -81,7 +85,7 @@ module SwellEcom
 				response = @shipping_service.find_rates( @origin, destination, packages )
 
 				rates = response.rates.collect do |rate|
-					{ name:	rate.service_name, code: rate.service_code, price: rate.total_price, carrier: rate.carrier, currency: rate.currency }
+					{ name: rate.service_name, code: rate.service_code, price: rate.total_price.to_i, carrier: rate.carrier, currency: rate.currency }
 				end
 
 				rates

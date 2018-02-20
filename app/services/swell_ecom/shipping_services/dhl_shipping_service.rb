@@ -26,7 +26,7 @@ module SwellEcom
 			end
 
 			protected
-			def request_shipping_rates( geo_address, line_items )
+			def request_address_rates( geo_address, line_items, args = {} )
 
 				r = Dhl::GetQuote::Request.new(
 					:site_id => @site_id,
@@ -53,20 +53,25 @@ module SwellEcom
 						package_weight = line_item.package_weight / 1000.0 # g to kg
 
 						[1..line_item.quantity].each do |i|
-
-							r.pieces << Dhl::GetQuote::Piece.new(
-								:height	=> line_item.package_height,
-								:weight	=> package_weight,
-								:width	=> line_item.package_width,
-								:depth	=> line_item.package_length
-							)
+							if line_item.package_length && line_item.package_width && line_item.package_height
+								r.pieces << Dhl::GetQuote::Piece.new(
+									:height	=> line_item.package_height,
+									:weight	=> package_weight,
+									:width	=> line_item.package_width,
+									:depth	=> line_item.package_length
+								)
+							else
+								r.pieces << Dhl::GetQuote::Piece.new(
+									:weight	=> package_weight,
+								)
+							end
 
 						end
 					end
 				end
 
 				response = r.post
-				
+
 				if response.error?
 					raise "There was an error: #{response.raw_xml}"
 				else
