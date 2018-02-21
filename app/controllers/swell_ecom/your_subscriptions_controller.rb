@@ -81,6 +81,8 @@ module SwellEcom
 
 				subscription_params = params.required(:subscription).permit( :status, :next_charged_at ).to_h
 				subscription_params.delete(:status) unless ['active','on_hold'].include?( subscription_params[:status] )
+				subscription_params.delete(:next_charged_at) if subscription_params[:next_charged_at].blank?
+				subscription_params[:next_charged_at] = "#{subscription_params[:next_charged_at]} 08:00:00 #{current_user.local_tz}" if subscription_params[:next_charged_at]
 
 				@subscription.attributes = subscription_params
 				@subscription.save

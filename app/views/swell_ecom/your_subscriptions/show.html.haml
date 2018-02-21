@@ -66,11 +66,15 @@
 								then, once
 
 							every
-							= pluralize plan.billing_interval_value, plan.billing_interval_unit.singularize
+							= pluralize @subscription.billing_interval_value, @subscription.billing_interval_unit.singularize
 						- if @subscription.active?
 							%p
 								Next interval starts on #{current_user.to_local_tz(@subscription.next_charged_at).to_s( :basic_short )}
-
+								- if @subscription.active?
+									%p
+										Next interval starts on #{current_user.to_local_tz(@subscription.next_charged_at).to_s( :basic_short )}
+										%a{ href: '#', data: { toggle: :modal, target: '#update_next_interval_modal' } }
+											Edit
 	.row
 		.col-xs-12
 			%h5{ style: 'margin-bottom: 0.2em;' } Order History
@@ -83,3 +87,4 @@
 			%div= raw paginate @orders
 
 = render 'swell_ecom/your_subscriptions/update_payment_info_modal'
+= render 'swell_ecom/your_subscriptions/update_next_interval_modal'
