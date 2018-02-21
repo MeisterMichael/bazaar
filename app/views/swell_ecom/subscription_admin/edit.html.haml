@@ -70,13 +70,14 @@
 								.input-group
 									%span.input-group-addon $
 									= f.number_field :price_as_money, class: 'form-control text-right', min: 0.00, step: 0.01
-						.col-md-6.col-md-offset-6
-							.form-group
-								= f.label :trial_price, 'Trial Price'
+						- if @subscription.subscription_plan.trial?
+							.col-md-6.col-md-offset-6
+								.form-group
+									= f.label :trial_price, 'Trial Price'
 
-								.input-group
-									%span.input-group-addon $
-									= f.number_field :trial_price_as_money, class: 'form-control text-right', min: 0.00, step: 0.01
+									.input-group
+										%span.input-group-addon $
+										= f.number_field :trial_price_as_money, class: 'form-control text-right', min: 0.00, step: 0.01
 
 
 					.form-group
