@@ -21,4 +21,16 @@ namespace :swell_ecom do
 
 	end
 
+	task migrate_subscription_customizations: :environment do
+		subscriptions = SwellEcom::Subscription.all
+
+		subscriptions.find_each do |subscription|
+
+			subscription.billing_interval_value	= subscription.subscription_plan.billing_interval_value
+			subscription.billing_interval_unit	= subscription.subscription_plan.billing_interval_unit
+			subscription.trial_price			= subscription.trial_amount / subscription.quantity
+			subscription.price					= subscription.amount / subscription.quantity
+		end
+	end
+
 end
