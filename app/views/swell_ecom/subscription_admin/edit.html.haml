@@ -11,7 +11,8 @@
 			%h2
 				%strong= @subscription.code
 				%small= @subscription.created_at.to_s( :short )
-
+			Plan:
+			%a{ href: swell_ecom.edit_subscription_plan_admin_path( @subscription.subscription_plan ) }= @subscription.subscription_plan.title
 		.col-xs-2
 
 
