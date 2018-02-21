@@ -2,10 +2,10 @@ module SwellEcom
 	class CartsController < ApplicationController
 		# really just to show the user's cart
 
-		before_filter :get_cart
+		before_action :get_cart
 
 		def show
-			@cart ||= Cart.new( ip: request.ip )
+			@cart ||= Cart.new( ip: client_ip )
 
 			add_page_event_data(
 				ecommerce: {
@@ -33,7 +33,8 @@ module SwellEcom
 				end
 
 			end
-			redirect_to :back
+
+			redirect_back fallback_location: '/admin'
 		end
 
 		private

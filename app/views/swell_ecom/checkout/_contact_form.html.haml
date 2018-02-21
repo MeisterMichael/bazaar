@@ -1,0 +1,10 @@
+.form-group
+	%label
+		%span Email
+	= f.email_field :email, class: 'form-control', required: true
+	.help-block.with-errors
+
+-# .form-group
+	%label
+		%span Title
+	= text_field_tag 'order[billing_address][title]', '', class: 'form-control'

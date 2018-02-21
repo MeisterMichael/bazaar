@@ -12,4 +12,10 @@ gemspec
 
 # To use a debugger
 # gem 'byebug', group: [:development, :test]
+gem 'rake', '< 11.0'
+gem 'jbuilder'
+gem 'swell_media', git: 'git://github.com/Groundswell/swell_media.git', :branch => "r5"
 
+group :development, :test do
+	gem 'rails-controller-testing'
+end

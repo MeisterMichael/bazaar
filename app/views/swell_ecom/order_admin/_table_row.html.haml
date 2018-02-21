@@ -1,0 +1,68 @@
+%tr
+	%td
+		= link_to order.code, edit_order_admin_path( order.id )
+	%td
+		= current_user_tz_easy_read_date_format order.created_at
+	- if args[:customer] != false
+		%td
+			%a{ href: edit_order_admin_path( order.id ) }
+				- if order.user.present? && order.user.full_name.strip.present?
+					= order.user.full_name
+				- else
+					= (order.email || order.user.try(:email) || 'N/A')
+	%td
+		.badge.order_status{ class: order.status }
+			- if order.pre_order? || order.draft?
+				%span.fa.fa-circle-o
+			= order.status.gsub(/_/,' ')
+	%td
+		.badge.order_payment_status{ class: order.payment_status }
+			- if order.invoice?
+				%span.fa.fa-circle-o
+			= order.payment_status.gsub(/_/,' ')
+	%td
+		.badge.order_fulfillment_status{ class: order.fulfillment_status }
+			- if order.unfulfilled?
+				%span.fa.fa-circle-o
+			= order.fulfillment_status.gsub(/_/,' ')
+	%td
+		= number_to_currency ( order.total || 0 ) / 100.to_f
+	- if args[:controls]
+		%td
+			- if policy(order).admin_edit? || policy(order).admin_destroy?
+				.btn-group
+					%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+						%i.fa.fa-cog
+						%b.caret
+					%ul.dropdown-menu
+						- if policy(order).admin_edit?
+							%li
+								%a{ href: edit_order_admin_path( order.id ) }
+									%i.fa.fa-pencil
+									Edit
+							%li.divider
+						- if policy(order).admin_update?
+							- unless SwellEcom.automated_fulfillment
+								- if order.unfulfilled?
+									%li
+										%a{ href: order_admin_path( order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
+											%i.fa.fa-send
+											Fulfilled
+								- if order.fulfilled?
+									%li
+										%a{ href: order_admin_path( order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } }
+											%i.fa.fa-check
+											Delivered
+
+							- if order.unfulfilled?
+								%li
+									%a{ href: order_admin_path( order, order: { fulfillment_status: 'fulfillment_canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel fulfillment of this order?' } }
+										%i.fa.fa-times
+										Cancel
+							%li.divider
+
+						- if policy(order).admin_destroy?
+							%li
+								%a{ href: order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
+									%i.fa.fa-trash-o
+									Delete!

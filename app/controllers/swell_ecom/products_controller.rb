@@ -40,7 +40,7 @@ module SwellEcom
 
 		def show
 			begin
-				@product = Product.friendly.find( params[:id] )
+				@product = Product.published.friendly.find( params[:id] )
 			rescue ActiveRecord::RecordNotFound => ex
 				render '404', status: 404
 				return

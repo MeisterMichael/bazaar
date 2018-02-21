@@ -1,0 +1,91 @@
+- cache( "show-#{@plan.cache_key}" ) do
+	%section.clearfix.mainContent
+		.container
+			.row.singleProduct
+				.col-xs-12
+					.media
+						.media-left.productSlider
+							#carousel.carousel.slide{ data: { ride: "carousel" }	}
+								.carousel-inner
+									.item.active{ data: { thumb: 0 } }
+										%img{ src: @plan.avatar }
+									- @images.each_with_index do |image, idx|
+										.item{ data: { thumb: (idx + 1) } }
+											%img{ src: image.url }
+							.clearfix
+								#thumbcarousel.carousel.slide{ data: { interval: "false" } }
+									.carousel-inner
+										.thumb{ data: { target: "#carousel", 'slide-to' => "0" } }
+											%img{ src: @plan.avatar }
+										- @images.each_with_index do |image, idx|
+											.thumb{ data: { target: "#carousel", 'slide-to' => (idx + 1) } }
+												%img{ src: image.url }
+									%a.left.carousel-control{ href: "#thumbcarousel", role: "button", data: { slide: "prev" } }
+										%span.glyphicon.glyphicon-chevron-left
+									%a.right.carousel-control{ href: "#thumbcarousel", role: "button", data: { slide: "next" } }
+										%span.glyphicon.glyphicon-chevron-right
+						.media-body
+							-# if @plan.product_category.present?
+								%ul.list-inline
+									%li
+										in
+										%a{:href => products_path( category: @plan.product_category.slug ) }
+											= @plan.product_category.name
+
+							%h1.content-title
+								= @plan.title
+							%h2{ style: 'color:#777;border-bottom: 1px #ddd solid;' }
+								- if @plan.price % 100 == 0
+									= number_to_currency( @plan.price / 100.to_f, precision: 0 )
+								- else
+									= number_to_currency( @plan.price / 100.to_f )
+
+							- if @plan.description.present?
+								%p
+									= raw @plan.description
+							- else
+								%br
+
+
+							= form_tag cart_items_path, data: { 'add-to-cart' => @plan.page_event_data.merge( quantity: 1 ).to_json } do
+								= hidden_field_tag :item_type, @plan.class.name
+								= hidden_field_tag :item_id, @plan.id
+
+
+								%span.quick-drop.resizeWidth
+									%select.select-drop#quantity{ name: "quantity" }
+										%option{ value: "1" }
+											1
+										%option{ value: "2" }
+											2
+										%option{ value: "3" }
+											3
+										%option{ value: "4" }
+											4
+										%option{ value: "5" }
+											5
+										%option{ value: "6" }
+											6
+										%option{ value: "7" }
+											7
+								.btn-area
+									= submit_tag 'Add to Cart', class: 'btn btn-primary btn-block'
+
+
+							.tabArea
+								%ul.nav.nav-tabs
+									%li.active
+										%a{ href: "#details", data: { toggle: "tab" } }
+											details
+								.tab-content
+									#details.tab-pane.fade.in.active
+										= raw @plan.content
+
+			- if @related_products.present?
+				.row.productsContent
+					.col-xs-12
+						.page-header
+							%h4
+								Related Products
+						- @related_products.each do |product|
+							= render 'card', product: product, args: { size: 'col-md-3 col-sm-6 col-xs-12' }

@@ -1,16 +1,19 @@
 module SwellEcom
 	class ProductVariant < ActiveRecord::Base
-
 		self.table_name = 'product_variants'
 
-		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
+		include FriendlyId
+		include SwellEcom::Concerns::MoneyAttributesConcern
 
+		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
+		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
+		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		before_save :set_defaults
 
 		belongs_to :product
 
-		include FriendlyId
+		money_attributes :price, :shipping_price
 		friendly_id :title, use: [ :slugged, :history ]
 
 
@@ -23,6 +26,10 @@ module SwellEcom
 		def option_title( opts={} )
 			separator = opts[:separator] || ': '
 			return "#{self.option_name}#{separator}#{self.option_value}"
+		end
+
+		def sku
+			"prod-#{self.product.slug}-#{self.slug}"
 		end
 
 		def tax_code

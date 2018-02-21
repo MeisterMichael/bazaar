@@ -1,0 +1,18 @@
+#refund_order.modal.fade
+	.modal-dialog.modal-sm
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Refund Amount
+			= form_for @order, url: refund_order_admin_path( @order ), method: :POST, html: { class: 'form-inline' } do |f|
+				.modal-body{ style: 'text-align: center;' }
+					.form-group
+						$
+						= number_field_tag :amount, @order.total / 100.0, min: 0.01, step: 0.01, class: 'form-control', placeholder: '0.00'
+
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Refund', class: 'btn btn-primary'

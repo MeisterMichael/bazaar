@@ -1,0 +1,52 @@
+
+
+.form-group
+	%label
+		%span First Name
+	= f.text_field :first_name, class: 'form-control', required: true
+	.help-block.with-errors
+.form-group
+	%label
+		%span Last Name
+	= f.text_field :last_name, class: 'form-control', required: true
+	.help-block.with-errors
+.form-group
+	%label
+		%span Country
+	- if @shipping_countries.count == 1
+		= f.hidden_field :geo_country_id, value: @shipping_countries.first.id
+		.form-control= @shipping_countries.first.name
+	- else
+		= f.collection_select :geo_country_id, @shipping_countries, :id, :name, { prompt: @shipping_countries.count > 1 }, { class: "form-control", data: { 'geostateupdate-target' => '#order_shipping_address_state', 'geostateupdate-data' => { address_attribute: :shipping_address }.to_json }, required: true }
+	.help-block.with-errors
+.form-group.address_state_toggle
+	%label
+		%span State
+	= render 'swell_ecom/checkout/state_input', f: f, states: @shipping_states, id: 'order_shipping_address_state'
+	.help-block.with-errors
+.form-group
+	%label
+		%span Address Line 1
+	= f.text_field :street, class: 'form-control', required: true
+	.help-block.with-errors
+.form-group
+	%label
+		%span Address Line 2
+		%small (optional)
+	= f.text_field :street2, class: 'form-control'
+	.help-block.with-errors
+.form-group
+	%label
+		%span City
+	= f.text_field :city, class: 'form-control', required: true
+	.help-block.with-errors
+.form-group
+	%label
+		%span Zip
+	= f.text_field :zip, class: 'form-control', required: true
+	.help-block.with-errors
+.form-group
+	%label
+		%span Phone Number
+	= f.telephone_field :phone, value: (@order.shipping_address.phone || '+1'), class: 'form-control telephone_formatted', required: true
+	.help-block.with-errors

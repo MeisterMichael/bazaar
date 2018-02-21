@@ -2,117 +2,254 @@
 
 .container-fluid
 	.row
-		.col-xs-10
+		.col-xs-12
 			%ul.breadcrumb
 				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					= link_to 'Order Admin', order_admin_index_path
-				%li
-					%strong
-						Edit Order:
-						= @order.code
+					%a{ href: order_admin_index_path }
+						%i.fa.fa-angle-left
+						Orders
+
+			- if policy(@order).admin_update?
+				- if @order.pre_order? || @order.draft?
+					.pull-right
+						%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
+							%i.fa.fa-send
+							Process
+				- if not( SwellEcom.automated_fulfillment )
+					.pull-right
+						- if @order.unfulfilled?
+							%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
+								%i.fa.fa-send
+								Fulfilled
+							%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfillment_canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel fulfillment of this order?' } }
+								%i.fa.fa-times
+								Cancel
+						- elsif @order.fulfilled?
+							%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } }
+								%i.fa.fa-check
+								Delivered
+						- elsif @order.unfulfilled?
+							.pull-right
+								%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfillment_canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel fulfillment of this order?' } }
+									%i.fa.fa-times
+									Cancel
+
+
+			%h2
+				%strong= @order.code
+				%small=current_user.to_local_tz(@order.created_at).to_s( :short )
+
 		.col-xs-2
 
 
-	= form_for @order, url: order_admin_path( @order ) do |f|
-		.row
-			.col-xs-8
-				.row
-					.col-xs-12
-						%h2
-							Order:
-							= @order.code
-						Placed:
-						= @order.created_at.to_s( :short )
-						By:
-						= @order.email
-						%table.table
-							%thead
-								%tr
-									%th Product
-									%th{ style: 'width: 80px' } Price
-									%th.text-right{ style: 'width: 70px' } Quantity
-									%th.text-right{ style: 'width: 100px' } Subtotal
-							%tbody
-								- @order.order_items.prod.each do |order_item|
-									%tr
-										%td
+	.row
+		.col-xs-12.col-sm-8
+			.well.white-well
+
+				.pull-right
+					%a{ href: '#', data: { toggle: :modal, target: '#edit_status_modal' } } Edit
+				%h4
+					Order Details
+					%small
+
+						.badge.order_status{ class: @order.status }
+							- if @order.pre_order? || @order.draft?
+								%i.fa.fa-circle-o
+							=@order.status.gsub(/_/,' ')
+						.badge.order_payment_status{ class: @order.payment_status }
+							- if @order.invoice? || @order.payment_method_captured?
+								%i.fa.fa-circle-o
+							=@order.payment_status.gsub(/_/,' ')
+						.badge.order_fulfillment_status{ class: @order.fulfillment_status }
+							- if @order.unfulfilled?
+								%i.fa.fa-circle-o
+							=@order.fulfillment_status.gsub(/_/,' ')
+
+				%table.table.table-light.table-bordered{ style: 'margin: 0' }
+					%thead
+						%tr
+							%th Product
+							%th{ style: 'width: 80px' } Price
+							%th.text-right{ style: 'width: 70px' } Quantity
+							%th.text-right{ style: 'width: 100px' } Subtotal
+					%tbody
+						- @order.order_items.prod.each do |order_item|
+							%tr
+								%td
+									- if ( subscription = order_item.subscription ).present? || ( subscription = order_item.item ).is_a?( SwellEcom::Subscription )
+										- if policy(subscription).admin_edit?
+											%a{ href: edit_subscription_admin_path( subscription ) }
+												= order_item.title
+												(#{subscription.code})
+										- else
 											= order_item.title
-										%td
-											= number_to_currency (order_item.price.to_f / 100)
-										%td.text-right
-											=order_item.quantity
-										%td.text-right= number_to_currency order_item.subtotal.to_f / 100
+											(#{subscription.code})
+									- else
+										= order_item.title
 
-								%tr
-									%td
-									%td
-									%td
-										Subtotal
-									%td.text-right
-										%strong
-											= number_to_currency @order.subtotal.to_f / 100
+								%td
+									= number_to_currency (order_item.price.to_f / 100)
+								%td.text-right
+									=order_item.quantity
+								%td.text-right= number_to_currency order_item.subtotal.to_f / 100
 
-								%tr
-									%td
-									%td
-									%td
-										Tax
-									%td.text-right
-										%strong
-											= number_to_currency @order.tax.to_f / 100
-								%tr
-									%td
-									%td
-									%td
-										Shipping
-									%td.text-right
-										%strong
-											= number_to_currency @order.shipping.to_f / 100
-								%tr
-									%td
-									%td
-									%td
-										%h5{ style: 'font-weight:bold;' }
-											Total
-									%td.text-right
-										%h5{ style: 'font-weight:bold;' }
-											= number_to_currency ( @order.total || 0 ).to_f / 100
+						%tr
+							%td
+							%td
+							%td
+								Subtotal
+							%td.text-right
+								%strong
+									= number_to_currency @order.subtotal.to_f / 100
 
-				.row
-					.col-xs-6
-						%h5
-							Billing Address
-						.well
-							= raw @order.billing_address.to_html
-					.col-xs-6
-						%h5
-							Shipping Address
-						.well
-							= raw @order.shipping_address.to_html
+						%tr
+							%td
+							%td
+							%td
+								Tax
+							%td.text-right
+								%strong
+									= number_to_currency @order.tax.to_f / 100
+						%tr
+							%td
+							%td
+							%td
+								Shipping
+							%td.text-right
+								%strong
+									= number_to_currency @order.shipping.to_f / 100
+						%tr
+							%td
+							%td
+							%td
+								%h5{ style: 'font-weight:bold;' }
+									Total
+							%td.text-right
+								%h5{ style: 'font-weight:bold;' }
+									= number_to_currency ( @order.total || 0 ).to_f / 100
 
 				.row
-					.col-xs-12
+					.col-xs-12.col-md-6.col-lg-8
 						%h4
 							Customer Notes
 						.well
-							= raw @order.customer_notes
-				.row
-					.col-xs-12
-						%h4
-							Support_notes
-						= f.text_area :support_notes, class: 'form-control'
+							= raw @order.customer_notes || 'N/A'
+
+					.col-xs-12.col-md-6.col-lg-4
+						- if ( refund_amount = @transactions.approved.negative.to_a.sum(&:signed_amount) ) != 0
+							%table.table.table-light.table-bordered{ style: 'margin:0;' }
+								%tbody
+									%tr
+										%td
+											%h5{ style: 'font-weight:bold;' }
+												Paid by Customer
+										%td.text-right{ style: 'width: 100px' }
+											%h5{ style: 'font-weight:bold;' }
+												= number_to_currency ( @transactions.approved.positive.to_a.sum(&:signed_amount) / 100.0 )
+									%tr
+										%td
+											%h5{ style: 'font-weight:bold;' }
+												Refunded Amount
+										%td.text-right
+											%h5{ style: 'font-weight:bold;' }
+												= number_to_currency ( refund_amount / 100.0 )
+									%tr
+										%td
+											%h5{ style: 'font-weight:bold;' }
+												Net
+										%td.text-right
+											%h5{ style: 'font-weight:bold;' }
+												= number_to_currency ( @transactions.approved.to_a.sum(&:signed_amount) / 100.0 )
+						- else
+							%table.table.table-light.table-bordered
+								%tbody
+									%tr
+										%td
+											%h5{ style: 'font-weight:bold;' }
+												Paid by Customer
+										%td.text-right{ style: 'width: 100px' }
+											%h5{ style: 'font-weight:bold;' }
+												= number_to_currency ( @transactions.approved.positive.to_a.sum(&:signed_amount) / 100.0 )
+							- if policy( @order ).admin_refund?
+								.text-center
+									%a.btn.btn-success{ data: { toggle: :modal, target: '#refund_order' } }
+										%i.fa.fa-plus-square
+										Refund
+			.well.white-well
+				- if policy(@order).admin_update?
+					.pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#edit_support_notes_order' } }
+							Edit
+				%h4
+					Support Notes
+				=@order.support_notes || 'N/A'
+
+			.well.white-well
+				%h4 Transactions
+				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
+					%thead
+						%tr
+							%th{ style: 'width: 10em' } Type
+							%th{ style: 'width: 10em' } Status
+							%th{ style: 'width: 10em' } Gateway
+							%th Reference
+							%th.text-right{ style: 'width: 10em' } Amount
+							%th{ style: 'width: 4em' } Currency
+					%tbody
+						- @transactions.each do |transaction|
+							%tr
+								%td
+									= transaction.transaction_type
+								%td
+									= transaction.status
+								%td
+									= transaction.provider
+								%td
+									= transaction.reference_code
+								%td.text-right
+									= number_to_currency (transaction.amount.to_f / 100)
+								%td
+									= transaction.currency
 
 
+		.col-xs-12.col-sm-4
+			- if @order.user.present?
+				.well.white-well
+					- if policy(@order.user).customer_admin_edit?
+						.pull-right
+							%a{ href: edit_customer_admin_path( @order.user ) }
+								Edit
+					%h5
+						Customer
+					- if policy(@order.user).customer_admin_edit?
+						%div
+							%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.full_name
+						%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.email
+					- else
+						%div= @order.user.full_name
+						= @order.user.email
+
+			.well.white-well
+				-# .pull-right
+					%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
+				%h5
+					Billing Address
+				= raw @order.billing_address.to_html
 
 
-			.col-xs-4
-				.well
+			.well.white-well
+				- if policy(@order).admin_update?
+					.pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
+				%h5
+					Shipping Address
+				= raw @order.shipping_address.to_html
 
-					.form-group
-						= f.label :status
-						= f.collection_select :status, SwellEcom::Order.statuses, :first, :first, {}, class: 'form-control'
+			= render 'fulfillment_tracking'
 
-					.form-group
-						= f.submit 'Update', class: 'btn btn-primary'
+
+= render 'swell_ecom/order_admin/edit_status_modal'
+= render 'swell_ecom/order_admin/refund_modal'
+= render 'swell_ecom/order_admin/support_notes_modal'
+= render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_address' }
+= render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Billing Address', attribute: 'billing_address' }

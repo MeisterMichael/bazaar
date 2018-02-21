@@ -4,75 +4,69 @@
 .container-fluid
 	.row
 		.col-xs-10
-			%ul.breadcrumb
-				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					%strong
-						Order Admin
-						= "(#{pluralize @orders.total_count, 'Order'})"
-	.row
-		.col-xs-6
+			%h2 Orders
+	.row{ style: 'margin-top: 0' }
+		.col-xs-5
 			= raw paginate @orders
-		.col-xs-6
+		.col-xs-7
 			= form_tag order_admin_index_path, method: :get, class: 'pull-right form-inline' do
-				= select_tag :status, options_from_collection_for_select( SwellEcom::Order.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+				= select_tag :status, options_from_collection_for_select( SwellEcom::Order.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
+				= select_tag :payment_status, options_from_collection_for_select( SwellEcom::Order.payment_statuses, :first, :first, params[:payment_status] ), { prompt: "Payment Status", class: 'form-control' }
+				= select_tag :fulfillment_status, options_from_collection_for_select( SwellEcom::Order.fulfillment_statuses, :first, :first, params[:fulfillment_status] ), { prompt: "Fulfillment Status", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
-				= link_to 'Clear', order_admin_index_path, class: 'btn btn-default btn-xs'
+				= link_to 'Clear', order_admin_index_path, class: 'btn btn-default'
 
 	.row
 		.col-xs-12
-			%table.table
+			%table.table.table-light.table-bordered
 				%thead
-					%th
+					%th{ style: 'width: 10em' }
 						Code
+					%th{ style: 'width: 10em' }
+						Created
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'created_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'created_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
 					%th
 						Customer
-						%a{ href: order_admin_index_path( sort_by: 'email', sort_dir: 'asc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'email', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( sort_by: 'email', sort_dir: 'desc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'email', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
-					%th
+					%th{ style: 'width: 11em' }
+						Status
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'status', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'status', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th{ style: 'width: 11em' }
+						Payment
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'payment_status', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'payment_status', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th{ style: 'width: 11em' }
+						Fulfillment
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'fulfillment_status', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'fulfillment_status', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th{ style: 'width: 10em' }
 						Total
-						%a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'asc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'total', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( sort_by: 'total', sort_dir: 'desc' ) }
+						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'total', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
-					%th
-						Created
-						%a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
-							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
-							%i.fa.fa-arrow-down
-					%th Status
-					%th
+					%th{ style: 'width: 6em' }
 				%tbody
-					- @orders.each do |order|
+					- if @orders.blank?
 						%tr
-							%td
-								= link_to order.code, edit_order_admin_path( order.id )
-							%td
-								= link_to order.email, edit_order_admin_path( order.id )
-							%td
-								= number_to_currency ( order.total || 0 ) / 100.to_f
-							%td
-								= order.created_at
-							%td
-								.badge{ class: order.status }
-									= order.status
-							%td
-								.btn-group
-									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
-										%i.fa.fa-cog
-										%b.caret
-									%ul.dropdown-menu
-										%li
-											%a{ href: edit_order_admin_path( order.id ) }
-												%i.fa.fa-pencil
-												Edit
-										%li.divider
-										%li
-											%a{ href: order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
-												%i.fa.fa-trash-o
-												Delete!
+							%td{ colspan: 7 }
+								\- No Orders Found -
+					- @orders.each do |order|
+						= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: true }
+	.row
+		.col-xs-6
+			= raw paginate @orders

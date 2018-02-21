@@ -1,0 +1,137 @@
+
+
+.row
+	.col-xs-10
+		%ul.breadcrumb
+			%li
+				%a{ href: customer_admin_index_path }
+					%i.fa.fa-angle-left
+					Customers
+		%h2
+			%strong= @user
+			%small=current_user.to_local_tz(@user.created_at).to_s( :short )
+	.col-xs-12
+		%h1
+
+	.row
+		.col-xs-8
+			.well.white-well
+				%h4 Orders
+				%table.table.table-light.table-bordered{ style: 'margin: 0' }
+					%thead
+						%th
+							Code
+						%th
+							Created
+						%th Status
+						%th Payment
+						%th Fulfillment
+						%th
+							Total
+					%tbody
+						- if @orders.blank?
+							%tr
+								%td{ colspan: 4 }
+									\- No Orders Found -
+						- @orders.each do |order|
+							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
+
+
+
+			.well.white-well
+				%h4 Subscriptions
+				%table.table.table-light.table-bordered{ style: 'margin: 0' }
+					%thead
+						%th
+							Code
+
+						%th
+							Total
+						%th
+							Created
+						%th Status
+					%tbody
+						- if @subscriptions.blank?
+							%tr
+								%td{ colspan: 4 }
+									\- No Subscriptions Found -
+						- @subscriptions.each do |subscription|
+							%tr
+								%td
+									= link_to subscription.code, edit_subscription_admin_path( subscription.id )
+								%td
+									= number_to_currency ( subscription.amount || 0 ) / 100.to_f
+								%td
+									= current_user.to_local_tz(subscription.created_at).to_s(:short)
+								%td
+									.badge{ class: subscription.status }
+										= subscription.status
+
+			-# unless @comments.nil?
+
+				.well.white-well
+					%h4 Timeline
+					.row
+						.col-xs-12
+							= render 'swell_social/comments/new_comment', parent_obj: @user, args: {}
+					- if @comments.blank?
+						.row
+							.col-xs-12
+								\- No Timeline Entries Found -
+					- @comments.each do |comment|
+
+						.comment_block.well[comment]
+							%strong
+								= comment.user
+							= time_ago_in_words( comment.created_at )
+							ago
+							.content
+								%blockquote.small.color-white{ style: 'margin-bottom: 0;' }
+									= raw comment.content
+
+
+
+			.well.white-well
+				%h4 Addresses
+				.row{ style: 'margin-top: 0' }
+					- @addresses.each do |address|
+						.col-xs-6
+							.well{ style: ( address.preferred ? 'font-weight: bold;' : '' ) }
+								= raw address.to_html
+		.col-xs-4
+
+			.well.white-well
+				%h4 Contact Info
+				%div= mail_to @user.email, @user.email
+				%div=@user.phone
+			- if @preferred_address.present?
+				.well.white-well
+					%h4 Default Address
+					= raw @preferred_address.to_html
+			.well.white-well
+				%h4 Profile
+				= form_for @user, url: customer_admin_path( @user ), method: :put do |f|
+					.form-group
+						= f.label :first_name
+						= f.text_field :first_name, class: 'form-control'
+					.form-group
+						= f.label :last_name
+						= f.text_field :last_name, class: 'form-control'
+
+					.form-group
+						= f.label :email
+						= f.text_field :email, class: 'form-control'
+					.form-group
+						= f.label :phone
+						= f.text_field :phone, class: 'form-control'
+
+					.form-group
+						= f.label :name, 'User Name'
+						= f.text_field :name, class: 'form-control'
+
+					.form-group
+						= f.label :status
+						= f.collection_select :status, SwellMedia.registered_user_class.constantize.statuses, :first, :first, {}, class: 'form-control'
+
+					.form-group
+						= f.submit 'Update', class: 'btn btn-primary'

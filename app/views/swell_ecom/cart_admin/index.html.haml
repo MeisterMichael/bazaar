@@ -1,26 +1,24 @@
 
 
 
+
+
 .container-fluid
 	.row
 		.col-xs-10
-			%ul.breadcrumb
-				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					%strong
-						Cart Admin
-						= "(#{pluralize @carts.total_count, 'Cart'})"
-	.row
-		.col-xs-6
+			%h2 Carts
+	.row{ style: 'margin-top: 0' }
+		.col-xs-5
 			= raw paginate @carts
-		.col-xs-6
+			-# = "(#{pluralize @carts.total_count, 'Cart'})"
+		.col-xs-7
 			= form_tag cart_admin_index_path, method: :get, class: 'pull-right form-inline' do
-				= select_tag :status, options_from_collection_for_select( SwellEcom::Cart.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+				= select_tag :status, options_from_collection_for_select( SwellEcom::Cart.statuses, :first, :first, params[:status] ), { prompt: "Cart Status", class: 'form-control' }
+				= submit_tag 'Search', class: 'btn btn-primary'
 
 	.row
 		.col-xs-12
-			%table.table
+			%table.table.table-light.table-bordered
 				%thead
 					%th
 						ID
@@ -30,7 +28,7 @@
 							%i.fa.fa-arrow-up
 						%a{ href: cart_admin_index_path( sort_by: 'subtotal', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
-					
+
 					%th
 						Created
 						%a{ href: cart_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
@@ -44,6 +42,10 @@
 					%th Status
 					%th
 				%tbody
+					- if @carts.blank?
+						%tr
+							%td{ colspan: 7 }
+								\- No Carts Found -
 					- @carts.each do |cart|
 						%tr
 							%td
@@ -51,11 +53,9 @@
 
 							%td
 								= number_to_currency cart.subtotal / 100.to_f
-							
+
 							%td
-								= link_to cart.created_at, edit_cart_admin_path( cart.id )
-								%br
-								= "#{time_ago_in_words( cart.created_at )} ago."
+								= link_to current_user_tz_easy_read_date_format(cart.created_at), edit_cart_admin_path( cart.id )
 							%td
 								= cart.cart_items.count
 							%td
@@ -78,5 +78,3 @@
 											%a{ href: cart_admin_path( cart ), data: { method: 'delete', confirm: 'Are you sure?' } }
 												%i.fa.fa-trash-o
 												Delete!
-
-

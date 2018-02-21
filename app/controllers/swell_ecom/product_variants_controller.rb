@@ -6,13 +6,13 @@ module SwellEcom
 			params[:option_value].split( /,/ ).reverse.each do |value|
 				@product.product_variants.create( option_name: params[:option_name], option_value: value.strip )
 			end
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		def destroy
 			@variant = ProductVariant.friendly.find( params[:id] )
 			@variant.destroy
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 		
 		def generate
@@ -42,14 +42,14 @@ module SwellEcom
 				pv.save
 			end
 
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		def update
 			@variant = ProductVariant.friendly.find( params[:id] )
 			params[:product_variant][:price] = params[:product_variant][:price].to_f * 100
 			@variant.update( variant_params )
-			redirect_to :back
+			redirect_back fallback_location: '/admin'
 		end
 
 		private

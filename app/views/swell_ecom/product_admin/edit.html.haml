@@ -1,18 +1,19 @@
 
 
+
 .container-fluid
 	.row
 		.col-xs-10
 			%ul.breadcrumb
 				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					= link_to 'Product Admin', product_admin_index_path
-				%li
-					%strong
-						Edit
-						= @product.title
-		.col-xs-2
+					%a{ href: product_admin_index_path }
+						%i.fa.fa-angle-left
+						Products
+			%h2
+				%strong= @product.title
+				%small= current_user.to_local_tz(@product.created_at).to_s( :short )
+
+		.col-xs-2.text-right
 			%a.btn.btn-primary{ href: preview_product_admin_path( @product.id ), target: '_new' }
 				%i.fa.fa-eye
 				Preview
@@ -20,66 +21,96 @@
 	= form_for @product, url: product_admin_path( @product ) do |f|
 		.row
 			.col-xs-8
-				.form-group
-					= f.text_field :title, class: 'form-control input-lg'
-				.form-group
-					= f.label :slug_pref, 'URL for this product:'
-					.input-group
-						%span.input-group-addon
-							= "#{SwellMedia.app_host}/store/"
-						= f.text_field :slug_pref, class: 'form-control', placeholder: @product.slug
+				.well.white-well
+					.form-group
+						%h4 Content
+					.form-group
+						= f.label :title
+						= f.text_field :title, class: 'form-control input-lg'
+					.form-group
+						= f.label :slug_pref, 'URL for this product:'
+						.input-group
+							%span.input-group-addon
+								= "#{SwellMedia.app_host}/store/"
+							= f.text_field :slug_pref, class: 'form-control', placeholder: @product.slug
 
 
-				.row
-					.col-xs-4
-						.form-group
-							= f.label :avatar, 'Image (default):'
-							= image_tag @product.avatar, class: 'img-responsive', id: 'product_avatar_img'
-							%div{ style: 'text-align:center;padding:0.3em;' }
-								%a{ href: '#', data: { toggle: :assetup, for: '#product_avatar,#product_avatar_img', asset: { asset_type: 'image', use: 'avatar', status: 'active', parent_obj_id: @product.id, parent_obj_type: @product.class.base_class.name }.to_json, params: { authenticity_token: form_authenticity_token() }.to_json } }
-									%i.fa.fa-upload
-									upload
-							= f.hidden_field :avatar, class: 'form-control', id: 'product_avatar'
-							-# = text_field_tag :avatar_text_field, '', class: 'form-control', placeholder: 'Full Path to Image', data: { inputfor: '#product_avatar_asset_url' }
-					.col-xs-8
-						.pull-right
-							%a.btn.btn-primary{ href: '#', data: { toggle: :modal, target: '#new_gallery_asset_modal' } } Add Gallery Image
-						%h3{ style: 'margin: 0 0 1em 0;' } Gallery
-						.row
-							- if @product.avatar
-								.pull-left{ style: 'padding: 0 0.5em 0.5em 0;' }
-									%img{:src => @product.avatar, style: 'width: 70px;' }
-							- @images.each do |image|
-								.pull-left{ style: 'padding: 0 0.5em 0.5em 0;' }
-									%img{:src => image.url, style: 'width: 70px;' }
-									.text-center
-										%a{ href: swell_media.asset_admin_path( image ), data: { method: :DELETE }, style: 'font-size: 0.8em;' } Delete
+					.form-group
+						= f.label :description
+						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', asset_manager: swell_media.asset_manager_index_path( asset: { parent_obj_type: @product.class.name, parent_obj_id: @product.id }, request_forgery_protection_token.to_s => form_authenticity_token, response: :json ) }.to_json }
 
-				.form-group
-					= f.label :description
-					= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', asset_manager: swell_media.asset_manager_index_path( asset: { parent_obj_type: @product.class.name, parent_obj_id: @product.id }, request_forgery_protection_token.to_s => form_authenticity_token, response: :json ) }.to_json }
+					.form-group
+						= f.label :notes, "Designer's Notes"
+						= f.text_area :notes, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', asset_manager: swell_media.asset_manager_index_path( asset: { parent_obj_type: @product.class.name, parent_obj_id: @product.id }, request_forgery_protection_token.to_s => form_authenticity_token, response: :json ) }.to_json }
 
-				.form-group
-					= f.label :notes, "Designer's Notes"
-					= f.text_area :notes, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', asset_manager: swell_media.asset_manager_index_path( asset: { parent_obj_type: @product.class.name, parent_obj_id: @product.id }, request_forgery_protection_token.to_s => form_authenticity_token, response: :json ) }.to_json }
+					.form-group
+						= f.label :content, 'Full Description'
+						= f.text_area :content, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 200, toolbar_sticky: true, toolbar_preset: 'admin_default', asset_manager: swell_media.asset_manager_index_path( asset: { parent_obj_type: @product.class.name, parent_obj_id: @product.id }, request_forgery_protection_token.to_s => form_authenticity_token, response: :json ) }.to_json }
 
-				.form-group
-					= f.label :content, 'Full Description'
-					= f.text_area :content, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 200, toolbar_sticky: true, toolbar_preset: 'admin_default', asset_manager: swell_media.asset_manager_index_path( asset: { parent_obj_type: @product.class.name, parent_obj_id: @product.id }, request_forgery_protection_token.to_s => form_authenticity_token, response: :json ) }.to_json }
+				.well.white-well
+					.pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_asset_modal' } } Add Gallery Image
+					.form-group
+						%h4 Gallery
+					-# .row
+						.col-xs-4
+							.form-group
+								= f.label :avatar, 'Image (default):'
+								= image_tag @product.avatar, class: 'img-responsive', id: 'product_avatar_img'
+								%div{ style: 'text-align:center;padding:0.3em;' }
+									%a{ href: '#', data: { toggle: :assetup, for: '#product_avatar,#product_avatar_img', asset: { asset_type: 'image', use: 'avatar', status: 'active', parent_obj_id: @product.id, parent_obj_type: @product.class.base_class.name }.to_json, params: { authenticity_token: form_authenticity_token() }.to_json } }
+										%i.fa.fa-upload
+										upload
+								= f.hidden_field :avatar, class: 'form-control', id: 'product_avatar'
+								-# = text_field_tag :avatar_text_field, '', class: 'form-control', placeholder: 'Full Path to Image', data: { inputfor: '#product_avatar_asset_url' }
+						.col-xs-8
+							.pull-right
+								%a.btn.btn-primary{ href: '#', data: { toggle: :modal, target: '#new_gallery_asset_modal' } } Add Gallery Image
+							%h3{ style: 'margin: 0 0 1em 0;' } Gallery
+					.row
+						.col-xs-6.col-sm-3
+							.well
+								.text-center{ style: 'margin-top: -16px;line-height: 16px;' } Default Image
+								- if @product.avatar
+									%a{ href: @product.avatar, target: '_preview_image' }
+										%img.img.img-responsive.center-block#product_avatar_img{:src => @product.avatar }
+									.text-center{ style: 'margin-bottom: -14px;' }
+										%a{ href: '#', data: { toggle: :assetup, for: '#product_avatar,#product_avatar_img', asset: { asset_type: 'image', use: 'avatar', status: 'active', parent_obj_id: @product.id, parent_obj_type: @product.class.base_class.name }.to_json, params: { authenticity_token: form_authenticity_token() }.to_json } }
+											%i.fa.fa-upload
+											upload
+
+									= f.hidden_field :avatar, class: 'form-control', id: 'product_avatar'
+								- else
+									%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
+									.text-center{ style: 'margin-bottom: -14px;' }
+										%a{ href: '#', data: { toggle: :assetup, for: '#product_avatar,#product_avatar_img', asset: { asset_type: 'image', use: 'avatar', status: 'active', parent_obj_id: @product.id, parent_obj_type: @product.class.base_class.name }.to_json, params: { authenticity_token: form_authenticity_token() }.to_json } }
+											%i.fa.fa-upload
+											upload
+
+									= f.hidden_field :avatar, class: 'form-control', id: 'product_avatar'
+
+						- @images.each do |image|
+							- if image.url != @product.avatar
+								.col-xs-6.col-sm-3
+									.well
+										%a{ href: image.url, target: '_preview_image' }
+											%img.img.img-responsive.center-block{:src => image.url }
+										.text-center{ style: 'margin-bottom: -14px;' }
+											%a{ href: swell_media.asset_admin_path( image ), data: { method: :DELETE } }
+												%i.fa.fa-trash
+												delete
 
 			.col-xs-4
-				.well
-					.form-group
-						= f.label :seq
-						.input-group
-							= f.text_field :seq, class: 'form-control'
+				.well.white-well
+					%h4
+						Product Settings
 					.form-group
 						= f.label :price
 						.input-group
 							%span.input-group-addon
 								$
 							= f.text_field :price, value: number_with_precision( (@product.price.to_f / 100), :precision => 2 ), class: 'form-control'
-					-#.form-group
+					.form-group
 						= f.label :suggested_price
 						.input-group
 							%span.input-group-addon
@@ -94,15 +125,30 @@
 							= f.text_field :shipping_price, value: number_with_precision( (@product.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
 
 					.form-group
+						= f.label :tax_code
+						= f.text_field :tax_code, class: 'form-control'
+
+					-# .form-group
+						= f.label :size_info
+						= f.text_field :size_info, class: 'form-control'
+
+					%hr
+
+
+					%h4
+						Publishing Settings
+
+					.form-group
+						= f.label :seq
+						.input-group
+							= f.number_field :seq, class: 'form-control'
+
+					.form-group
 						= f.label :publish_at
-						= f.text_field :publish_at, class: 'form-control datepicker'
+						= f.text_field :publish_at, value: current_user.to_local_tz( @product.publish_at ), class: 'form-control datetimepicker'
 					.form-group
 						= f.label :status
 						= f.collection_select :status, SwellEcom::Product.statuses, :first, :first, {}, class: 'form-control'
-
-					.form-group
-						= f.label :tax_code
-						= f.text_field :tax_code, class: 'form-control'
 
 					.form-group
 						= f.label :category_id
@@ -113,65 +159,68 @@
 					.form-group
 						= f.label :tags_csv, 'Tags:'
 						= f.text_field :tags_csv, placeholder: 'Separate tags with commas', class: 'form-control'
-					.form-group
-						= f.label :size_info
-						= f.text_field :size_info, class: 'form-control'
+
+					%hr
+
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
 
 	.row#variants
 		.col-xs-12
-			%h3
-				Variants
-				%a.pull-right.btn.btn-success{ data: { toggle: :modal, target: '#new_variant' } }
+			.well.white-well
+				%a.pull-right{ href: '#new_variant', data: { toggle: :modal, target: '#new_variant' } }
 					%i.fa.fa-plus
-					Add
+					Batch Add
+				%h4
+					Variants
 
-			-# if @product.product_variants.empty?
-				%a.btn{ href: generate_product_variant_path( id: @product.id ), data: { method: :post } }
-					Generate Variants
+				-# if @product.product_variants.empty?
+					%a.btn{ href: generate_product_variant_path( id: @product.id ), data: { method: :post } }
+						Generate Variants
 
-			%table.table
-				%thead
-					%th Seq
-					%th Title
-					%th Price
-					%th Shipping Price
-					%th Inventory
-					%th
-				- @product.product_variants.order( seq: :asc ).each do |variant|
-					= form_for variant do |f|
+				%table.table.table-light.table-bordered{ style: 'margin:0;' }
+					%thead
+						%th{ style: 'width: 6em' } Seq
+						%th Title
+						%th{ style: 'width: 8em' } Price
+						%th{ style: 'width: 8em' } Shipping Price
+						%th{ style: 'width: 6em' } Inventory
+						%th{ style: 'width: 10em' }
+					- if @product.product_variants.count == 0
 						%tr
-							%td
-								= f.text_field :seq, class: 'form-control'
-							%td{ style: 'width: 33%;' }
-								= f.text_field :title, class: 'form-control'
-							%td
-								.input-group
-									%span.input-group-addon
-										$
-									= f.text_field :price, value: number_with_precision( (variant.price.to_f / 100), :precision => 2 ), class: 'form-control'
-							%td
-								.input-group
-									%span.input-group-addon
-										$
-									= f.text_field :shipping_price, value: number_with_precision( (variant.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
-							%td
-								= f.text_field :inventory, class: 'form-control'
+							%td{ colspan: 6 }
+								\- No Variants Found -
+					- @product.product_variants.order( seq: :asc ).each do |variant|
+						= form_for variant do |f|
+							%tr
+								%td
+									= f.number_field :seq, class: 'form-control'
+								%td{ style: 'width: 33%;' }
+									= f.text_field :title, class: 'form-control'
+								%td
+									.input-group
+										%span.input-group-addon
+											$
+										= f.text_field :price, value: number_with_precision( (variant.price.to_f / 100), :precision => 2 ), class: 'form-control'
+								%td
+									.input-group
+										%span.input-group-addon
+											$
+										= f.text_field :shipping_price, value: number_with_precision( (variant.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
+								%td
+									= f.number_field :inventory, class: 'form-control'
 
-							%td
-								= f.submit 'Update'
-								%a{ href: '' }
-									%i.fa.fa-pencil
-									edit
-								%br
-								%a{ href: product_variant_path( variant.id ), data: { method: :delete, confirm: 'Are you sure?' }, style: 'color:#f00;' }
-									%i.fa.fa-trash
-									delete
+								%td.text-center
+									%button.btn.btn-primary.btn-xs
+										Save
+									-# %a.btn.btn-info.btn-xs{ href: edit_product_variant_path( variant.id ) }
+										Edit
+									%a.btn.btn-danger.btn-xs{ href: product_variant_path( variant.id ), data: { method: :delete, confirm: 'Are you sure?' } }
+										Trash
 
 
 
 = render 'swell_ecom/product_variants/new_modal', product: @product
 
-= render 'new_gallery_asset'
+= render 'swell_media/asset_admin/new_gallery_asset', obj: @product, args: {}

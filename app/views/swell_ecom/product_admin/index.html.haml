@@ -1,32 +1,29 @@
 
+
+
 .container-fluid
 	.row
 		.col-xs-10
-			%ul.breadcrumb
-				%li
-					= link_to 'Admin', swell_media.admin_index_path
-				%li
-					%strong
-						Product Admin
-						= "(#{pluralize @products.total_count, 'Product'})"
-
-		.col-xs-2
-			%a.btn.btn-success{ data: { toggle: :modal, target: '#new_product' } }
-				%i.fa.fa-plus-square
-				New
-	.row
+			%h2 Products
+		.col-xs-2.text-right
+			- if policy(SwellEcom::Product).admin_create?
+				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_product' } }
+					%i.fa.fa-plus-square
+					New
+	.row{ style: 'margin-top: 0' }
 		.col-xs-6
 			= raw paginate @products
+			= "(#{pluralize @products.total_count, 'Product'})"
 		.col-xs-6
 			= form_tag product_admin_index_path, method: :get, class: 'pull-right form-inline' do
 				= select_tag :status, options_from_collection_for_select( SwellEcom::Product.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
-				= link_to 'Clear', product_admin_index_path, class: 'btn btn-default btn-xs'
+				= link_to 'Clear', product_admin_index_path, class: 'btn btn-default'
 
 	.row
 		.col-xs-12
-			%table.table
+			%table.table.table-light.table-bordered
 				%thead
 					%th
 					%th
@@ -63,7 +60,7 @@
 							%td
 								= number_to_currency product.price.to_f / 100
 							%td
-								= product.publish_at.to_s( :short )
+								= current_user.to_local_tz(product.publish_at).to_s( :short )
 							%td
 								= product.seq
 							%td

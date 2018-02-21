@@ -1,7 +1,12 @@
 module SwellEcom
 	class Product < ActiveRecord::Base
-
 		self.table_name = 'products'
+
+		include SwellMedia::Concerns::URLConcern
+		include SwellMedia::Concerns::AvatarAsset
+		#include SwellMedia::Concerns::ExpiresCache
+		include SwellEcom::Concerns::MoneyAttributesConcern
+		include FriendlyId
 
 		if defined?( Elasticsearch::Model )
 
@@ -32,18 +37,15 @@ module SwellEcom
 		end
 
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
+		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
+		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		validates		:title, presence: true, unless: :allow_blank_title?
 
 		attr_accessor	:category_name
+		attr_accessor	:slug_pref
 
-		include SwellMedia::Concerns::URLConcern
-		include SwellMedia::Concerns::AvatarAsset
-		#include SwellMedia::Concerns::ExpiresCache
-
-		mounted_at '/store'
-
-		belongs_to 	:product_category, foreign_key: :category_id
+		belongs_to 	:product_category, foreign_key: :category_id, required: false
 		has_many 	:product_options
 		has_many 	:product_variants
 
@@ -51,11 +53,9 @@ module SwellEcom
 		after_update :on_update
 		before_save	:set_publish_at
 
-		attr_accessor	:slug_pref
-
-		include FriendlyId
+		money_attributes :price, :suggested_price, :shipping_price
+		mounted_at '/store'
 		friendly_id :slugger, use: [ :slugged, :history ]
-
 		acts_as_taggable_array_on :tags
 
 
@@ -107,6 +107,10 @@ module SwellEcom
 
 		def published?
 			active? && publish_at < Time.zone.now
+		end
+
+		def sku
+			"prod-#{self.slug}"
 		end
 
 		# e.g. Product.record_search( category_name: 'Shirts', text: 'live amrap' )

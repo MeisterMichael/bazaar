@@ -34,7 +34,7 @@
 				= shipping_address_form.hidden_field :phone, value: @order.shipping_address.phone
 
 			= hidden_field_tag :stripeToken, params[:stripeToken]
-			= f.hidden_field :customer_comment, class: 'form-control'
+			= f.hidden_field :customer_notes, class: 'form-control'
 
 			.col-xs-12.col-md-9
 				.row
@@ -67,7 +67,7 @@
 							%div=@order.shipping_address.geo_country.name
 							%div=@order.shipping_address.phone
 
-				%table.table{ style: 'margin-bottom: 2em;' }
+				%table.table.table-light.table-bordered{ style: 'margin-bottom: 2em;' }
 					%thead
 						%tr
 							%th Product
@@ -80,15 +80,15 @@
 								%tr
 									-# %td avatar
 									%td
-										=order_item.label
+										=order_item.title
 									%td= number_to_currency (order_item.price / 100.0)
 									%td.text-right
 										=order_item.quantity
 									%td.text-right
 										= number_to_currency order_item.subtotal.to_f / 100
-				- if @order.customer_comment.present?
+				- if @order.customer_notes.present?
 					%label Comment
-					.well.well-sm= @order.customer_comment
+					.well.well-sm= @order.customer_notes
 				%div
 					.pull-left{ style: 'padding-right: 1em;' }
 						%input.btn.btn-primary.submit{:type => "submit", :value => "Place Order"}/
@@ -109,7 +109,7 @@
 						%div
 							.pull-right
 								#{number_to_currency order_item.subtotal.to_f / 100}
-							#{order_item.label}:
+							#{order_item.title}:
 				%div{ style: 'font-weight: bold;' }
 					.pull-right
 						= number_to_currency @order.total.to_f / 100

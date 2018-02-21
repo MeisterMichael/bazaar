@@ -1,41 +1,75 @@
 
 module SwellEcom
 	class CheckoutController < ApplicationController
+		include SwellEcom::Concerns::CheckoutConcern
 
-		before_filter :get_order, only: [ :confirm, :create, :index ]
+		before_action :get_cart
+		before_action :validate_cart, only: [ :confirm, :create, :index ]
+		before_action :initialize_services, only: [ :confirm, :create, :index ]
+		before_action :get_order, only: [ :confirm, :create, :index ]
+		before_action :get_geo_addresses, only: :index
 
 		def confirm
 
-			ShippingService.calculate( @order )
-			TaxService.calculate( @order )
-			TransactionService.calculate( @order )
+			@order_service.calculate( @order,
+				transaction: transaction_options,
+				shipping: shipping_options,
+			)
 
 		end
 
 		def create
-			ShippingService.calculate( @order )
-			TaxService.calculate( @order )
-			TransactionService.process( @order, stripe_token: params[:stripeToken] )
+
+			@order_service.process( @order,
+				transaction: transaction_options,
+				shipping: shipping_options,
+			)
 
 			if params[:newsletter].present?
-				SwellMedia::Optin.create( email: @order.email, name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}" )
+				SwellMedia::Optin.create(
+					email: @order.email,
+					name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}",
+					ip: @order.ip,
+					user: @order.user
+				)
 			end
-
 
 
 			if @order.errors.present?
 				set_flash @order.errors.full_messages, :danger
-				redirect_to :back
+				respond_to do |format|
+					format.json {
+						render :create
+					}
+					format.html {
+						redirect_back fallback_location: '/checkout'
+					}
+				end
 			else
 				session[:cart_count] = 0
 				session[:cart_id] = nil
+
+				payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( params[:credit_card][:expiration] ) if params[:credit_card].present?
+				@subscription_service.subscribe_ordered_plans( @order, payment_profile_expires_at: payment_profile_expires_at ) if @order.active?
+
+				# if current user exists, update it's address info with the
+				# billing address, if not already set
+				update_order_user_address( @order )
 
 				@cart.update( order_id: @order.id, status: 'success' )
 
 				OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now
 
-				redirect_to swell_ecom.thank_you_order_path( @order.code )
+
+				respond_to do |format|
+					format.json {
+						render :create
+					}
+					format.html {
+						redirect_to swell_ecom.thank_you_order_path( @order.code )
+					}
+				end
 
 			end
 
@@ -43,18 +77,6 @@ module SwellEcom
 		end
 
 		def index
-
-			@billing_countries 	= SwellEcom::GeoCountry.all
-			@shipping_countries = SwellEcom::GeoCountry.all
-
-			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:only] ) if SwellEcom.billing_countries[:only].present?
-			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:except] ) if SwellEcom.billing_countries[:except].present?
-
-			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
-			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
-
-			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
-			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
 
 			@cart.init_checkout!
 
@@ -70,7 +92,7 @@ module SwellEcom
 		end
 
 		def new
-			redirect_to checkout_index_path( params.merge( controller: nil, action: nil ) )
+			redirect_to checkout_index_path( params.permit(:stripeToken, :credit_card, :coupon, :order ).to_h.merge( controller: nil, action: nil ) )
 		end
 
 		def state_input
@@ -87,47 +109,31 @@ module SwellEcom
 		end
 
 
-		private
+		protected
+
+		def get_cart
+			@cart ||= Cart.find_by( id: session[:cart_id] )
+		end
 
 		def get_order
 
+			@order = Order.new( get_order_attributes.merge( order_items_attributes: [], user: current_user ) )
+			@order.billing_address.user = @order.shipping_address.user = @order.user
+
+			discount = Discount.active.in_progress.find_by( code: params[:coupon] ) if params[:coupon].present?
+			order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
+			@cart.cart_items.each do |cart_item|
+				order_item = @order.order_items.new( item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code )
+				@order.status = 'pre_order' if order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order?
+			end
+
+		end
+
+		def validate_cart
 			if @cart.nil?
-				redirect_to '/cart'
+				redirect_back fallback_location: '/cart'
 				return false
 			end
-
-			if params[:order].present?
-
-				order_attributes 			= params.require(:order).permit(:email, :customer_notes)
-				order_items_attributes		= params[:order][:order_items]
-				billing_address_attributes	= params.require(:order).require(:billing_address ).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
-
-				if params[:same_as_billing]
-
-					shipping_address_attributes = params.require(:order).require(:billing_address).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
-
-				else
-
-					shipping_address_attributes = params.require(:order).require(:shipping_address).permit( :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name )
-
-				end
-
-			else
-				order_attributes = {}
-				order_items_attributes		= params[:items]
-				shipping_address_attributes = {}
-				billing_address_attributes = {}
-			end
-
-			@order = Order.new order_attributes.merge( currency: 'usd' )
-			@order.shipping_address = GeoAddress.new shipping_address_attributes.merge( user: current_user )
-			@order.billing_address 	= GeoAddress.new billing_address_attributes.merge( user: current_user )
-
-			@order.subtotal = @cart.subtotal
-			@cart.cart_items.each do |cart_item|
-				@order.order_items.new item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code
-			end
-
 		end
 
 

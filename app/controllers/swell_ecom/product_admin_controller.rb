@@ -1,26 +1,24 @@
 module SwellEcom
 	class ProductAdminController < SwellMedia::AdminController
 
-		before_filter :get_product, except: [ :create, :index ]
+		before_action :get_product, except: [ :create, :index ]
+		before_action :init_search_service, only: [:index]
 
 		def index
+			authorize( SwellEcom::Product, :admin? )
 			sort_by = params[:sort_by] || 'seq'
 			sort_dir = params[:sort_dir] || 'asc'
 
-			@products = Product.order( "#{sort_by} #{sort_dir}" )
+			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			filters[:status] = params[:status] if params[:status].present?
+			@products = @search_service.product_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
-			if params[:status].present? && params[:status] != 'all'
-				@products = eval "@products.#{params[:status]}"
-			end
-
-			if params[:q].present?
-				@products = @products.where( "array[:q] && keywords", q: params[:q].downcase )
-			end
-
-			@products = @products.page( params[:page] )
+			set_page_meta( title: "Products" )
 		end
 
 		def create
+			authorize( SwellEcom::Product, :admin_create? )
+
 			@product = Product.new( product_params )
 			@product.publish_at ||= Time.zone.now
 			@product.status = 'draft'
@@ -30,25 +28,52 @@ module SwellEcom
 				redirect_to edit_product_admin_path( @product )
 			else
 				set_flash 'Product could not be created', :error, @product
-				redirect_to :back
+				redirect_back fallback_location: '/admin'
 			end
 		end
 
 		def destroy
+			authorize( @product, :admin_destroy? )
 			@product.archive!
 			set_flash 'Product archived'
 			redirect_to product_admin_index_path
 		end
 
 		def edit
+			authorize( @product, :admin_edit? )
 			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
+			set_page_meta( title: "#{@product.title} | Product" )
 		end
 
 		def preview
-			render "products/show", layout: 'application'
+			authorize( @product, :admin_edit? )
+
+
+			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
+
+			@product_category = @product.product_category
+
+			@related_products = Product.none
+
+			@related_products = @product_category.products.published.where.not( id: @product.id ).limit(6) if @product_category.present?
+
+			set_page_meta( @product.page_meta )
+
+			add_page_event_data(
+				ecommerce: {
+					detail: {
+						actionField: {},
+						products: [ @product.page_event_data ]
+					}
+				}
+			);
+
+
+			render "swell_ecom/products/show", layout: 'application'
 		end
 
 		def update
+			authorize( @product, :admin_update? )
 			@product.slug = nil if params[:product][:title] != @product.title || params[:product][:slug_pref].present?
 
 			params[:product][:price] = params[:product][:price].to_f * 100 #.gsub( /\D/, '' ) if params[:product][:price].present?
@@ -78,6 +103,10 @@ module SwellEcom
 
 			def get_product
 				@product = Product.friendly.find( params[:id] )
+			end
+
+			def init_search_service
+				@search_service = EcomSearchService.new
 			end
 
 	end
