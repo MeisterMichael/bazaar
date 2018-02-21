@@ -11,6 +11,12 @@
 					.pull-right
 						%a.btn.btn-danger{ href: swell_ecom.your_subscription_path( @subscription.code ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
 							Cancel Subscription
+						%a.btn.btn-default{ href: swell_ecom.your_subscription_path( @subscription.code, subscription: { status: 'on_hold' } ) , data: { method: :put, confirm: 'Are you sure?' } }
+							Hold Subscription
+				- else
+					.pull-right
+						%a.btn.btn-default{ href: swell_ecom.your_subscription_path( @subscription.code, subscription: { status: 'active' } ) , data: { method: :put, confirm: 'Are you sure?' } }
+							Resume Subscription
 				Subscribed on #{current_user.to_local_tz(@subscription.created_at).to_s( :basic_short )}
 				%span.horizontal-separator="|"
 				Subscription# #{@subscription.code}
@@ -20,6 +26,9 @@
 				- elsif @subscription.canceled?
 					%span.horizontal-separator="|"
 					%strong.subscription-status.subscription-status-canceled.color-red CANCELED
+				- elsif @subscription.on_hold?
+					%span.horizontal-separator="|"
+					%strong.subscription-status.subscription-status-canceled.color-red HOLD
 
 
 	.row

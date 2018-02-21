@@ -80,7 +80,7 @@ module SwellEcom
 			else
 
 				subscription_params = params.required(:subscription).permit( :status, :next_charged_at ).to_h
-				subscription_params.delete(:status) unless ['active','canceled'].include?( subscription_params[:status] )
+				subscription_params.delete(:status) unless ['active','on_hold'].include?( subscription_params[:status] )
 
 				@subscription.attributes = subscription_params
 				@subscription.save
