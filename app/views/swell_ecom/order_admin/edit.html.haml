@@ -238,7 +238,7 @@
 
 
 			.well.white-well
-				- if policy(@order).admin_update?
+				- if policy(@order).admin_update? && not( @order.fulfilled? || @order.delivered? )
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
 				%h5
