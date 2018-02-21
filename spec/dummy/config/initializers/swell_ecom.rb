@@ -5,7 +5,8 @@ SwellEcom.configure do |config|
 		street: '1412 Camino Del Mar',
 		city: 'SAN DIEGO',
 		state: 'CA',
-		zip: '92014'
+		zip: '92014',
+		country: 'US',
 	}
 
 	config.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
@@ -18,6 +19,16 @@ SwellEcom.configure do |config|
 
 	# config.tax_service_class = "SwellEcom::TaxService"
 	# config.tax_service_config = {}
+
+	config.nexus_addresses = [
+		{
+			street: '1412 Camino Del Mar',
+			city: 'SAN DIEGO',
+			state: 'CA',
+			zip: '92014',
+			country: 'US',
+		},
+	]
 
 
 end

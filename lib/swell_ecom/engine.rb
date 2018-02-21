@@ -8,7 +8,7 @@ module SwellEcom
 	class << self
 		mattr_accessor :origin_address
 		mattr_accessor :warehouse_address
-		mattr_accessor :nexus_address
+		mattr_accessor :nexus_addresses
 		mattr_accessor :order_email_from
 		mattr_accessor :billing_countries
 		mattr_accessor :shipping_countries
@@ -47,7 +47,7 @@ module SwellEcom
 		self.transaction_service_config = {}
 
 		self.warehouse_address = {}
-		self.nexus_address = {}
+		self.nexus_addresses = []
 
 		self.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
 		self.billing_countries = { only: 'US' }

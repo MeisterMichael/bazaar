@@ -14,7 +14,21 @@ module SwellEcom
 
 				@warehouse_address = args[:warehouse] || SwellEcom.warehouse_address
 				@origin_address = args[:origin] || SwellEcom.origin_address
-				@nexus_address = args[:nexus] || SwellEcom.nexus_address
+
+				@nexus_addresses = args[:nexus] || []
+				unless @nexus_addresses.present?
+					SwellEcom.nexus_addresses.each do |address|
+						@nexus_addresses << {
+							:address_id => address[:address_id],
+							:country => address[:country],
+							:zip => address[:zip],
+							:state => address[:state],
+							:city => address[:city],
+							:street => address[:street]
+						}
+					end
+				end
+
 
 			end
 
@@ -160,18 +174,6 @@ module SwellEcom
 				shipping_amount = order.order_items.select{ |order_item| order_item.shipping? }.sum(&:subtotal) / 100.0
 				order_total = order.order_items.select{ |order_item| order_item.prod? }.sum(&:subtotal) / 100.0
 
-				nexus_addresses = []
-				if @nexus_address.present?
-					nexus_addresses << {
-						:address_id => @nexus_address[:address_id],
-						:country => @nexus_address[:country],
-						:zip => @nexus_address[:zip],
-						:state => @nexus_address[:state],
-						:city => @nexus_address[:city],
-						:street => @nexus_address[:street]
-					}
-				end
-
 				line_items = []
 				order.order_items.each do |order_item|
 					if order_item.prod?
@@ -196,7 +198,7 @@ module SwellEcom
 				    :from_state => @warehouse_address[:state] || @origin_address[:state],
 				    :amount => order_total + shipping_amount,
 				    :shipping => shipping_amount,
-				    :nexus_addresses => nexus_addresses,
+				    :nexus_addresses => @nexus_addresses,
 				    :line_items => line_items,
 				}
 
