@@ -30,6 +30,8 @@ namespace :swell_ecom do
 			subscription.billing_interval_unit	= subscription.subscription_plan.billing_interval_unit
 			subscription.trial_price			= subscription.trial_amount / subscription.quantity
 			subscription.price					= subscription.amount / subscription.quantity
+			subscription.save!
+			
 		end
 	end
 
