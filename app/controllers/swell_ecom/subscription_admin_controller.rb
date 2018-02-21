@@ -96,6 +96,8 @@ module SwellEcom
 			authorize( @subscription, :admin_update? )
 			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first
 			@subscription.attributes = subscription_params
+			@subscription.trial_amount = @subscription.trial_price * @subscription.quantity
+			@subscription.amount = @subscription.price * @subscription.quantity
 
 			if @subscription.save
 				set_flash "Subscription updated successfully", :success
@@ -112,7 +114,7 @@ module SwellEcom
 
 		private
 			def subscription_params
-				params.require( :subscription ).permit( :next_charged_at, :amount, :trial_amount, :status, user_attributes: [ :first_name, :last_name, :email ] )
+				params.require( :subscription ).permit( :next_charged_at, :quantity, :price_as_money, :trial_price_as_money, :billing_interval_value, :billing_interval_unit, :status, user_attributes: [ :first_name, :last_name, :email ] )
 			end
 
 			def get_subscription

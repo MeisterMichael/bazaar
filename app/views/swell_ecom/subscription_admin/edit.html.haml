@@ -50,6 +50,33 @@
 					.form-group
 						= f.label :next_charged_at, 'Next Charge'
 						= f.text_field :next_charged_at, value: current_user.to_local_tz( @subscription.next_charged_at ), class: 'form-control'
+					.form-group
+						= f.label :billing_interval_value, 'Subscription Interval'
+						.row{ style: 'margin-top: 0' }
+							.col-md-6
+								= f.number_field :billing_interval_value, class: 'form-control', min: 1
+							.col-md-6
+								= f.select :billing_interval_unit, ['months', 'weeks', 'days'], {}, class: 'form-control', style: ''
+
+					.row{ style: 'margin-top: 0' }
+						.col-md-6
+							.form-group
+								= f.label :quantity, 'Quantity'
+								= f.number_field :quantity, class: 'form-control', min: 1
+						.col-md-6
+							.form-group
+								= f.label :price, 'Price'
+								.input-group
+									%span.input-group-addon $
+									= f.number_field :price_as_money, class: 'form-control text-right', min: 0.00, step: 0.01
+						.col-md-6.col-md-offset-6
+							.form-group
+								= f.label :trial_price, 'Trial Price'
+
+								.input-group
+									%span.input-group-addon $
+									= f.number_field :trial_price_as_money, class: 'form-control text-right', min: 0.00, step: 0.01
+
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
