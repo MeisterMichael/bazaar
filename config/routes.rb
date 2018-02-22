@@ -36,7 +36,7 @@ SwellEcom::Engine.routes.draw do
 		get :thank_you, on: :member, path: 'thank-you'
 	end
 
-	resources :products, path: :store do
+	resources :products, path: SwellEcom.store_path do
 		# for single-item quick buy
 		get :buy, on: :member
 	end

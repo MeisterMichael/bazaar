@@ -33,6 +33,8 @@ module SwellEcom
 
 		mattr_accessor :automated_fulfillment
 
+		mattr_accessor :store_path
+
 
 		self.discount_service_class = "SwellEcom::DiscountService"
 		self.discount_service_config = {}
@@ -60,6 +62,8 @@ module SwellEcom
 		self.subscription_code_postfix = nil
 
 		self.automated_fulfillment = false
+
+		self.store_path = 'store'
 	end
 
 	# this function maps the vars from your app into your engine
