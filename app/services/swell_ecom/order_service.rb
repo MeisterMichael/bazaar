@@ -55,11 +55,15 @@ module SwellEcom
 			@discount_service.calculate( order, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
 			@tax_service.calculate( order, args[:tax] )
 			@discount_service.calculate( order, args[:discount] ) # calucate again after taxes
+			@transaction_service.calculate( order, args[:transaction] )
 
 			order.validate
 
 			if order.errors.present?
-				@transaction_service.calculate( order, args[:transaction] )
+				nil
+			elsif order.total == 0
+				order.payment_status = 'payment_method_captured'
+				order.save
 			else
 				@transaction_service.capture_payment_method( order, args[:transaction] )
 			end
@@ -77,13 +81,18 @@ module SwellEcom
 			@discount_service.calculate( order, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
 			@tax_service.calculate( order, args[:tax] )
 			@discount_service.calculate( order, args[:discount] ) # calucate again after taxes
+			@transaction_service.calculate( order, args[:transaction] )
 
 			order.validate
 
-			if order.errors.present?
-				@transaction_service.calculate( order, args[:transaction] )
-			else
-				transaction = @transaction_service.process( order, args[:transaction] )
+			unless order.errors.present?
+
+				if order.total == 0
+					order.payment_status = 'paid'
+					order.save
+				else
+					transaction = @transaction_service.process( order, args[:transaction] )
+				end
 				order.active!
 
 				begin
