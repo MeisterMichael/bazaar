@@ -10,7 +10,7 @@
 						#{@subscription.code}
 			= form_for @subscription.try(args[:attribute]), url: address_subscription_admin_path( @subscription, attribute: args[:attribute] ), method: :POST, html: {} do |f|
 				.modal-body
-					= render 'swell_ecom/geo_address/form', f: f
+					= render 'swell_ecom/geo_address/form', f: f, countries: countries, states: states, id: "subscription_admin_modal_#{args[:attribute]}", address_attribute: args[:attribute].to_sym
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

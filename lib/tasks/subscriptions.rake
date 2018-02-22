@@ -12,7 +12,7 @@ namespace :swell_ecom do
 
 				subscription.properties = subscription.properties.merge( 'payment_profile_expiration_reminder' => 'sent' )
 				subscription.save
-				
+
 				SwellEcom::SubscriptionMailer.payment_profile_expiration_reminder( subscription ).deliver_now
 			end
 
@@ -31,7 +31,11 @@ namespace :swell_ecom do
 
 				order = subscription_service.charge_subscription( subscription, now: time_now )
 
-				SwellEcom::OrderMailer.receipt( order ).deliver_now unless order.errors.present?
+				if subscription.failed?
+					SwellEcom::SubscriptionMailer.renewal_failure( subscription ).deliver_now
+				elsif order.errors.blank?
+					SwellEcom::OrderMailer.receipt( order ).deliver_now
+				end
 
 			rescue Exception => e
 

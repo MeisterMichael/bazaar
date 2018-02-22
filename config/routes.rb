@@ -24,6 +24,9 @@ SwellEcom::Engine.routes.draw do
 	resources :customer_admin
 	resources :discount_admin
 
+	# resources :geo_countries, only: [:index]
+	resources :geo_states, only: [:index]
+
 	resources :order_admin do
 		post :refund, on: :member
 		post :address, on: :member

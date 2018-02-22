@@ -11,6 +11,8 @@ module SwellEcom
 		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
+		belongs_to 	:item, polymorphic: true, required: false
+
 		validates		:title, presence: true, unless: :allow_blank_title?
 
 		money_attributes :trial_price, :price, :shipping_price

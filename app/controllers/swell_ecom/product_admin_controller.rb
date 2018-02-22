@@ -1,5 +1,5 @@
 module SwellEcom
-	class ProductAdminController < SwellMedia::AdminController
+	class ProductAdminController < SwellEcom::EcomAdminController
 
 		before_action :get_product, except: [ :create, :index ]
 		before_action :init_search_service, only: [:index]

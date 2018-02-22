@@ -29,7 +29,7 @@ module SwellEcom
 		def to_html
 			addr = "#{self.full_name}<br>#{self.street}"
 			addr = addr + "<br>#{self.street2}" if self.street2.present?
-			addr = addr + "<br>#{self.city}, #{self.geo_state.abbrev} #{self.zip}"
+			addr = addr + "<br>#{self.city}, #{self.state_abbrev} #{self.zip}"
 			return addr
 		end
 

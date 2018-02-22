@@ -11,7 +11,8 @@ module SwellEcom
 
 		before_save :set_defaults
 
-		belongs_to :product
+		belongs_to	:product
+		has_many	:subscription_plans, as: :item
 
 		money_attributes :price, :shipping_price
 		friendly_id :title, use: [ :slugged, :history ]

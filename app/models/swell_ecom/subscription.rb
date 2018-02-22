@@ -16,10 +16,9 @@ module SwellEcom
 		before_create :generate_order_code
 		before_create :initialize_timestamps
 
-		accepts_nested_attributes_for :user
-		accepts_nested_attributes_for :billing_address
+		accepts_nested_attributes_for :billing_address, :shipping_address, :user
 
-		money_attributes :amount, :trial_amount
+		money_attributes :amount, :trial_amount, :price, :trial_price
 
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now

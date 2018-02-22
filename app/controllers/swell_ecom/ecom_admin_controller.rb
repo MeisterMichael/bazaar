@@ -1,6 +1,6 @@
-module SwellEcom
 
-	class YourController < ApplicationController
+module SwellEcom
+	class EcomAdminController < SwellMedia::AdminController
 		include SwellEcom::Concerns::EcomConcern
 
 		helper_method :get_billing_countries
@@ -8,11 +8,7 @@ module SwellEcom
 		helper_method :get_billing_states
 		helper_method :get_shipping_states
 
-		before_action :authenticate_user!
-		layout 'swell_ecom/your'
 
-		def index
-		end
+
 	end
-
 end

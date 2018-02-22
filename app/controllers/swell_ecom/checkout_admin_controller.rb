@@ -1,6 +1,6 @@
 
 module SwellEcom
-	class CheckoutAdminController < SwellMedia::AdminController
+	class CheckoutAdminController < SwellEcom::EcomAdminController
 		include SwellEcom::Concerns::CheckoutConcern
 		helper_method :shipping_options
 		helper_method :transaction_options
@@ -8,7 +8,6 @@ module SwellEcom
 		before_action :get_user
 		before_action :initialize_services, only: [ :confirm, :create, :index ]
 		before_action :get_order, only: [ :confirm, :create, :index ]
-		before_action :get_geo_addresses, only: :index
 
 		def confirm
 			authorize( @order, :admin_create? )

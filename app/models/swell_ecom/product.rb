@@ -48,6 +48,7 @@ module SwellEcom
 		belongs_to 	:product_category, foreign_key: :category_id, required: false
 		has_many 	:product_options
 		has_many 	:product_variants
+		has_many	:subscription_plans, as: :item
 
 		after_create :on_create
 		after_update :on_update
