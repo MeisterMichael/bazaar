@@ -7,5 +7,11 @@ module SwellEcom
 			mail to: @subscription.user.email, from: SwellEcom.order_email_from, subject: subject
 		end
 
+		def renewal_failure( subscription )
+			@subscription = subscription
+			subject = "Your subscription renewal failed"
+			mail to: @subscription.user.email, from: SwellEcom.order_email_from, subject: subject
+		end
+
 	end
 end
