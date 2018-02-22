@@ -1,5 +1,5 @@
 module SwellEcom
-	class OrderAdminController < SwellMedia::AdminController
+	class OrderAdminController < SwellEcom::EcomAdminController
 
 
 		before_action :get_order, except: [ :index, :bulk_update, :bulk_destroy ]

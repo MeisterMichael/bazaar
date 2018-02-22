@@ -1,5 +1,5 @@
 module SwellEcom
-	class ProductVariantsController < SwellMedia::AdminController
+	class ProductVariantsController < SwellEcom::EcomAdminController
 
 		def create
 			@product = Product.find( params[:product_id] )

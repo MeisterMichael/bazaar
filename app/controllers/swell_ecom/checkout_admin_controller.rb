@@ -1,6 +1,6 @@
 
 module SwellEcom
-	class CheckoutAdminController < SwellMedia::AdminController
+	class CheckoutAdminController < SwellEcom::EcomAdminController
 		include SwellEcom::Concerns::CheckoutConcern
 		helper_method :shipping_options
 		helper_method :transaction_options

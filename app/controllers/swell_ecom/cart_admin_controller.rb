@@ -1,5 +1,5 @@
 module SwellEcom
-	class CartAdminController < SwellMedia::AdminController
+	class CartAdminController < SwellEcom::EcomAdminController
 
 		before_action :get_cart, except: [ :index ]
 

@@ -1,5 +1,5 @@
 module SwellEcom
-	class SubscriptionPlanAdminController < SwellMedia::AdminController
+	class SubscriptionPlanAdminController < SwellEcom::EcomAdminController
 
 
 		before_action :get_plan, except: [ :create, :index ]
