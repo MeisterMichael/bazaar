@@ -15,8 +15,10 @@ module SwellEcom
 				@shipping_countries ||= @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
 				@shipping_countries ||= @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
 
-				@billing_states 	||= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
-				@shipping_states	||= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
+				@billing_states 	||= SwellEcom::GeoState.all
+				@shipping_states	||= SwellEcom::GeoState.all
+				@billing_states 	||= SwellEcom::GeoState.where( geo_country_id: @billing_countries.first.id ) if @billing_countries.count == 1
+				@shipping_states	||= SwellEcom::GeoState.where( geo_country_id: @shipping_countries.first.id ) if @shipping_countries.count == 1
 
 			end
 
@@ -30,14 +32,22 @@ module SwellEcom
 				@shipping_countries
 			end
 
-			def get_billing_states
+			def get_billing_states( geo_country_id )
 				get_geo_addresses
-				@billing_states
+				if geo_country_id.present?
+					@billing_states.where( geo_country_id: geo_country_id )
+				else
+					SwellEcom::GeoState.none
+				end
 			end
 
-			def get_shipping_states
+			def get_shipping_states( geo_country_id )
 				get_geo_addresses
-				@shipping_states
+				if geo_country_id.present?
+					@shipping_states.where( geo_country_id: geo_country_id )
+				else
+					SwellEcom::GeoState.none
+				end
 			end
 
 		end

@@ -51,12 +51,15 @@ module SwellEcom
 
 			end
 
-			args[:trial_amount]	||= plan.trial_price * quantity
-			args[:amount]		||= plan.price * quantity
-			args[:trial_price]	||= args[:trial_price]
-			args[:price]		||= args[:price]
-			args[:trial_price]	||= args[:trial_amount] / quantity
-			args[:price]		||= args[:amount] / quantity
+			args[:trial_price]	||= args[:trial_amount] / quantity if args[:trial_amount]
+			args[:price]		||= args[:amount] / quantity if args[:amount]
+			args[:trial_price]	||= plan.trial_price
+			args[:price]		||= plan.price
+
+			args[:trial_amount]	||= args[:trial_price] * quantity
+			args[:amount]		||= args[:price] * quantity
+
+			args[:currency]		||= 'USD'
 
 			trial_interval = plan.trial_interval_value.try( plan.trial_interval_unit )
 			billing_interval = plan.billing_interval_value.try( plan.billing_interval_unit )
@@ -85,7 +88,7 @@ module SwellEcom
 				billing_interval_value: plan.billing_interval_value,
 				billing_interval_unit: plan.billing_interval_unit,
 				currency: args[:currency],
-				discount: args[:discount],
+				discount_id: (args[:discount].try(:id) || args[:discount_id]),
 				provider: args[:provider],
 				provider_customer_profile_reference: args[:provider_customer_profile_reference],
 				provider_customer_payment_profile_reference: args[:provider_customer_payment_profile_reference],

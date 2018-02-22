@@ -1,0 +1,5 @@
+- if countries.count == 1
+	= f.hidden_field :geo_country_id, value: countries.first.id, class: 'geo-address-geo-country'
+	.form-control= get_billing_countries.first.name
+- else
+	= f.collection_select :geo_country_id, countries, :id, :name, { prompt: countries.count > 1 }, { class: "form-control geo-address-geo-countries", required: true  }

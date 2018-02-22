@@ -2,6 +2,12 @@
 module SwellEcom
 	class CheckoutController < ApplicationController
 		include SwellEcom::Concerns::CheckoutConcern
+		include SwellEcom::Concerns::EcomConcern
+
+		helper_method :get_billing_countries
+		helper_method :get_shipping_countries
+		helper_method :get_billing_states
+		helper_method :get_shipping_states
 
 		before_action :get_cart
 		before_action :validate_cart, only: [ :confirm, :create, :index ]
@@ -93,19 +99,6 @@ module SwellEcom
 
 		def new
 			redirect_to checkout_index_path( params.permit(:stripeToken, :credit_card, :coupon, :order ).to_h.merge( controller: nil, action: nil ) )
-		end
-
-		def state_input
-
-			@order = Order.new currency: 'usd'
-			@order.shipping_address = GeoAddress.new
-			@order.billing_address 	= GeoAddress.new
-
-			@address_attribute = ( params[:address_attribute] == 'billing_address' ? :billing_address : :shipping_address )
-			@states = SwellEcom::GeoState.where( geo_country_id: params[:geo_country_id] )
-
-			render layout: false
-
 		end
 
 

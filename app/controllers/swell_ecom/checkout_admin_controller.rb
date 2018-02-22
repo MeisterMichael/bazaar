@@ -8,7 +8,6 @@ module SwellEcom
 		before_action :get_user
 		before_action :initialize_services, only: [ :confirm, :create, :index ]
 		before_action :get_order, only: [ :confirm, :create, :index ]
-		before_action :get_geo_addresses, only: :index
 
 		def confirm
 			authorize( @order, :admin_create? )

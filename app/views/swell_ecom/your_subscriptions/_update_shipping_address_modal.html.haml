@@ -24,22 +24,17 @@
 							= f.text_field :last_name, class: 'form-control', required: true
 							.help-block.with-errors
 
-						.form-group
-							%label
-								%span Country
-							- if @billing_countries.count == 1
-								= f.hidden_field :geo_country_id, value: @billing_countries.first.id
-								.form-control= @billing_countries.first.name
-							- else
-								= f.collection_select :geo_country_id, @billing_countries, :id, :name, { prompt: @billing_countries.count > 1 }, { class: "form-control", data: {'geostateupdate-target' => '#order_billing_address_state', 'geostateupdate-data' => { address_attribute: :billing_address }.to_json}, required: true  }
-							.help-block.with-errors
-
-
-						.form-group
-							%label
-								%span State
-							= render 'swell_ecom/checkout/state_input', f: f, states: @billing_states, id: 'order_billing_address_state'
-							.help-block.with-errors
+						%span.geo-address-country-state-group{ data: { address_attribute: :shipping_address } }
+							.form-group
+								%label
+									%span Country
+								= render 'swell_ecom/geo_address/country_input', f: f, countries: get_shipping_countries, args: {}
+								.help-block.with-errors
+							.form-group
+								%label
+									%span State
+								= render 'swell_ecom/geo_address/state_input', f: f, states: get_shipping_states( @subscription.shipping_address.geo_country_id ), args: {}
+								.help-block.with-errors
 						.form-group
 							%label
 								%span Address Line 1

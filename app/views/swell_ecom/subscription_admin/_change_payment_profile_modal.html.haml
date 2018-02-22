@@ -30,7 +30,7 @@
 						.help-block.with-errors
 
 					= f.fields_for :billing_address do |baf|
-						= render 'swell_ecom/geo_address/form', f: baf
+						= render 'swell_ecom/geo_address/form', f: baf, countries: get_billing_countries, states: get_billing_states( @subscription.billing_address.geo_country_id ), id: "subscription_admin_change_payment_profile", address_attribute: :billing_address
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close
