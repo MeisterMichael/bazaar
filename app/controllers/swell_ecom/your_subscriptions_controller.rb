@@ -63,7 +63,7 @@ module SwellEcom
 
 				@subscription_service = SubscriptionService.new
 
-				if @subscription_service.update_payment_profile( @subscription, params )
+				if @subscription_service.update_payment_profile( @subscription, transaction_options )
 
 					# if subscription was failed, set the status to active and
 					# next charge date to now ( if it was set to be charged
@@ -79,12 +79,7 @@ module SwellEcom
 
 			else
 
-				subscription_params = params.required(:subscription).permit( :status, :next_charged_at ).to_h
-				subscription_params.delete(:status) unless ['active','on_hold'].include?( subscription_params[:status] )
-				subscription_params.delete(:next_charged_at) if subscription_params[:next_charged_at].blank?
-				subscription_params[:next_charged_at] = "#{subscription_params[:next_charged_at]} 08:00:00 #{current_user.local_tz}" if subscription_params[:next_charged_at]
-
-				@subscription.attributes = subscription_params
+				@subscription.attributes = subscription_attributes
 				@subscription.save
 
 			end
@@ -104,6 +99,29 @@ module SwellEcom
 		def get_subscription
 			@subscription = SwellEcom::Subscription.where( user: current_user ).find_by( code: params[:id] )
 			raise ActionController::RoutingError.new( 'Not Found' ) unless @subscription.present?
+		end
+
+		def subscription_attributes
+
+			attributes = params.require(:subscription).permit(
+				:status,
+				:next_charged_at,
+				{
+					:shipping_address_attributes => [
+						:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
+					]
+				},
+			).to_h
+
+			attributes.delete(:status) unless ['active','on_hold'].include?( attributes[:status] )
+			attributes.delete(:next_charged_at) if attributes[:next_charged_at].blank?
+			attributes[:next_charged_at] = "#{attributes[:next_charged_at]} 08:00:00 #{current_user.local_tz}" if attributes[:next_charged_at]
+
+			attributes
+		end
+
+		def transaction_options
+			params.slice( :stripeToken, :credit_card ).merge({ ip: client_ip, ip_country: client_ip_country })
 		end
 
 	end

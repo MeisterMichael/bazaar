@@ -42,6 +42,9 @@
 					.col-xs-12.col-md-3
 						%h5{ style: 'margin-bottom: 0.2em;' } Shipping Address
 						= raw @subscription.shipping_address.to_html
+						%div
+							%a{ href: '#', data: { toggle: :modal, target: '#update_shipping_address_modal' } }
+								Edit
 					.col-xs-12.col-md-4
 						%h5{ style: 'margin-bottom: 0.2em;' } Payment Method
 						- if @subscription.properties['credit_card_brand'].present?
@@ -88,3 +91,4 @@
 
 = render 'swell_ecom/your_subscriptions/update_payment_info_modal'
 = render 'swell_ecom/your_subscriptions/update_next_interval_modal'
+= render 'swell_ecom/your_subscriptions/update_shipping_address_modal'
