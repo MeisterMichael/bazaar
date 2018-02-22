@@ -34,7 +34,7 @@
 					%tbody
 						- if @orders.blank?
 							%tr
-								%td{ colspan: 4 }
+								%td{ colspan: 6 }
 									\- No Orders Found -
 						- @orders.each do |order|
 							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
