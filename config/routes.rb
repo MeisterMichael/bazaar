@@ -16,6 +16,7 @@ SwellEcom::Engine.routes.draw do
 	end
 
 	resources :checkout, only: [:new, :create, :index] do
+		get :calculate, on: :collection
 		post :confirm, on: :collection
 		get :confirm, on: :collection
 		get :state_input, on: :collection

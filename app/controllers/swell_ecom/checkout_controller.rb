@@ -10,9 +10,9 @@ module SwellEcom
 		helper_method :get_shipping_states
 
 		before_action :get_cart
-		before_action :validate_cart, only: [ :confirm, :create, :index ]
-		before_action :initialize_services, only: [ :confirm, :create, :index ]
-		before_action :get_order, only: [ :confirm, :create, :index ]
+		before_action :validate_cart, only: [ :confirm, :create, :index, :calculate ]
+		before_action :initialize_services, only: [ :confirm, :create, :index, :calculate ]
+		before_action :get_order, only: [ :confirm, :create, :index, :calculate ]
 		before_action :get_geo_addresses, only: :index
 
 		def confirm
@@ -22,6 +22,25 @@ module SwellEcom
 				shipping: shipping_options,
 			)
 
+		end
+
+		def calculate
+
+			@shipping_service = SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
+
+			@shipping_rates = []
+
+			begin
+
+				@order_service.calculate( @order,
+					transaction: transaction_options,
+					shipping: shipping_options,
+				)
+				
+				@shipping_rates = @shipping_service.find_rates( @order, shipping_options ) if @order.shipping_address.geo_country.present?
+			rescue Exception => e
+				puts e
+			end
 		end
 
 		def create
