@@ -9,5 +9,7 @@ class SwellEcomSubscriptionCustomizationMigration < ActiveRecord::Migration[5.1]
 		add_column :subscription_plans, :item_id, :integer, default: nil
 		add_column :subscription_plans, :item_type, :string, default: nil
 
+		add_column :orders, :delivered_at, :datetime, default: nil
+
 	end
 end

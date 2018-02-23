@@ -18,6 +18,14 @@ module SwellEcom
 			return self.calculate_cart( obj, args ) if obj.is_a? Cart
 		end
 
+		def fetch_delivery_status( order, args = {} )
+			fetch_delivery_status_for_code( order.tracking_number, args )
+		end
+
+		def fetch_delivery_status_for_code( code, args = {} )
+			# @todo
+		end
+
 		def find_rates( obj, args = {} )
 			return self.find_order_rates( obj, args ) if obj.is_a? Order
 			return self.find_cart_rates( obj, args ) if obj.is_a? Cart
