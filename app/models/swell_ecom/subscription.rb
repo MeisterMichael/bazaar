@@ -20,6 +20,10 @@ module SwellEcom
 
 		money_attributes :amount, :trial_amount, :price, :trial_price
 
+
+		validates	:billing_interval_value, presence: true, allow_blank: false
+		validates	:billing_interval_unit, presence: true, allow_blank: false
+
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now
 			active.where( 'next_charged_at < :now', now: time_now )
