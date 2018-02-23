@@ -19,7 +19,7 @@
 	.form-group.address_state_toggle
 		%label
 			%span State
-		= render 'swell_ecom/geo_address/state_input', f: f, states: get_shipping_states( @order.shipping_country.geo_country_id ), args: {}
+		= render 'swell_ecom/geo_address/state_input', f: f, states: get_shipping_states( @order.shipping_address.geo_country_id ), args: {}
 		.help-block.with-errors
 .form-group
 	%label
