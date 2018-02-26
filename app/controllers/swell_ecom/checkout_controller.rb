@@ -36,7 +36,7 @@ module SwellEcom
 					transaction: transaction_options,
 					shipping: shipping_options,
 				)
-				
+
 				@shipping_rates = @shipping_service.find_rates( @order, shipping_options ) if @order.shipping_address.geo_country.present?
 			rescue Exception => e
 				puts e
@@ -136,7 +136,6 @@ module SwellEcom
 			order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 			@cart.cart_items.each do |cart_item|
 				order_item = @order.order_items.new( item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code )
-				@order.status = 'pre_order' if order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order?
 			end
 
 		end
