@@ -33,7 +33,11 @@
 				= shipping_address_form.hidden_field :zip, value: @order.shipping_address.zip
 				= shipping_address_form.hidden_field :phone, value: @order.shipping_address.phone
 
-			= hidden_field_tag :stripeToken, params[:stripeToken]
+			= hidden_field_tag 'transaction_options[credit_card][card_number]', params[:transaction_options][:credit_card][:card_number]
+			= hidden_field_tag 'transaction_options[credit_card][expiration]', params[:transaction_options][:credit_card][:expiration]
+			= hidden_field_tag 'transaction_options[credit_card][card_code]', params[:transaction_options][:credit_card][:card_code]
+			= hidden_field_tag 'transaction_options[stripeToken]', params[:transaction_options][:stripeToken]
+
 			= f.hidden_field :customer_notes, class: 'form-control'
 
 			.col-xs-12.col-md-9

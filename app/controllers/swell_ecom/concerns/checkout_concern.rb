@@ -88,11 +88,13 @@ module SwellEcom
 			end
 
 			def shipping_options
-				{ ip: client_ip, ip_country: client_ip_country }
+				options = (params.permit( :shipping_options => [ :code ] )[:shipping_options] || {}).to_h
+				options.merge({ ip: client_ip, ip_country: client_ip_country })
 			end
 
 			def transaction_options
-				params.slice( :stripeToken, :credit_card ).merge({ ip: client_ip, ip_country: client_ip_country })
+				options = (params.permit( :transaction_options => [ :stripeToken, :credit_card => [ :card_number, :expiration, :card_code ] ] )[:transaction_options] || {}).to_h
+				options.merge({ ip: client_ip, ip_country: client_ip_country })
 			end
 
 		end
