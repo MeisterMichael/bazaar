@@ -100,7 +100,7 @@ module SwellEcom
 			rates
 		end
 
-		def request_address_rates( geo_address, line_items )
+		def request_address_rates( geo_address, line_items, args = {} )
 			[]
 		end
 
