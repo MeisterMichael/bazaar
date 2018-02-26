@@ -72,7 +72,7 @@ RSpec.describe SwellEcom::CheckoutController, :type => :controller do
 
 
 
-			post :create, params: { format: :json, order: order, credit_card: credit_card, same_as_billing: same_as_billing }, session: { cart_id: cart.id }
+			post :create, params: { format: :json, order: order, transaction_options: { credit_card: credit_card }, same_as_billing: same_as_billing }, session: { cart_id: cart.id }
 			expect(response).to render_template(:create)
 			expect(response.content_type).to eq "application/json"
 			expect(response.status).to eq(200)
@@ -176,7 +176,7 @@ RSpec.describe SwellEcom::CheckoutController, :type => :controller do
 
 
 
-			post :create, params: { format: :json, order: order, credit_card: credit_card, same_as_billing: same_as_billing }, session: { cart_id: cart.id }
+			post :create, params: { format: :json, order: order, transaction_options: { credit_card: credit_card }, same_as_billing: same_as_billing }, session: { cart_id: cart.id }
 			expect(response).to render_template(:create)
 			expect(response.content_type).to eq "application/json"
 			expect(response.status).to eq(200)
@@ -268,7 +268,7 @@ RSpec.describe SwellEcom::CheckoutController, :type => :controller do
 
 
 
-			post :create, params: { format: :json, order: order, credit_card: credit_card, same_as_billing: same_as_billing }, session: { cart_id: cart.id }
+			post :create, params: { format: :json, order: order, transaction_options: { credit_card: credit_card }, same_as_billing: same_as_billing }, session: { cart_id: cart.id }
 			expect(response).to render_template(:create)
 			expect(response.content_type).to eq "application/json"
 			expect(response.status).to eq(200)

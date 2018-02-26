@@ -335,6 +335,8 @@ ActiveRecord::Schema.define(version: 20180221114900) do
     t.string "provider"
     t.string "provider_customer_profile_reference"
     t.string "provider_customer_payment_profile_reference"
+    t.datetime "delivered_at"
+    t.integer "discount", default: 0
     t.index ["billing_address_id"], name: "index_orders_on_billing_address_id"
     t.index ["code"], name: "index_orders_on_code", unique: true
     t.index ["email", "billing_address_id", "shipping_address_id"], name: "email_addr_indx"
