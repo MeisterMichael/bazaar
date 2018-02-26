@@ -75,13 +75,13 @@ module SwellEcom
 
 					unless package_shape == 'no_shape'
 
-						options = {}
+						options = { units: :metic }
 
 						dims = []
 						dims = [ line_item.package_height, line_item.package_width, line_item.package_length ] if line_item.package_length && line_item.package_width && line_item.package_height
 
 						if package_shape == 'cylinder'
-							options = { cylinder: true }
+							options = options.merge( cylinder: true )
 							dims = [ line_item.package_length, line_item.package_width ] if line_item.package_length && line_item.package_width
 						end
 
