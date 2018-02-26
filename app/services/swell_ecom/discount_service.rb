@@ -74,6 +74,9 @@ module SwellEcom
 				discount_amount = calculate_discount_amount( order_item, order )
 				order_item.subtotal = -discount_amount
 			end
+
+			order.discount = order.order_items.select(&:discount?).sum(&:subtotal)
+
 		end
 
 		def validate_order_discounts( order, discount_order_items, args = {} )

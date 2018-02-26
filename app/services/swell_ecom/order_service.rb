@@ -51,11 +51,7 @@ module SwellEcom
 			args[:tax] ||= {}
 			args[:transaction] ||= {}
 
-			@shipping_service.calculate( order, args[:shipping] )
-			@discount_service.calculate( order, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
-			@tax_service.calculate( order, args[:tax] )
-			@discount_service.calculate( order, args[:discount] ) # calucate again after taxes
-			@transaction_service.calculate( order, args[:transaction] )
+			self.calculate( order, args )
 
 			order.validate
 

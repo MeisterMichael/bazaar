@@ -54,17 +54,21 @@ module SwellEcom
 		end
 
 		def calculate_order( order, args={} )
-			service_name = args[:service_name]
+			rate_code = args[:code]
 			rates = find_order_rates( order, args ).sort_by{ |rate| rate[:price] }
 
-			if service_name.present?
-				rate = rates.select{ |rate| rate[:service_name] == service_name }.first
+			if rate_code.present?
+				rate = rates.select{ |rate| rate[:code] == rate_code }.first
 			else
 				rate = find_default_rate( rates )
 			end
 
-			order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: 'Shipping', order_item_type: 'shipping', tax_code: '11000', properties: { 'service_name' => rate[:name], 'carrier' => rate[:carrier] } ) if rate.present?
-
+			if rate.present?
+				order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: 'Shipping', order_item_type: 'shipping', tax_code: '11000', properties: { 'service_name' => rate[:name], 'carrier' => rate[:carrier] } )
+				order.shipping = rate[:price]
+			else
+				order.shipping = 0
+			end
 		end
 
 		def find_cart_rates( cart, args = {} )
