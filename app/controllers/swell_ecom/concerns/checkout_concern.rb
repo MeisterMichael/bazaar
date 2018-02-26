@@ -87,6 +87,11 @@ module SwellEcom
 				@subscription_service = SwellEcom::SubscriptionService.new( order_service: @order_service )
 			end
 
+			def discount_options
+				options = (params.permit( :discount_options => [ :code ] )[:discount_options] || {}).to_h
+				options.merge({ ip: client_ip, ip_country: client_ip_country })
+			end
+
 			def shipping_options
 				options = (params.permit( :shipping_options => [ :code ] )[:shipping_options] || {}).to_h
 				options.merge({ ip: client_ip, ip_country: client_ip_country })
