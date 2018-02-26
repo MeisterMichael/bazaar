@@ -42,7 +42,7 @@ module SwellEcom
 
 				args[:discount] = order.order_items.discount.first.try(:item)
 
-				if ( charge_transaction = order.transactions.charge.approved.first ).present?
+				if ( charge_transaction = order.transactions.charge.approved.first ).present? && charge_transaction.respond_to?( :properties )
 
 					args[:credit_card_ending_in]	||= charge_transaction.properties['credit_card_ending_in']
 					args[:credit_card_brand]		||= charge_transaction.properties['credit_card_brand']
@@ -72,7 +72,7 @@ module SwellEcom
 				current_period_end_at = start_at + trial_interval
 			end
 
-			subscription = Subscription.create!(
+			subscription = Subscription.new(
 				user: user,
 				subscription_plan: plan,
 				billing_address: args[:billing_address],
@@ -97,11 +97,16 @@ module SwellEcom
 				amount: args[:amount],
 				trial_price: args[:trial_price],
 				price: args[:price],
-				properties: {
+			)
+
+			if subscription.respond_to? :properties
+				subscription.properties = {
 					'credit_card_ending_in'	=> args[:credit_card_ending_in],
 					'credit_card_brand'		=> args[:credit_card_brand],
-				},
-			)
+				}
+			end
+
+			subscription.save!
 
 			subscription
 		end
