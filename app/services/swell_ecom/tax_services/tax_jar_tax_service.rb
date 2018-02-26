@@ -7,7 +7,7 @@ module SwellEcom
 		class TaxJarTaxService
 
 			def initialize( args = {} )
-				@environment = args[:environment].to_sym
+				@environment = args[:environment].to_sym if args[:environment].present?
 				@environment ||= :production if Rails.env.production?
 				@environment ||= :development
 
