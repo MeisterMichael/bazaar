@@ -54,7 +54,8 @@
 					- @products.each do |product|
 						%tr
 							%td
-								= image_tag product.avatar, width: 50, class: 'img img-rounded'
+								- if product.avatar
+									= image_tag product.avatar, width: 50, class: 'img img-rounded'
 							%td
 								= link_to product.title, edit_product_admin_path( product.id )
 							%td
