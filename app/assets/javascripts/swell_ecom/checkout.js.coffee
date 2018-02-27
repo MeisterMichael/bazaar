@@ -46,6 +46,7 @@ $ ->
 				$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
 		else
 			$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
+			$form[0].submit()
 
 		return false;
 
