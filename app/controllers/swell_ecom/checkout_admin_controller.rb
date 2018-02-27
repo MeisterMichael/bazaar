@@ -90,7 +90,7 @@ module SwellEcom
 			@order = SwellEcom::Order.find( params[:id] )
 			authorize( @order, :admin_create? )
 
-			if @order.active?
+			if @order.paid?
 				set_flash 'Already processed', :danger
 				redirect_back fallback_location: '/admin'
 				return
