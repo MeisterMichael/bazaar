@@ -51,6 +51,28 @@ module SwellEcom
 			raise Exception.new( 'OrderService#process: invalid order status' )
 		end
 
+		def process_purchase( order, args = {} )
+
+			if order.total == 0
+				order.payment_status = 'paid'
+				order.save
+			else
+				transaction = @transaction_service.process( order, args[:transaction] )
+			end
+
+			order.active!
+
+			begin
+				@tax_service.process( order ) if @tax_service.respond_to? :process
+			rescue Exception => e
+				puts e.message
+				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+			end
+
+			transaction
+
+		end
+
 		def refund( args = {} )
 
 			@transaction_service.refund( args || {} )
@@ -78,28 +100,6 @@ module SwellEcom
 			else
 				@transaction_service.capture_payment_method( order, args[:transaction] )
 			end
-		end
-
-		def process_purchase( order, args = {} )
-
-			if order.total == 0
-				order.payment_status = 'paid'
-				order.save
-			else
-				transaction = @transaction_service.process( order, args[:transaction] )
-			end
-
-			order.active!
-
-			begin
-				@tax_service.process( order ) if @tax_service.respond_to? :process
-			rescue Exception => e
-				puts e.message
-				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
-			end
-
-			transaction
-
 		end
 	end
 

@@ -6,7 +6,7 @@ module SwellEcom
 		helper_method :transaction_options
 
 		before_action :get_user
-		before_action :initialize_services, only: [ :confirm, :create, :index ]
+		before_action :initialize_services, only: [ :confirm, :create, :index, :update ]
 		before_action :get_order, only: [ :confirm, :create, :index ]
 
 		def confirm
@@ -83,6 +83,44 @@ module SwellEcom
 			@states = SwellEcom::GeoState.where( geo_country_id: params[:geo_country_id] )
 
 			render 'swell_ecom/checkout/state_input', layout: false
+		end
+
+		def update
+			# for processing order pre_orders and drafts
+			@order = SwellEcom::Order.find( params[:id] )
+			authorize( @order, :admin_create? )
+
+			if @order.active?
+				set_flash 'Already processed', :danger
+				redirect_back fallback_location: '/admin'
+				return
+			end
+
+			@order_service.process_purchase( @order,
+				transaction: transaction_options,
+				shipping: shipping_options,
+			)
+
+			if @order.errors.present?
+				set_flash @order.errors.full_messages, :danger
+				redirect_back fallback_location: '/admin'
+			else
+
+				@subscription_service.subscribe_ordered_plans( @order, payment_profile_expires_at: nil ) if @order.active?
+
+				OrderMailer.receipt( @order ).deliver_now
+
+				respond_to do |format|
+					format.json {
+						render :create
+					}
+					format.html {
+						redirect_to swell_ecom.thank_you_order_admin_path( @order.code )
+					}
+				end
+
+			end
+
 		end
 
 
