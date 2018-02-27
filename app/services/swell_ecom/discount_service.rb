@@ -27,7 +27,7 @@ module SwellEcom
 				order_items = order.order_items.to_a
 
 				order_items = order_items.select{ |order_item| not( order_item.discount? ) }
-				order_items = order_items.select{ |order_item| order_item.order_item_type == discount_item.order_item_type } unless discount_item.order_item_type.nil?
+				order_items = order_items.select{ |order_item| order_item.order_item_type == discount_item.order_item_type } unless discount_item.all_order_item_types?
 				order_items = order_items.select{ |order_item| order_item.item.is_a?( Subscription ) && order_item.item.orders.not_declined.count >= discount_item.minimum_orders } if discount_item.minimum_orders > 0
 				order_items = order_items.select{ |order_item| not( order_item.item.is_a?( Subscription ) ) || order_item.item.orders.not_declined.count < discount_item.maximum_orders } unless discount_item.maximum_orders.nil?
 
@@ -41,7 +41,7 @@ module SwellEcom
 
 				if discount_item.percent?
 					subtotal = order_items.sum{ |order_item| order_item.subtotal }
-					amount = amount + ( subtotal * discount_item.discount_amount / 100.0 ).round
+					amount = amount + ( subtotal * discount_item.discount_amount / 10000.0 ).round
 				elsif discount_item.fixed?
 					amount = amount + discount_item.discount_amount
 				elsif discount_item.fixed_each?
