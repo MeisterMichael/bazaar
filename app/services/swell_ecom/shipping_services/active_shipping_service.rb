@@ -53,7 +53,7 @@ module SwellEcom
 
 				tracking_info.shipment_events.each do |event|
 					status[:events] << { name: event.name, city: event.location.city, state: event.location.state, country: event.location.country.name, time: event.time, message: event.message }
-					puts "#{event.name} at #{event.location.city}, #{event.location.state} on #{event.time}. #{event.message}"
+
 					status[:delivered_at] = event.time if event.name.downcase.include?( 'delivered' )
 					status[:shipped_at] ||= event.time
 				end
