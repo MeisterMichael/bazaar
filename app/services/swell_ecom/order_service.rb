@@ -26,13 +26,15 @@ module SwellEcom
 			args[:tax] ||= {}
 			args[:transaction] ||= {}
 
-			self.calculate_order( obj, args ) if obj.is_a? SwellEcom::Order
+			self.calculate_order_before( obj, args ) if obj.is_a? SwellEcom::Order
 
 			@shipping_service.calculate( obj, args[:shipping] )
 			@discount_service.calculate( obj, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
 			@tax_service.calculate( obj, args[:tax] )
 			@discount_service.calculate( obj, args[:discount] ) # calucate again after taxes
 			@transaction_service.calculate( obj, args[:transaction] )
+
+			self.calculate_order_after( obj, args ) if obj.is_a? SwellEcom::Order
 
 		end
 
@@ -87,10 +89,17 @@ module SwellEcom
 		end
 
 		protected
-		def calculate_order( order, args = {} )
+		def calculate_order_before( order, args = {} )
 
+			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
 			order.status = 'pre_order' if order.order_items.select{|order_item| order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order? }.present?
 
+		end
+
+		def calculate_order_after( order, args = {} )
+
+			order.total = order.order_items.sum(&:subtotal)
+			
 		end
 
 		def process_capture_payment_method( order, args = {} )

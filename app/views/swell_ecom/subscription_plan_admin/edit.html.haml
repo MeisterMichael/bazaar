@@ -110,6 +110,36 @@
 						= f.label :tax_code
 						= f.text_field :tax_code, class: 'form-control'
 
+					.form-group
+						= f.label :package_shape
+						= f.collection_select :package_shape, SwellEcom::Product.package_shapes, :first, :first, {}, class: 'form-control'
+
+					.row
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :package_weight
+								.input-group
+									= f.number_field :package_weight, class: 'form-control'
+									%span.input-group-addon grams
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :package_length
+								.input-group
+									= f.number_field :package_length, class: 'form-control'
+									%span.input-group-addon cm
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :package_width
+								.input-group
+									= f.number_field :package_width, class: 'form-control'
+									%span.input-group-addon cm
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :package_height
+								.input-group
+									= f.number_field :package_height, class: 'form-control'
+									%span.input-group-addon cm
+
 					%hr
 
 					.form-group

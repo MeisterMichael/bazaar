@@ -9,6 +9,7 @@ module SwellEcom
 		helper_method :get_billing_states
 		helper_method :get_shipping_states
 		helper_method :discount_options
+		helper_method :shipping_options
 
 		before_action :get_cart
 		before_action :validate_cart, only: [ :confirm, :create, :index, :calculate ]
@@ -24,6 +25,7 @@ module SwellEcom
 				discount: discount_options,
 			)
 
+			render layout: 'swell_ecom/checkout'
 		end
 
 		def calculate
@@ -108,6 +110,9 @@ module SwellEcom
 
 		def index
 
+			@order.subtotal = @order.order_items.select(&:prod?).sum(&:subtotal)
+			@order.total = @order.subtotal
+
 			@cart.init_checkout!
 
 			add_page_event_data(
@@ -119,6 +124,8 @@ module SwellEcom
 				}
 			);
 
+
+			render layout: 'swell_ecom/checkout'
 		end
 
 		def new

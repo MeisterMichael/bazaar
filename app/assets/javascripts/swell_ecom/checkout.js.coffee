@@ -37,6 +37,24 @@ $ ->
 		}
 	)
 
+	$('.same_as_shipping').change ->
+		$input = $(this)
+		$form = $input.parents('form')
+
+		$form.find('.billing-address-section').find('input,select,textarea').each ->
+			$(this).data( 'default-required', $(this).attr('required') ) if $(this).data('default-required') == undefined
+
+		if $input.is(':checked')
+			$form.find('.billing-address-section').addClass('hide').find('input,select,textarea').attr('data-validate','false').removeAttr( 'required' )
+		else
+			$form.find('.billing-address-section').removeClass('hide').find('input,select,textarea').attr('data-validate','true')
+			$form.find('.billing-address-section').find('input,select,textarea').each ->
+				$(this).attr('required', $(this).data('default-required') ) if $(this).data('default-required')
+
+		$form.data('bs.validator').update() if $form.data('bs.validator')
+
+	$('.same_as_shipping').change()
+
 	$('form.disable_submit_after_submit').submit ->
 		# Disable the submit button to prevent repeated clicks:
 		$form = $(this)
