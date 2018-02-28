@@ -20,6 +20,21 @@ module SwellEcom
 
 		money_attributes :amount, :trial_amount, :price, :trial_price
 
+		validates	:amount, presence: true, allow_blank: false
+		validates	:price, presence: true, allow_blank: false
+		validates	:trial_amount, presence: true, allow_blank: false
+		validates	:trial_price, presence: true, allow_blank: false
+		validates_numericality_of :amount, greater_than_or_equal_to: 0
+		validates_numericality_of :price, greater_than_or_equal_to: 0
+		validates_numericality_of :trial_amount, greater_than_or_equal_to: 0
+		validates_numericality_of :trial_price, greater_than_or_equal_to: 0
+
+		validates	:billing_interval_value, presence: true, allow_blank: false
+		validates_numericality_of :billing_interval_value, greater_than_or_equal_to: 1
+		validates	:billing_interval_unit, presence: true, allow_blank: false
+		validates_inclusion_of :billing_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.'
+
+
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now
 			active.where( 'next_charged_at < :now', now: time_now )

@@ -12,7 +12,7 @@
 			- if policy(@order).admin_update?
 				- if @order.pre_order? || @order.draft?
 					.pull-right
-						%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
+						%a.btn.btn-primary{ href: checkout_admin_path( @order, order: { status: 'active' } ), data: { method: 'PUT' } }
 							%i.fa.fa-send
 							Process
 				- if not( SwellEcom.automated_fulfillment )

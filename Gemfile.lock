@@ -29,6 +29,7 @@ PATH
       authorizenet
       credit_card_validations
       jbuilder
+      rest-client
       stripe
       swell_media
       tax_cloud

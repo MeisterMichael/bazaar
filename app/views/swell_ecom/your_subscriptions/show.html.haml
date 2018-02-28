@@ -70,6 +70,9 @@
 
 							every
 							= pluralize @subscription.billing_interval_value, @subscription.billing_interval_unit.singularize
+
+							%a{ href: '#', data: { toggle: :modal, target: '#update_billing_interval_modal' } }
+								Edit
 						- if @subscription.active?
 							%p
 								Next interval starts on #{current_user.to_local_tz(@subscription.next_charged_at).to_s( :basic_short )}
@@ -92,3 +95,4 @@
 = render 'swell_ecom/your_subscriptions/update_payment_info_modal'
 = render 'swell_ecom/your_subscriptions/update_next_interval_modal'
 = render 'swell_ecom/your_subscriptions/update_shipping_address_modal'
+= render 'swell_ecom/your_subscriptions/update_billing_interval_modal'

@@ -9,13 +9,14 @@ SwellEcom::Engine.routes.draw do
 		get :create, on: :collection
 	end
 
-	resources :checkout_admin, only: [:create, :index] do
+	resources :checkout_admin, only: [:create, :index, :update] do
 		post :confirm, on: :collection
 		get :confirm, on: :collection
 		get :state_input, on: :collection
 	end
 
 	resources :checkout, only: [:new, :create, :index] do
+		get :calculate, on: :collection
 		post :confirm, on: :collection
 		get :confirm, on: :collection
 		get :state_input, on: :collection

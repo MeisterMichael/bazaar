@@ -48,9 +48,10 @@
 					- @discounts.each do |discount|
 						%tr
 							%td
-								= link_to discount.title, edit_discount_admin_path( discount.id )
+								= link_to discount.to_s, edit_discount_admin_path( discount.id )
 							%td
-								= current_user.to_local_tz(discount.start_at).to_s( :short )
+								- if discount.start_at.present?
+									= current_user.to_local_tz(discount.start_at).to_s( :short )
 							%td
 								- if discount.end_at.present?
 									= current_user.to_local_tz(discount.end_at).to_s( :short )

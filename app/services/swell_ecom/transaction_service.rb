@@ -49,12 +49,8 @@ module SwellEcom
 
 		def calculate_order( order )
 
-			order.total = 0
-
-			order.order_items.each do |order_item|
-				order.total = order.total + order_item.subtotal
-			end
-
+			order.total = order.order_items.sum(&:subtotal)
+			
 		end
 
 	end

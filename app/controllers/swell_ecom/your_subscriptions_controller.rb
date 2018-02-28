@@ -92,6 +92,8 @@ module SwellEcom
 			attributes = params.require(:subscription).permit(
 				:status,
 				:next_charged_at,
+				:billing_interval_unit,
+				:billing_interval_value,
 				{
 					:shipping_address_attributes => [
 						:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
@@ -102,6 +104,7 @@ module SwellEcom
 			attributes.delete(:status) unless ['active','on_hold'].include?( attributes[:status] )
 			attributes.delete(:next_charged_at) if attributes[:next_charged_at].blank?
 			attributes[:next_charged_at] = "#{attributes[:next_charged_at]} 08:00:00 #{current_user.local_tz}" if attributes[:next_charged_at]
+			attributes.delete(:billing_interval_unit) unless ['months','days','weeks'].include?( attributes[:billing_interval_unit] )
 
 			attributes
 		end

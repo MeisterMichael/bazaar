@@ -141,6 +141,10 @@
 						= f.label :status
 						= f.collection_select :status, SwellEcom::SubscriptionPlan.statuses, :first, :first, {}, class: 'form-control'
 
+					.form-group
+						= f.label :availability
+						= f.collection_select :availability, SwellEcom::SubscriptionPlan.availabilities, :first, :first, {}, class: 'form-control'
+
 					- if @plan.respond_to? :tags
 						.form-group
 							= f.label :tags_csv, 'Tags:'

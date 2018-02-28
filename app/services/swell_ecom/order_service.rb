@@ -26,6 +26,8 @@ module SwellEcom
 			args[:tax] ||= {}
 			args[:transaction] ||= {}
 
+			self.calculate_order( obj, args ) if obj.is_a? SwellEcom::Order
+
 			@shipping_service.calculate( obj, args[:shipping] )
 			@discount_service.calculate( obj, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
 			@tax_service.calculate( obj, args[:tax] )
@@ -35,72 +37,36 @@ module SwellEcom
 		end
 
 		def process( order, args = {} )
-			@shipping_service.validate( order.shipping_address )
-			@shipping_service.validate( order.billing_address )
-			return false if order.shipping_address.errors.present? || order.billing_address.errors.present?
+
+			args[:discount] ||= {}
+			args[:shipping] ||= {}
+			args[:tax] ||= {}
+			args[:transaction] ||= {}
+
+			self.calculate( order, args )
+			return nil unless self.validate( order, args )
 
 			return self.process_capture_payment_method( order, args ) if order.pre_order?
 			return self.process_purchase( order, args ) if order.active?
 			raise Exception.new( 'OrderService#process: invalid order status' )
 		end
 
-		def process_capture_payment_method( order, args = {} )
-
-			args[:discount] ||= {}
-			args[:shipping] ||= {}
-			args[:tax] ||= {}
-			args[:transaction] ||= {}
-
-			@shipping_service.calculate( order, args[:shipping] )
-			@discount_service.calculate( order, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
-			@tax_service.calculate( order, args[:tax] )
-			@discount_service.calculate( order, args[:discount] ) # calucate again after taxes
-			@transaction_service.calculate( order, args[:transaction] )
-
-			order.validate
-
-			if order.errors.present?
-				nil
-			elsif order.total == 0
-				order.payment_status = 'payment_method_captured'
-				order.save
-			else
-				@transaction_service.capture_payment_method( order, args[:transaction] )
-			end
-
-		end
-
 		def process_purchase( order, args = {} )
 
-			args[:discount] ||= {}
-			args[:shipping] ||= {}
-			args[:tax] ||= {}
-			args[:transaction] ||= {}
+			if order.total == 0
+				order.payment_status = 'paid'
+				order.save
+			else
+				transaction = @transaction_service.process( order, args[:transaction] )
+			end
 
-			@shipping_service.calculate( order, args[:shipping] )
-			@discount_service.calculate( order, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
-			@tax_service.calculate( order, args[:tax] )
-			@discount_service.calculate( order, args[:discount] ) # calucate again after taxes
-			@transaction_service.calculate( order, args[:transaction] )
+			order.active!
 
-			order.validate
-
-			unless order.errors.present?
-
-				if order.total == 0
-					order.payment_status = 'paid'
-					order.save
-				else
-					transaction = @transaction_service.process( order, args[:transaction] )
-				end
-				order.active!
-
-				begin
-					@tax_service.process( order ) if @tax_service.respond_to? :process
-				rescue Exception => e
-					puts e.message
-					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
-				end
+			begin
+				@tax_service.process( order ) if @tax_service.respond_to? :process
+			rescue Exception => e
+				puts e.message
+				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 			end
 
 			transaction
@@ -113,6 +79,28 @@ module SwellEcom
 
 		end
 
+		def validate( order, args )
+			order.validate
+			@shipping_service.validate( order.shipping_address )
+			@shipping_service.validate( order.billing_address )
+			return not( order.errors.present? || order.shipping_address.errors.present? || order.billing_address.errors.present? )
+		end
+
+		protected
+		def calculate_order( order, args = {} )
+
+			order.status = 'pre_order' if order.order_items.select{|order_item| order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order? }.present?
+
+		end
+
+		def process_capture_payment_method( order, args = {} )
+			if order.total == 0
+				order.payment_status = 'payment_method_captured'
+				order.save
+			else
+				@transaction_service.capture_payment_method( order, args[:transaction] )
+			end
+		end
 	end
 
 end

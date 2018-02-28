@@ -18,6 +18,14 @@ module SwellEcom
 			return self.calculate_cart( obj, args ) if obj.is_a? Cart
 		end
 
+		def fetch_delivery_status( order, args = {} )
+			fetch_delivery_status_for_code( order.tracking_number, args )
+		end
+
+		def fetch_delivery_status_for_code( code, args = {} )
+			# @todo
+		end
+
 		def find_rates( obj, args = {} )
 			return self.find_order_rates( obj, args ) if obj.is_a? Order
 			return self.find_cart_rates( obj, args ) if obj.is_a? Cart
@@ -46,17 +54,21 @@ module SwellEcom
 		end
 
 		def calculate_order( order, args={} )
-			service_name = args[:service_name]
+			rate_code = args[:code]
 			rates = find_order_rates( order, args ).sort_by{ |rate| rate[:price] }
 
-			if service_name.present?
-				rate = rates.select{ |rate| rate[:service_name] == service_name }.first
+			if rate_code.present?
+				rate = rates.select{ |rate| rate[:code] == rate_code }.first
 			else
 				rate = find_default_rate( rates )
 			end
 
-			order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: 'Shipping', order_item_type: 'shipping', tax_code: '11000', properties: { 'service_name' => rate[:name], 'carrier' => rate[:carrier] } ) if rate.present?
-
+			if rate.present?
+				order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: rate[:name], order_item_type: 'shipping', tax_code: '11000', properties: { 'code' => rate[:code], 'carrier' => rate[:carrier] } )
+				order.shipping = rate[:price]
+			else
+				order.shipping = 0
+			end
 		end
 
 		def find_cart_rates( cart, args = {} )
@@ -92,7 +104,7 @@ module SwellEcom
 			rates
 		end
 
-		def request_address_rates( geo_address, line_items )
+		def request_address_rates( geo_address, line_items, args = {} )
 			[]
 		end
 

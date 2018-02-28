@@ -87,12 +87,28 @@ module SwellEcom
 				@subscription_service = SwellEcom::SubscriptionService.new( order_service: @order_service )
 			end
 
+			def discount_options_params
+				(params.permit( :discount_options => [ :code ] )[:discount_options] || {}).to_h
+			end
+
+			def shipping_options_params
+				(params.permit( :shipping_options => [ :code ] )[:shipping_options] || {}).to_h
+			end
+
+			def transaction_options_params
+				(params.permit( :transaction_options => [ :stripeToken, :credit_card => [ :card_number, :expiration, :card_code ] ] )[:transaction_options] || {}).to_h
+			end
+
+			def discount_options
+				discount_options_params.merge({ ip: client_ip, ip_country: client_ip_country })
+			end
+
 			def shipping_options
-				{ ip: client_ip, ip_country: client_ip_country }
+				shipping_options_params.merge({ ip: client_ip, ip_country: client_ip_country })
 			end
 
 			def transaction_options
-				params.slice( :stripeToken, :credit_card ).merge({ ip: client_ip, ip_country: client_ip_country })
+				transaction_options_params.merge({ ip: client_ip, ip_country: client_ip_country })
 			end
 
 		end

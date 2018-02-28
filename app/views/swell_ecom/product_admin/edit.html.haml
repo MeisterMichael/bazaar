@@ -149,7 +149,9 @@
 					.form-group
 						= f.label :status
 						= f.collection_select :status, SwellEcom::Product.statuses, :first, :first, {}, class: 'form-control'
-
+					.form-group
+						= f.label :availability
+						= f.collection_select :availability, SwellEcom::Product.availabilities, :first, :first, {}, class: 'form-control'
 					.form-group
 						= f.label :category_id
 						= f.collection_select :category_id, SwellEcom::ProductCategory.active.order( :name ), :id, :name, { include_blank: '-- None -- ' }, class: 'form-control'

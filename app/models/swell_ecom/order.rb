@@ -23,7 +23,7 @@ module SwellEcom
 
 		accepts_nested_attributes_for :billing_address, :shipping_address, :order_items
 
-		money_attributes :subtotal, :tax, :shipping, :total
+		money_attributes :subtotal, :tax, :shipping, :total, :discount
 
 		def self.not_archived
 			where.not( status: SwellEcom::Order.statuses['archived'] )

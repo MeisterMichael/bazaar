@@ -42,10 +42,11 @@ $ ->
 		$form = $(this)
 
 		if $form.data('bs.validator')
-			if !$form.data('bs.validator').hasErrors() && !$form.data('bs.validator').isIncomplete()
-				$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
+			# if !$form.data('bs.validator').hasErrors() && !$form.data('bs.validator').isIncomplete()
+			# 	$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
 		else
 			$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
+			$form[0].submit()
 
 		return false;
 

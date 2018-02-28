@@ -11,6 +11,20 @@ module SwellEcom
 
 		money_attributes :minimum_prod_subtotal, :minimum_tax_subtotal, :minimum_shipping_subtotal
 
+		def self.in_progress( args = {} )
+
+			args[:now] ||= Time.now
+
+			self.where('( start_at IS NULL OR :now > start_at ) AND ( end_at IS NULL OR :now < end_at )', now: args[:now] )
+
+		end
+
+
+
+		def amount
+			self.discount_items.last.try( :discount_amount ) 
+		end
+
 		def first_discount_item
 			@first_discount_item ||= self.discount_items.first
 			@first_discount_item
@@ -29,12 +43,8 @@ module SwellEcom
 			( start_at.nil? || args[:now] > start_at ) && ( end_at.nil? || args[:now] < end_at )
 		end
 
-		def self.in_progress( args = {} )
-
-			args[:now] ||= Time.now
-
-			self.where('( start_at IS NULL OR :now > start_at ) AND ( end_at IS NULL OR :now < end_at )', now: args[:now] )
-
+		def to_s
+			self.title.present? ? self.title : self.code
 		end
 
 	end

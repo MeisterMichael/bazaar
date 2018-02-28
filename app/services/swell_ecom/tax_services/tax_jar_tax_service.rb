@@ -7,6 +7,9 @@ module SwellEcom
 		class TaxJarTaxService
 
 			def initialize( args = {} )
+				@environment = args[:environment].to_sym if args[:environment].present?
+				@environment ||= :production if Rails.env.production?
+				@environment ||= :development
 
 				@client = Taxjar::Client.new(
 					api_key: args[:api_key] || ENV['TAX_JAR_API_KEY']
@@ -40,6 +43,7 @@ module SwellEcom
 			end
 
 			def process( order, args = {} )
+				return true unless @environment == :production
 				order_info = get_order_info( order )
 
 				order_info[:sales_tax] = order.order_items.select{|order_item| order_item.tax? }.sum(&:subtotal).to_f / 100.0
