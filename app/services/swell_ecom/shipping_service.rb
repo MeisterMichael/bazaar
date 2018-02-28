@@ -54,6 +54,7 @@ module SwellEcom
 		end
 
 		def calculate_order( order, args={} )
+			return false unless order.shipping_address.validate
 			rates = find_order_rates( order, args ).sort_by{ |rate| rate[:price] }
 
 			if args[:rate_code].present?
