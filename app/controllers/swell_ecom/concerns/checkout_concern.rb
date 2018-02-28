@@ -61,8 +61,8 @@ module SwellEcom
 				order_attributes[:shipping_address_attributes]	||= order_attributes.delete(:shipping_address) || {}
 				order_attributes[:order_items_attributes]		||= order_attributes.delete(:order_items) || []
 
-				order_attributes[:shipping_address_attributes] ||= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
-				order_attributes[:billing_address_attributes] ||= order_attributes[:shipping_address_attributes] if order_attributes.delete(:same_as_shipping)
+				order_attributes[:shipping_address_attributes]	= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
+				order_attributes[:billing_address_attributes]	= order_attributes[:shipping_address_attributes] if order_attributes.delete(:same_as_shipping)
 
 				if order_attributes[:order_items_attributes].present?
 					order_attributes[:order_items_attributes].each do |order_item|
