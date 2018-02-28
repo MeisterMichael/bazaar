@@ -75,7 +75,7 @@ module SwellEcom
 				order_item.subtotal = -discount_amount
 			end
 
-			order.discount = order.order_items.select(&:discount?).sum(&:subtotal)
+			order.discount = -order.order_items.select(&:discount?).sum(&:subtotal)
 
 		end
 
