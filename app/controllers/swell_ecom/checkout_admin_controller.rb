@@ -133,6 +133,8 @@ module SwellEcom
 		def get_order
 
 			@order = Order.new( get_order_admin_attributes.merge( user: @user ) )
+			@order.user ||= User.find_or_create_by( email: @order.email ) if @order.email.present? && SwellEcom.create_user_on_checkout
+
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			discount = Discount.active.in_progress.find_by( code: params[:coupon] ) if params[:coupon].present?

@@ -35,6 +35,8 @@ module SwellEcom
 
 		mattr_accessor :store_path
 
+		mattr_accessor :create_user_on_checkout
+
 
 		self.discount_service_class = "SwellEcom::DiscountService"
 		self.discount_service_config = {}
@@ -64,6 +66,8 @@ module SwellEcom
 		self.automated_fulfillment = false
 
 		self.store_path = 'store'
+
+		self.create_user_on_checkout = false
 	end
 
 	# this function maps the vars from your app into your engine
