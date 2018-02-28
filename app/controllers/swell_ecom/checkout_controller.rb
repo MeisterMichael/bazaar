@@ -45,6 +45,7 @@ module SwellEcom
 				@shipping_rates = @shipping_service.find_rates( @order, shipping_options ) if @order.shipping_address.geo_country.present?
 			rescue Exception => e
 				puts e
+				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 			end
 		end
 

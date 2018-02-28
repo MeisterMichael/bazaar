@@ -92,6 +92,9 @@ module SwellEcom
 			end
 
 			def calculate_order( order )
+				order.tax = 0
+				return false if not( order.billing_address.validate ) || order.billing_address.geo_country.blank? || order.billing_address.zip.blank?
+				return false if order.billing_address.geo_country.abbrev == 'US' && order.billing_address.geo_state.blank?
 
 				order_info = get_order_info( order )
 
@@ -177,17 +180,24 @@ module SwellEcom
 
 				shipping_amount = order.order_items.select{ |order_item| order_item.shipping? }.sum(&:subtotal) / 100.0
 				order_total = order.order_items.select{ |order_item| order_item.prod? }.sum(&:subtotal) / 100.0
+				discount_total = order.order_items.select{ |order_item| order_item.discount? }.sum(&:subtotal) / 100.0
 
+				discount_applied = 0
 				line_items = []
 				order.order_items.each do |order_item|
 					if order_item.prod?
+						discount = [ -(discount_total - discount_applied), order_item.subtotal ].min
+
 						line_items << {
 							:quantity => order_item.quantity,
 							:unit_price => (order_item.price / 100.0),
 							:product_tax_code => order_item.tax_code,
 							:product_identifier => order_item.sku,
 							:description => order_item.title,
+							:discount => discount,
 						}
+
+						discount_applied = discount_applied - discount
 					end
 				end
 
@@ -200,7 +210,7 @@ module SwellEcom
 				    :from_zip => @warehouse_address[:zip] || @origin_address[:zip],
 				    :from_city => @warehouse_address[:city] || @origin_address[:city],
 				    :from_state => @warehouse_address[:state] || @origin_address[:state],
-				    :amount => order_total + shipping_amount,
+				    :amount => order_total + shipping_amount + discount_total,
 				    :shipping => shipping_amount,
 				    :nexus_addresses => @nexus_addresses,
 				    :line_items => line_items,
