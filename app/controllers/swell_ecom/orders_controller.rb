@@ -4,7 +4,7 @@ module SwellEcom
 		def thank_you
 			@order = Order.find_by( code: params[:id] )
 
-			if @order.user.present?
+			if current_user.present?
 				raise ActionController::RoutingError.new( 'Not Found' ) if current_user != @order.user
 			else
 				verified_message = Rails.application.message_verifier('order.id').verify(params[:d])

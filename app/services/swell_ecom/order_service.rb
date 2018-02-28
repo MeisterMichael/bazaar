@@ -56,6 +56,7 @@ module SwellEcom
 		def process_purchase( order, args = {} )
 
 			if order.total == 0
+				@transaction_service.capture_payment_method( order, args[:transaction] )
 				order.payment_status = 'paid'
 				order.save
 			else
@@ -99,16 +100,14 @@ module SwellEcom
 		def calculate_order_after( order, args = {} )
 
 			order.total = order.order_items.sum(&:subtotal)
-			
+
 		end
 
 		def process_capture_payment_method( order, args = {} )
-			if order.total == 0
-				order.payment_status = 'payment_method_captured'
-				order.save
-			else
-				@transaction_service.capture_payment_method( order, args[:transaction] )
-			end
+			transaction = @transaction_service.capture_payment_method( order, args[:transaction] )
+			order.save
+
+			transaction
 		end
 	end
 
