@@ -91,18 +91,25 @@ module SwellEcom
 		end
 
 		def find_address_rates( geo_address, line_items, args = {} )
-			rates = request_address_rates( geo_address, line_items, args )
+			cache_key = geo_address.attributes.to_json
+			cache_key = cache_key + line_items.collect(&:attributes).to_json
 
-			rates = rates.select{ |rate| @code_whitelist.include?( rate[:code] ) } if @code_whitelist.present?
-			rates = rates.select{ |rate| not( @code_blacklist.include?( rate[:code] ) ) } if @code_blacklist.present?
-			rates = rates.select{ |rate| @name_whitelist.include?( rate[:name] ) } if @name_whitelist.present?
-			rates = rates.select{ |rate| not( @name_blacklist.include?( rate[:name] ) ) } if @name_blacklist.present?
+			Rails.cache.fetch("swell_ecom/shipping_service/#{cache_key}", expires_in: 10.minutes) do
 
-			rates.each do |rate|
-				rate[:price] = (rate[:price] * @multiplier_adjustment + @flat_adjustment).round()
-			end
+				rates = request_address_rates( geo_address, line_items, args )
 
-			rates
+				rates = rates.select{ |rate| @code_whitelist.include?( rate[:code] ) } if @code_whitelist.present?
+				rates = rates.select{ |rate| not( @code_blacklist.include?( rate[:code] ) ) } if @code_blacklist.present?
+				rates = rates.select{ |rate| @name_whitelist.include?( rate[:name] ) } if @name_whitelist.present?
+				rates = rates.select{ |rate| not( @name_blacklist.include?( rate[:name] ) ) } if @name_blacklist.present?
+
+				rates.each do |rate|
+					rate[:price] = (rate[:price] * @multiplier_adjustment + @flat_adjustment).round()
+				end
+
+				rates
+
+		    end
 		end
 
 		def request_address_rates( geo_address, line_items, args = {} )
