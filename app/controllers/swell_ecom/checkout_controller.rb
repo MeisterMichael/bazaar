@@ -24,6 +24,7 @@ module SwellEcom
 				discount: discount_options,
 			)
 
+			render layout: 'swell_ecom/checkout'
 		end
 
 		def calculate
@@ -108,6 +109,9 @@ module SwellEcom
 
 		def index
 
+			@order.subtotal = @order.order_items.select(&:prod?).sum(&:subtotal)
+			@order.total = @order.subtotal
+
 			@cart.init_checkout!
 
 			add_page_event_data(
@@ -119,6 +123,8 @@ module SwellEcom
 				}
 			);
 
+
+			render layout: 'swell_ecom/checkout'
 		end
 
 		def new

@@ -89,6 +89,7 @@ module SwellEcom
 		protected
 		def calculate_order( order, args = {} )
 
+			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
 			order.status = 'pre_order' if order.order_items.select{|order_item| order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order? }.present?
 
 		end
