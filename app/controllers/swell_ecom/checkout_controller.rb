@@ -34,6 +34,8 @@ module SwellEcom
 
 			@shipping_rates = []
 
+			@cart.update( email: @order.email ) if @cart.present? && @order.email.present?
+
 			begin
 
 				@order_service.calculate( @order,
