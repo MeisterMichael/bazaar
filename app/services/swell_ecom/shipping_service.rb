@@ -54,11 +54,12 @@ module SwellEcom
 		end
 
 		def calculate_order( order, args={} )
-			rate_code = args[:code]
 			rates = find_order_rates( order, args ).sort_by{ |rate| rate[:price] }
 
-			if rate_code.present?
-				rate = rates.select{ |rate| rate[:code] == rate_code }.first
+			if args[:rate_code].present?
+				rate = rates.select{ |rate| rate[:code] == args[:rate_code] }.first
+			elsif args[:rate_name].present?
+				rate = rates.select{ |rate| rate[:name] == args[:rate_name] }.first
 			else
 				rate = find_default_rate( rates )
 			end

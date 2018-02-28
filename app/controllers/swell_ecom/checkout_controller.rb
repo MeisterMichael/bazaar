@@ -9,6 +9,7 @@ module SwellEcom
 		helper_method :get_billing_states
 		helper_method :get_shipping_states
 		helper_method :discount_options
+		helper_method :shipping_options
 
 		before_action :get_cart
 		before_action :validate_cart, only: [ :confirm, :create, :index, :calculate ]

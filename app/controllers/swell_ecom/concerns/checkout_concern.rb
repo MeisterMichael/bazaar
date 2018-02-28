@@ -94,7 +94,7 @@ module SwellEcom
 			end
 
 			def shipping_options_params
-				(params.permit( :shipping_options => [ :code ] )[:shipping_options] || {}).to_h
+				(params.permit( :shipping_options => [ :rate_code, :rate_name ] )[:shipping_options] || {}).to_h
 			end
 
 			def transaction_options_params
