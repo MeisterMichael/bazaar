@@ -27,6 +27,7 @@ module SwellEcom
 						:email,
 						:customer_notes,
 						:same_as_billing,
+						:same_as_shipping,
 						{
 							:billing_address => [
 								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
@@ -61,6 +62,7 @@ module SwellEcom
 				order_attributes[:order_items_attributes]		||= order_attributes.delete(:order_items) || []
 
 				order_attributes[:shipping_address_attributes] ||= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
+				order_attributes[:billing_address_attributes] ||= order_attributes[:shipping_address_attributes] if order_attributes.delete(:same_as_shipping)
 
 				if order_attributes[:order_items_attributes].present?
 					order_attributes[:order_items_attributes].each do |order_item|
