@@ -37,6 +37,19 @@ $ ->
 		}
 	)
 
+	$('.same_as_shipping').change ->
+		$input = $(this)
+		$form = $input.parents('form')
+
+		if $input.is(':checked')
+			$form.find('.billing-address-section').addClass('hide').find('input,select,textarea').attr('data-validate','false')
+		else
+			$form.find('.billing-address-section').removeClass('hide').find('input,select,textarea').attr('data-validate','true')
+
+		$form.data('bs.validator').update() if $form.data('bs.validator')
+
+	$('.same_as_shipping').change()
+
 	$('form.disable_submit_after_submit').submit ->
 		# Disable the submit button to prevent repeated clicks:
 		$form = $(this)
