@@ -14,7 +14,6 @@ module SwellEcom
 					fb_type: 'article'
 				}
 			)
-		end
 
 			add_page_event_data(
 				ecommerce: {
