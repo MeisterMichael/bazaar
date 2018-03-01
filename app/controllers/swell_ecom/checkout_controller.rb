@@ -69,13 +69,16 @@ module SwellEcom
 			end
 
 
-			if @order.errors.present?
-				set_flash @order.errors.full_messages, :danger
+			if @order.nested_errors.present?
 				respond_to do |format|
+					format.js {
+						render :create
+					}
 					format.json {
 						render :create
 					}
 					format.html {
+						set_flash @order.nested_errors, :danger
 						redirect_back fallback_location: '/checkout'
 					}
 				end
@@ -95,14 +98,18 @@ module SwellEcom
 				OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now
 
+				@thank_you_url = swell_ecom.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
 
 				respond_to do |format|
+					format.js {
+						render :create
+					}
 					format.json {
 						render :create
 					}
 					format.html {
 						@expiration = 30.minutes.from_now.to_i
-						redirect_to swell_ecom.thank_you_order_path( @order.code, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
+						redirect_to @thank_you_url
 					}
 				end
 

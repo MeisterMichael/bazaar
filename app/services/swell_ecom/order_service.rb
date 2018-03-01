@@ -83,10 +83,13 @@ module SwellEcom
 		end
 
 		def validate( order, args )
+			return false if order.nested_errors.present?
+
 			order.validate
 			@shipping_service.validate( order.shipping_address )
 			@shipping_service.validate( order.billing_address )
-			return not( order.errors.present? || order.shipping_address.errors.present? || order.billing_address.errors.present? )
+
+			return not( order.nested_errors.present? )
 		end
 
 		protected

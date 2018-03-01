@@ -59,14 +59,11 @@ $ ->
 		# Disable the submit button to prevent repeated clicks:
 		$form = $(this)
 
-		if $form.data('bs.validator')
-			# if !$form.data('bs.validator').hasErrors() && !$form.data('bs.validator').isIncomplete()
-			# 	$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
+		if $form.data('bs.validator') && ( $form.data('bs.validator').hasErrors() || $form.data('bs.validator').isIncomplete() )
+			return false
 		else
 			$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
-			$form[0].submit()
-
-		return false;
+			$form.addClass('submitted')
 
 	$('.card-form-group .card-preview').each ->
 		$form = $(this).parents('form')

@@ -101,8 +101,12 @@ module SwellEcom
 				begin
 					tax_for_order = @client.tax_for_order( order_info )
 				rescue Taxjar::Error::BadRequest => ex
-					if ex.message.include?( 'is not used within to_state' )
-						order.errors.add :shipping_address, :invalid, message: "Zip #{order_info[:to_zip]} is not used within #{order_info[:to_state]}"
+
+					if ex.message.include?( 'isn\'t a valid postal code' )
+						order.billing_address.errors.add :zip, :invalid, message: "#{order_info[:to_zip]} is not a valid zip/postal code"
+						return order
+					elsif ex.message.include?( 'is not used within to_state' )
+						order.billing_address.errors.add :zip, :invalid, message: "#{order_info[:to_zip]} is not a valid zip/postal code within #{order_info[:to_state]}"
 						return order
 					else
 						raise ex

@@ -37,8 +37,8 @@ module SwellEcom
 			end
 
 
-			if @order.errors.present?
-				set_flash @order.errors.full_messages, :danger
+			if @order.nested_errors.present?
+				set_flash @order.nested_errors, :danger
 				get_geo_addresses
 				render :index
 			else
@@ -101,8 +101,8 @@ module SwellEcom
 				shipping: shipping_options,
 			)
 
-			if @order.errors.present?
-				set_flash @order.errors.full_messages, :danger
+			if @order.nested_errors.present?
+				set_flash @order.nested_errors, :danger
 				redirect_back fallback_location: '/admin'
 			else
 
