@@ -10,8 +10,6 @@ module SwellEcom
 		mattr_accessor :warehouse_address
 		mattr_accessor :nexus_addresses
 		mattr_accessor :order_email_from
-		mattr_accessor :billing_countries
-		mattr_accessor :shipping_countries
 
 		mattr_accessor :discount_service_class
 		mattr_accessor :discount_service_config
@@ -54,8 +52,6 @@ module SwellEcom
 		self.nexus_addresses = []
 
 		self.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
-		self.billing_countries = { only: 'US' }
-		self.shipping_countries = { only: 'US' }
 
 		self.order_code_prefix = nil
 		self.order_code_postfix = nil
