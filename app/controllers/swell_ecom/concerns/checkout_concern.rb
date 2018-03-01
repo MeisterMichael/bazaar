@@ -21,28 +21,13 @@ module SwellEcom
 
 			end
 
-			def get_geo_addresses
-
-				@billing_countries 	= SwellEcom::GeoCountry.all
-				@shipping_countries = SwellEcom::GeoCountry.all
-
-				@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:only] ) if SwellEcom.billing_countries[:only].present?
-				@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:except] ) if SwellEcom.billing_countries[:except].present?
-
-				@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
-				@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
-
-				@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @order.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
-				@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @order.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
-
-			end
-
 			def get_order_attributes
 				order_attributes = params.permit(
 					order: [
 						:email,
 						:customer_notes,
 						:same_as_billing,
+						:same_as_shipping,
 						{
 							:billing_address => [
 								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
@@ -76,7 +61,8 @@ module SwellEcom
 				order_attributes[:shipping_address_attributes]	||= order_attributes.delete(:shipping_address) || {}
 				order_attributes[:order_items_attributes]		||= order_attributes.delete(:order_items) || []
 
-				order_attributes[:shipping_address_attributes] ||= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
+				order_attributes[:shipping_address_attributes]	= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
+				order_attributes[:billing_address_attributes]	= order_attributes[:shipping_address_attributes] if order_attributes.delete(:same_as_shipping)
 
 				if order_attributes[:order_items_attributes].present?
 					order_attributes[:order_items_attributes].each do |order_item|
@@ -103,12 +89,28 @@ module SwellEcom
 				@subscription_service = SwellEcom::SubscriptionService.new( order_service: @order_service )
 			end
 
+			def discount_options_params
+				(params.permit( :discount_options => [ :code ] )[:discount_options] || {}).to_h
+			end
+
+			def shipping_options_params
+				(params.permit( :shipping_options => [ :rate_code, :rate_name ] )[:shipping_options] || {}).to_h
+			end
+
+			def transaction_options_params
+				(params.permit( :transaction_options => [ :stripeToken, :credit_card => [ :card_number, :expiration, :card_code ] ] )[:transaction_options] || {}).to_h
+			end
+
+			def discount_options
+				discount_options_params.merge({ ip: client_ip, ip_country: client_ip_country })
+			end
+
 			def shipping_options
-				{ ip: client_ip, ip_country: client_ip_country }
+				shipping_options_params.merge({ ip: client_ip, ip_country: client_ip_country })
 			end
 
 			def transaction_options
-				params.slice( :stripeToken, :credit_card ).merge({ ip: client_ip, ip_country: client_ip_country })
+				transaction_options_params.merge({ ip: client_ip, ip_country: client_ip_country })
 			end
 
 		end

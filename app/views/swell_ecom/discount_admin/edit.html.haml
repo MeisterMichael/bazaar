@@ -71,7 +71,10 @@
 
 								.form-group
 									= fdi_form.label :discount_amount
-									= fdi_form.number_field :discount_amount_as_money, class: 'form-control', min: 0.01, step: 0.01
+									- if fdi_form.object.percent?
+										= fdi_form.number_field :discount_amount_as_money, value: fdi_form.object.discount_amount, class: 'form-control', min: 0.01, step: 0.01
+									- else
+										= fdi_form.number_field :discount_amount_as_money, class: 'form-control', min: 0.01, step: 0.01
 
 								.form-group
 									= fdi_form.label :discount_type

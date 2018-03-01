@@ -25,10 +25,11 @@ GIT
 PATH
   remote: .
   specs:
-    swell_ecom (0.0.1)
+    swell_ecom (2.0.0)
       authorizenet
       credit_card_validations
       jbuilder
+      rest-client
       stripe
       swell_media
       tax_cloud

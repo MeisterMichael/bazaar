@@ -12,7 +12,7 @@
 			- if policy(@order).admin_update?
 				- if @order.pre_order? || @order.draft?
 					.pull-right
-						%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
+						%a.btn.btn-primary{ href: checkout_admin_path( @order, order: { status: 'active' } ), data: { method: 'PUT' } }
 							%i.fa.fa-send
 							Process
 				- if not( SwellEcom.automated_fulfillment )
@@ -238,7 +238,7 @@
 
 
 			.well.white-well
-				- if policy(@order).admin_update?
+				- if policy(@order).admin_update? && not( @order.fulfilled? || @order.delivered? )
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
 				%h5
@@ -251,5 +251,4 @@
 = render 'swell_ecom/order_admin/edit_status_modal'
 = render 'swell_ecom/order_admin/refund_modal'
 = render 'swell_ecom/order_admin/support_notes_modal'
-= render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_address' }
-= render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Billing Address', attribute: 'billing_address' }
+= render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_address' }, countries: get_shipping_countries, states: get_shipping_states( @order.shipping_address.geo_country_id )

@@ -1,5 +1,5 @@
 module SwellEcom
-	class SearchAdminController < SwellMedia::AdminController
+	class SearchAdminController < SwellEcom::EcomAdminController
 
 		def index
 

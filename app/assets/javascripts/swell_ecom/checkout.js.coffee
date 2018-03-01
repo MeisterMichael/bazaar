@@ -4,6 +4,7 @@
 #= require ./custom/stripe_integration.js
 #= require ./plugins/jquery.caret.js
 #= require ./plugins/jquery.mobilePhoneNumber.js
+#= require ./custom/geo-address
 
 $ ->
 
@@ -12,19 +13,19 @@ $ ->
 	$('.checkout_form, .payment_info_form').validator(
 		custom: {
 			cardnumber: ($el) ->
-				if ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardNumber( $el.val() ) )
+				if !$el.is(":focus") && ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardNumber( $el.val() ) )
 					return 'Invalid value.'
 				return
 
 			cardexpiry: ($el) ->
 				expiryObjVal = Payment.fns.cardExpiryVal( $el.val() )
 
-				if ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardExpiry( expiryObjVal.month, expiryObjVal.year ) )
+				if !$el.is(":focus") && ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardExpiry( expiryObjVal.month, expiryObjVal.year ) )
 					return 'Invalid date.'
 				return
 
 			cardcvc: ($el) ->
-				if $el.hasClass('jp-card-invalid')
+				if !$el.is(":focus") && $el.hasClass('jp-card-invalid')
 					return 'Invalid value.'
 				return
 		#	zipcode: ($el) ->
@@ -36,28 +37,33 @@ $ ->
 		}
 	)
 
+	$('.same_as_shipping').change ->
+		$input = $(this)
+		$form = $input.parents('form')
+
+		$form.find('.billing-address-section').find('input,select,textarea').each ->
+			$(this).data( 'default-required', $(this).attr('required') ) if $(this).data('default-required') == undefined
+
+		if $input.is(':checked')
+			$form.find('.billing-address-section').addClass('hide').find('input,select,textarea').attr('data-validate','false').removeAttr( 'required' )
+		else
+			$form.find('.billing-address-section').removeClass('hide').find('input,select,textarea').attr('data-validate','true')
+			$form.find('.billing-address-section').find('input,select,textarea').each ->
+				$(this).attr('required', $(this).data('default-required') ) if $(this).data('default-required')
+
+		$form.data('bs.validator').update() if $form.data('bs.validator')
+
+	$('.same_as_shipping').change()
+
 	$('form.disable_submit_after_submit').submit ->
 		# Disable the submit button to prevent repeated clicks:
 		$form = $(this)
 
-		if $form.data('bs.validator')
-			if !$form.data('bs.validator').hasErrors() && !$form.data('bs.validator').isIncomplete()
-				$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
+		if $form.data('bs.validator') && ( $form.data('bs.validator').hasErrors() || $form.data('bs.validator').isIncomplete() )
+			return false
 		else
 			$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
-
-		return false;
-
-	$(document).on 'change', '[data-geostateupdate-target]', (event)->
-		$select = $(this)
-		target = $select.data('geostateupdate-target')
-		args = $select.data('geostateupdate-data') || {}
-		args['geo_country_id'] = $select.val()
-
-		$.ajax '/checkout/state_input', data: args, success: ( data, status )->
-			old_value = $(target).val() unless $(target).is('select')
-			$(target).replaceWith( $(data).find( target ) )
-			$(target).val(old_value) unless $(target).is('select')
+			$form.addClass('submitted')
 
 	$('.card-form-group .card-preview').each ->
 		$form = $(this).parents('form')

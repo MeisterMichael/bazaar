@@ -1,5 +1,5 @@
 module SwellEcom
-	class SubscriptionPlanAdminController < SwellMedia::AdminController
+	class SubscriptionPlanAdminController < SwellEcom::EcomAdminController
 
 
 		before_action :get_plan, except: [ :create, :index ]
@@ -72,7 +72,7 @@ module SwellEcom
 		private
 
 			def plan_params
-				params.require( :subscription_plan ).permit( :title, :billing_interval_unit, :billing_interval_value, :billing_statement_descriptor, :trial_price, :trial_interval_unit, :trial_interval_value, :trial_max_intervals, :subscription_plan_type, :seq, :avatar, :status, :description, :content, :publish_at, :shipping_price )
+				params.require( :subscription_plan ).permit( :title, :billing_interval_unit, :billing_interval_value, :billing_statement_descriptor, :trial_price, :trial_interval_unit, :trial_interval_value, :trial_max_intervals, :subscription_plan_type, :seq, :avatar, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :description, :content, :cart_description, :publish_at, :shipping_price )
 			end
 
 			def get_plan

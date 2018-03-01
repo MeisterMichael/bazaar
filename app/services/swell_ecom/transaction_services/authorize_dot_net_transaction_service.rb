@@ -27,7 +27,7 @@ module SwellEcom
 				credit_card_info = args[:credit_card]
 
 				self.calculate( order )
-				return false if order.errors.present?
+				return false if order.nested_errors.present?
 
 				profiles = get_order_customer_profile( order, credit_card: credit_card_info )
 				return false if profiles == false
@@ -45,7 +45,7 @@ module SwellEcom
 				credit_card_info = args[:credit_card]
 
 				self.calculate( order )
-				return false if order.errors.present?
+				return false if order.nested_errors.present?
 
 				profiles = get_order_customer_profile( order, credit_card: credit_card_info )
 				return false if profiles == false
@@ -278,7 +278,7 @@ module SwellEcom
 
 					payment_profile = request_payment_profile( order.user, order.billing_address, args[:credit_card], email: order.email, errors: order.errors )
 
-					return payment_profile if payment_profile && order.errors.blank?
+					return payment_profile if payment_profile && order.nested_errors.blank?
 
 				else
 					return { customer_profile_reference: order.provider_customer_profile_reference, customer_payment_profile_reference: order.provider_customer_payment_profile_reference } if order.provider_customer_profile_reference.present?

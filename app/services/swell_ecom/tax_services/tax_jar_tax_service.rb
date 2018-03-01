@@ -7,6 +7,9 @@ module SwellEcom
 		class TaxJarTaxService
 
 			def initialize( args = {} )
+				@environment = args[:environment].to_sym if args[:environment].present?
+				@environment ||= :production if Rails.env.production?
+				@environment ||= :development
 
 				@client = Taxjar::Client.new(
 					api_key: args[:api_key] || ENV['TAX_JAR_API_KEY']
@@ -14,7 +17,21 @@ module SwellEcom
 
 				@warehouse_address = args[:warehouse] || SwellEcom.warehouse_address
 				@origin_address = args[:origin] || SwellEcom.origin_address
-				@nexus_address = args[:nexus] || SwellEcom.nexus_address
+
+				@nexus_addresses = args[:nexus] || []
+				unless @nexus_addresses.present?
+					SwellEcom.nexus_addresses.each do |address|
+						@nexus_addresses << {
+							:address_id => address[:address_id],
+							:country => address[:country],
+							:zip => address[:zip],
+							:state => address[:state],
+							:city => address[:city],
+							:street => address[:street]
+						}
+					end
+				end
+
 
 			end
 
@@ -26,6 +43,7 @@ module SwellEcom
 			end
 
 			def process( order, args = {} )
+				return true unless @environment == :production
 				order_info = get_order_info( order )
 
 				order_info[:sales_tax] = order.order_items.select{|order_item| order_item.tax? }.sum(&:subtotal).to_f / 100.0
@@ -74,14 +92,21 @@ module SwellEcom
 			end
 
 			def calculate_order( order )
+				order.tax = 0
+				return false if not( order.billing_address.validate ) || order.billing_address.geo_country.blank? || order.billing_address.zip.blank?
+				return false if order.billing_address.geo_country.abbrev == 'US' && order.billing_address.geo_state.blank?
 
 				order_info = get_order_info( order )
 
 				begin
 					tax_for_order = @client.tax_for_order( order_info )
 				rescue Taxjar::Error::BadRequest => ex
-					if ex.message.include?( 'is not used within to_state' )
-						order.errors.add :shipping_address, :invalid, message: "Zip #{order_info[:to_zip]} is not used within #{order_info[:to_state]}"
+
+					if ex.message.include?( 'isn\'t a valid postal code' )
+						order.billing_address.errors.add :zip, :invalid, message: "#{order_info[:to_zip]} is not a valid zip/postal code"
+						return order
+					elsif ex.message.include?( 'is not used within to_state' )
+						order.billing_address.errors.add :zip, :invalid, message: "#{order_info[:to_zip]} is not a valid zip/postal code within #{order_info[:to_state]}"
 						return order
 					else
 						raise ex
@@ -159,29 +184,24 @@ module SwellEcom
 
 				shipping_amount = order.order_items.select{ |order_item| order_item.shipping? }.sum(&:subtotal) / 100.0
 				order_total = order.order_items.select{ |order_item| order_item.prod? }.sum(&:subtotal) / 100.0
+				discount_total = order.order_items.select{ |order_item| order_item.discount? }.sum(&:subtotal) / 100.0
 
-				nexus_addresses = []
-				if @nexus_address.present?
-					nexus_addresses << {
-						:address_id => @nexus_address[:address_id],
-						:country => @nexus_address[:country],
-						:zip => @nexus_address[:zip],
-						:state => @nexus_address[:state],
-						:city => @nexus_address[:city],
-						:street => @nexus_address[:street]
-					}
-				end
-
+				discount_applied = 0
 				line_items = []
 				order.order_items.each do |order_item|
 					if order_item.prod?
+						discount = [ -(discount_total - discount_applied), order_item.subtotal ].min
+
 						line_items << {
 							:quantity => order_item.quantity,
 							:unit_price => (order_item.price / 100.0),
 							:product_tax_code => order_item.tax_code,
 							:product_identifier => order_item.sku,
 							:description => order_item.title,
+							:discount => discount,
 						}
+
+						discount_applied = discount_applied - discount
 					end
 				end
 
@@ -194,9 +214,9 @@ module SwellEcom
 				    :from_zip => @warehouse_address[:zip] || @origin_address[:zip],
 				    :from_city => @warehouse_address[:city] || @origin_address[:city],
 				    :from_state => @warehouse_address[:state] || @origin_address[:state],
-				    :amount => order_total + shipping_amount,
+				    :amount => order_total + shipping_amount + discount_total,
 				    :shipping => shipping_amount,
-				    :nexus_addresses => nexus_addresses,
+				    :nexus_addresses => @nexus_addresses,
 				    :line_items => line_items,
 				}
 

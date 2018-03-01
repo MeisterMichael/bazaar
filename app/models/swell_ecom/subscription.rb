@@ -4,7 +4,7 @@ module SwellEcom
 
 		include SwellEcom::Concerns::MoneyAttributesConcern
 
-		enum status: { 'canceled' => -1, 'failed' => 0, 'active' => 1 }
+		enum status: { 'on_hold' => -2, 'canceled' => -1, 'failed' => 0, 'active' => 1 }
 
 		belongs_to :user
 		belongs_to :subscription_plan
@@ -16,10 +16,24 @@ module SwellEcom
 		before_create :generate_order_code
 		before_create :initialize_timestamps
 
-		accepts_nested_attributes_for :user
-		accepts_nested_attributes_for :billing_address
+		accepts_nested_attributes_for :billing_address, :shipping_address, :user
 
-		money_attributes :amount, :trial_amount
+		money_attributes :amount, :trial_amount, :price, :trial_price
+
+		validates	:amount, presence: true, allow_blank: false
+		validates	:price, presence: true, allow_blank: false
+		validates	:trial_amount, presence: true, allow_blank: false
+		validates	:trial_price, presence: true, allow_blank: false
+		validates_numericality_of :amount, greater_than_or_equal_to: 0
+		validates_numericality_of :price, greater_than_or_equal_to: 0
+		validates_numericality_of :trial_amount, greater_than_or_equal_to: 0
+		validates_numericality_of :trial_price, greater_than_or_equal_to: 0
+
+		validates	:billing_interval_value, presence: true, allow_blank: false
+		validates_numericality_of :billing_interval_value, greater_than_or_equal_to: 1
+		validates	:billing_interval_unit, presence: true, allow_blank: false
+		validates_inclusion_of :billing_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.'
+
 
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now

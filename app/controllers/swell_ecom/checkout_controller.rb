@@ -2,11 +2,19 @@
 module SwellEcom
 	class CheckoutController < ApplicationController
 		include SwellEcom::Concerns::CheckoutConcern
+		include SwellEcom::Concerns::EcomConcern
+
+		helper_method :get_billing_countries
+		helper_method :get_shipping_countries
+		helper_method :get_billing_states
+		helper_method :get_shipping_states
+		helper_method :discount_options
+		helper_method :shipping_options
 
 		before_action :get_cart
-		before_action :validate_cart, only: [ :confirm, :create, :index ]
-		before_action :initialize_services, only: [ :confirm, :create, :index ]
-		before_action :get_order, only: [ :confirm, :create, :index ]
+		before_action :validate_cart, only: [ :confirm, :create, :index, :calculate ]
+		before_action :initialize_services, only: [ :confirm, :create, :index, :calculate ]
+		before_action :get_order, only: [ :confirm, :create, :index, :calculate ]
 		before_action :get_geo_addresses, only: :index
 
 		def confirm
@@ -14,8 +22,33 @@ module SwellEcom
 			@order_service.calculate( @order,
 				transaction: transaction_options,
 				shipping: shipping_options,
+				discount: discount_options,
 			)
 
+			render layout: 'swell_ecom/checkout'
+		end
+
+		def calculate
+
+			@shipping_service = SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
+
+			@shipping_rates = []
+
+			@cart.update( email: @order.email ) if @cart.present? && @order.email.present?
+
+			begin
+
+				@order_service.calculate( @order,
+					transaction: transaction_options,
+					shipping: shipping_options,
+					discount: discount_options,
+				)
+
+				@shipping_rates = @shipping_service.find_rates( @order, shipping_options ) if @order.shipping_address.geo_country.present?
+			rescue Exception => e
+				puts e
+				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+			end
 		end
 
 		def create
@@ -23,6 +56,7 @@ module SwellEcom
 			@order_service.process( @order,
 				transaction: transaction_options,
 				shipping: shipping_options,
+				discount: discount_options,
 			)
 
 			if params[:newsletter].present?
@@ -35,13 +69,16 @@ module SwellEcom
 			end
 
 
-			if @order.errors.present?
-				set_flash @order.errors.full_messages, :danger
+			if @order.nested_errors.present?
 				respond_to do |format|
+					format.js {
+						render :create
+					}
 					format.json {
 						render :create
 					}
 					format.html {
+						set_flash @order.nested_errors, :danger
 						redirect_back fallback_location: '/checkout'
 					}
 				end
@@ -61,13 +98,18 @@ module SwellEcom
 				OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now
 
+				@thank_you_url = swell_ecom.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
 
 				respond_to do |format|
+					format.js {
+						render :create
+					}
 					format.json {
 						render :create
 					}
 					format.html {
-						redirect_to swell_ecom.thank_you_order_path( @order.code )
+						@expiration = 30.minutes.from_now.to_i
+						redirect_to @thank_you_url
 					}
 				end
 
@@ -77,6 +119,9 @@ module SwellEcom
 		end
 
 		def index
+
+			@order.subtotal = @order.order_items.select(&:prod?).sum(&:subtotal)
+			@order.total = @order.subtotal
 
 			@cart.init_checkout!
 
@@ -89,23 +134,13 @@ module SwellEcom
 				}
 			);
 
+			set_page_meta( title: "#{SwellMedia.app_name} - Checkout" )
+
+			render layout: 'swell_ecom/checkout'
 		end
 
 		def new
 			redirect_to checkout_index_path( params.permit(:stripeToken, :credit_card, :coupon, :order ).to_h.merge( controller: nil, action: nil ) )
-		end
-
-		def state_input
-
-			@order = Order.new currency: 'usd'
-			@order.shipping_address = GeoAddress.new
-			@order.billing_address 	= GeoAddress.new
-
-			@address_attribute = ( params[:address_attribute] == 'billing_address' ? :billing_address : :shipping_address )
-			@states = SwellEcom::GeoState.where( geo_country_id: params[:geo_country_id] )
-
-			render layout: false
-
 		end
 
 
@@ -118,13 +153,14 @@ module SwellEcom
 		def get_order
 
 			@order = Order.new( get_order_attributes.merge( order_items_attributes: [], user: current_user ) )
+			@order.user ||= User.find_or_create_by( email: @order.email ) if @order.email.present? && SwellEcom.create_user_on_checkout
+
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
-			discount = Discount.active.in_progress.find_by( code: params[:coupon] ) if params[:coupon].present?
+			discount = Discount.active.in_progress.find_by( code: discount_options[:code] ) if discount_options[:code].present?
 			order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 			@cart.cart_items.each do |cart_item|
 				order_item = @order.order_items.new( item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code )
-				@order.status = 'pre_order' if order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order?
 			end
 
 		end

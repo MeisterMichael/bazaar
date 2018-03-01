@@ -1,14 +1,13 @@
 
 module SwellEcom
-	class CheckoutAdminController < SwellMedia::AdminController
+	class CheckoutAdminController < SwellEcom::EcomAdminController
 		include SwellEcom::Concerns::CheckoutConcern
 		helper_method :shipping_options
 		helper_method :transaction_options
 
 		before_action :get_user
-		before_action :initialize_services, only: [ :confirm, :create, :index ]
+		before_action :initialize_services, only: [ :confirm, :create, :index, :update ]
 		before_action :get_order, only: [ :confirm, :create, :index ]
-		before_action :get_geo_addresses, only: :index
 
 		def confirm
 			authorize( @order, :admin_create? )
@@ -38,8 +37,8 @@ module SwellEcom
 			end
 
 
-			if @order.errors.present?
-				set_flash @order.errors.full_messages, :danger
+			if @order.nested_errors.present?
+				set_flash @order.nested_errors, :danger
 				get_geo_addresses
 				render :index
 			else
@@ -86,6 +85,44 @@ module SwellEcom
 			render 'swell_ecom/checkout/state_input', layout: false
 		end
 
+		def update
+			# for processing order pre_orders and drafts
+			@order = SwellEcom::Order.find( params[:id] )
+			authorize( @order, :admin_create? )
+
+			if @order.paid?
+				set_flash 'Already processed', :danger
+				redirect_back fallback_location: '/admin'
+				return
+			end
+
+			@order_service.process_purchase( @order,
+				transaction: transaction_options,
+				shipping: shipping_options,
+			)
+
+			if @order.nested_errors.present?
+				set_flash @order.nested_errors, :danger
+				redirect_back fallback_location: '/admin'
+			else
+
+				@subscription_service.subscribe_ordered_plans( @order, payment_profile_expires_at: nil ) if @order.active?
+
+				OrderMailer.receipt( @order ).deliver_now
+
+				respond_to do |format|
+					format.json {
+						render :create
+					}
+					format.html {
+						redirect_to swell_ecom.thank_you_order_admin_path( @order.code )
+					}
+				end
+
+			end
+
+		end
+
 
 		protected
 
@@ -96,6 +133,8 @@ module SwellEcom
 		def get_order
 
 			@order = Order.new( get_order_admin_attributes.merge( user: @user ) )
+			@order.user ||= User.find_or_create_by( email: @order.email ) if @order.email.present? && SwellEcom.create_user_on_checkout
+
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			discount = Discount.active.in_progress.find_by( code: params[:coupon] ) if params[:coupon].present?

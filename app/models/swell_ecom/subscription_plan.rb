@@ -11,7 +11,20 @@ module SwellEcom
 		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
+		belongs_to 	:item, polymorphic: true, required: false
+
 		validates		:title, presence: true, unless: :allow_blank_title?
+
+		validates	:billing_interval_value, presence: true, allow_blank: false
+		validates_numericality_of :billing_interval_value, greater_than_or_equal_to: 1
+		validates	:billing_interval_unit, presence: true, allow_blank: false
+		validates_inclusion_of :billing_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.'
+
+
+		validates	:trial_interval_value, presence: true, allow_blank: false
+		validates_numericality_of :trial_interval_value, greater_than_or_equal_to: 1
+		validates	:trial_interval_unit, presence: true, allow_blank: false
+		validates_inclusion_of :trial_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.'
 
 		money_attributes :trial_price, :price, :shipping_price
 

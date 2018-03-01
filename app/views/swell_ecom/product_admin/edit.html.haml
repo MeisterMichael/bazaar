@@ -47,6 +47,10 @@
 						= f.label :content, 'Full Description'
 						= f.text_area :content, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 200, toolbar_sticky: true, toolbar_preset: 'admin_default', asset_manager: swell_media.asset_manager_index_path( asset: { parent_obj_type: @product.class.name, parent_obj_id: @product.id }, request_forgery_protection_token.to_s => form_authenticity_token, response: :json ) }.to_json }
 
+					.form-group
+						= f.label :cart_description, 'Cart Description'
+						= f.text_area :cart_description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', asset_manager: swell_media.asset_manager_index_path( asset: { parent_obj_type: @product.class.name, parent_obj_id: @product.id }, request_forgery_protection_token.to_s => form_authenticity_token, response: :json ) }.to_json }
+
 				.well.white-well
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_asset_modal' } } Add Gallery Image
@@ -132,6 +136,36 @@
 						= f.label :size_info
 						= f.text_field :size_info, class: 'form-control'
 
+					.form-group
+						= f.label :package_shape
+						= f.collection_select :package_shape, SwellEcom::Product.package_shapes, :first, :first, {}, class: 'form-control'
+
+					.row
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :package_weight
+								.input-group
+									= f.number_field :package_weight, class: 'form-control'
+									%span.input-group-addon grams
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :package_length
+								.input-group
+									= f.number_field :package_length, class: 'form-control'
+									%span.input-group-addon cm
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :package_width
+								.input-group
+									= f.number_field :package_width, class: 'form-control'
+									%span.input-group-addon cm
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :package_height
+								.input-group
+									= f.number_field :package_height, class: 'form-control'
+									%span.input-group-addon cm
+
 					%hr
 
 
@@ -149,7 +183,9 @@
 					.form-group
 						= f.label :status
 						= f.collection_select :status, SwellEcom::Product.statuses, :first, :first, {}, class: 'form-control'
-
+					.form-group
+						= f.label :availability
+						= f.collection_select :availability, SwellEcom::Product.availabilities, :first, :first, {}, class: 'form-control'
 					.form-group
 						= f.label :category_id
 						= f.collection_select :category_id, SwellEcom::ProductCategory.active.order( :name ), :id, :name, { include_blank: '-- None -- ' }, class: 'form-control'

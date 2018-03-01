@@ -27,7 +27,7 @@ module SwellEcom
 				order_items = order.order_items.to_a
 
 				order_items = order_items.select{ |order_item| not( order_item.discount? ) }
-				order_items = order_items.select{ |order_item| order_item.order_item_type == discount_item.order_item_type } unless discount_item.order_item_type.nil?
+				order_items = order_items.select{ |order_item| order_item.order_item_type == discount_item.order_item_type } unless discount_item.all_order_item_types?
 				order_items = order_items.select{ |order_item| order_item.item.is_a?( Subscription ) && order_item.item.orders.not_declined.count >= discount_item.minimum_orders } if discount_item.minimum_orders > 0
 				order_items = order_items.select{ |order_item| not( order_item.item.is_a?( Subscription ) ) || order_item.item.orders.not_declined.count < discount_item.maximum_orders } unless discount_item.maximum_orders.nil?
 
@@ -74,6 +74,9 @@ module SwellEcom
 				discount_amount = calculate_discount_amount( order_item, order )
 				order_item.subtotal = -discount_amount
 			end
+
+			order.discount = -order.order_items.select(&:discount?).sum(&:subtotal)
+
 		end
 
 		def validate_order_discounts( order, discount_order_items, args = {} )
@@ -81,7 +84,7 @@ module SwellEcom
 				validate_order_discount( order, discount_order_item, args )
 			end
 
-			return order.errors.blank?
+			return order.nested_errors.blank?
 		end
 
 		def validate_order_discount( order, discount_order_item, args = {} )
@@ -99,7 +102,7 @@ module SwellEcom
 			order.errors.add( :base, :discount_error, message: 'You have exceeded the limit of uses for the selected discount' ) if discount.limit_per_customer.present? && order.user.present? && OrderItem.where( user: order.user, item: discount ).count >= discount.limit_per_customer
 			order.errors.add( :base, :discount_error, message: 'The selected discount\'s usage limit has been exhausted' ) if discount.limit_global.present? && OrderItem.where( item: discount ).count >= discount.limit_global
 
-			return order.errors.blank?
+			return order.nested_errors.blank?
 		end
 
 	end

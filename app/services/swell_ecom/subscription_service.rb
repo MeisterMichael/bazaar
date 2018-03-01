@@ -42,7 +42,7 @@ module SwellEcom
 
 				args[:discount] = order.order_items.discount.first.try(:item)
 
-				if ( charge_transaction = order.transactions.charge.approved.first ).present?
+				if ( charge_transaction = order.transactions.charge.approved.first ).present? && charge_transaction.respond_to?( :properties )
 
 					args[:credit_card_ending_in]	||= charge_transaction.properties['credit_card_ending_in']
 					args[:credit_card_brand]		||= charge_transaction.properties['credit_card_brand']
@@ -51,8 +51,15 @@ module SwellEcom
 
 			end
 
-			args[:trial_amount]	||= plan.trial_price * quantity
-			args[:amount]		||= plan.price * quantity
+			args[:trial_price]	||= args[:trial_amount] / quantity if args[:trial_amount]
+			args[:price]		||= args[:amount] / quantity if args[:amount]
+			args[:trial_price]	||= plan.trial_price
+			args[:price]		||= plan.price
+
+			args[:trial_amount]	||= args[:trial_price] * quantity
+			args[:amount]		||= args[:price] * quantity
+
+			args[:currency]		||= 'USD'
 
 			trial_interval = plan.trial_interval_value.try( plan.trial_interval_unit )
 			billing_interval = plan.billing_interval_value.try( plan.billing_interval_unit )
@@ -65,7 +72,7 @@ module SwellEcom
 				current_period_end_at = start_at + trial_interval
 			end
 
-			subscription = Subscription.create!(
+			subscription = Subscription.new(
 				user: user,
 				subscription_plan: plan,
 				billing_address: args[:billing_address],
@@ -78,19 +85,28 @@ module SwellEcom
 				current_period_start_at: start_at,
 				current_period_end_at: current_period_end_at,
 				next_charged_at: current_period_end_at,
+				billing_interval_value: plan.billing_interval_value,
+				billing_interval_unit: plan.billing_interval_unit,
 				currency: args[:currency],
-				discount: args[:discount],
+				discount_id: (args[:discount].try(:id) || args[:discount_id]),
 				provider: args[:provider],
 				provider_customer_profile_reference: args[:provider_customer_profile_reference],
 				provider_customer_payment_profile_reference: args[:provider_customer_payment_profile_reference],
 				payment_profile_expires_at: args[:payment_profile_expires_at],
 				trial_amount: args[:trial_amount],
 				amount: args[:amount],
-				properties: {
+				trial_price: args[:trial_price],
+				price: args[:price],
+			)
+
+			if subscription.respond_to? :properties
+				subscription.properties = {
 					'credit_card_ending_in'	=> args[:credit_card_ending_in],
 					'credit_card_brand'		=> args[:credit_card_brand],
-				},
-			)
+				}
+			end
+
+			subscription.save!
 
 			subscription
 		end
@@ -122,11 +138,11 @@ module SwellEcom
 			if subscription.is_next_interval_a_trial?
 				interval = plan.trial_interval_value.try(plan.trial_interval_unit)
 
-				order.order_items.new item: subscription, subscription: subscription, price: plan.trial_price, sku: plan.trial_sku, subtotal: plan.trial_price * subscription.quantity, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
+				order.order_items.new item: subscription, subscription: subscription, price: subscription.trial_price, sku: plan.trial_sku, subtotal: subscription.trial_amount, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
 			else
-				interval = plan.billing_interval_value.try(plan.billing_interval_unit)
+				interval = subscription.billing_interval_value.try(subscription.billing_interval_unit)
 
-				order.order_items.new item: subscription, subscription: subscription, price: plan.price, sku: plan.product_sku, subtotal: plan.price * subscription.quantity, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
+				order.order_items.new item: subscription, subscription: subscription, price: subscription.price, sku: plan.product_sku, subtotal: subscription.amount, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
 			end
 
 			# apply the subscription discount to new orders
@@ -137,7 +153,7 @@ module SwellEcom
 			transaction = @order_service.process( order )
 
 			# handle response
-			if order.errors.present? || !transaction || not( transaction.approved? )
+			if order.nested_errors.present? || !transaction || not( transaction.approved? )
 
 				# mark subscription as failed if the transaction failed
 				subscription.failed!
@@ -147,8 +163,8 @@ module SwellEcom
 				order.save
 
 				# update the subscriptions next date
-				subscription.current_period_start_at = subscription.current_period_start_at + interval
-				subscription.current_period_end_at = subscription.current_period_end_at + interval
+				subscription.current_period_start_at = subscription.next_charged_at
+				subscription.current_period_end_at = subscription.current_period_start_at + interval
 				subscription.next_charged_at = subscription.next_charged_at + interval
 				subscription.save
 

@@ -1,5 +1,5 @@
 module SwellEcom
-	class SubscriptionAdminController < SwellMedia::AdminController
+	class SubscriptionAdminController < SwellEcom::EcomAdminController
 
 
 		before_action :get_subscription, except: [ :index ]
@@ -27,21 +27,55 @@ module SwellEcom
 			redirect_back fallback_location: '/admin'
 		end
 
+		def create
+			user = SwellMedia.registered_user_class.constantize.find( params[:user_id] )
+
+			subscription_options = params.require(:subscription).permit(
+				:trial_price,
+				:price,
+				:quantity,
+				:subscription_plan,
+				{
+					:shipping_address_attributes => [
+						:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
+					],
+					:billing_address_attributes => [
+						:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
+					],
+				},
+			).to_h
+
+			subscription_options[:shipping_address]	= SwellEcom::GeoAddress.new( subscription_options.delete(:shipping_address_attributes) ) if subscription_options[:shipping_address_attributes].present?
+			subscription_options[:billing_address]	= SwellEcom::GeoAddress.new( subscription_options.delete(:billing_address_attributes) ) if subscription_options[:billing_address_attributes].present?
+			subscription_options[:shipping_address] ||= subscription_options[:billing_address]
+			subscription_options[:billing_address]	||= subscription_options[:shipping_address]
+
+			subscription_options[:trial_price]		= subscription_options[:trial_price].to_i if subscription_options[:trial_price]
+			subscription_options[:price]			= subscription_options[:price].to_i if subscription_options[:price]
+			subscription_options[:quantity]			= subscription_options[:quantity].to_i if subscription_options[:quantity]
+
+			plan = SwellEcom::SubscriptionPlan.find( subscription_options.delete( :subscription_plan ) )
+
+			puts JSON.pretty_generate subscription_options
+			puts JSON.pretty_generate subscription_options[:shipping_address].to_json
+			puts JSON.pretty_generate subscription_options[:billing_address].to_json
+
+			@subscription_service = SwellEcom::SubscriptionService.new()
+			@subscription = @subscription_service.subscribe( user, plan, subscription_options )
+
+			if @subscription.errors.present?
+				redirect_back fallback_location: '/admin'
+			else
+				@subscription.update( next_charged_at: Time.now ) # start the first charge now!
+
+				redirect_to swell_ecom.edit_subscription_admin_path( @subscription )
+			end
+
+		end
+
 		def edit
 			authorize( @subscription, :admin_edit? )
 			@orders = Order.where( parent: @subscription ).order( created_at: :desc )
-
-			@billing_countries 	= SwellEcom::GeoCountry.all
-			@shipping_countries = SwellEcom::GeoCountry.all
-
-			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:only] ) if SwellEcom.billing_countries[:only].present?
-			@billing_countries = @billing_countries.where( abbrev: SwellEcom.billing_countries[:except] ) if SwellEcom.billing_countries[:except].present?
-
-			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
-			@shipping_countries = @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
-
-			@billing_states 	= SwellEcom::GeoState.where( geo_country_id: @subscription.shipping_address.try(:geo_country_id) || @billing_countries.first.id ) if @billing_countries.count == 1
-			@shipping_states	= SwellEcom::GeoState.where( geo_country_id: @subscription.billing_address.try(:geo_country_id) || @shipping_countries.first.id ) if @shipping_countries.count == 1
 
 			set_page_meta( title: "#{@subscription.code} | Subscription" )
 		end
@@ -96,6 +130,8 @@ module SwellEcom
 			authorize( @subscription, :admin_update? )
 			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first
 			@subscription.attributes = subscription_params
+			@subscription.trial_amount = @subscription.trial_price * @subscription.quantity
+			@subscription.amount = @subscription.price * @subscription.quantity
 
 			if @subscription.save
 				set_flash "Subscription updated successfully", :success
@@ -112,7 +148,7 @@ module SwellEcom
 
 		private
 			def subscription_params
-				params.require( :subscription ).permit( :next_charged_at, :amount, :trial_amount, :status, user_attributes: [ :first_name, :last_name, :email ] )
+				params.require( :subscription ).permit( :next_charged_at, :quantity, :price_as_money, :trial_price_as_money, :billing_interval_value, :billing_interval_unit, :status, user_attributes: [ :first_name, :last_name, :email ] )
 			end
 
 			def get_subscription

@@ -23,7 +23,7 @@ module SwellEcom
 
 		accepts_nested_attributes_for :billing_address, :shipping_address, :order_items
 
-		money_attributes :subtotal, :tax, :shipping, :total
+		money_attributes :subtotal, :tax, :shipping, :total, :discount
 
 		def self.not_archived
 			where.not( status: SwellEcom::Order.statuses['archived'] )
@@ -35,6 +35,10 @@ module SwellEcom
 
 		def self.not_trash
 			where.not( status: SwellEcom::Order.statuses['trash'] )
+		end
+
+		def nested_errors
+			self.errors.full_messages + self.billing_address.errors.full_messages + self.shipping_address.errors.full_messages + self.order_items.collect{|oi| oi.errors.full_messages }.flatten
 		end
 
 		private

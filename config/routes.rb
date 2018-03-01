@@ -9,13 +9,14 @@ SwellEcom::Engine.routes.draw do
 		get :create, on: :collection
 	end
 
-	resources :checkout_admin, only: [:create, :index] do
+	resources :checkout_admin, only: [:create, :index, :update] do
 		post :confirm, on: :collection
 		get :confirm, on: :collection
 		get :state_input, on: :collection
 	end
 
 	resources :checkout, only: [:new, :create, :index] do
+		post :calculate, on: :collection
 		post :confirm, on: :collection
 		get :confirm, on: :collection
 		get :state_input, on: :collection
@@ -23,6 +24,9 @@ SwellEcom::Engine.routes.draw do
 
 	resources :customer_admin
 	resources :discount_admin
+
+	# resources :geo_countries, only: [:index]
+	resources :geo_states, only: [:index]
 
 	resources :order_admin do
 		post :refund, on: :member
@@ -36,7 +40,7 @@ SwellEcom::Engine.routes.draw do
 		get :thank_you, on: :member, path: 'thank-you'
 	end
 
-	resources :products, path: :store do
+	resources :products, path: SwellEcom.store_path do
 		# for single-item quick buy
 		get :buy, on: :member
 	end

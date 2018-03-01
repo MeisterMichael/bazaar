@@ -9,13 +9,28 @@ module SwellEcom
 			@code_whitelist = args[:code_whitelist]
 			@code_blacklist = args[:code_blacklist]
 
-			@name_whitelist = args[:name_whitelist]
+			@labels = {}
+			@labels = args[:name_whitelist] if args[:name_whitelist].is_a? Hash
+
+			@name_whitelist = args[:name_whitelist].keys if args[:name_whitelist].is_a? Hash
+			@name_whitelist = args[:name_whitelist] if args[:name_whitelist].is_a? Array
+
 			@name_blacklist = args[:name_blacklist]
+
+
 		end
 
 		def calculate( obj, args = {} )
 			return self.calculate_order( obj, args ) if obj.is_a? Order
 			return self.calculate_cart( obj, args ) if obj.is_a? Cart
+		end
+
+		def fetch_delivery_status( order, args = {} )
+			fetch_delivery_status_for_code( order.tracking_number, args )
+		end
+
+		def fetch_delivery_status_for_code( code, args = {} )
+			# @todo
 		end
 
 		def find_rates( obj, args = {} )
@@ -46,17 +61,26 @@ module SwellEcom
 		end
 
 		def calculate_order( order, args={} )
-			service_name = args[:service_name]
+			order.shipping = 0
+			return false if not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
+
+			
 			rates = find_order_rates( order, args ).sort_by{ |rate| rate[:price] }
 
-			if service_name.present?
-				rate = rates.select{ |rate| rate[:service_name] == service_name }.first
+			if args[:rate_code].present?
+				rate = rates.select{ |rate| rate[:code] == args[:rate_code] }.first
+			elsif args[:rate_name].present?
+				rate = rates.select{ |rate| rate[:name] == args[:rate_name] }.first
 			else
 				rate = find_default_rate( rates )
 			end
 
-			order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: 'Shipping', order_item_type: 'shipping', tax_code: '11000', properties: { 'service_name' => rate[:name], 'carrier' => rate[:carrier] } ) if rate.present?
-
+			if rate.present?
+				order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: rate[:name], order_item_type: 'shipping', tax_code: '11000', properties: { 'code' => rate[:code], 'carrier' => rate[:carrier] } )
+				order.shipping = rate[:price]
+			else
+				order.shipping = 0
+			end
 		end
 
 		def find_cart_rates( cart, args = {} )
@@ -78,21 +102,30 @@ module SwellEcom
 		end
 
 		def find_address_rates( geo_address, line_items, args = {} )
-			rates = request_address_rates( geo_address, line_items, args )
+			cache_key = geo_address.attributes.to_json
+			cache_key = cache_key + line_items.collect(&:attributes).to_json
 
-			rates = rates.select{ |rate| @code_whitelist.include?( rate[:code] ) } if @code_whitelist.present?
-			rates = rates.select{ |rate| not( @code_blacklist.include?( rate[:code] ) ) } if @code_blacklist.present?
-			rates = rates.select{ |rate| @name_whitelist.include?( rate[:name] ) } if @name_whitelist.present?
-			rates = rates.select{ |rate| not( @name_blacklist.include?( rate[:name] ) ) } if @name_blacklist.present?
+			Rails.cache.fetch("swell_ecom/shipping_service/#{cache_key}", expires_in: 10.minutes) do
 
-			rates.each do |rate|
-				rate[:price] = (rate[:price] * @multiplier_adjustment + @flat_adjustment).round()
-			end
+				rates = request_address_rates( geo_address, line_items, args )
 
-			rates
+				rates = rates.select{ |rate| @code_whitelist.include?( rate[:code] ) } if @code_whitelist.present?
+				rates = rates.select{ |rate| not( @code_blacklist.include?( rate[:code] ) ) } if @code_blacklist.present?
+				rates = rates.select{ |rate| @name_whitelist.include?( rate[:name] ) } if @name_whitelist.present?
+				rates = rates.select{ |rate| not( @name_blacklist.include?( rate[:name] ) ) } if @name_blacklist.present?
+
+				rates.each do |rate|
+					rate[:price] = (rate[:price] * @multiplier_adjustment + @flat_adjustment).round()
+
+					rate[:label] = @labels[rate[:name]] || rate[:name]
+				end
+
+				rates
+
+		    end
 		end
 
-		def request_address_rates( geo_address, line_items )
+		def request_address_rates( geo_address, line_items, args = {} )
 			[]
 		end
 

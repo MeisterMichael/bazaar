@@ -11,6 +11,12 @@
 					.pull-right
 						%a.btn.btn-danger{ href: swell_ecom.your_subscription_path( @subscription.code ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
 							Cancel Subscription
+						%a.btn.btn-default{ href: swell_ecom.your_subscription_path( @subscription.code, subscription: { status: 'on_hold' } ) , data: { method: :put, confirm: 'Are you sure?' } }
+							Hold Subscription
+				- else
+					.pull-right
+						%a.btn.btn-default{ href: swell_ecom.your_subscription_path( @subscription.code, subscription: { status: 'active' } ) , data: { method: :put, confirm: 'Are you sure?' } }
+							Resume Subscription
 				Subscribed on #{current_user.to_local_tz(@subscription.created_at).to_s( :basic_short )}
 				%span.horizontal-separator="|"
 				Subscription# #{@subscription.code}
@@ -20,6 +26,9 @@
 				- elsif @subscription.canceled?
 					%span.horizontal-separator="|"
 					%strong.subscription-status.subscription-status-canceled.color-red CANCELED
+				- elsif @subscription.on_hold?
+					%span.horizontal-separator="|"
+					%strong.subscription-status.subscription-status-canceled.color-red HOLD
 
 
 	.row
@@ -33,6 +42,9 @@
 					.col-xs-12.col-md-3
 						%h5{ style: 'margin-bottom: 0.2em;' } Shipping Address
 						= raw @subscription.shipping_address.to_html
+						%div
+							%a{ href: '#', data: { toggle: :modal, target: '#update_shipping_address_modal' } }
+								Edit
 					.col-xs-12.col-md-4
 						%h5{ style: 'margin-bottom: 0.2em;' } Payment Method
 						- if @subscription.properties['credit_card_brand'].present?
@@ -57,11 +69,18 @@
 								then, once
 
 							every
-							= pluralize plan.billing_interval_value, plan.billing_interval_unit.singularize
+							= pluralize @subscription.billing_interval_value, @subscription.billing_interval_unit.singularize
+
+							%a{ href: '#', data: { toggle: :modal, target: '#update_billing_interval_modal' } }
+								Edit
 						- if @subscription.active?
 							%p
 								Next interval starts on #{current_user.to_local_tz(@subscription.next_charged_at).to_s( :basic_short )}
-
+								- if @subscription.active?
+									%p
+										Next interval starts on #{current_user.to_local_tz(@subscription.next_charged_at).to_s( :basic_short )}
+										%a{ href: '#', data: { toggle: :modal, target: '#update_next_interval_modal' } }
+											Edit
 	.row
 		.col-xs-12
 			%h5{ style: 'margin-bottom: 0.2em;' } Order History
@@ -74,3 +93,6 @@
 			%div= raw paginate @orders
 
 = render 'swell_ecom/your_subscriptions/update_payment_info_modal'
+= render 'swell_ecom/your_subscriptions/update_next_interval_modal'
+= render 'swell_ecom/your_subscriptions/update_shipping_address_modal'
+= render 'swell_ecom/your_subscriptions/update_billing_interval_modal'

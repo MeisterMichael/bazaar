@@ -1,6 +1,6 @@
 module SwellEcom
 
-	class CustomerAdminController < SwellMedia::AdminController
+	class CustomerAdminController < SwellEcom::EcomAdminController
 
 		before_action :init_search_service, only: [:index]
 
