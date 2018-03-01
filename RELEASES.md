@@ -1,4 +1,8 @@
 
+== V2.1.2
+* bug fix to the thank you page token generation.
+* set all swell_ecom public controllers to use swell_ecom/application as the default layout
+
 == V2.1.1
 * Fix to the discount service code, so it will calculate discounts despite order errors
 
