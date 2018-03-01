@@ -115,6 +115,11 @@
 						= f.text_field :tax_code, class: 'form-control'
 
 					.form-group
+						= f.label :product_sku, 'SKU'
+						= f.text_field :product_sku, class: 'form-control'
+
+
+					.form-group
 						= f.label :package_shape
 						= f.collection_select :package_shape, SwellEcom::Product.package_shapes, :first, :first, {}, class: 'form-control'
 
@@ -163,8 +168,13 @@
 							.col-xs-7
 								= f.select :trial_interval_unit, ['months', 'weeks', 'days'], {}, class: 'form-control'
 
-						= f.label :trial_max_intervals, 'Max Intervals'
-						= f.number_field :trial_max_intervals, class: 'form-control'
+						.form-group
+							= f.label :trial_max_intervals, 'Max Intervals'
+							= f.number_field :trial_max_intervals, class: 'form-control'
+
+						.form-group
+							= f.label :trial_sku, 'SKU'
+							= f.text_field :trial_sku, class: 'form-control'
 
 					%hr
 
