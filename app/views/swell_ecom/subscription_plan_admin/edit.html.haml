@@ -97,11 +97,11 @@
 					%h4
 						Subscription Settings
 					.form-group
-						= f.label :price
+						= f.label :price_as_money, 'Price'
 						.input-group
 							%span.input-group-addon
 								$
-							= f.text_field :price, value: number_with_precision( (@plan.price.to_f / 100), :precision => 2 ), class: 'form-control'
+							= f.text_field :price_as_money, class: 'form-control'
 					.form-group
 						%label Billing Interval:
 						.row{ style: 'margin-top: 0;' }
@@ -150,18 +150,21 @@
 						%h4
 							Trial Settings
 						.clearfix
-						= f.label :trial_price, 'Price'
+						= f.label :trial_price_as_money, 'Price'
 						.input-group
 							%span.input-group-addon
 								$
-							= f.text_field :trial_price, value: number_with_precision( (@plan.trial_price.to_f / 100), :precision => 2 ), class: 'form-control'
+							= f.text_field :trial_price_as_money, class: 'form-control'
 
 						%label Billing Interval:
-						.row{ style: 'margin-top: 0;' }
+						.row{ style: 'margin-top: 0;margin-bottom: 10px;' }
 							.col-xs-5
 								= f.number_field :trial_interval_value, class: 'form-control', min: 1, max: 365, step: 1
 							.col-xs-7
 								= f.select :trial_interval_unit, ['months', 'weeks', 'days'], {}, class: 'form-control'
+
+						= f.label :trial_max_intervals, 'Max Intervals'
+						= f.number_field :trial_max_intervals, class: 'form-control'
 
 					%hr
 

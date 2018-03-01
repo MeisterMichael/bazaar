@@ -55,11 +55,6 @@ module SwellEcom
 		def update
 			authorize( @plan, :admin_update? )
 
-			params[:subscription_plan][:price] = params[:subscription_plan][:price].to_f * 100
-			params[:subscription_plan][:trial_price] = params[:subscription_plan][:trial_price].to_f * 100
-			params[:subscription_plan][:shipping_price] = params[:subscription_plan][:shipping_price].to_f * 100
-
-
 			@plan.attributes = plan_params
 			if @plan.save
 				set_flash "Plan Updated", :success
@@ -72,7 +67,7 @@ module SwellEcom
 		private
 
 			def plan_params
-				params.require( :subscription_plan ).permit( :title, :billing_interval_unit, :billing_interval_value, :billing_statement_descriptor, :trial_price, :trial_interval_unit, :trial_interval_value, :trial_max_intervals, :subscription_plan_type, :seq, :avatar, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :description, :content, :cart_description, :publish_at, :shipping_price )
+				params.require( :subscription_plan ).permit( :title, :billing_interval_unit, :billing_interval_value, :billing_statement_descriptor, :price_as_money, :trial_price_as_money, :trial_interval_unit, :trial_interval_value, :trial_max_intervals, :subscription_plan_type, :seq, :avatar, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :description, :content, :cart_description, :publish_at, :shipping_price_as_money )
 			end
 
 			def get_plan
