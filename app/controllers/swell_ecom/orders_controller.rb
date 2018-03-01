@@ -12,6 +12,13 @@ module SwellEcom
 				raise ActionController::RoutingError.new( 'Not Found' ) if Time.now.to_i > params[:t].to_i
 			end
 
+			set_page_meta(
+				{
+					title: 'Thank You for your Order - Neurohacker Collective',
+					fb_type: 'article'
+				}
+			)
+
 			add_page_event_data(
 				ecommerce: {
 					purchase: {

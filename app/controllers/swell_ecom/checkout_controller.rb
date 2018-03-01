@@ -115,6 +115,13 @@ module SwellEcom
 
 			@cart.init_checkout!
 
+			set_page_meta(
+				{
+					title: 'Checkout - Neurohacker Collective',
+					fb_type: 'article'
+				}
+			)
+
 			add_page_event_data(
 				ecommerce: {
 					checkout: {

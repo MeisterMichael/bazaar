@@ -7,6 +7,14 @@ module SwellEcom
 		def show
 			@cart ||= Cart.new( ip: client_ip )
 
+			set_page_meta(
+				{
+					title: 'Shopping Cart - Neurohacker Collective',
+					fb_type: 'article'
+				}
+			)
+		end
+
 			add_page_event_data(
 				ecommerce: {
 					add: {
