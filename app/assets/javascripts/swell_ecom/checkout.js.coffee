@@ -13,19 +13,19 @@ $ ->
 	$('.checkout_form, .payment_info_form').validator(
 		custom: {
 			cardnumber: ($el) ->
-				if ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardNumber( $el.val() ) )
+				if !$el.is(":focus") && ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardNumber( $el.val() ) )
 					return 'Invalid value.'
 				return
 
 			cardexpiry: ($el) ->
 				expiryObjVal = Payment.fns.cardExpiryVal( $el.val() )
 
-				if ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardExpiry( expiryObjVal.month, expiryObjVal.year ) )
+				if !$el.is(":focus") && ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardExpiry( expiryObjVal.month, expiryObjVal.year ) )
 					return 'Invalid date.'
 				return
 
 			cardcvc: ($el) ->
-				if $el.hasClass('jp-card-invalid')
+				if !$el.is(":focus") && $el.hasClass('jp-card-invalid')
 					return 'Invalid value.'
 				return
 		#	zipcode: ($el) ->
