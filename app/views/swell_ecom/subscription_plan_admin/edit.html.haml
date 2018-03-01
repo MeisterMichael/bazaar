@@ -44,7 +44,7 @@
 
 					.form-group
 						= f.label :cart_description, 'Cart Description'
-						= f.text_area :cart_description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', asset_manager: swell_media.asset_manager_index_path( asset: { parent_obj_type: @product.class.name, parent_obj_id: @product.id }, request_forgery_protection_token.to_s => form_authenticity_token, response: :json ) }.to_json }
+						= f.text_area :cart_description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', asset_manager: swell_media.asset_manager_index_path( asset: { parent_obj_type: @plan.class.name, parent_obj_id: @plan.id }, request_forgery_protection_token.to_s => form_authenticity_token, response: :json ) }.to_json }
 
 				.well.white-well
 					.pull-right
