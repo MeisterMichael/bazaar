@@ -1,11 +1,19 @@
 module SwellEcom
 	class CartsController < ApplicationController
+		layout 'swell_ecom/application'
 		# really just to show the user's cart
 
 		before_action :get_cart
 
 		def show
 			@cart ||= Cart.new( ip: client_ip )
+
+			set_page_meta(
+				{
+					title: 'Shopping Cart - Neurohacker Collective',
+					fb_type: 'article'
+				}
+			)
 
 			add_page_event_data(
 				ecommerce: {
