@@ -136,6 +136,11 @@
 						= f.label :size_info
 						= f.text_field :size_info, class: 'form-control'
 
+					- if f.object.respond_to? :sku
+						.form-group
+							= f.label :sku, 'SKU'
+							= f.text_field :sku, class: 'form-control'
+
 					.form-group
 						= f.label :package_shape
 						= f.collection_select :package_shape, SwellEcom::Product.package_shapes, :first, :first, {}, class: 'form-control'

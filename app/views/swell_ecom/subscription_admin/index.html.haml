@@ -60,7 +60,7 @@
 							%td
 								= link_to subscription.code, edit_subscription_admin_path( subscription.id )
 							%td
-								- if subscription.user.full_name.strip.present?
+								- if subscription.user.full_name.try(:strip).present?
 									= subscription.user.full_name
 								- else
 									= (subscription.user.email || 'N/A')
