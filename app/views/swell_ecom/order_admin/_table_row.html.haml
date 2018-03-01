@@ -6,7 +6,7 @@
 	- if args[:customer] != false
 		%td
 			%a{ href: edit_order_admin_path( order.id ) }
-				- if order.user.present? && order.user.full_name.strip.present?
+				- if order.user.present? && order.user.full_name.try(:strip).present?
 					= order.user.full_name
 				- else
 					= (order.email || order.user.try(:email) || 'N/A')
