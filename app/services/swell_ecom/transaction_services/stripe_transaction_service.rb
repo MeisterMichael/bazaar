@@ -16,7 +16,7 @@ module SwellEcom
 
 			def process( order, args = {} )
 				self.calculate( order )
-				return false if order.errors.present?
+				return false if order.nested_errors.present?
 
 				stripe_token = args[:stripeToken]
 

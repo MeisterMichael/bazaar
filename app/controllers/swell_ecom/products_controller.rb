@@ -1,6 +1,7 @@
 module SwellEcom
 
 	class ProductsController < ApplicationController
+		layout 'swell_ecom/application'
 
 		def index
 

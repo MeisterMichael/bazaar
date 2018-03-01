@@ -9,8 +9,15 @@ module SwellEcom
 			@code_whitelist = args[:code_whitelist]
 			@code_blacklist = args[:code_blacklist]
 
-			@name_whitelist = args[:name_whitelist]
+			@labels = {}
+			@labels = args[:name_whitelist] if args[:name_whitelist].is_a? Hash
+
+			@name_whitelist = args[:name_whitelist].keys if args[:name_whitelist].is_a? Hash
+			@name_whitelist = args[:name_whitelist] if args[:name_whitelist].is_a? Array
+
 			@name_blacklist = args[:name_blacklist]
+
+
 		end
 
 		def calculate( obj, args = {} )
@@ -54,7 +61,10 @@ module SwellEcom
 		end
 
 		def calculate_order( order, args={} )
-			return false unless order.shipping_address.validate
+			order.shipping = 0
+			return false if not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
+
+			
 			rates = find_order_rates( order, args ).sort_by{ |rate| rate[:price] }
 
 			if args[:rate_code].present?
@@ -106,6 +116,8 @@ module SwellEcom
 
 				rates.each do |rate|
 					rate[:price] = (rate[:price] * @multiplier_adjustment + @flat_adjustment).round()
+
+					rate[:label] = @labels[rate[:name]] || rate[:name]
 				end
 
 				rates

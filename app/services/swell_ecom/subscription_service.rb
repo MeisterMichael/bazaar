@@ -153,7 +153,7 @@ module SwellEcom
 			transaction = @order_service.process( order )
 
 			# handle response
-			if order.errors.present? || !transaction || not( transaction.approved? )
+			if order.nested_errors.present? || !transaction || not( transaction.approved? )
 
 				# mark subscription as failed if the transaction failed
 				subscription.failed!

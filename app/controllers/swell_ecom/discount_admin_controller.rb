@@ -55,6 +55,9 @@ module SwellEcom
 			authorize( @discount, :admin_update? )
 
 			@discount.attributes = discount_params
+			@discount.first_discount_item.discount_amount = @discount.first_discount_item.discount_amount / 100 if @discount.first_discount_item.percent?
+
+
 			if @discount.save && @discount.first_discount_item.save
 				set_flash "Discount Updated", :success
 			else

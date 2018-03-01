@@ -37,6 +37,10 @@ module SwellEcom
 			where.not( status: SwellEcom::Order.statuses['trash'] )
 		end
 
+		def nested_errors
+			self.errors.full_messages + self.billing_address.errors.full_messages + self.shipping_address.errors.full_messages + self.order_items.collect{|oi| oi.errors.full_messages }.flatten
+		end
+
 		private
 
 		def generate_order_code

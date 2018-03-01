@@ -13,19 +13,19 @@ $ ->
 	$('.checkout_form, .payment_info_form').validator(
 		custom: {
 			cardnumber: ($el) ->
-				if ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardNumber( $el.val() ) )
+				if !$el.is(":focus") && ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardNumber( $el.val() ) )
 					return 'Invalid value.'
 				return
 
 			cardexpiry: ($el) ->
 				expiryObjVal = Payment.fns.cardExpiryVal( $el.val() )
 
-				if ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardExpiry( expiryObjVal.month, expiryObjVal.year ) )
+				if !$el.is(":focus") && ( $el.hasClass('jp-card-invalid') || !Payment.fns.validateCardExpiry( expiryObjVal.month, expiryObjVal.year ) )
 					return 'Invalid date.'
 				return
 
 			cardcvc: ($el) ->
-				if $el.hasClass('jp-card-invalid')
+				if !$el.is(":focus") && $el.hasClass('jp-card-invalid')
 					return 'Invalid value.'
 				return
 		#	zipcode: ($el) ->
@@ -59,14 +59,11 @@ $ ->
 		# Disable the submit button to prevent repeated clicks:
 		$form = $(this)
 
-		if $form.data('bs.validator')
-			# if !$form.data('bs.validator').hasErrors() && !$form.data('bs.validator').isIncomplete()
-			# 	$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
+		if $form.data('bs.validator') && ( $form.data('bs.validator').hasErrors() || $form.data('bs.validator').isIncomplete() )
+			return false
 		else
 			$('input[type=submit], .submit', $form).addClass('disabled').attr('disabled', 'disabled');
-			$form[0].submit()
-
-		return false;
+			$form.addClass('submitted')
 
 	$('.card-form-group .card-preview').each ->
 		$form = $(this).parents('form')

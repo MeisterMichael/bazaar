@@ -1,5 +1,6 @@
 module SwellEcom
 	class CartsController < ApplicationController
+		layout 'swell_ecom/application'
 		# really just to show the user's cart
 
 		before_action :get_cart

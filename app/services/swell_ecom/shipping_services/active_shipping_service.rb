@@ -104,10 +104,23 @@ module SwellEcom
 					zip: geo_address.zip
 				)
 
-				response = @shipping_service.find_rates( @origin, destination, packages )
+				begin
+					response = @shipping_service.find_rates( @origin, destination, packages )
 
-				rates = response.rates.collect do |rate|
-					{ name: rate.service_name, code: rate.service_code, price: rate.total_price.to_i, carrier: rate.carrier, currency: rate.currency }
+					rates = response.rates.collect do |rate|
+						{ name: rate.service_name, code: rate.service_code, price: rate.total_price.to_i, carrier: rate.carrier, currency: rate.currency }
+					end
+
+				rescue ActiveShipping::ResponseError => e
+					if e.message.include?('ZIP Code you have entered is invalid')
+						geo_address.errors.add(:zip, :invalid, message: 'Invalid zip/postal code')
+						puts "geo_address.errors #{geo_address.errors.full_messages}"
+					else
+						geo_address.errors.add(:base, :invalid, message: 'Invalid address')
+						NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+						puts e
+					end
+					rates = []
 				end
 
 				rates

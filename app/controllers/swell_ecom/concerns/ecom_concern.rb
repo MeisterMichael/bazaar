@@ -6,14 +6,8 @@ module SwellEcom
 
 			def get_geo_addresses
 
-				@billing_countries 	||= SwellEcom::GeoCountry.all
-				@shipping_countries ||= SwellEcom::GeoCountry.all
-
-				@billing_countries ||= @billing_countries.where( abbrev: SwellEcom.billing_countries[:only] ) if SwellEcom.billing_countries[:only].present?
-				@billing_countries ||= @billing_countries.where( abbrev: SwellEcom.billing_countries[:except] ) if SwellEcom.billing_countries[:except].present?
-
-				@shipping_countries ||= @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:only] ) if SwellEcom.shipping_countries[:only].present?
-				@shipping_countries ||= @shipping_countries.where( abbrev: SwellEcom.shipping_countries[:except] ) if SwellEcom.shipping_countries[:except].present?
+				@billing_countries 	||= SwellEcom::GeoCountry.where( bill_to: true )
+				@shipping_countries ||= SwellEcom::GeoCountry.where( ship_to: true )
 
 				@billing_states 	||= SwellEcom::GeoState.all
 				@shipping_states	||= SwellEcom::GeoState.all

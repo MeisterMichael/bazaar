@@ -1,5 +1,6 @@
 module SwellEcom
 	class ProductVariantsController < SwellEcom::EcomAdminController
+		layout 'swell_ecom/application'
 
 		def create
 			@product = Product.find( params[:product_id] )
@@ -14,7 +15,7 @@ module SwellEcom
 			@variant.destroy
 			redirect_back fallback_location: '/admin'
 		end
-		
+
 		def generate
 			@product = Product.find( params[:id] )
 			variants = []
