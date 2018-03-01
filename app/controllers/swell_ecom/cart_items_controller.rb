@@ -1,5 +1,6 @@
 module SwellEcom
 	class CartItemsController < ApplicationController
+		layout 'swell_ecom/application'
 		# for adding, removing, updating quantity, etc. of items in the cart
 
 		def create

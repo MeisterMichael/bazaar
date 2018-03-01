@@ -3,6 +3,7 @@ module SwellEcom
 	class CheckoutController < ApplicationController
 		include SwellEcom::Concerns::CheckoutConcern
 		include SwellEcom::Concerns::EcomConcern
+		layout 'swell_ecom/application'
 
 		helper_method :get_billing_countries
 		helper_method :get_shipping_countries

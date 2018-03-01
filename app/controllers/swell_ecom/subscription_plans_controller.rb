@@ -1,5 +1,6 @@
 module SwellEcom
 	class SubscriptionPlansController < ApplicationController
+		layout 'swell_ecom/application'
 
 		before_action :get_plan, except: [ :index ]
 
