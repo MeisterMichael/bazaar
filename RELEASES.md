@@ -1,4 +1,7 @@
 
+== V2.1.1
+* Fix to the discount service code, so it will calculate discounts despite order errors
+
 == V2.1.0
 * Add item relations in subscription_plans
 * add ability for customers to put their subs on hold and re-activate them.
