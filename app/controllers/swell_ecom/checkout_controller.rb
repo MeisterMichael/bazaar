@@ -98,6 +98,7 @@ module SwellEcom
 				OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now
 
+				@expiration = 30.minutes.from_now.to_i
 				@thank_you_url = swell_ecom.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
 
 				respond_to do |format|
@@ -108,7 +109,6 @@ module SwellEcom
 						render :create
 					}
 					format.html {
-						@expiration = 30.minutes.from_now.to_i
 						redirect_to @thank_you_url
 					}
 				end
