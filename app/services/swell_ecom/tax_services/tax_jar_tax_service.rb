@@ -109,7 +109,9 @@ module SwellEcom
 						order.billing_address.errors.add :zip, :invalid, message: "#{order_info[:to_zip]} is not a valid zip/postal code within #{order_info[:to_state]}"
 						return order
 					else
-						raise ex
+						NewRelic::Agent.notice_error(ex) if defined?( NewRelic )
+						puts ex
+						order.billing_address.errors.add :base, :invalid, message: "address is invalid"
 					end
 
 				end

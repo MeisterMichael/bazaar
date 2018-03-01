@@ -117,6 +117,8 @@ module SwellEcom
 						puts "geo_address.errors #{geo_address.errors.full_messages}"
 					else
 						geo_address.errors.add(:base, :invalid, message: 'Invalid address')
+						NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+						puts e
 					end
 					rates = []
 				end
