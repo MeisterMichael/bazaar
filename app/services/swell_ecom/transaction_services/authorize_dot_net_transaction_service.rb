@@ -403,9 +403,9 @@ module SwellEcom
 					NewRelic::Agent.notice_error(Exception.new( "Authorize.net Payment Profile Error: #{response.message_code} - #{response.message_text}"), custom_params: { user_id: user.try(:id) } ) if defined?( NewRelic )
 
 					if response.message_code == ERROR_INVALID_PAYMENT_PROFILE
-						errors.add( :base, 'Invalid Payment Information') if errors
+						errors.add( :base, 'Invalid Payment Information') unless errors.nil?
 					else
-						errors.add( :base, 'Unable to create customer profile') if errors
+						errors.add( :base, 'Unable to create customer profile') unless errors.nil?
 					end
 
 				end
