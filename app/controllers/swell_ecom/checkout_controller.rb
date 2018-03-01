@@ -127,6 +127,7 @@ module SwellEcom
 				}
 			);
 
+			set_page_meta( title: "#{SwellMedia.app_name} - Checkout" )
 
 			render layout: 'swell_ecom/checkout'
 		end
