@@ -26,12 +26,13 @@ module SwellEcom
 
 			add_page_event_data(
 				ecommerce: {
+					currencyCode: @order.currency,
 					purchase: {
 						actionField: {
 							id: @order.code,
-							revenue: @order.subtotal,
-							tax: @order.tax,
-							shipping: @order.shipping,
+							revenue: @order.subtotal_as_money - @order.discount_as_money,
+							tax: @order.tax_as_money,
+							shipping: @order.shipping_as_money,
 						},
 						products: @order.order_items.prod.collect{|order_item| order_item.item.page_event_data.merge( quantity: order_item.quantity ) }
 					}

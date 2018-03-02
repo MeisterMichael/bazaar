@@ -1,4 +1,8 @@
 
+== V2.1.11
+* Case insensitive discount code
+* Catch more active shipping response errors
+
 == V2.1.2
 * bug fix to the thank you page token generation.
 * set all swell_ecom public controllers to use swell_ecom/application as the default layout

@@ -65,14 +65,17 @@ module SwellEcom
 		end
 
 		def page_event_data
-			{
-				id: self.id,
+			data = {
+				id: self.id.to_s,
 				name: self.title,
-				price: self.price / 100.0,
-				brand: (self.brand || ''),
-				category: self.product_category.try(:name),
-				variant: '',
+				price: self.price_as_money,
+				category: nil,
 			}
+
+			data[:brand] = self.brand if self.brand.present?
+			data[:category] = self.product_category.name if self.product_category.present?
+
+			data
 		end
 
 		def page_meta

@@ -137,7 +137,7 @@ module SwellEcom
 
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
-			discount = Discount.active.in_progress.find_by( code: params[:coupon] ) if params[:coupon].present?
+			discount = Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if params[:coupon].present?
 			order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 
 		end
