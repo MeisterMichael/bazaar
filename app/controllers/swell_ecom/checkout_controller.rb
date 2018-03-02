@@ -165,7 +165,7 @@ module SwellEcom
 
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
-			discount = Discount.active.in_progress.find_by( code: discount_options[:code] ) if discount_options[:code].present?
+			discount = Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if discount_options[:code].present?
 			order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 			@cart.cart_items.each do |cart_item|
 				order_item = @order.order_items.new( item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code )
