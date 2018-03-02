@@ -46,14 +46,14 @@ module SwellEcom
 		def page_event_data
 			category_name = self.product_category.name if self.respond_to?(:product_category)
 
-			{
-				id: self.id,
+			data = {
+				id: self.id.to_s,
 				name: self.title,
-				price: self.price / 100.0,
-				# brand: (self.brand || ''),
+				price: self.price_as_money,
 				category: category_name,
-				variant: '',
 			}
+
+			data
 		end
 
 		def page_meta
