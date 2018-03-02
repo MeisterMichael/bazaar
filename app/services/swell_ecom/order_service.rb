@@ -57,19 +57,24 @@ module SwellEcom
 
 			if order.total == 0
 				@transaction_service.capture_payment_method( order, args[:transaction] )
-				order.payment_status = 'paid'
-				order.save
+
+				if order.nested_errors.blank?
+					order.payment_status = 'paid'
+					order.status = 'active'
+					order.save
+				end
 			else
 				transaction = @transaction_service.process( order, args[:transaction] )
+				order.active! if order.nested_errors.blank? && transaction
 			end
 
-			order.active!
-
-			begin
-				@tax_service.process( order ) if @tax_service.respond_to? :process
-			rescue Exception => e
-				puts e.message
-				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+			if order.nested_errors.blank? && order.active?
+				begin
+					@tax_service.process( order ) if @tax_service.respond_to? :process
+				rescue Exception => e
+					puts e.message
+					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				end
 			end
 
 			transaction
