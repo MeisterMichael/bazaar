@@ -234,7 +234,7 @@ module SwellEcom
 				else
 					puts response.xml if @enable_debug
 
-					NewRelic::Agent.notice_error(Exception.new( "Authorize.net Transaction Error: #{response.message_code} - #{response.message_text}", custom_params: { user_id: user.try(:id) } )) if defined?( NewRelic )
+					NewRelic::Agent.notice_error(Exception.new( "Authorize.net Transaction Error: #{response.message_code} - #{response.message_text}" )) if defined?( NewRelic )
 
 					transaction.status = 'declined'
 					transaction.message = response.message_text
