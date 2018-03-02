@@ -112,9 +112,11 @@ module SwellEcom
 					end
 
 				rescue ActiveShipping::ResponseError => e
-					if e.message.include?('ZIP Code you have entered is invalid')
+
+					if e.message.include?('Missing value for Zip')
+						geo_address.errors.add(:zip, :required, message: 'Zip/postal code is required')
+					elsif e.message.include?('ZIP Code you have entered is invalid')
 						geo_address.errors.add(:zip, :invalid, message: 'Invalid zip/postal code')
-						puts "geo_address.errors #{geo_address.errors.full_messages}"
 					else
 						geo_address.errors.add(:base, :invalid, message: 'Invalid address')
 						NewRelic::Agent.notice_error(e) if defined?( NewRelic )
