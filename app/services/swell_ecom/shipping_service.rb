@@ -64,7 +64,7 @@ module SwellEcom
 			order.shipping = 0
 			return false if not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
 
-			
+
 			rates = find_order_rates( order, args ).sort_by{ |rate| rate[:price] }
 
 			if args[:rate_code].present?
@@ -76,7 +76,7 @@ module SwellEcom
 			end
 
 			if rate.present?
-				order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: rate[:name], order_item_type: 'shipping', tax_code: '11000', properties: { 'code' => rate[:code], 'carrier' => rate[:carrier] } )
+				order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: (rate[:label] || rate[:name]), order_item_type: 'shipping', tax_code: '11000', properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] } )
 				order.shipping = rate[:price]
 			else
 				order.shipping = 0
