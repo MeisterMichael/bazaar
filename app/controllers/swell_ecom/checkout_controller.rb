@@ -135,6 +135,7 @@ module SwellEcom
 
 			add_page_event_data(
 				ecommerce: {
+					currencyCode: 'USD',
 					checkout: {
 						actionField: { step: 1, option: 'Initiate' },
 						products: @cart.cart_items.collect{|cart_item| cart_item.item.page_event_data.merge( quantity: cart_item.quantity ) }

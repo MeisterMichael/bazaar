@@ -26,6 +26,7 @@ module SwellEcom
 
 			add_page_event_data(
 				ecommerce: {
+					currencyCode: @order.currency,
 					purchase: {
 						actionField: {
 							id: @order.code,
