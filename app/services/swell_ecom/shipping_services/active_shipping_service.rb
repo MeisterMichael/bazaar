@@ -40,22 +40,28 @@ module SwellEcom
 			end
 
 			def fetch_delivery_status_for_code( code, args = {} )
-				tracking_info = @shipping_service.find_tracking_info( code, args )
-				status = {
-					status: tracking_info.status,
-					tracking_number: tracking_info.tracking_number,
-					events: [],
-					scheduled_delivered_at: tracking_info.scheduled_delivery_date,
-					delivered_at: tracking_info.actual_delivery_date,
-					shipped_at: tracking_info.ship_time,
-					carrier_name: tracking_info.carrier_name,
-				}
 
-				tracking_info.shipment_events.each do |event|
-					status[:events] << { name: event.name, city: event.location.city, state: event.location.state, country: event.location.country.name, time: event.time, message: event.message }
+				begin
+					tracking_info = @shipping_service.find_tracking_info( code, args )
+					status = {
+						status: tracking_info.status,
+						tracking_number: tracking_info.tracking_number,
+						events: [],
+						scheduled_delivered_at: tracking_info.scheduled_delivery_date,
+						delivered_at: tracking_info.actual_delivery_date,
+						shipped_at: tracking_info.ship_time,
+						carrier_name: tracking_info.carrier_name,
+					}
 
-					status[:delivered_at] = event.time if event.name.downcase.include?( 'delivered' )
-					status[:shipped_at] ||= event.time
+					tracking_info.shipment_events.each do |event|
+						status[:events] << { name: event.name, city: event.location.city, state: event.location.state, country: event.location.country.name, time: event.time, message: event.message }
+
+						status[:delivered_at] = event.time if event.name.downcase.include?( 'delivered' )
+						status[:shipped_at] ||= event.time
+					end
+				rescue ActiveShipping::ResponseError => e
+					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+					return false
 				end
 
 				status
@@ -115,7 +121,7 @@ module SwellEcom
 
 					if e.message.include?('Missing value for Zip')
 						geo_address.errors.add(:zip, :required, message: 'Zip/postal code is required')
-					elsif e.message.include?('ZIP Code you have entered is invalid')
+					elsif e.message.include?('ZIP Code you have entered is invalid') || e.message.include?('enter a valid ZIP Code for the recipient')
 						geo_address.errors.add(:zip, :invalid, message: 'Invalid zip/postal code')
 					else
 						geo_address.errors.add(:base, :invalid, message: 'Invalid address')
