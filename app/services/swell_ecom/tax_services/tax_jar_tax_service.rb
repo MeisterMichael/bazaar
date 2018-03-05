@@ -69,7 +69,18 @@ module SwellEcom
 
 				rescue Taxjar::Error::NotFound => e
 
-					tax_jar_order = @client.create_order( order_info )
+					begin
+
+						tax_jar_order = @client.create_order( order_info )
+
+					rescue Exception => e
+
+						NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+						puts e
+
+						return false
+
+					end
 
 				end
 
@@ -211,7 +222,7 @@ module SwellEcom
 				    :to_country => order.shipping_address.geo_country.try(:abbrev),
 				    :to_zip => order.shipping_address.zip,
 				    :to_city => order.shipping_address.city,
-				    :to_state => order.shipping_address.geo_state.try(:abbrev),
+				    :to_state => (order.shipping_address.geo_state.try(:abbrev) || order.shipping_address.state),
 				    :from_country => @warehouse_address[:country] || @origin_address[:country],
 				    :from_zip => @warehouse_address[:zip] || @origin_address[:zip],
 				    :from_city => @warehouse_address[:city] || @origin_address[:city],

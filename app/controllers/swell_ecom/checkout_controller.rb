@@ -54,6 +54,9 @@ module SwellEcom
 
 		def create
 
+			@order.user ||= User.find_or_create_by( email: @order.email ) if @order.email.present? && SwellEcom.create_user_on_checkout
+			@order.billing_address.user = @order.shipping_address.user = @order.user
+
 			@order_service.process( @order,
 				transaction: transaction_options,
 				shipping: shipping_options,
@@ -162,8 +165,6 @@ module SwellEcom
 		def get_order
 
 			@order = Order.new( get_order_attributes.merge( order_items_attributes: [], user: current_user ) )
-			@order.user ||= User.find_or_create_by( email: @order.email ) if @order.email.present? && SwellEcom.create_user_on_checkout
-
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			discount = Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if discount_options[:code].present?
