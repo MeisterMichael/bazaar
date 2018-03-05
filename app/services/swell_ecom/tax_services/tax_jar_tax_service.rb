@@ -75,8 +75,14 @@ module SwellEcom
 
 					rescue Exception => e
 
-						NewRelic::Agent.notice_error(e) if defined?( NewRelic )
-						puts e
+						if e.message.include? 'to_state is empty'
+
+							order.shipping_address.errors.add :state, :invalid, message: "State is required."
+
+						else
+							NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+							puts e
+						end
 
 						return false
 
