@@ -43,11 +43,15 @@ module SwellEcom
 			where( "subscription_plans.publish_at <= :now", now: Time.zone.now ).active
 		end
 
+		def swell_ecom_uid
+			"subscription_plan_#{self.id}"
+		end
+
 		def page_event_data
 			category_name = self.product_category.name if self.respond_to?(:product_category)
 
 			data = {
-				id: self.id.to_s,
+				id: swell_ecom_uid,
 				name: self.title,
 				price: self.price_as_money,
 				category: category_name,
