@@ -54,7 +54,7 @@ module SwellEcom
 
 		def create
 
-			@order.user ||= User.find_or_create_by( email: @order.email, first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name ) if @order.email.present? && SwellEcom.create_user_on_checkout
+			@order.user ||= User.create_with( first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name ).find_or_create_by( email: @order.email ) if @order.email.present? && SwellEcom.create_user_on_checkout
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			@order_service.process( @order,
