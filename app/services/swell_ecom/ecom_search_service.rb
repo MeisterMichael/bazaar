@@ -20,6 +20,8 @@ module SwellEcom
 		def customer_search( term, filters = {}, options = {} )
 			users = SwellMedia.registered_user_class.constantize.all
 
+			users = users.where( id: SwellEcom::Order.select(:user_id) ) # @todo replace with a more elegant mechanism.  this one is not scalable
+
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%"
 
