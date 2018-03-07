@@ -4,7 +4,7 @@
 .container-fluid
 	.row
 		.col-xs-10
-			%h2 Shipping Carrier Services
+			%h2 Shipping Options
 		.col-xs-2
 			- if policy(SwellEcom::ShippingOption).admin_create?
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#shipping_option_admin_new_modal' } }
