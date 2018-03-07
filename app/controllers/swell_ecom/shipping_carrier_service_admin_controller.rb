@@ -9,7 +9,15 @@ module SwellEcom
 
 		def index
 			authorize( SwellEcom::ShippingCarrierService, :admin? )
-			@shipping_carrier_services = SwellEcom::ShippingCarrierService.all.page( params[:page] )
+			@shipping_carrier_services = SwellEcom::ShippingCarrierService.all
+
+			if ['name', 'carrier', 'service_code', 'created_at'].include? params[:sort_by]
+				@shipping_carrier_services = @shipping_carrier_services.order( params[:sort_by] => ( params[:sort_dir] == 'asc' ? :asc : :desc ) )
+			else
+				@shipping_carrier_services = @shipping_carrier_services.order( status: :desc, name: :asc )
+			end
+
+			@shipping_carrier_services = @shipping_carrier_services.page( params[:page] )
 		end
 
 		def update

@@ -25,7 +25,15 @@ module SwellEcom
 
 		def index
 			authorize( SwellEcom::ShippingOption, :admin? )
-			@shipping_options = SwellEcom::ShippingOption.all.page( params[:page] )
+			@shipping_options = SwellEcom::ShippingOption.all
+
+			if ['name', 'created_at'].include? params[:sort_by]
+				@shipping_options = @shipping_options.order( params[:sort_by] => ( params[:sort_dir] == 'asc' ? :asc : :desc ) )
+			else
+				@shipping_options = @shipping_options.order( status: :desc, name: :asc )
+			end
+
+			@shipping_options = @shipping_options.page( params[:page] )
 		end
 
 		def update

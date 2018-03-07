@@ -22,21 +22,28 @@
 				%thead
 					%th
 						Name
-						%a{ href: discount_admin_index_path( sort_by: 'name', sort_dir: 'asc' ) }
+						%a{ href: shipping_option_admin_index_path( sort_by: 'name', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: discount_admin_index_path( sort_by: 'name', sort_dir: 'desc' ) }
+						%a{ href: shipping_option_admin_index_path( sort_by: 'name', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th
+						Created At
+						%a{ href: shipping_option_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: shipping_option_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th Status
 					%th{ style: 'width: 6em' }
 				%tbody
 					- if @shipping_options.blank?
 						%tr
-							%td{ colspan: 3 }
+							%td{ colspan: 4 }
 								\- No Results -
 					- @shipping_options.each do |shipping_option|
 						%tr
 							%td
 								= link_to shipping_option.name, edit_shipping_option_admin_path( shipping_option )
+							%td=current_user.to_local_tz(shipping_option.created_at).to_s( :short )
 							%td
 								.badge{ class: shipping_option.status }
 									= shipping_option.status
