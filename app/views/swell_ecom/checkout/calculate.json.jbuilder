@@ -9,7 +9,9 @@ json.shipping 						@order.order_items.select(&:shipping?).sum(&:subtotal)
 json.total							@order.total || 0
 
 json.shipping_options(@shipping_rates) do |shipping_rate|
-	json.name		shipping_rate[:name]
-	json.code		shipping_rate[:code]
+	json.label		shipping_rate[:label]
+	json.name		shipping_rate[:carrier_service].name
+	json.id			shipping_rate[:id]
+	json.code		shipping_rate[:carrier_service].service_code
 	json.price		shipping_rate[:price]
 end

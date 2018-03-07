@@ -68,9 +68,11 @@ module SwellEcom
 			rates = find_order_rates( order, args ).sort_by{ |rate| rate[:price] }
 
 			if args[:rate_code].present?
-				rate = rates.select{ |rate| rate[:code] == args[:rate_code] }.first
+				rate = rates.select{ |rate| rate[:carrier_service].service_code == args[:rate_code] }.first
 			elsif args[:rate_name].present?
-				rate = rates.select{ |rate| rate[:name] == args[:rate_name] }.first
+				rate = rates.select{ |rate| rate[:carrier_service].service_name == args[:rate_name] }.first
+			elsif args[:shipping_carrier_service_id].present?
+				rate = rates.select{ |rate| rate[:carrier_service].id == args[:shipping_carrier_service_id].to_i }.first
 			else
 				rate = find_default_rate( rates )
 			end
@@ -107,17 +109,21 @@ module SwellEcom
 
 			Rails.cache.fetch("swell_ecom/shipping_service/#{cache_key}", expires_in: 10.minutes) do
 
-				rates = request_address_rates( geo_address, line_items, args )
+				request_rates = request_address_rates( geo_address, line_items, args )
 
-				rates = rates.select{ |rate| @code_whitelist.include?( rate[:code] ) } if @code_whitelist.present?
-				rates = rates.select{ |rate| not( @code_blacklist.include?( rate[:code] ) ) } if @code_blacklist.present?
-				rates = rates.select{ |rate| @name_whitelist.include?( rate[:name] ) } if @name_whitelist.present?
-				rates = rates.select{ |rate| not( @name_blacklist.include?( rate[:name] ) ) } if @name_blacklist.present?
+				request_rates = request_rates.select{ |rate| @code_whitelist.include?( rate[:code] ) } if @code_whitelist.present?
+				request_rates = request_rates.select{ |rate| not( @code_blacklist.include?( rate[:code] ) ) } if @code_blacklist.present?
+				request_rates = request_rates.select{ |rate| @name_whitelist.include?( rate[:name] ) } if @name_whitelist.present?
+				request_rates = request_rates.select{ |rate| not( @name_blacklist.include?( rate[:name] ) ) } if @name_blacklist.present?
 
-				rates.each do |rate|
-					rate[:price] = (rate[:price] * @multiplier_adjustment + @flat_adjustment).round()
+				rates = []
+				request_rates.collect do |rate|
+					carrier_service = SwellEcom::ShippingCarrierService.create_with( name: rate[:name] ).find_or_create_by( service_name: rate[:name], service_code: rate[:code], carrier: rate[:carrier] )
 
-					rate[:label] = @labels[rate[:name]] || rate[:name]
+					price = (rate[:price] * @multiplier_adjustment + @flat_adjustment).round()
+					label = carrier_service.shipping_option.try(:name) || @labels[rate[:name]] || rate[:name]
+
+					rates << { price: price, label: label, id: carrier_service.id, carrier_service: carrier_service } # @todo if carrier_service.active? && carrier_service.shipping_option.try(:active?)
 				end
 
 				rates

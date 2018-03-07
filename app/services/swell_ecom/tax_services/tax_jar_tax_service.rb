@@ -129,6 +129,7 @@ module SwellEcom
 						NewRelic::Agent.notice_error(ex) if defined?( NewRelic )
 						puts ex
 						order.billing_address.errors.add :base, :invalid, message: "address is invalid"
+						return false
 					end
 
 				end
