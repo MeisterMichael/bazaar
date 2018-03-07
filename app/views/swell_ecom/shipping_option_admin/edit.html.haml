@@ -1,0 +1,38 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					%a{ href: shipping_option_admin_index_path() }
+						%i.fa.fa-angle-left
+						Shipping Options
+			%h2
+				%strong= @shipping_option.name
+				%small= @shipping_option.created_at.to_s( :short )
+		.col-xs-2
+
+	= form_for @shipping_option, url: shipping_option_admin_path( @shipping_option ) do |f|
+		.row
+			.col-sm-6.col-md-4
+				.well.white-well
+
+					.form-group
+						= f.label :name
+						= f.text_field :name, class: 'form-control'
+
+					.form-group
+						= f.label :description
+						= f.text_field :description, class: 'form-control'
+
+					.form-group
+						= f.label :short_description
+						= f.text_field :short_description, class: 'form-control'
+
+					.form-group
+						= f.label :status
+						= f.collection_select :status, SwellEcom::ShippingCarrierService.statuses, :first, :first, {}, class: 'form-control'
+
+					.form-group
+						= f.submit 'Update', class: 'btn btn-primary'
