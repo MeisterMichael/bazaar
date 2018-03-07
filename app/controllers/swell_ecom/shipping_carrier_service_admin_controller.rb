@@ -40,7 +40,7 @@ module SwellEcom
 			@shipping_carrier_service = SwellEcom::ShippingCarrierService.find(params[:id])
 		end
 		def shipping_carrier_plan_attributes
-			params.require( :shipping_carrier_service ).permit( :shipping_option_id, :name, :description, :status )
+			params.require( :shipping_carrier_service ).permit( :shipping_option_id, :name, :description, :status, :carrier, :service_name, :service_code, :service_description, :service_group, :delivery_category )
 		end
 
 	end
