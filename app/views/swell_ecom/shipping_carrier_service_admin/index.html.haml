@@ -22,6 +22,12 @@
 						%a{ href: discount_admin_index_path( sort_by: 'name', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 					%th
+						Code
+						%a{ href: discount_admin_index_path( sort_by: 'service_code', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: discount_admin_index_path( sort_by: 'service_code', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th
 						Carrier
 						%a{ href: discount_admin_index_path( sort_by: 'carrier', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
@@ -32,12 +38,13 @@
 				%tbody
 					- if @shipping_carrier_services.blank?
 						%tr
-							%td{ colspan: 4 }
+							%td{ colspan: 5 }
 								\- No Results -
 					- @shipping_carrier_services.each do |shipping_carrier_service|
 						%tr
 							%td
 								= link_to shipping_carrier_service.name, edit_shipping_carrier_service_admin_path( shipping_carrier_service )
+							%td=shipping_carrier_service.service_code
 							%td=shipping_carrier_service.carrier
 							%td
 								.badge{ class: shipping_carrier_service.status }
