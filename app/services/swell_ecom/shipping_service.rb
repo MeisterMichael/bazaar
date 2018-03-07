@@ -111,6 +111,10 @@ module SwellEcom
 
 				request_rates = request_address_rates( geo_address, line_items, args )
 
+				request_rates.collect do |rate|
+					carrier_service = SwellEcom::ShippingCarrierService.create_with( name: rate[:name] ).find_or_create_by( service_name: rate[:name], service_code: rate[:code], carrier: rate[:carrier] )
+				end
+
 				request_rates = request_rates.select{ |rate| @code_whitelist.include?( rate[:code] ) } if @code_whitelist.present?
 				request_rates = request_rates.select{ |rate| not( @code_blacklist.include?( rate[:code] ) ) } if @code_blacklist.present?
 				request_rates = request_rates.select{ |rate| @name_whitelist.include?( rate[:name] ) } if @name_whitelist.present?
