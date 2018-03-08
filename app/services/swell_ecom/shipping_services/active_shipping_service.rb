@@ -60,6 +60,7 @@ module SwellEcom
 						status[:shipped_at] ||= event.time
 					end
 				rescue ActiveShipping::ResponseError => e
+					return false if e.message.include? 'status update is not yet available on your package'
 					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 					return false
 				end
