@@ -89,12 +89,10 @@
 								Created
 							%th
 								Customer
-							%th{ style: 'width: 11em' }
+							%th
+								Items
+							%th
 								Status
-							%th{ style: 'width: 11em' }
-								Payment
-							%th{ style: 'width: 11em' }
-								Fulfillment
 							%th{ style: 'width: 10em' }
 								Total
 						%tbody
@@ -102,7 +100,7 @@
 								= render 'swell_ecom/order_admin/table_row', order: @cart.order, args: { controls: false }
 							- else
 								%tr
-									%td{ colspan: 6 } No Order
+									%td{ colspan: 5 } No Order
 
 
 			.col-xs-4

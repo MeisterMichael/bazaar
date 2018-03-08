@@ -11,17 +11,17 @@
 				%br
 				= (order.email || order.user.try(:email) || 'N/A')
 	%td
-		.badge.order_status{ class: order.status }
+		= order.order_items.prod.collect{|order_item| "#{order_item.title} x #{order_item.quantity}"}.join(',')
+	%td
+		.badge.order_status{ class: order.status, style: 'margin-bottom: 5px;' }
 			- if order.pre_order? || order.draft?
 				%span.fa.fa-circle-o
 			= order.status.gsub(/_/,' ')
-	%td
-		.badge.order_payment_status{ class: order.payment_status }
+		.badge.order_payment_status{ class: order.payment_status, style: 'margin-bottom: 5px;' }
 			- if order.invoice?
 				%span.fa.fa-circle-o
 			= order.payment_status.gsub(/_/,' ')
-	%td
-		.badge.order_fulfillment_status{ class: order.fulfillment_status }
+		.badge.order_fulfillment_status{ class: order.fulfillment_status, style: 'margin-bottom: 5px;' }
 			- if order.unfulfilled?
 				%span.fa.fa-circle-o
 			= order.fulfillment_status.gsub(/_/,' ')
