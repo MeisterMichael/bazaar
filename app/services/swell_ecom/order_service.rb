@@ -65,7 +65,10 @@ module SwellEcom
 				end
 			else
 				transaction = @transaction_service.process( order, args[:transaction] )
-				order.active! if order.nested_errors.blank? && transaction
+				if transaction && transaction.approved?
+					order.status = 'active'
+					order.save
+				end
 			end
 
 			if order.nested_errors.blank? && order.active?
