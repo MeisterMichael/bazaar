@@ -151,7 +151,7 @@ module SwellEcom
 				ecommerce: {
 					currencyCode: 'USD',
 					checkout: {
-						actionField: { step: 1, option: 'Initiate' },
+						actionField: { step: 1, option: 'Initiate', revenue: @cart.cart_items.to_a.sum(&:subtotal_as_money) },
 						products: @cart.cart_items.collect{|cart_item| cart_item.item.page_event_data.merge( quantity: cart_item.quantity ) }
 					}
 				}
