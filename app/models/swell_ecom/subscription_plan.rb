@@ -50,10 +50,13 @@ module SwellEcom
 		def page_event_data
 			category_name = self.product_category.name if self.respond_to?(:product_category)
 
+			event_price = self.price_as_money
+			event_price = self.trial_price_as_money if self.trial?
+
 			data = {
 				id: swell_ecom_uid,
 				name: self.title,
-				price: self.price_as_money,
+				price: event_price,
 				category: category_name,
 			}
 
