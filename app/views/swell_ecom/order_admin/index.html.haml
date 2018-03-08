@@ -35,25 +35,11 @@
 							%i.fa.fa-arrow-up
 						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'email', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
-					%th{ style: 'width: 11em' }
+					%th
+						Items
+					%th{ style: 'width: 17em' }
 						Status
-						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'status', sort_dir: 'asc' ) }
-							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'status', sort_dir: 'desc' ) }
-							%i.fa.fa-arrow-down
-					%th{ style: 'width: 11em' }
-						Payment
-						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'payment_status', sort_dir: 'asc' ) }
-							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'payment_status', sort_dir: 'desc' ) }
-							%i.fa.fa-arrow-down
-					%th{ style: 'width: 11em' }
-						Fulfillment
-						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'fulfillment_status', sort_dir: 'asc' ) }
-							%i.fa.fa-arrow-up
-						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'fulfillment_status', sort_dir: 'desc' ) }
-							%i.fa.fa-arrow-down
-					%th{ style: 'width: 10em' }
+					%th{ style: 'width: 7em' }
 						Total
 						%a{ href: order_admin_index_path( status: params[:status], fulfillment_status: params[:fulfillment_status], payment_status: params[:payment_status], q: params[:q], sort_by: 'total', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
@@ -63,7 +49,7 @@
 				%tbody
 					- if @orders.blank?
 						%tr
-							%td{ colspan: 7 }
+							%td{ colspan: 6 }
 								\- No Orders Found -
 					- @orders.each do |order|
 						= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: true }

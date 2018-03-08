@@ -26,15 +26,14 @@
 							Code
 						%th
 							Created
+						%th Items
 						%th Status
-						%th Payment
-						%th Fulfillment
 						%th
 							Total
 					%tbody
 						- if @orders.blank?
 							%tr
-								%td{ colspan: 6 }
+								%td{ colspan: 5 }
 									\- No Orders Found -
 						- @orders.each do |order|
 							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
