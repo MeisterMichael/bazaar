@@ -56,6 +56,9 @@ SwellEcom::Engine.routes.draw do
 		post :generate, on: :member
 	end
 
+	resources :shipping_carrier_service_admin, only: [:index,:edit,:update]
+	resources :shipping_option_admin, only: [:index,:edit,:update,:create]
+
 	resources :subscription_admin do
 		post :cancel, on: :member
 		post :address, on: :member

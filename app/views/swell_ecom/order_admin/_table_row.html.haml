@@ -8,8 +8,8 @@
 			%a{ href: edit_order_admin_path( order.id ) }
 				- if order.user.present? && order.user.full_name.try(:strip).present?
 					= order.user.full_name
-				- else
-					= (order.email || order.user.try(:email) || 'N/A')
+				%br
+				= (order.email || order.user.try(:email) || 'N/A')
 	%td
 		.badge.order_status{ class: order.status }
 			- if order.pre_order? || order.draft?

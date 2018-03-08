@@ -25,7 +25,7 @@ GIT
 PATH
   remote: .
   specs:
-    swell_ecom (2.1.8)
+    swell_ecom (2.1.16)
       authorizenet
       credit_card_validations
       jbuilder

@@ -24,20 +24,29 @@ module SwellEcom
 				}
 			)
 
-			add_page_event_data(
-				ecommerce: {
-					currencyCode: @order.currency,
-					purchase: {
-						actionField: {
-							id: @order.code,
-							revenue: @order.subtotal_as_money - @order.discount_as_money,
-							tax: @order.tax_as_money,
-							shipping: @order.shipping_as_money,
-						},
-						products: @order.order_items.prod.collect{|order_item| order_item.item.page_event_data.merge( quantity: order_item.quantity ) }
+			@first_purchase_event = @order.properties['purchase_event_fired_at'].blank? || params[:force_purchase_event].present?
+
+			if @first_purchase_event
+				add_page_event_data(
+					ecommerce: {
+						currencyCode: @order.currency,
+						purchase: {
+							actionField: {
+								id: @order.code,
+								revenue: @order.subtotal_as_money - @order.discount_as_money,
+								tax: @order.tax_as_money,
+								shipping: @order.shipping_as_money,
+							},
+							products: @order.order_items.prod.collect{|order_item| order_item.item.page_event_data.merge( quantity: order_item.quantity, price: order_item.price_as_money ) }
+						}
 					}
-				}
-			);
+				);
+
+				if @order.properties['purchase_event_fired_at'].blank?
+					@order.properties = @order.properties.merge( 'purchase_event_fired_at' => Time.now.to_i )
+					@order.save
+				end
+			end
 
 		end
 
