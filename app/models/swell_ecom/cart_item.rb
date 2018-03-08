@@ -1,9 +1,12 @@
 module SwellEcom
 	class CartItem < ActiveRecord::Base
 		self.table_name = 'cart_items'
+		include SwellEcom::Concerns::MoneyAttributesConcern
 
 		belongs_to 	:cart
 		belongs_to 	:item, polymorphic: true, required: false
+
+		money_attributes :subtotal, :price
 
 
 
