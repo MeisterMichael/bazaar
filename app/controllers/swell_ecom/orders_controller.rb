@@ -34,7 +34,7 @@ module SwellEcom
 							tax: @order.tax_as_money,
 							shipping: @order.shipping_as_money,
 						},
-						products: @order.order_items.prod.collect{|order_item| order_item.item.page_event_data.merge( quantity: order_item.quantity ) }
+						products: @order.order_items.prod.collect{|order_item| order_item.item.page_event_data.merge( quantity: order_item.quantity, price: order_item.price_as_money ) }
 					}
 				}
 			);
