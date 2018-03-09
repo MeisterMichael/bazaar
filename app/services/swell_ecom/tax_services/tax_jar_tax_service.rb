@@ -111,6 +111,12 @@ module SwellEcom
 
 				begin
 					tax_for_order = @client.tax_for_order( order_info )
+				rescue Taxjar::Error::NotFound => ex
+					
+					NewRelic::Agent.notice_error(ex) if defined?( NewRelic )
+					puts ex
+					order.billing_address.errors.add :base, :invalid, message: "address is invalid"
+
 				rescue Taxjar::Error::BadRequest => ex
 
 					if ex.message.include?( 'isn\'t a valid postal code' )
