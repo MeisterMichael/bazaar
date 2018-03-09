@@ -3,6 +3,7 @@ module SwellEcom
 
 
 		before_action :get_plan, except: [ :create, :index ]
+		before_action :init_search_service, only: [:index]
 
 		def create
 			authorize( SwellEcom::SubscriptionPlan, :admin_create? )
@@ -41,13 +42,9 @@ module SwellEcom
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@plans = SubscriptionPlan.order( "#{sort_by} #{sort_dir}" )
-
-			if params[:status].present? && params[:status] != 'all'
-				@plans = eval "@plans.#{params[:status]}"
-			end
-
-			@plans = @plans.page( params[:page] )
+			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			filters[:status] = params[:status] if params[:status].present?
+			@plans = @search_service.subscription_plan_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Subscription Plans" )
 		end
@@ -65,6 +62,10 @@ module SwellEcom
 		end
 
 		private
+
+			def init_search_service
+				@search_service = EcomSearchService.new
+			end
 
 			def plan_params
 				params.require( :subscription_plan ).permit( :title, :billing_interval_unit, :billing_interval_value, :billing_statement_descriptor, :price_as_money, :trial_price_as_money, :trial_interval_unit, :trial_interval_value, :trial_max_intervals, :subscription_plan_type, :seq, :avatar, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :description, :content, :cart_description, :publish_at, :shipping_price_as_money, :trial_sku, :product_sku )
