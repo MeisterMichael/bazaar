@@ -1,11 +1,11 @@
 %tr
 	%td
-		= link_to order.code, edit_order_admin_path( order.id )
+		= link_to order.code, order_admin_path( order.id )
 	%td
 		= current_user_tz_easy_read_date_format order.created_at
 	- if args[:customer] != false
 		%td
-			%a{ href: edit_order_admin_path( order.id ) }
+			%a{ href: order_admin_path( order.id ) }
 				- if order.user.present? && order.user.full_name.try(:strip).present?
 					= order.user.full_name
 				%br
@@ -37,7 +37,7 @@
 					%ul.dropdown-menu
 						- if policy(order).admin_edit?
 							%li
-								%a{ href: edit_order_admin_path( order.id ) }
+								%a{ href: order_admin_path( order.id ) }
 									%i.fa.fa-pencil
 									Edit
 							%li.divider

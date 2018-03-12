@@ -78,7 +78,7 @@ module SwellEcom
 			end
 
 			if rate.present?
-				order.order_items.new( item: nil, price: rate[:price], subtotal: rate[:price], title: (rate[:label] || rate[:name]), order_item_type: 'shipping', tax_code: '11000', properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] } )
+				order.order_items.new( item: rate[:carrier_service], price: rate[:price], subtotal: rate[:price], title: (rate[:label] || rate[:name]), order_item_type: 'shipping', tax_code: '11000', properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] } )
 				order.shipping = rate[:price]
 			else
 				order.shipping = 0

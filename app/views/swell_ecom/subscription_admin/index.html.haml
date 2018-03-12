@@ -19,11 +19,13 @@
 		.col-xs-12
 			%table.table.table-light.table-bordered
 				%thead
-					%th{ style: 'width: 10em' }
+					%th{ style: 'width: 8em' }
 						Code
 					%th
 						Customer
-					%th{ style: 'width: 10em' }
+					%th{ style: 'width: 15em' }
+						Plan
+					%th{ style: 'width: 8em' }
 						Created
 						%a{ href: subscription_admin_index_path( status: params[:status], q: params[:q], sort_by: 'created_at', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
@@ -41,9 +43,9 @@
 							%i.fa.fa-arrow-up
 						%a{ href: subscription_admin_index_path( status: params[:status], q: params[:q], sort_by: 'payment_profile_expires_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
-					%th{ style: 'width: 7em' } Status
+					%th{ style: 'width: 6em' } Status
 
-					%th.text-right{ style: 'width: 8em' }
+					%th.text-right{ style: 'width: 6.5em' }
 						Total
 						%a{ href: subscription_admin_index_path( status: params[:status], q: params[:q], sort_by: 'total', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
@@ -53,7 +55,7 @@
 				%tbody
 					- if @subscriptions.blank?
 						%tr
-							%td{ colspan: 8 }
+							%td{ colspan: 9 }
 								\- No Subscriptions Found -
 					- @subscriptions.each do |subscription|
 						%tr
@@ -64,6 +66,8 @@
 									= subscription.user.full_name
 								- else
 									= (subscription.user.email || 'N/A')
+							%td
+								= subscription.subscription_plan.title.truncate(40)
 							%td
 								= current_user.to_local_tz(subscription.created_at).to_s(:short)
 							%td

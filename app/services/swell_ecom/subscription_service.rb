@@ -51,6 +51,10 @@ module SwellEcom
 
 			end
 
+			discount = SwellEcom::Discount.find_by( args.delete(:discount_id) ) if args[:discount_id]
+			discount ||= args[:discount]
+			discount = nil unless discount.try(:for_subscriptions?)
+
 			args[:trial_price]	||= args[:trial_amount] / quantity if args[:trial_amount]
 			args[:price]		||= args[:amount] / quantity if args[:amount]
 			args[:trial_price]	||= plan.trial_price
@@ -88,7 +92,7 @@ module SwellEcom
 				billing_interval_value: plan.billing_interval_value,
 				billing_interval_unit: plan.billing_interval_unit,
 				currency: args[:currency],
-				discount_id: (args[:discount].try(:id) || args[:discount_id]),
+				discount: discount,
 				provider: args[:provider],
 				provider_customer_profile_reference: args[:provider_customer_profile_reference],
 				provider_customer_payment_profile_reference: args[:provider_customer_payment_profile_reference],
@@ -161,6 +165,9 @@ module SwellEcom
 
 			else
 				order.save
+
+				# remove discount after use, if it is not for more than one order
+				subscription.discount = nil unless subscription.discount.try(:for_subscriptions?)
 
 				# update the subscriptions next date
 				subscription.current_period_start_at = subscription.next_charged_at

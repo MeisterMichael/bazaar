@@ -1,9 +1,13 @@
 module SwellEcom
 	class OrderAdminController < SwellEcom::EcomAdminController
+		include SwellEcom::Concerns::CheckoutConcern
+		helper_method :shipping_options
+		helper_method :transaction_options
+
+		before_action :initialize_services, only: [ :confirm, :create, :index, :update ]
 
 
-		before_action :get_order, except: [ :index, :bulk_update, :bulk_destroy ]
-		before_action :get_orders, except: [ :bulk_update, :bulk_destroy ]
+		before_action :get_order, except: [ :index, :create, :new ]
 		before_action :init_search_service, only: [:index]
 
 		def address
@@ -27,17 +31,16 @@ module SwellEcom
 			redirect_back fallback_location: '/admin'
 		end
 
-		def bulk_update
-			@orders.each do |order|
-				order.attributes = order_params
+		def create
+			@order = SwellEcom::Order.create( order_params )
 
-				if order.fulfillment_status_changed? && order.fulfillment_status == 'fulfilled' && ( order.fulfillment_status == 'unfulfilled' || order.fulfilled_at.blank? )
-					order.fulfilled_at = Time.zone.now
-				end
-				order.save
+			if @order.nested_errors.present?
+				set_flash @order.nested_errors, :danger
+			else
+				set_flash 'Success.'
 			end
 
-			redirect_back fallback_location: '/admin'
+			redirect_back fallback_location: '/order_admin'
 		end
 
 		def edit
@@ -62,6 +65,11 @@ module SwellEcom
 			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Orders" )
+		end
+
+		def new
+			@order = SwellEcom::Order.new order_params
+
 		end
 
 		def refund
@@ -95,7 +103,15 @@ module SwellEcom
 
 			end
 
-			redirect_to swell_ecom.edit_order_admin_path( @order )
+			redirect_to swell_ecom.order_admin_path( @order )
+		end
+
+		def show
+			authorize( @order, :admin_show? )
+
+			@transactions = Transaction.where( parent_obj: @order )
+
+			set_page_meta( title: "#{@order.code} | Order" )
 		end
 
 		def thank_you
@@ -119,15 +135,41 @@ module SwellEcom
 
 		private
 			def order_params
-				params.require( :order ).permit( :email, :status, :fulfillment_status, :payment_status, :support_notes )
+				params.require( :order ).permit(
+					:email,
+					:ip,
+					:currency,
+					:status,
+					:fulfillment_status,
+					:payment_status,
+					:support_notes,
+					:customer_notes,
+					:same_as_billing,
+					:same_as_shipping,
+					{
+						:billing_address_attributes => [
+							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
+						],
+						:shipping_address_attributes => [
+							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
+						],
+						:order_items_attributes => [
+							:item_type,
+							:item_id,
+							:quantity,
+							:price,
+							:order_item_type,
+							:title,
+							:price,
+							:subtotal,
+							:tax_code,
+						],
+					}
+				)
 			end
 
 			def get_order
 				@order = Order.find_by( id: params[:id] )
-			end
-
-			def get_orders
-				@orders = Order.where( id: params[:id] )
 			end
 
 			def init_search_service
