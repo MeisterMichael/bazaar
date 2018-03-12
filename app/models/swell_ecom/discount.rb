@@ -22,7 +22,11 @@ module SwellEcom
 
 
 		def amount
-			self.discount_items.last.try( :discount_amount ) 
+			self.discount_items.last.try( :discount_amount )
+		end
+
+		def for_subscriptions?
+			self.discount_items.where('maximum_orders > 1').present?
 		end
 
 		def first_discount_item
