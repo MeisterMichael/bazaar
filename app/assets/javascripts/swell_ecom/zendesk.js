@@ -72,7 +72,8 @@ function showInfo(zendesk_data,server_data) {
 			'code': this.code,
 			'url': this.url,
 			'created_at': formatDate(this.created_at),
-			'fulfillment_status': ( this.fulfilled_at ? 'fulfilled' : 'not_fulfilled' )
+			'fulfillment_status': this.fulfillment_status,
+			'fulfillment_status_name': this.fulfillment_status_name,
 		} )
 	})
 
