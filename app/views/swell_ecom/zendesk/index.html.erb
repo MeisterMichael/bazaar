@@ -21,7 +21,7 @@
 				{{#each orders}}
 				<tr>
 					<td><a href="{{this.url}}" target="_blank">{{this.code}}</a></td>
-					<td class="data"><div class="{{this.fulfillment_status}}">{{this.fulfillment_status.gsub(/_/,' ')}}</div></td>
+					<td class="data"><div class="fulfillment_status {{this.fulfillment_status}}">{{this.fulfillment_status_name}}</div></td>
 				</tr>
 				{{/each}}
 				{{/if}}
