@@ -10,7 +10,9 @@ if @user.present?
 	  json.code order.code
 	  json.created_at order.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
 	  json.fulfilled_at order.fulfilled_at.try( :strftime, '%Y-%m-%dT%H:%M:%SZ' )
-	  json.url swell_ecom.edit_order_admin_url( order )
+	  json.fulfillment_status order.fulfillment_status
+	  json.fulfillment_status_name order.fulfillment_status.gsub(/_/,' ')
+	  json.url swell_ecom.order_admin_url( order )
 	  json.total order.total / 100.0
 	end
 else
