@@ -29,7 +29,7 @@ module SwellEcom
 			if @first_purchase_event
 				add_page_event_data(
 					ecommerce: {
-						currencyCode: @order.currency,
+						currencyCode: @order.currency.try(:upcase),
 						purchase: {
 							actionField: {
 								id: @order.code,
