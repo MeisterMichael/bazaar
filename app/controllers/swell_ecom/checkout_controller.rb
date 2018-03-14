@@ -35,7 +35,20 @@ module SwellEcom
 
 			@shipping_rates = []
 
-			@cart.update( email: @order.email ) if @cart.present? && @order.email.present?
+			if @cart.present?
+				@cart.email = @order.email if @order.email.present? && @order.email.match( Devise::email_regexp ).present?
+
+				if @order.billing_address.present?
+					@cart.first_name = @order.billing_address.first_name || @cart.first_name
+					@cart.last_name = @order.billing_address.last_name || @cart.last_name
+				end
+
+				@cart.checkout_cache[:order_attributes] = get_order_attributes
+				@cart.checkout_cache[:shipping_options] = shipping_options
+				@cart.checkout_cache[:discount_options] = discount_options
+
+				@cart.save
+			end
 
 			begin
 
@@ -173,9 +186,13 @@ module SwellEcom
 			@cart ||= Cart.find_by( id: session[:cart_id] )
 		end
 
+		def get_order_attributes
+			super().merge( order_items_attributes: [], user: current_user )
+		end
+
 		def get_order
 
-			@order = Order.new( get_order_attributes.merge( order_items_attributes: [], user: current_user ) )
+			@order = Order.new( get_order_attributes )
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			discount = Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if discount_options[:code].present?

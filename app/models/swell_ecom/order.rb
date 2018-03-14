@@ -21,6 +21,8 @@ module SwellEcom
 
 		has_one 	:cart, dependent: :destroy
 
+		validates_format_of	:email, with: Devise.email_regexp, if: :email_changed?
+
 		accepts_nested_attributes_for :billing_address, :shipping_address, :order_items
 
 		money_attributes :subtotal, :tax, :shipping, :total, :discount
