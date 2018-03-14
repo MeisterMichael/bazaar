@@ -99,7 +99,7 @@ module SwellEcom
 			order.errors.add( :base, :discount_error, message: 'Does not meet minimum purchase requirement' ) if discount.minimum_prod_subtotal != 0 && discount.minimum_prod_subtotal > prod_order_items.sum{ |order_item| order_item.subtotal }
 			order.errors.add( :base, :discount_error, message: 'Does not meet minimum shipping requirement' ) if discount.minimum_shipping_subtotal != 0 && discount.minimum_shipping_subtotal > shipping_order_items.sum{ |order_item| order_item.subtotal }
 			order.errors.add( :base, :discount_error, message: 'Does not meet minimum tax requirement' ) if discount.minimum_tax_subtotal != 0 && discount.minimum_tax_subtotal > tax_order_items.sum{ |order_item| order_item.subtotal }
-			order.errors.add( :base, :discount_error, message: 'You have exceeded the limit of uses for the selected discount' ) if discount.limit_per_customer.present? && order.user.present? && OrderItem.where( user: order.user, item: discount ).count >= discount.limit_per_customer
+			order.errors.add( :base, :discount_error, message: 'You have exceeded the limit of uses for the selected discount' ) if discount.limit_per_customer.present? && order.user.present? && OrderItem.where( item: discount ).joins(:order).merge( Order.where( user: order.user ) ).count >= discount.limit_per_customer
 			order.errors.add( :base, :discount_error, message: 'The selected discount\'s usage limit has been exhausted' ) if discount.limit_global.present? && OrderItem.where( item: discount ).count >= discount.limit_global
 
 			return order.errors.blank?
