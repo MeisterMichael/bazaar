@@ -8,6 +8,6 @@ class SwellEcomDiscountOwnerMigration < ActiveRecord::Migration[5.1]
 		add_index :discounts, [ :user_id, :status, :end_at ]
 
 		add_index :discounts, :type, :string
-		add_index :discounts, [ :type :id ]
+		add_index :discounts, [ :type, :id ]
 	end
 end
