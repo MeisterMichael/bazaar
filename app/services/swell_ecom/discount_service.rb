@@ -47,7 +47,7 @@ module SwellEcom
 				if discount_item.percent?
 					subtotal = order_items.sum{ |order_item| order_item.subtotal }
 					amount = amount + ( subtotal * discount_item.discount_amount / 100.0 ).round
-				elsif discount_item.fixed?
+				elsif discount_item.fixed? && order_items.present?
 					amount = amount + discount_item.discount_amount
 				elsif discount_item.fixed_each?
 					amount = amount + discount_item.discount_amount * order_items.sum{|order_item| order_item.quantity }
