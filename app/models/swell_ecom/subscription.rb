@@ -34,6 +34,9 @@ module SwellEcom
 		validates	:billing_interval_unit, presence: true, allow_blank: false
 		validates_inclusion_of :billing_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.'
 
+		def avatar
+			self.subscription_plan.avatar
+		end
 
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now
@@ -59,6 +62,10 @@ module SwellEcom
 			Order.where( "orders.id = :order_id OR (orders.parent_type = :subscription_type AND orders.parent_id = :subscription_id)", subscription_id: self.id, subscription_type: SwellEcom::Subscription.base_class.name, order_id: self.order.id )
 		end
 
+		def page_event_data
+			self.subscription_plan.page_event_data
+		end
+
 		def ready_for_next_charge?( time_now = nil )
 			time_now ||= Time.now
 			self.active? && self.next_charged_at < time_now
@@ -66,6 +73,10 @@ module SwellEcom
 
 		def sku
 			subscription_plan.sku
+		end
+
+		def url
+			self.subscription_plan.url
 		end
 
 		private

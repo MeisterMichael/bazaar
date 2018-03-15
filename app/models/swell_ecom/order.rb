@@ -13,13 +13,15 @@ module SwellEcom
 
 		belongs_to 	:billing_address, class_name: 'GeoAddress', validate: true, required: true
 		belongs_to 	:shipping_address, class_name: 'GeoAddress', validate: true, required: true
-		belongs_to 	:user, required: false
+		belongs_to 	:user, required: false, class_name: SwellMedia.registered_user_class
 		belongs_to	:parent, polymorphic: true, required: false
 
 		has_many 	:order_items, dependent: :destroy, validate: true
 		has_many	:transactions, as: :parent_obj
 
 		has_one 	:cart, dependent: :destroy
+
+		validates_format_of	:email, with: Devise.email_regexp, if: :email_changed?
 
 		accepts_nested_attributes_for :billing_address, :shipping_address, :order_items
 

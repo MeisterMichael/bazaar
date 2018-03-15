@@ -65,7 +65,7 @@ module SwellEcom
 		end
 
 		def swell_ecom_uid
-			"subscription_plan_#{self.id}"
+			"product_#{self.id}"
 		end
 
 		def page_event_data

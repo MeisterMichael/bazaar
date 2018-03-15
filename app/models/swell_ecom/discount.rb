@@ -8,8 +8,15 @@ module SwellEcom
 
 		has_many :discount_items
 		has_many :discount_users
+		belongs_to 	:user, required: false, class_name: SwellMedia.registered_user_class
 
 		money_attributes :minimum_prod_subtotal, :minimum_tax_subtotal, :minimum_shipping_subtotal
+
+		validates :minimum_prod_subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
+		validates :minimum_tax_subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
+		validates :minimum_shipping_subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
+		validates :limit_per_customer, numericality: { greater_than_or_equal_to: 1 }, allow_blank: true
+		validates :limit_global, numericality: { greater_than_or_equal_to: 1 }, allow_blank: true
 
 		def self.in_progress( args = {} )
 

@@ -10,5 +10,9 @@ module SwellEcom
 		belongs_to :applies_to, polymorphic: true, required: false
 		belongs_to :discount
 
+		validates :minimum_orders, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
+		validates :maximum_orders, presence: true, numericality: { greater_than_or_equal_to: 1 }, allow_blank: false
+		validates :discount_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
+
 	end
 end
