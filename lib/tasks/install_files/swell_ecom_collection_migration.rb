@@ -8,7 +8,8 @@ class SwellEcomCollectionMigration < ActiveRecord::Migration[5.1]
 			t.integer		:status, 			default: 0
 			t.integer		:collection_type, 	default: 1
 			t.integer		:availability,		default: 1 # anyone, private
-			t.hstore		:properties, 	default: {}
+			t.hstore		:properties, 		default: {}
+			t.json			:query,				default: {}
 			t.timestamps
 		end
 		add_index :collections, [ :title, :status, :availability ]
