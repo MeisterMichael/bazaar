@@ -9,7 +9,7 @@ module SwellEcom
 		enum availability: { 'hidden' => 0, 'anyone' => 1 }
 
 		def items
-			collection_items.collect{ |collection_item| collection_item.item }
+			collection_items.collect(&:item)
 		end
 
 	end
