@@ -10,7 +10,7 @@ module SwellEcom
 			@discount = Discount.new( discount_params )
 			@discount.status = 'draft'
 			@discount.start_at = Time.now
-			@discount.discount_items.new()
+			@discount.discount_items.new( discount_amount: 0 )
 
 			if @discount.save
 				set_flash 'Discount Created'
