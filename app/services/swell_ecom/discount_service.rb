@@ -31,7 +31,12 @@ module SwellEcom
 				order_items = order_items.select{ |order_item| order_item.item.is_a?( Subscription ) && order_item.item.orders.not_declined.count >= discount_item.minimum_orders } if discount_item.minimum_orders > 0
 				order_items = order_items.select{ |order_item| not( order_item.item.is_a?( Subscription ) ) || order_item.item.orders.not_declined.count < discount_item.maximum_orders } unless discount_item.maximum_orders.nil?
 
-				if discount_item.applies_to.is_a?( Product ) || discount_item.applies_to.is_a?( SubscriptionPlan )
+				if discount_item.applies_to.is_a?( SwellEcom::Collection )
+
+					items = discount_item.applies_to.items
+					order_items = order_items.select{ |order_item| items.include?( order_item.item ) }
+
+				elsif discount_item.applies_to.is_a?( Product ) || discount_item.applies_to.is_a?( SubscriptionPlan )
 
 					order_items = order_items.select{ |order_item| order_item.item == discount_item.applies_to }
 
@@ -42,7 +47,7 @@ module SwellEcom
 				if discount_item.percent?
 					subtotal = order_items.sum{ |order_item| order_item.subtotal }
 					amount = amount + ( subtotal * discount_item.discount_amount / 100.0 ).round
-				elsif discount_item.fixed?
+				elsif discount_item.fixed? && order_items.present?
 					amount = amount + discount_item.discount_amount
 				elsif discount_item.fixed_each?
 					amount = amount + discount_item.discount_amount * order_items.sum{|order_item| order_item.quantity }
