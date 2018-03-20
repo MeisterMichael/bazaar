@@ -42,6 +42,23 @@ module SwellEcom
 				count = "#{params[:quantity]}X "
 			end
 
+
+
+			if defined?( SwellAnalytics )
+				log_analytics_event(
+					'add_to_cart',
+					event_category: 'swell_ecom',
+					country: client_ip_country,
+					ip: client_ip,
+					user_id: current_user.try(:id),
+					referrer_url: request.referrer,
+					page_url: request.original_url,
+					subject_id: @item.id,
+					subject_type: @item.class.base_class.name,
+					value: line_item.subtotal,
+				)
+			end
+
 			#set_flash "<div class='row'><div class='col-xs-3 col-sm-2 col-lg-1'><img src='#{@item.avatar}' class='img img-responsive' /></div> <div class='col-xs-9 col-sm-10 col-lg-11'>#{count}#{@item.title} Added to your <a href='/cart'>Cart</a>. <br> <a href='/checkout'>Checkout</a>, or <a href='#' data-dismiss='alert'> Keep Shopping</a>.</div></div>"
 
 			if params[:buy_now]
