@@ -75,6 +75,10 @@ module SwellEcom
 			subscription_plan.sku
 		end
 
+		def title
+			subscription_plan.title
+		end
+
 		def url
 			self.subscription_plan.url
 		end
