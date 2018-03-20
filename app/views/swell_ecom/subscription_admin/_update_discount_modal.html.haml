@@ -1,0 +1,19 @@
+.modal.fade#update_discount_modal
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+
+					%small
+						#{@subscription.code}
+			= form_for @subscription, url: subscription_admin_path( @subscription ) do |f|
+				.modal-body
+					.form-group
+						= f.label :discount_id, "Discount"
+						= f.collection_select :discount_id, SwellEcom::Discount.active.in_progress.order( 'lower(code) ASC' ), :id, :code, { include_blank: '-- None -- ' }, class: 'form-control'
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Save', class: 'btn btn-primary'

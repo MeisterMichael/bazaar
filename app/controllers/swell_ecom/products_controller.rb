@@ -65,6 +65,23 @@ module SwellEcom
 					}
 				}
 			);
+
+
+
+			if defined?( SwellAnalytics )
+				log_analytics_event(
+					'view_details',
+					event_category: 'swell_ecom',
+					country: client_ip_country,
+					ip: client_ip,
+					user_id: current_user.try(:id),
+					referrer_url: request.referrer,
+					page_url: request.original_url,
+					subject_id: @product.id,
+					subject_type: @product.class.base_class.name,
+					value: @product.price,
+				)
+			end
 		end
 
 	end

@@ -73,9 +73,9 @@ module SwellEcom
 				rate = rates.select{ |rate| rate[:carrier_service].service_name == args[:rate_name] }.first
 			elsif args[:shipping_carrier_service_id].present?
 				rate = rates.select{ |rate| rate[:carrier_service].id == args[:shipping_carrier_service_id].to_i }.first
-			else
-				rate = find_default_rate( rates )
 			end
+
+			rate ||= find_default_rate( rates )
 
 			if rate.present?
 				order.order_items.new( item: rate[:carrier_service], price: rate[:price], subtotal: rate[:price], title: (rate[:label] || rate[:name]), order_item_type: 'shipping', tax_code: '11000', properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] } )
