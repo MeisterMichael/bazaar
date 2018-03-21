@@ -110,7 +110,7 @@
 								- @order.order_items.discount.each do |order_item|
 									- if order_item.item.code.present?
 										%div
-											%a{ href: swell_ecom.edit_discount_admin_path( order_item.item ) }=order_item.item.code
+											%a{ href: swell_ecom.edit_discount_admin_path( order_item.item ) }=( order_item.item.code || order_item.item.title )
 
 							%td.text-right
 								%strong
