@@ -14,6 +14,11 @@
 		.col-xs-6
 			= raw paginate @discounts
 		.col-xs-6
+			= form_tag discount_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= select_tag :status, options_from_collection_for_select( SwellEcom::Discount.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
+				= text_field_tag :q, params[:q], class: 'form-control'
+				= submit_tag 'Search', class: 'btn btn-primary'
+				= link_to 'Clear', discount_admin_index_path, class: 'btn btn-default'
 
 
 	.row
@@ -22,33 +27,39 @@
 				%thead
 					%th
 						Title
-						%a{ href: discount_admin_index_path( sort_by: 'title', sort_dir: 'asc' ) }
+						%a{ href: discount_admin_index_path( sort_by: 'title', sort_dir: 'asc', q: params[:q], status: params[:status] ) }
 							%i.fa.fa-arrow-up
-						%a{ href: discount_admin_index_path( sort_by: 'title', sort_dir: 'desc' ) }
+						%a{ href: discount_admin_index_path( sort_by: 'title', sort_dir: 'desc', q: params[:q], status: params[:status] ) }
 							%i.fa.fa-arrow-down
 					%th
+						Type
+					%th
 						Start At
-						%a{ href: discount_admin_index_path( sort_by: 'start_at', sort_dir: 'asc' ) }
+						%a{ href: discount_admin_index_path( sort_by: 'start_at', sort_dir: 'asc', q: params[:q], status: params[:status] ) }
 							%i.fa.fa-arrow-up
-						%a{ href: discount_admin_index_path( sort_by: 'start_at', sort_dir: 'desc' ) }
+						%a{ href: discount_admin_index_path( sort_by: 'start_at', sort_dir: 'desc', q: params[:q], status: params[:status] ) }
 							%i.fa.fa-arrow-down
 					%th
 						End At
-						%a{ href: discount_admin_index_path( sort_by: 'end_at', sort_dir: 'asc' ) }
+						%a{ href: discount_admin_index_path( sort_by: 'end_at', sort_dir: 'asc', q: params[:q], status: params[:status] ) }
 							%i.fa.fa-arrow-up
-						%a{ href: discount_admin_index_path( sort_by: 'end_at', sort_dir: 'desc' ) }
+						%a{ href: discount_admin_index_path( sort_by: 'end_at', sort_dir: 'desc', q: params[:q], status: params[:status] ) }
 							%i.fa.fa-arrow-down
+					%th
+						Amount
 					%th Status
 					%th{ style: 'width: 6em' }
 				%tbody
 					- if @discounts.blank?
 						%tr
-							%td{ colspan: 5 }
+							%td{ colspan: 7 }
 								\- No Discounts Found -
 					- @discounts.each do |discount|
 						%tr
 							%td
 								= link_to discount.to_s, edit_discount_admin_path( discount.id )
+							%td
+								= discount.class.name.demodulize.titleize
 							%td
 								- if discount.start_at.present?
 									= current_user.to_local_tz(discount.start_at).to_s( :short )
@@ -57,6 +68,12 @@
 									= current_user.to_local_tz(discount.end_at).to_s( :short )
 								- else
 									\-
+							%td
+								- if discount.first_discount_item.present?
+									- if discount.first_discount_item.percent?
+										#{discount.first_discount_item.discount_amount}%
+									- else
+										#{discount.first_discount_item.discount_amount_formatted}
 							%td
 								.badge{ class: discount.status }
 									= discount.status

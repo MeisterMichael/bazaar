@@ -15,7 +15,7 @@
 		.col-xs-2
 
 
-	= form_for @discount, url: discount_admin_path( @discount ) do |f|
+	= form_for @discount, url: discount_admin_path( @discount ), as: :discount do |f|
 		.row
 			.col-xs-8
 				.well.white-well
