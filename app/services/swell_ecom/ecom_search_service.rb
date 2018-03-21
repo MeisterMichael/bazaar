@@ -32,6 +32,18 @@ module SwellEcom
 			return self.apply_options_and_filters( users, filters, options )
 		end
 
+		def discount_search( term, filters = {}, options = {} )
+			discounts = SwellEcom::Discount.all
+
+			if term.present?
+				query = "%#{term.gsub('%','\\\\%')}%"
+
+				discounts = discounts.where( "title ILIKE :q OR code ILIKE :q OR description ILIKE :q", q: query )
+			end
+
+			return self.apply_options_and_filters( discounts, filters, options )
+		end
+
 		def address_search( term, filters = {}, options = {} )
 			addresses = GeoAddress.all
 

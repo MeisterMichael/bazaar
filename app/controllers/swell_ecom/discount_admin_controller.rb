@@ -3,6 +3,7 @@ module SwellEcom
 
 
 		before_action :get_discount, except: [ :create, :index ]
+		before_action :init_search_service, only: [:index]
 
 		def create
 			authorize( SwellEcom::Discount, :admin_create? )
@@ -30,7 +31,7 @@ module SwellEcom
 
 		def edit
 			authorize( @discount, :admin_edit? )
-			set_page_meta( title: "#{@discount.title} | Discount" )
+			set_page_meta( title: "#{@discount.title || @discount.code} | Discount" )
 		end
 
 
@@ -40,13 +41,9 @@ module SwellEcom
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@discounts = Discount.order( "#{sort_by} #{sort_dir}" )
-
-			if params[:status].present? && params[:status] != 'all' && Discount.statuses[params[:status]].present?
-				@discounts = @discounts.try(params[:status])
-			end
-
-			@discounts = @discounts.page( params[:page] )
+			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
+			@discounts = @search_service.discount_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Discounts" )
 		end
@@ -66,7 +63,7 @@ module SwellEcom
 			redirect_to edit_discount_admin_path( @discount )
 		end
 
-		private
+		protected
 
 			def discount_params
 				params.require( :discount ).permit( :start_at, :end_at, :status, :title, :code, :description, :availability, :minimum_prod_subtotal_as_money, :minimum_tax_subtotal_as_money, :minimum_shipping_subtotal_as_money, :limit_per_customer, :limit_global, first_discount_item_attributes: [ :discount_type, :discount_amount_as_money, :maximum_orders, :minimum_orders, :order_item_type ] )
@@ -74,6 +71,10 @@ module SwellEcom
 
 			def get_discount
 				@discount = Discount.find( params[:id] )
+			end
+
+			def init_search_service
+				@search_service = EcomSearchService.new
 			end
 
 	end
