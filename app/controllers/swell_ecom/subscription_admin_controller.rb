@@ -77,6 +77,8 @@ module SwellEcom
 			authorize( @subscription, :admin_edit? )
 			@orders = Order.where( parent: @subscription ).order( created_at: :desc )
 
+			@transactions = SwellEcom::Transaction.where( parent_obj: ( @subscription.orders.to_a + [ @subscription ] ) ).order( created_at: :asc )
+
 			set_page_meta( title: "#{@subscription.code} | Subscription" )
 		end
 

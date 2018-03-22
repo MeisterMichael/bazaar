@@ -224,6 +224,10 @@
 									= number_to_currency (transaction.amount.to_f / 100)
 								%td
 									= transaction.currency
+							- if transaction.message.present?
+								%tr
+									%td{ colspan: 6 }
+										= transaction.message
 
 
 		.col-xs-12.col-sm-4
