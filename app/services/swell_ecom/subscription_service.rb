@@ -164,10 +164,30 @@ module SwellEcom
 					transaction.parent_obj ||= subscription
 					transaction.save
 
+				else
+
+					# if no transaction was created, create one to log the error
+					transaction = SwellEcom::Transaction.create(
+						message: order.nested_errors.join(' * '),
+						parent_obj: subscription,
+						status: 'declined',
+						transaction_type: 'charge',
+						amount: order.total,
+						currency: order.currency,
+					)
+
 				end
 
+				# annotate how, how often, and when the subscription failed
+				subscription.failed_attempts = subscription.failed_attempts + 1 if subscription.respond_to? :failed_attempts
+				subscription.failed_message = transaction.message if subscription.respond_to? :failed_message
+				subscription.failed_at = transaction.created_at if subscription.respond_to? :failed_at
+
 				# mark subscription as failed if the transaction failed
-				subscription.failed!
+				subscription.status = 'failed'
+
+				subscription.save
+
 				order.errors.add(:base, :processing_error, message: 'Transaction failed') if !transaction || not( transaction.approved? )
 
 			else
@@ -175,6 +195,8 @@ module SwellEcom
 
 				# remove discount after use, if it is not for more than one order
 				subscription.discount = nil unless subscription.discount.try(:for_subscriptions?)
+
+				subscription.failed_attempts = 0 if subscription.respond_to? :failed_attempts
 
 				# update the subscriptions next date
 				subscription.current_period_start_at = subscription.next_charged_at
