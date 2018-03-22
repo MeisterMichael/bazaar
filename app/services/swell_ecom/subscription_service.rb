@@ -164,6 +164,18 @@ module SwellEcom
 					transaction.parent_obj ||= subscription
 					transaction.save
 
+				else
+
+					# if no transaction was created, create one to log the error
+					transaction = SwellEcom::Transaction.create(
+						message: order.nested_errors.join(' * '),
+						parent_obj: subscription,
+						status: 'declined',
+						transaction_type: 'charge',
+						amount: order.total,
+						currency: order.currency,
+					)
+
 				end
 
 				# mark subscription as failed if the transaction failed
