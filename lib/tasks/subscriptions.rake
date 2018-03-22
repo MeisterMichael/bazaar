@@ -4,16 +4,17 @@ namespace :swell_ecom do
 	task payment_profile_expiration_reminder: :environment do
 
 		subscriptions = SwellEcom::Subscription.active
-		subscriptions = subscriptions.where( 'payment_profile_expires_at > ?', 1.month.ago )
+		subscriptions = subscriptions.where( payment_profile_expires_at: Time.now..1.month.from_now ).where.not( payment_profile_expires_at: nil )
 
 		subscriptions.find_each do |subscription|
 
-			unless subscription.properties['payment_profile_expiration_reminder']
+			if subscription.properties['payment_profile_expiration_reminder'].nil?
 
-				subscription.properties = subscription.properties.merge( 'payment_profile_expiration_reminder' => 'sent' )
+				subscription.properties = subscription.properties.merge( 'payment_profile_expiration_reminder' => Time.now.to_i )
 				subscription.save
 
 				SwellEcom::SubscriptionMailer.payment_profile_expiration_reminder( subscription ).deliver_now
+
 			end
 
 		end
