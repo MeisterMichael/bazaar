@@ -159,6 +159,13 @@ module SwellEcom
 			# handle response
 			if order.nested_errors.present? || !transaction || not( transaction.approved? )
 
+				if transaction.present? && transaction.persisted?
+
+					transaction.parent_obj ||= subscription
+					transaction.save
+
+				end
+
 				# mark subscription as failed if the transaction failed
 				subscription.failed!
 				order.errors.add(:base, :processing_error, message: 'Transaction failed') if !transaction || not( transaction.approved? )
