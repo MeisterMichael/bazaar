@@ -40,7 +40,15 @@ module SwellEcom
 		end
 
 		def nested_errors
-			self.errors.full_messages + self.billing_address.errors.full_messages + self.shipping_address.errors.full_messages + self.order_items.collect{|oi| oi.errors.full_messages }.flatten
+			all_errors = self.errors.full_messages
+			all_errors = all_errors.concat( self.billing_address.errors.full_messages ) if self.billing_address
+			all_errors = all_errors.concat( self.shipping_address.errors.full_messages ) if self.shipping_address
+
+			self.order_items.each do |order_item|
+				all_errors = all_errors.concat( oi.errors.full_messages )
+			end
+
+			all_errors
 		end
 
 		private
