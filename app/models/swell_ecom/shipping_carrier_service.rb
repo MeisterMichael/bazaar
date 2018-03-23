@@ -1,5 +1,5 @@
 module SwellEcom
-	class ShippingCarrierService < ActiveRecord::Base
+	class ShippingCarrierService < ApplicationRecord
 		self.table_name = 'shipping_carrier_services'
 
 		belongs_to	:shipping_option, required: false

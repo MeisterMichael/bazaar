@@ -1,5 +1,5 @@
 module SwellEcom
-	class Subscription < ActiveRecord::Base
+	class Subscription < ApplicationRecord
 		self.table_name = 'subscriptions'
 
 		include SwellEcom::Concerns::MoneyAttributesConcern

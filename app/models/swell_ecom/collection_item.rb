@@ -1,5 +1,5 @@
 module SwellEcom
-	class CollectionItem < ActiveRecord::Base
+	class CollectionItem < ApplicationRecord
 		self.table_name = 'collection_items'
 
 		belongs_to :collection

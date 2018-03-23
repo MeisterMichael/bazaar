@@ -1,5 +1,5 @@
 module SwellEcom
-	class Collection < ActiveRecord::Base
+	class Collection < ApplicationRecord
 		self.table_name = 'collections'
 
 		has_many :collection_items

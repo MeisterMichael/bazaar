@@ -1,5 +1,5 @@
 module SwellEcom
-	class SubscriptionPlan < ActiveRecord::Base
+	class SubscriptionPlan < ApplicationRecord
 		self.table_name = 'subscription_plans'
 
 		include SwellMedia::Concerns::URLConcern

@@ -1,5 +1,5 @@
 module SwellEcom
-	class ProductVariant < ActiveRecord::Base
+	class ProductVariant < ApplicationRecord
 		self.table_name = 'product_variants'
 
 		include FriendlyId

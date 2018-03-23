@@ -1,6 +1,6 @@
 
 module SwellEcom
-	class Transaction < ActiveRecord::Base
+	class Transaction < ApplicationRecord
 		self.table_name = 'transactions'
 		
 		include SwellEcom::Concerns::MoneyAttributesConcern

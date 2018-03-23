@@ -1,6 +1,6 @@
 
 module SwellEcom
-	class Order < ActiveRecord::Base
+	class Order < ApplicationRecord
 		self.table_name = 'orders'
 		include SwellEcom::Concerns::MoneyAttributesConcern
 

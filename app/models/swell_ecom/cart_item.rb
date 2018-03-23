@@ -1,5 +1,5 @@
 module SwellEcom
-	class CartItem < ActiveRecord::Base
+	class CartItem < ApplicationRecord
 		self.table_name = 'cart_items'
 		include SwellEcom::Concerns::MoneyAttributesConcern
 

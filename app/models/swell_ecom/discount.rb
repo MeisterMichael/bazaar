@@ -1,5 +1,5 @@
 module SwellEcom
-	class Discount < ActiveRecord::Base
+	class Discount < ApplicationRecord
 		self.table_name = 'discounts'
 		include SwellEcom::Concerns::MoneyAttributesConcern
 
