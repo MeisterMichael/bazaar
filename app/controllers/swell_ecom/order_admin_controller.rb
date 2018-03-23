@@ -32,15 +32,20 @@ module SwellEcom
 		end
 
 		def create
-			@order = SwellEcom::Order.create( order_params )
+			@order = SwellEcom::Order.new( order_params )
+			@order.total ||= 0
+			@order.status = 'draft'
 
-			if @order.nested_errors.present?
-				set_flash @order.nested_errors, :danger
-			else
+			if @order.save && @order.nested_errors.blank?
 				set_flash 'Success.'
+
+				redirect_to edit_order_admin_path( @order.id )
+			else
+				set_flash @order.nested_errors, :danger
+
+				redirect_back fallback_location: '/order_admin'
 			end
 
-			redirect_back fallback_location: '/order_admin'
 		end
 
 		def edit
@@ -135,7 +140,7 @@ module SwellEcom
 
 		private
 			def order_params
-				params.require( :order ).permit(
+				order_attributes = params.require( :order ).permit(
 					:email,
 					:ip,
 					:currency,
@@ -154,18 +159,32 @@ module SwellEcom
 							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 						],
 						:order_items_attributes => [
+							:item_polymorphic_id,
 							:item_type,
 							:item_id,
 							:quantity,
 							:price,
+							:price_as_money,
+							:subtotal,
+							:subtotal_as_money,
 							:order_item_type,
 							:title,
-							:price,
-							:subtotal,
 							:tax_code,
 						],
 					}
-				)
+				).to_h
+
+				if order_attributes[:same_as_shipping] == '1' && order_attributes[:shipping_address_attributes].present?
+					order_attributes.delete(:same_as_shipping)
+					order_attributes[:billing_address_attributes] = order_attributes[:shipping_address_attributes]
+				end
+
+				if order_attributes[:same_as_billing] == '1' && order_attributes[:billing_address_attributes].present?
+					order_attributes.delete(:same_as_billing)
+					order_attributes[:shipping_address_attributes] = order_attributes[:billing_address_attributes]
+				end
+
+				order_attributes
 			end
 
 			def get_order

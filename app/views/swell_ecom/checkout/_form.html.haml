@@ -14,30 +14,7 @@
 			%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Billing Information
 			= render "swell_ecom/checkout/billing_address_form", f: billing_address_form, order: @order, args: {}
 
-			.payment-errors.alert.alert-danger.hide
-
-			.card-form-group
-				.card-preview
-				.form-group
-					%label
-						%span Card Number
-					%input.form-control.card-number{ name: 'transaction_options[credit_card][card_number]', "data-stripe" => "number", :size => "20", :type => "text", :autocomplete => "cc-number", :required => true, 'data-minlength' => '19', 'data-cardnumber' => true }/
-					.help-block.with-errors
-
-				.row
-					.col-xs-12.col-md-6
-						.form-group
-							%label
-								%span Expiration (MM/YY)
-							%div
-								%input.form-control.expiry-month{ name: 'transaction_options[credit_card][expiration]', "data-stripe" => "exp", :size => "9", :type => "text", style: 'width: auto;display:inline-block;', :autocomplete => "cc-exp", required: true, 'data-minlength' => '7', 'data-cardexpiry' => true }/
-							.help-block.with-errors
-					.col-xs-12.col-md-6
-						.form-group
-							%label
-								%span CVC
-							%input.form-control{ name: 'transaction_options[credit_card][card_code]', "data-stripe" => "cvc", :size => "4", :type => "text", style: 'width: auto;', :autocomplete => "off", required: true, 'data-minlength' => '3', 'data-cardcvc' => true }/
-							.help-block.with-errors
+			= render "swell_ecom/checkout/transaction_options", f: f, order: @order, args: {}
 	.col-xs-12.col-lg-4
 		= f.fields_for :shipping_address do |shipping_address_form|
 			%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Shipping Information
