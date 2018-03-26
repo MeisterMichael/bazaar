@@ -39,6 +39,10 @@ module SwellEcom
 			where.not( status: SwellEcom::Order.statuses['trash'] )
 		end
 
+		def has_subscription_plan?
+			self.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::SubscriptionPlan ) }.present?
+		end
+
 		def nested_errors
 			all_errors = self.errors.full_messages
 			all_errors = all_errors.concat( self.billing_address.errors.full_messages ) if self.billing_address
