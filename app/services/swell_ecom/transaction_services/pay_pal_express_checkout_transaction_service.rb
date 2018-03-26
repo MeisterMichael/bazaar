@@ -46,6 +46,7 @@ module SwellEcom
 
 					elsif payment_amount != order.total
 
+						puts "PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}" if @mode == 'sandbox'
 						order.errors.add(:base, :processing_error, message: "PayPal checkout amount does not match invoice.")
 
 					elsif payment.execute( payer_id: payer_id )
