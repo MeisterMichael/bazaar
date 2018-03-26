@@ -35,15 +35,18 @@ module SwellEcom
 				)
 
 
-				if payment_id.present? && payer_id.present?
+				if payment_id.present? && payer_id.present? && ( payment = PayPal::SDK::REST::Payment.find(payment_id) ).present?
 
-					payment = PayPal::SDK::REST::Payment.find(payment_id)
+					payment_amount = ( payment.transactions.sum{|transaction| transaction.amount.total.to_f } * 100 ).to_i
 
 				    if payment.error
 
 						NewRelic::Agent.notice_error( Exception.new("PayPalExpressCheckout Payment Error: #{payment.error}") ) if defined?( NewRelic )
 						order.errors.add(:base, :processing_error, message: "Transaction declined.")
-						raise Exception.new( payment.error ) if Rails.env.development?
+
+					elsif payment_amount != order.total
+
+						order.errors.add(:base, :processing_error, message: "PayPal checkout amount does not match invoice.")
 
 					elsif payment.execute( payer_id: payer_id )
 
