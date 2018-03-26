@@ -74,7 +74,71 @@ module SwellEcom
 
 			def refund( args = {} )
 
-				return false
+				# assumes :amount, and :charge_transaction
+				charge_transaction	= args.delete( :charge_transaction )
+				parent_obj			= charge_transaction.parent_obj
+
+				raise Exception.new('unable to find transaction') if charge_transaction.nil?
+
+				# Generate Refund transaction
+				transaction = SwellEcom::Transaction.new( args )
+				transaction.transaction_type	= 'refund'
+				transaction.provider			= @provider_name
+				transaction.amount				= args[:amount]
+				transaction.amount				||= charge_transaction.amount
+				transaction.currency			= parent_obj.currency
+				transaction.parent_obj			= parent_obj
+
+				if transaction.amount <= 0
+					transaction.status = 'declined'
+					transaction.errors.add(:base, "Refund amount must be greater than 0")
+					return transaction
+				end
+
+				# Fetch paypal payment object for original sale
+				payment = PayPal::SDK::REST::Payment.find(charge_transaction.reference_code)
+				payment_obj = JSON.parse( payment.to_json, symbolize_names: true )
+
+				# Find sale in from payment object
+				transaction_obj = payment_obj[:transactions].first
+				if transaction_obj.present? && transaction_obj[:related_resources].present?
+					sale_obj = transaction_obj[:related_resources].select{|resource| resource[:sale].present? }.first
+				end
+				sale = PayPal::SDK::REST::Sale.find( sale_obj[:sale][:id] ) if sale_obj.present?
+
+				# Use the sale to process a refund
+				if sale.present?
+
+					refund_obj = {
+						:amount => {
+							:total => "#{'%.2f' % transaction.amount_as_money}",
+							:currency => transaction.currency.upcase
+						}
+					}
+
+					refund = sale.refund( refund_obj )
+
+					if refund.error
+
+						transaction.status = 'declined'
+						transaction.message = refund.error
+						# transaction.errors.add(:base, "Refuned failed")
+
+					else
+
+						transaction.status = 'approved'
+						transaction.reference_code = refund.id
+
+					end
+
+					transaction.save!
+
+				else
+					transaction.status = 'declined'
+					transaction.errors.errors.add(:base, "Unable to find corresponding sale")
+				end
+
+				return transaction
 			end
 
 			def update_subscription_payment_profile( subscription, args = {} )
