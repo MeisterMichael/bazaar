@@ -74,10 +74,6 @@ module SwellEcom
 
 			def refund( args = {} )
 
-				transaction = 
-
-				payment = PayPal::SDK::REST::Payment.find(payment_id)
-
 				return false
 			end
 
