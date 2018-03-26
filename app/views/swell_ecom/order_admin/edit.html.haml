@@ -9,32 +9,6 @@
 						%i.fa.fa-angle-left
 						Orders
 
-			- if policy(@order).admin_update?
-				- if @order.pre_order? || @order.draft?
-					.pull-right
-						%a.btn.btn-primary{ href: checkout_admin_path( @order, order: { status: 'active' } ), data: { method: 'PUT' } }
-							%i.fa.fa-send
-							Process
-				- if not( SwellEcom.automated_fulfillment )
-					.pull-right
-						- if @order.unfulfilled?
-							%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
-								%i.fa.fa-send
-								Fulfilled
-							%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfillment_canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel fulfillment of this order?' } }
-								%i.fa.fa-times
-								Cancel
-						- elsif @order.fulfilled?
-							%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'delivered' } ), data: { method: 'PUT' } }
-								%i.fa.fa-check
-								Delivered
-						- elsif @order.unfulfilled?
-							.pull-right
-								%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfillment_canceled' } ), data: { method: 'PUT', confirm: 'Are you sure you want to cancel fulfillment of this order?' } }
-									%i.fa.fa-times
-									Cancel
-
-
 			%h2
 				%strong= @order.code
 				%small=current_user.to_local_tz(@order.created_at).to_s( :short )
@@ -149,46 +123,6 @@
 						.well
 							= raw @order.customer_notes || 'N/A'
 
-					.col-xs-12.col-md-6.col-lg-4
-						- if ( refund_amount = @transactions.approved.negative.to_a.sum(&:signed_amount) ) != 0
-							%table.table.table-light.table-bordered{ style: 'margin:0;' }
-								%tbody
-									%tr
-										%td
-											%h5{ style: 'font-weight:bold;' }
-												Paid by Customer
-										%td.text-right{ style: 'width: 100px' }
-											%h5{ style: 'font-weight:bold;' }
-												= number_to_currency ( @transactions.approved.positive.to_a.sum(&:signed_amount) / 100.0 )
-									%tr
-										%td
-											%h5{ style: 'font-weight:bold;' }
-												Refunded Amount
-										%td.text-right
-											%h5{ style: 'font-weight:bold;' }
-												= number_to_currency ( refund_amount / 100.0 )
-									%tr
-										%td
-											%h5{ style: 'font-weight:bold;' }
-												Net
-										%td.text-right
-											%h5{ style: 'font-weight:bold;' }
-												= number_to_currency ( @transactions.approved.to_a.sum(&:signed_amount) / 100.0 )
-						- else
-							%table.table.table-light.table-bordered
-								%tbody
-									%tr
-										%td
-											%h5{ style: 'font-weight:bold;' }
-												Paid by Customer
-										%td.text-right{ style: 'width: 100px' }
-											%h5{ style: 'font-weight:bold;' }
-												= number_to_currency ( @transactions.approved.positive.to_a.sum(&:signed_amount) / 100.0 )
-							- if policy( @order ).admin_refund?
-								.text-center
-									%a.btn.btn-success{ data: { toggle: :modal, target: '#refund_order' } }
-										%i.fa.fa-plus-square
-										Refund
 			.well.white-well
 				- if policy(@order).admin_update?
 					.pull-right
@@ -197,34 +131,6 @@
 				%h4
 					Support Notes
 				=@order.support_notes || 'N/A'
-
-			.well.white-well
-				%h4 Transactions
-				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
-					%thead
-						%tr
-							%th{ style: 'width: 10em' } Type
-							%th{ style: 'width: 10em' } Status
-							%th{ style: 'width: 10em' } Gateway
-							%th Reference
-							%th.text-right{ style: 'width: 10em' } Amount
-							%th{ style: 'width: 4em' } Currency
-					%tbody
-						- @transactions.each do |transaction|
-							%tr
-								%td
-									= transaction.transaction_type
-								%td
-									= transaction.status
-								%td
-									= transaction.provider
-								%td
-									= transaction.reference_code
-								%td.text-right
-									= number_to_currency (transaction.amount.to_f / 100)
-								%td
-									= transaction.currency
-
 
 		.col-xs-12.col-sm-4
 			- if @order.user.present?
@@ -244,7 +150,7 @@
 						= @order.user.email
 
 			.well.white-well
-				-# .pull-right
+				.pull-right
 					%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
 				%h5
 					Billing Address
@@ -259,10 +165,9 @@
 					Shipping Address
 				= raw @order.shipping_address.to_html
 
-			= render 'fulfillment_tracking'
-
 
 = render 'swell_ecom/order_admin/edit_status_modal'
 = render 'swell_ecom/order_admin/refund_modal'
 = render 'swell_ecom/order_admin/support_notes_modal'
 = render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_address' }, countries: get_shipping_countries, states: get_shipping_states( @order.shipping_address.geo_country_id )
+= render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Billing Address', attribute: 'billing_address' }, countries: get_billing_countries, states: get_shipping_states( @order.billing_address.geo_country_id )

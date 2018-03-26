@@ -4,7 +4,7 @@ module SwellEcom
 		helper_method :shipping_options
 		helper_method :transaction_options
 
-		before_action :initialize_services, only: [ :confirm, :create, :index, :update ]
+		before_action :initialize_services, only: [ :edit ]
 
 
 		before_action :get_order, except: [ :index, :create, :new ]
@@ -49,9 +49,18 @@ module SwellEcom
 		end
 
 		def edit
+			unless @order.draft?
+				redirect_to order_admin_path( @order )
+				return
+			end
+
 			authorize( @order, :admin_edit? )
 
-			@transactions = Transaction.where( parent_obj: @order )
+			@order_service.calculate( @order,
+				transaction: transaction_options,
+				shipping: shipping_options,
+				discount: discount_options,
+			)
 
 			set_page_meta( title: "#{@order.code} | Order" )
 		end
@@ -112,6 +121,11 @@ module SwellEcom
 		end
 
 		def show
+			if @order.draft?
+				redirect_to edit_order_admin_path( @order )
+				return
+			end
+
 			authorize( @order, :admin_show? )
 
 			@transactions = Transaction.where( parent_obj: @order )
