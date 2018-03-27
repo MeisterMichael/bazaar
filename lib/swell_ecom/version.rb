@@ -1,3 +1,3 @@
 module SwellEcom
-  VERSION = "2.5.6"
+  VERSION = "2.6.0"
 end
