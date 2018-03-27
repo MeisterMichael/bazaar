@@ -1,5 +1,5 @@
 module SwellEcom
-	class Subscription < ActiveRecord::Base
+	class Subscription < ApplicationRecord
 		self.table_name = 'subscriptions'
 
 		include SwellEcom::Concerns::MoneyAttributesConcern
@@ -15,6 +15,7 @@ module SwellEcom
 
 		before_create :generate_order_code
 		before_create :initialize_timestamps
+		before_save :update_timestamps
 
 		accepts_nested_attributes_for :billing_address, :shipping_address, :user
 
@@ -118,5 +119,10 @@ module SwellEcom
 
 			end
 		end
+
+		def update_timestamps
+			self.canceled_at = Time.now if not( self.canceled_at_changed? ) && self.status_changed? && self.canceled?
+		end
+
 	end
 end

@@ -1,6 +1,6 @@
 
 module SwellEcom
-	class GeoState < ActiveRecord::Base 
+	class GeoState < ApplicationRecord 
 		self.table_name = 'geo_states'
 
 		belongs_to :geo_country

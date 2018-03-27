@@ -1,5 +1,5 @@
 module SwellEcom
-	class GeoAddress < ActiveRecord::Base
+	class GeoAddress < ApplicationRecord
 		self.table_name = 'geo_addresses'
 
 		belongs_to	:geo_state, required: false

@@ -1,6 +1,6 @@
 
 module SwellEcom
-	class Order < ActiveRecord::Base
+	class Order < ApplicationRecord
 		self.table_name = 'orders'
 		include SwellEcom::Concerns::MoneyAttributesConcern
 
@@ -39,8 +39,20 @@ module SwellEcom
 			where.not( status: SwellEcom::Order.statuses['trash'] )
 		end
 
+		def has_subscription_plan?
+			self.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::SubscriptionPlan ) }.present?
+		end
+
 		def nested_errors
-			self.errors.full_messages + self.billing_address.errors.full_messages + self.shipping_address.errors.full_messages + self.order_items.collect{|oi| oi.errors.full_messages }.flatten
+			all_errors = self.errors.full_messages
+			all_errors = all_errors.concat( self.billing_address.errors.full_messages ) if self.billing_address
+			all_errors = all_errors.concat( self.shipping_address.errors.full_messages ) if self.shipping_address
+
+			self.order_items.each do |order_item|
+				all_errors = all_errors.concat( order_item.errors.full_messages )
+			end
+
+			all_errors
 		end
 
 		private

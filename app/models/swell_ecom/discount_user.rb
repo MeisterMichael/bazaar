@@ -1,5 +1,5 @@
 module SwellEcom
-	class DiscountUser < ActiveRecord::Base
+	class DiscountUser < ApplicationRecord
 		self.table_name = 'discount_users'
 
 		belongs_to :discount

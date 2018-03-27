@@ -30,5 +30,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'authorizenet'
   s.add_dependency 'rest-client'
   s.add_dependency 'credit_card_validations'
+  s.add_dependency 'paypal-sdk-rest'
   s.add_development_dependency "sqlite3"
 end

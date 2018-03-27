@@ -80,6 +80,22 @@ module SwellEcom
 
 		end
 
+		def update_discount
+
+			@discount = SwellEcom::Discount.active.in_progress.find_by( code: params[:code].downcase ) if params[:code].present?
+
+			if @discount.present? && @subscription.update( discount: @discount )
+
+				set_flash "Subscription updated succesfully.", :success
+
+			else
+				set_flash 'Invalid coupon', :danger
+			end
+
+			redirect_back fallback_location: your_subscription_path( @subscription.code )
+
+		end
+
 		private
 
 		def get_subscription

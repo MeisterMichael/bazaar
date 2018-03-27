@@ -1,5 +1,5 @@
 module SwellEcom
-	class ShippingOption < ActiveRecord::Base
+	class ShippingOption < ApplicationRecord
 		self.table_name = 'shipping_options'
 
 		has_many	:shipping_carrier_services

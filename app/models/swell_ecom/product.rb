@@ -1,5 +1,5 @@
 module SwellEcom
-	class Product < ActiveRecord::Base
+	class Product < ApplicationRecord
 		self.table_name = 'products'
 
 		include SwellMedia::Concerns::URLConcern

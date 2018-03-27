@@ -29,12 +29,13 @@ SwellEcom::Engine.routes.draw do
 	resources :geo_states, only: [:index]
 
 	resources :order_admin do
-		post :refund, on: :member
 		post :address, on: :member
-		patch :bulk_update, on: :collection, path: ''
-		put :bulk_update, on: :collection, path: ''
+		post :refund, on: :member
 		get :thank_you, on: :member
+		put :update_discount, on: :member
 	end
+
+	resources :order_item_admin, only: [:update,:create,:destroy]
 
 	resources :orders do
 		get :thank_you, on: :member, path: 'thank-you'
@@ -70,7 +71,9 @@ SwellEcom::Engine.routes.draw do
 
 	resources :your_account, only: [:index]
 	resources :your_orders, only: [:index, :show]
-	resources :your_subscriptions, only: [:index, :show, :update, :destroy]
+	resources :your_subscriptions, only: [:index, :show, :update, :destroy] do
+		put :update_discount, on: :member
+	end
 
 	resources :zendesk, only: [:index] do
 		get :customer, on: :collection

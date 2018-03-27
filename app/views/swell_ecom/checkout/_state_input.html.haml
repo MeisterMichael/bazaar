@@ -1,0 +1,8 @@
+- if states.present?
+	.form-control.form-control-select
+		= f.collection_select :geo_state_id, states, :id, :name, { prompt: true }, { class: "geo-address-geo-states", required: true, data: { calculate: 'true' } }
+	= f.text_field :state, class: "form-control state-selector geo-address-state hidden", disabled: true, data: { calculate: 'true' }
+- else
+	.form-control.form-control-select
+		= f.collection_select :geo_state_id, states, :id, :name, { prompt: true }, { class: "geo-address-geo-states hidden", required: true, disabled: true, data: { calculate: 'true' } }
+	= f.text_field :state, class: "form-control state-selector geo-address-state", data: { calculate: 'true' }
