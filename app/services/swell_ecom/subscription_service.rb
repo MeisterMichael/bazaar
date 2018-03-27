@@ -4,6 +4,8 @@ module SwellEcom
 
 		def initialize( args = {} )
 
+			@order_class			= args[:order_class] || SwellEcom.checkout_order_class_name
+
 			@order_service			= args[:order_service]
 			@order_service			||= SwellEcom::OrderService.new
 
@@ -124,7 +126,7 @@ module SwellEcom
 			# create order
 			plan = subscription.subscription_plan
 
-			order = Order.new(
+			order = @order_class.constantize.new(
 				billing_address: subscription.billing_address,
 				shipping_address: subscription.shipping_address,
 				user: subscription.user,

@@ -224,7 +224,7 @@ module SwellEcom
 
 		def get_order
 
-			@order = Order.new( get_order_attributes )
+			@order = SwellEcom.checkout_order_class_name.constantize.new( get_order_attributes )
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			discount = Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if discount_options[:code].present?

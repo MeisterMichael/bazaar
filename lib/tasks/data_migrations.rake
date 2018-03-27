@@ -1,20 +1,27 @@
 # desc "Explaining what the task does"
 namespace :swell_ecom do
 
-		task recalculate_order_rollups: :environment do
+	task migrate_all_orders_to_checkout_order: :environment do
 
-			orders = SwellEcom::Order.all
-			orders.find_each do |order|
+		orders = SwellEcom::Order.all
+		orders.update_all( type: SwellEcom.checkout_order_class_name )
 
-				order.shipping = order.order_items.select(&:shipping?).sum(&:subtotal)
-				order.tax = order.order_items.select(&:tax?).sum(&:subtotal)
-				order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
-				order.discount = order.order_items.select(&:discount?).sum(&:subtotal)
-				order.save
+	end
 
-			end
+	task recalculate_order_rollups: :environment do
+
+		orders = SwellEcom::Order.all
+		orders.find_each do |order|
+
+			order.shipping = order.order_items.select(&:shipping?).sum(&:subtotal)
+			order.tax = order.order_items.select(&:tax?).sum(&:subtotal)
+			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
+			order.discount = order.order_items.select(&:discount?).sum(&:subtotal)
+			order.save
 
 		end
+
+	end
 
 
 	task migrate_order_status: :environment do

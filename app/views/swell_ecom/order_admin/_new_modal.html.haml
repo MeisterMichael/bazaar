@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Order
-			= form_for ( order = SwellEcom::Order.new( billing_address: SwellEcom::GeoAddress.new, shipping_address: SwellEcom::GeoAddress.new ) ), url: order_admin_index_path, html: { class: 'form' } do |f|
+			= form_for ( order = ( args[:order_class] || SwellEcom.checkout_order_class_name ).constantize.new( billing_address: SwellEcom::GeoAddress.new, shipping_address: SwellEcom::GeoAddress.new ) ), url: order_admin_index_path, as: :order, html: { class: 'form' } do |f|
 				.modal-body.checkout-container{ style: 'text-align: center;' }
 					.row
 						.col-xs-12.col-md-6.col-md-offset-3

@@ -23,6 +23,8 @@ module SwellEcom
 		mattr_accessor :transaction_service_class
 		mattr_accessor :transaction_service_config
 
+		mattr_accessor :checkout_order_class_name
+
 		mattr_accessor :order_code_prefix
 		mattr_accessor :order_code_postfix
 
@@ -52,6 +54,8 @@ module SwellEcom
 		self.nexus_addresses = []
 
 		self.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
+
+		self.checkout_order_class_name = "SwellEcom::CheckoutOrder"
 
 		self.order_code_prefix = nil
 		self.order_code_postfix = nil

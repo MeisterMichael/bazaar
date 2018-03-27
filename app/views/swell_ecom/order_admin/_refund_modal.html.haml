@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Refund Amount
-			= form_for @order, url: refund_order_admin_path( @order ), method: :POST, html: { class: 'form-inline' } do |f|
+			= form_for @order, url: refund_order_admin_path( @order ), as: :order, method: :POST, html: { class: 'form-inline' } do |f|
 				.modal-body{ style: 'text-align: center;' }
 					.form-group
 						$
