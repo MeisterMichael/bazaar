@@ -1,0 +1,26 @@
+Someone Placed a new order!
+
+Order Number: #{ @order.code }
+Email: #{ @order.email }
+
+Ship To:
+#{ @order.shipping_address.full_name }
+#{ @order.shipping_address.street }
+- if @order.shipping_address.street2.present? 
+	#{ @order.shipping_address.street2 }
+
+#{ @order.shipping_address.city }, #{ @order.shipping_address.state } #{ @order.shipping_address.zip }
+
+Bill To:
+#{ @order.billing_address.full_name }
+#{ @order.billing_address.street }
+<% if @order.billing_address.street2.present? }
+	#{ @order.billing_address.street2 }
+<% end }
+#{ @order.billing_address.city }, #{ @order.billing_address.state } #{ @order.billing_address.zip }
+
+- @order.order_items.prod.each do |order_item|
+	= "- #{ order_item.quantity } x #{ order_item.title }  #{ number_to_currency order_item.subtotal.to_f / 100 }"
+
+
+Total: #{ number_to_currency @order.total.to_f / 100 }
