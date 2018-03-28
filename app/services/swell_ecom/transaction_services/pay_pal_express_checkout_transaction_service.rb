@@ -34,6 +34,11 @@ module SwellEcom
 					# :ssl_options => { }
 				)
 
+				# order.payment_status = 'payment_method_captured'
+				order.provider = @provider_name
+
+				order.provider_customer_profile_reference = payer_id
+				order.provider_customer_payment_profile_reference = payment_id
 
 				if payment_id.present? && payer_id.present? && ( payment = PayPal::SDK::REST::Payment.find(payment_id) ).present?
 
@@ -51,9 +56,18 @@ module SwellEcom
 
 					elsif payment.execute( payer_id: payer_id )
 
-						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: payment_id, customer_profile_reference: payer_id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved' )
+						transaction = SwellEcom::Transaction.create( transaction_type: 'charge', reference_code: payment_id, customer_profile_reference: payer_id, customer_payment_profile_reference: payment_id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved' )
 
-						return transaction
+						order.payment_status = 'paid'
+
+						if order.save
+
+							transaction.update( parent_obj: order )
+
+							return transaction
+
+						end
+
 
 					else
 
