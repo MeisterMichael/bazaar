@@ -21,7 +21,7 @@ module SwellEcom
 
 		def calculate
 
-			# @shipping_rates = []
+			@shipping_rates = []
 			begin
 
 				@order_service.calculate( @order,
@@ -30,7 +30,7 @@ module SwellEcom
 					discount: discount_options,
 				)
 
-				# @shipping_rates = @order_service.shipping_service.find_rates( @order, shipping_options ) if @order.shipping_address.geo_country.present?
+				@shipping_rates = @order_service.shipping_service.find_rates( @order, shipping_options ) if @order.shipping_address.geo_country.present?
 			rescue Exception => e
 				puts e
 				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
@@ -52,17 +52,14 @@ module SwellEcom
 		def create
 
 			@order.billing_address.user = @order.shipping_address.user = @order.user
-			@order.status = 'draft'
 
-			puts "@order.user.email #{@order.user.email} vs #{@order.email}"
-
-			@order_service.calculate( @order,
+			@order_service.process( @order,
 				transaction: transaction_options,
 				shipping: shipping_options,
 				discount: discount_options,
 			)
 
-			if @order.nested_errors.present? || not( @order.validate )
+			if @order.nested_errors.present?
 				respond_to do |format|
 					format.js {
 						render :create
@@ -81,25 +78,22 @@ module SwellEcom
 				end
 			else
 
-				@order.save!
+				WholesaleOrderMailer.receipt( @order ).deliver_now
 
-				# OrderMailer.receipt( @order ).deliver_now
-				# OrderMailer.notify_admin( @order ).deliver_now
-
-				# if defined?( SwellAnalytics )
-				# 	log_analytics_event(
-				# 		'purchase',
-				# 		event_category: 'swell_ecom',
-				# 		country: client_ip_country,
-				# 		ip: client_ip,
-				# 		user_id: (current_user || @order.user).try(:id),
-				# 		referrer_url: request.referrer,
-				# 		page_url: request.original_url,
-				# 		subject_id: @order.id,
-				# 		subject_type: @order.class.base_class.name,
-				# 		value: @order.total,
-				# 	)
-				# end
+				if defined?( SwellAnalytics )
+					log_analytics_event(
+						'purchase',
+						event_category: 'swell_ecom_wholesale',
+						country: client_ip_country,
+						ip: client_ip,
+						user_id: (current_user || @order.user).try(:id),
+						referrer_url: request.referrer,
+						page_url: request.original_url,
+						subject_id: @order.id,
+						subject_type: @order.class.base_class.name,
+						value: @order.total,
+					)
+				end
 
 				respond_to do |format|
 					format.js {
@@ -141,7 +135,7 @@ module SwellEcom
 			# 		ecommerce: {
 			# 			add: {
 			# 				actionField: {},
-			# 				products: @cart.cart_items.collect{|cart_item| cart_item.item.page_event_data.merge( quantity: cart_item.quantity ) }
+			# 				products: @order.order_items.select(&:prod?).collect{|order_item| order_item.item.page_event_data.merge( quantity: order_item.quantity ) }
 			# 			}
 			# 		}
 			# 	);
@@ -151,28 +145,25 @@ module SwellEcom
 			# 	ecommerce: {
 			# 		currencyCode: 'USD',
 			# 		checkout: {
-			# 			actionField: { step: 1, option: 'Initiate', revenue: @cart.cart_items.to_a.sum(&:subtotal_as_money) },
-			# 			products: @cart.cart_items.collect{|cart_item| cart_item.item.page_event_data.merge( quantity: cart_item.quantity ) }
+			# 			actionField: { step: 1, option: 'Initiate', revenue: @order.order_items.select(&:prod?).sum(&:subtotal_as_money) },
+			# 			products: @order.order_items.select(&:prod?).collect{|order_item| order_item.item.page_event_data.merge( quantity: order_item.quantity ) }
 			# 		}
 			# 	}
 			# );
 
 
 
-			# if defined?( SwellAnalytics )
-			# 	log_analytics_event(
-			# 		'initiate_checkout',
-			# 		event_category: 'swell_ecom',
-			# 		country: client_ip_country,
-			# 		ip: client_ip,
-			# 		user_id: current_user.try(:id),
-			# 		referrer_url: request.referrer,
-			# 		page_url: request.original_url,
-			# 		subject_id: @cart.id,
-			# 		subject_type: @cart.class.base_class.name,
-			# 		value: @cart.subtotal,
-			# 	)
-			# end
+			if defined?( SwellAnalytics )
+				log_analytics_event(
+					'initiate_checkout',
+					event_category: 'swell_ecom_wholesale',
+					country: client_ip_country,
+					ip: client_ip,
+					user_id: current_user.try(:id),
+					referrer_url: request.referrer,
+					page_url: request.original_url,
+				)
+			end
 
 			set_page_meta( title: "#{SwellMedia.app_name} - Checkout" )
 
@@ -203,6 +194,8 @@ module SwellEcom
 					:customer_notes,
 					:same_as_billing,
 					:same_as_shipping,
+					:billing_address_id,
+					:shipping_address_id,
 					{
 						:billing_address_attributes => [
 							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
@@ -222,10 +215,18 @@ module SwellEcom
 
 			order_attributes = order_attributes[:order] || {}
 
-			order_attributes[:shipping_address_attributes]	||= { phone: current_user.phone, zip: current_user.zip, state: current_user.state, city: current_user.city, street2: current_user.address2, street: current_user.address1, last_name: current_user.last_name, first_name: current_user.first_name, }
-			order_attributes[:billing_address_attributes]	||= { phone: current_user.phone, zip: current_user.zip, state: current_user.state, city: current_user.city, street2: current_user.address2, street: current_user.address1, last_name: current_user.last_name, first_name: current_user.first_name, }
-			order_attributes[:shipping_address_attributes]	= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
-			order_attributes[:billing_address_attributes]	= order_attributes[:shipping_address_attributes] if order_attributes.delete(:same_as_shipping)
+			order_attributes[:shipping_address_attributes]	||= { phone: current_user.phone, zip: current_user.zip, state: current_user.state, city: current_user.city, street2: current_user.address2, street: current_user.address1, last_name: current_user.last_name, first_name: current_user.first_name, } unless order_attributes[:shipping_address_id]
+			order_attributes[:billing_address_attributes]	||= { phone: current_user.phone, zip: current_user.zip, state: current_user.state, city: current_user.city, street2: current_user.address2, street: current_user.address1, last_name: current_user.last_name, first_name: current_user.first_name, } unless order_attributes[:billing_address_id]
+
+			if order_attributes.delete(:same_as_billing)
+				order_attributes[:shipping_address_attributes]	= order_attributes[:billing_address_attributes] if order_attributes[:billing_address_attributes]
+				order_attributes[:shipping_address_id]			= order_attributes[:billing_address_id] if order_attributes[:billing_address_id]
+			end
+
+			if order_attributes.delete(:same_as_shipping)
+				order_attributes[:billing_address_attributes]	= order_attributes[:shipping_address_attributes] if order_attributes[:shipping_address_attributes]
+				order_attributes[:billing_address_id]			= order_attributes[:shipping_address_id] if order_attributes[:shipping_address_id]
+			end
 
 			order_attributes[:status]	= 'draft'
 			order_attributes[:ip]		= client_ip
