@@ -38,6 +38,10 @@ module SwellEcom
 
 		end
 
+		def discount_service
+			@discount_service
+		end
+
 		def process( order, args = {} )
 
 			args[:discount] ||= {}
@@ -88,6 +92,18 @@ module SwellEcom
 
 			@transaction_service.refund( args || {} )
 
+		end
+
+		def shipping_service
+			@shipping_service
+		end
+
+		def tax_service
+			@tax_service
+		end
+
+		def transaction_service
+			@transaction_service
 		end
 
 		def validate( order, args )
