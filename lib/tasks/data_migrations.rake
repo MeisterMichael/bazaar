@@ -4,7 +4,7 @@ namespace :swell_ecom do
 	task migrate_all_orders_to_checkout_order: :environment do
 
 		orders = SwellEcom::Order.all
-		orders.update_all( type: SwellEcom.checkout_order_class_name )
+		orders.update_all( type: SwellEcom.checkout_order_class_name, source: 'Consumer Checkout' )
 
 	end
 

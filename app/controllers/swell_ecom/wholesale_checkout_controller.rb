@@ -53,6 +53,7 @@ module SwellEcom
 
 			@order.status = 'active'
 			@order.billing_address.user = @order.shipping_address.user = @order.user
+			@order.source = 'Wholesale Checkout'
 
 			@order_service.process( @order,
 				transaction: transaction_options,
