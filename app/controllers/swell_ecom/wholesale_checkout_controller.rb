@@ -23,6 +23,9 @@ module SwellEcom
 
 			@shipping_rates = []
 			begin
+				@order.billing_address ||= SwellEcom::GeoAddress.new
+				@order.shipping_address ||= SwellEcom::GeoAddress.new
+
 
 				@order_service.calculate( @order,
 					transaction: transaction_options,
@@ -52,8 +55,13 @@ module SwellEcom
 		def create
 
 			@order.status = 'active'
-			@order.billing_address.user = @order.shipping_address.user = @order.user
 			@order.source = 'Wholesale Checkout'
+
+			@order.billing_address.user		||= @order.user
+			@order.billing_address.tags		= @order.billing_address.tags + ['billing_address']
+
+			@order.shipping_address.user	||= @order.user
+			@order.shipping_address.tags	= @order.shipping_address.tags + ['shipping_address']
 
 			@order_service.process( @order,
 				transaction: transaction_options,
@@ -217,8 +225,8 @@ module SwellEcom
 
 			order_attributes = order_attributes[:order] || {}
 
-			order_attributes[:shipping_address_attributes]	||= { phone: current_user.phone, zip: current_user.zip, state: current_user.state, city: current_user.city, street2: current_user.address2, street: current_user.address1, last_name: current_user.last_name, first_name: current_user.first_name, } unless order_attributes[:shipping_address_id]
-			order_attributes[:billing_address_attributes]	||= { phone: current_user.phone, zip: current_user.zip, state: current_user.state, city: current_user.city, street2: current_user.address2, street: current_user.address1, last_name: current_user.last_name, first_name: current_user.first_name, } unless order_attributes[:billing_address_id]
+			order_attributes.delete(:shipping_address_attributes) if order_attributes[:shipping_address_id]
+			order_attributes.delete(:billing_address_attributes) if order_attributes[:billing_address_id]
 
 			if order_attributes.delete(:same_as_billing)
 				order_attributes[:shipping_address_attributes]	= order_attributes[:billing_address_attributes] if order_attributes[:billing_address_attributes]
@@ -239,8 +247,6 @@ module SwellEcom
 
 			@order = SwellEcom.wholesale_order_class_name.constantize.new( order_attributes )
 			@order.email = @order.user.email if @order.email.blank?
-			@order.billing_address.user = @order.shipping_address.user = @order.user
-
 
 			@wholesale_profile = SwellEcom::WholesaleProfile.find( current_user.wholesale_profile_id )
 

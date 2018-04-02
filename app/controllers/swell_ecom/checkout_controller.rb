@@ -69,6 +69,10 @@ module SwellEcom
 
 			@order.user ||= User.create_with( first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name ).find_or_create_by( email: @order.email.downcase ) if @order.email.present? && SwellEcom.create_user_on_checkout
 			@order.billing_address.user = @order.shipping_address.user = @order.user
+
+			@order.billing_address.tags = @order.billing_address.tags + ['billing_address']
+			@order.shipping_address.tags = @order.shipping_address.tags + ['shipping_address']
+
 			@order.source = 'Consumer Checkout'
 
 			@order_service.process( @order,

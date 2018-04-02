@@ -3,6 +3,11 @@ class SwellEcomWholesaleMigration < ActiveRecord::Migration[5.1]
 
 		add_column :users, :wholesale_profile_id, :integer, default: nil
 		add_index  :users, [ :wholesale_profile_id, :status ]
+		add_column :users, :preferred_shipping_address_id, :integer, default: nil
+		add_column :users, :preferred_billing_address_id, :integer, default: nil
+
+		add_column :geo_addresses, :tags, :string, default: [], array: true
+    	add_index :geo_addresses, ["tags"], using: :gin
 
 
 		create_table :wholesale_profiles do |t|

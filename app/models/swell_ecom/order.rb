@@ -22,6 +22,7 @@ module SwellEcom
 		has_one 	:cart, dependent: :destroy
 
 		validates_format_of	:email, with: Devise.email_regexp, if: :email_changed?
+		validate :order_address_users_match
 
 		accepts_nested_attributes_for :billing_address, :shipping_address, :order_items
 
@@ -56,6 +57,11 @@ module SwellEcom
 		end
 
 		private
+
+		def order_address_users_match
+			self.errors.add(:billing_address, "does not exist.") if self.user.present? && billing_address.user != self.user
+			self.errors.add(:shipping_address, "does not exist.") if self.user.present? && shipping_address.user != self.user
+		end
 
 		def generate_order_code
 			self.code = loop do
