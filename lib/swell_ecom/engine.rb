@@ -17,6 +17,9 @@ module SwellEcom
 		mattr_accessor :shipping_service_class
 		mattr_accessor :shipping_service_config
 
+		mattr_accessor :subscription_service_class
+		mattr_accessor :subscription_service_config
+
 		mattr_accessor :tax_service_class
 		mattr_accessor :tax_service_config
 
@@ -41,6 +44,9 @@ module SwellEcom
 
 		self.shipping_service_class = "SwellEcom::ShippingService"
 		self.shipping_service_config = {}
+
+		self.subscription_service_class = "SwellEcom::SubscriptionService"
+		self.subscription_service_config = {}
 
 		self.tax_service_class = "SwellEcom::TaxService"
 		self.tax_service_config = {}

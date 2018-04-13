@@ -60,7 +60,7 @@ module SwellEcom
 			puts JSON.pretty_generate subscription_options[:shipping_address].to_json
 			puts JSON.pretty_generate subscription_options[:billing_address].to_json
 
-			@subscription_service = SwellEcom::SubscriptionService.new()
+			@subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config )
 			@subscription = @subscription_service.subscribe( user, plan, subscription_options )
 
 			if @subscription.errors.present?
@@ -98,7 +98,7 @@ module SwellEcom
 		def payment_profile
 			authorize( @subscription, :admin_update? )
 
-			@subscription_service = SwellEcom::SubscriptionService.new
+			@subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config )
 
 			address_attributes = params.require( :subscription ).require( :billing_address_attributes ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
 			address = GeoAddress.create( address_attributes.merge( user: @subscription.user ) )
