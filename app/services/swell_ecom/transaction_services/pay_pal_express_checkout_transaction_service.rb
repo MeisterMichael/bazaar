@@ -51,6 +51,7 @@ module SwellEcom
 
 					elsif payment_amount != order.total
 
+						NewRelic::Agent.notice_error( Exception.new("PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}") ) if defined?( NewRelic )
 						puts "PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}" if @mode == 'sandbox'
 						order.errors.add(:base, :processing_error, message: "PayPal checkout amount does not match invoice.")
 
