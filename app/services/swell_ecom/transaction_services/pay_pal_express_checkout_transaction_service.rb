@@ -49,7 +49,7 @@ module SwellEcom
 						NewRelic::Agent.notice_error( Exception.new("PayPalExpressCheckout Payment Error: #{payment.error}") ) if defined?( NewRelic )
 						order.errors.add(:base, :processing_error, message: "Transaction declined.")
 
-					elsif ((order.total-1)..(order.total+1)).include?( payment_amount )
+					elsif not( ((order.total-1)..(order.total+1)).include?( payment_amount ) )
 
 						NewRelic::Agent.notice_error( Exception.new("PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}") ) if defined?( NewRelic )
 						puts "PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}" if @mode == 'sandbox'
