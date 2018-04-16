@@ -1,4 +1,7 @@
 
+== V2.6.4
+* Add a one penny variance when comparing the order total to the paypal payment amount
+
 == V2.1.11
 * Case insensitive discount code
 * Catch more active shipping response errors
