@@ -260,7 +260,7 @@ module SwellEcom
 			end
 
 			def update_subscription_payment_profile( subscription, args = {} )
-				payment_profile = request_payment_profile( subscription.user, subscription.billing_address, args[:credit_card], errors: subscription.errors )
+				payment_profile = request_payment_profile( subscription.user, subscription.billing_address, args[:credit_card], errors: subscription.errors, ip: subscription.order.ip )
 
 				return false unless payment_profile
 
@@ -287,7 +287,7 @@ module SwellEcom
 
 				if args[:credit_card].present?
 
-					payment_profile = request_payment_profile( order.user, order.billing_address, args[:credit_card], email: order.email, errors: order.errors )
+					payment_profile = request_payment_profile( order.user, order.billing_address, args[:credit_card], email: order.email, errors: order.errors, ip: order.ip )
 
 					return payment_profile if payment_profile && order.nested_errors.blank?
 
@@ -305,6 +305,9 @@ module SwellEcom
 			def request_payment_profile( user, billing_address, credit_card, args={} )
 				anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 				errors = args[:errors]
+
+				ip_address = args[:ip] if args[:ip].present?
+				ip_address ||= user.try(:ip) if user.try(:ip).present?
 
 				billing_address_state = billing_address.state
 				billing_address_state = billing_address.geo_state.try(:abbrev) if billing_address_state.blank?
@@ -362,7 +365,7 @@ module SwellEcom
 					:phone			=> billing_address.phone,
 					:address		=> anet_billing_address,
 					:description	=> "#{anet_billing_address.first_name} #{anet_billing_address.last_name}",
-					:ip				=> args[:ip] || ( user.try(:ip).blank? ? nil : user.try(:ip) ),
+					:ip				=> ip_address,
 				)
 				anet_customer_profile.payment_profiles = anet_payment_profile
 
