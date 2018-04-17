@@ -108,8 +108,19 @@ module SwellEcom
 
 					order.payment_status = 'declined'
 
-					transaction = false
-					transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: @provider_name, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
+					transaction = Transaction.new(
+						transaction_type: 'charge',
+						reference_code: direct_response.try(:transaction_id),
+						customer_profile_reference: profiles[:customer_profile_reference],
+						customer_payment_profile_reference: profiles[:customer_payment_profile_reference],
+						provider: @provider_name,
+						amount: order.total,
+						currency: order.currency,
+						status: 'declined',
+						message: response.message_text,
+					)
+					transaction.parent_obj ||= order.user if order.user.persisted?
+					transaction.save
 
 					if WHITELISTED_ERROR_MESSAGES.include? response.message_text
 						order.errors.add(:base, :processing_error, message: response.message_text )

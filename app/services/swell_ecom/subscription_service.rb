@@ -161,7 +161,7 @@ module SwellEcom
 
 				if transaction.present? && transaction.persisted?
 
-					transaction.parent_obj ||= subscription
+					transaction.parent_obj = subscription
 					transaction.save
 
 				else
