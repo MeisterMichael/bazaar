@@ -95,12 +95,34 @@ module SwellEcom
 
 			if @order_item.save
 				@order_service.calculate( @order_item.order )
-				set_flash "Item Updated", :success
-			else
-				set_flash @order_item.errors.full_messages, :danger
-			end
 
-			redirect_back fallback_location: '/admin'
+				respond_to do |format|
+					format.js {
+						render :update
+					}
+					format.json {
+						render :update
+					}
+					format.html {
+						set_flash "Item Updated", :success
+						redirect_back fallback_location: '/admin'
+					}
+				end
+			else
+
+				respond_to do |format|
+					format.js {
+						render :update
+					}
+					format.json {
+						render :update
+					}
+					format.html {
+						set_flash @order_item.errors.full_messages, :danger
+						redirect_back fallback_location: '/admin'
+					}
+				end
+			end
 
 		end
 
