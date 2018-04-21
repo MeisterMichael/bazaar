@@ -1,53 +1,103 @@
 module SwellEcom
 	class OrderItemAdminController < SwellEcom::EcomAdminController
 		before_action :get_order
+		before_action :init_order_service
 
 
 		def create
 
-			order_item = SwellEcom::OrderItem.new( order_item_params )
-			authorize( order_item.order, :admin_update? )
+			@order_item = SwellEcom::OrderItem.new( order_item_params )
+			authorize( @order_item.order, :admin_update? )
+			@order_item.title = @order_item.item.title	if @order_item.title.blank?
+			@order_item.price = @order_item.item.price	if order_item_params[:price].blank?
+			@order_item.quantity	= 1										if order_item_params[:quanity].blank?
+			@order_item.subtotal	= @order_item.price * @order_item.quantity if @order_item.prod?
 
-			order_item.quantity	||= 1
-			order_item.subtotal	= order_item.price * order_item.quantity if order_item.prod?
+			if @order_item.save
+				@order_service.calculate( @order_item.order )
 
-			if order_item.save
-				set_flash "Item Added", :success
+				respond_to do |format|
+					format.js {
+						render :create
+					}
+					format.json {
+						render :create
+					}
+					format.html {
+						set_flash "Item Added", :success
+						redirect_back fallback_location: '/admin'
+					}
+				end
 			else
-				set_flash order_item.errors.full_messages, :danger
+				respond_to do |format|
+					format.js {
+						render :create
+					}
+					format.json {
+						render :create
+					}
+					format.html {
+						set_flash @order_item.errors.full_messages, :danger
+						redirect_back fallback_location: '/admin'
+					}
+				end
 			end
-
-			redirect_back fallback_location: '/admin'
 
 		end
 
 		def destroy
 
-			order_item = SwellEcom::OrderItem.find( params[:id] )
-			authorize( order_item.order, :admin_update? )
+			@order_item = SwellEcom::OrderItem.find( params[:id] )
+			authorize( @order_item.order, :admin_update? )
 
-			if order_item.destroy
-				set_flash "Item Deleted", :success
+			if @order_item.destroy
+				@order_service.calculate( @order_item.order )
+
+				respond_to do |format|
+					format.js {
+						render :destroy
+					}
+					format.json {
+						render :destroy
+					}
+					format.html {
+						set_flash "Item Deleted", :success
+						redirect_back fallback_location: '/admin'
+					}
+				end
+
 			else
-				set_flash order_item.errors.full_messages, :danger
-			end
 
-			redirect_back fallback_location: '/admin'
+				respond_to do |format|
+					format.js {
+						render :destroy
+					}
+					format.json {
+						render :destroy
+					}
+					format.html {
+						set_flash @order_item.errors.full_messages, :danger
+						redirect_back fallback_location: '/admin'
+					}
+				end
+
+			end
 
 		end
 
 		def update
 
-			order_item = SwellEcom::OrderItem.find( params[:id] )
-			authorize( order_item.order, :admin_update? )
+			@order_item = SwellEcom::OrderItem.find( params[:id] )
+			authorize( @order_item.order, :admin_update? )
 
-			order_item.attributes = order_item_params
-			order_item.subtotal	= order_item.price * order_item.quantity if order_item.prod?
+			@order_item.attributes = order_item_params
+			@order_item.subtotal	= @order_item.price * @order_item.quantity if @order_item.prod?
 
-			if order_item.save
+			if @order_item.save
+				@order_service.calculate( @order_item.order )
 				set_flash "Item Updated", :success
 			else
-				set_flash order_item.errors.full_messages, :danger
+				set_flash @order_item.errors.full_messages, :danger
 			end
 
 			redirect_back fallback_location: '/admin'
@@ -55,6 +105,10 @@ module SwellEcom
 		end
 
 		private
+
+			def init_order_service
+				@order_service = SwellEcom::OrderService.new
+			end
 
 			def get_order
 				@order = Order.find_by( id: params[:order_id] )
@@ -68,8 +122,10 @@ module SwellEcom
 					:quantity,
 					:price,
 					:price_as_money,
+					:price_as_money_string,
 					:subtotal,
 					:subtotal_as_money,
+					:subtotal_as_money_string,
 					:order_item_type,
 					:title,
 					:tax_code,

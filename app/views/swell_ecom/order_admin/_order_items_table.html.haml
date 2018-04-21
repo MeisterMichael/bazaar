@@ -1,0 +1,63 @@
+%table.table.table-light.table-bordered{ style: 'margin: 0' }
+  %thead
+    %tr
+      %th Product
+      %th{ style: 'width: 80px' } Price
+      %th.text-right{ style: 'width: 70px' } Quantity
+      %th.text-right{ style: 'width: 100px' } Subtotal
+  %tbody#order_items
+    - order.order_items.prod.each do |order_item|
+      = render 'swell_ecom/order_item_admin/edit_row', f: f, order_item: order_item, args: {}
+  %tbody
+    %tr
+      %td{ colspan: 4 }
+        %a{ href: '#', data: { toggle: :modal, target: '#new_order_item_modal' } } add item
+
+    %tr
+      %td
+      %td
+      %td
+        Subtotal
+      %td.text-right
+        %strong
+          = number_to_currency order.subtotal.to_f / 100
+
+    %tr
+      %td
+      %td
+      %td
+        Discount
+        - order.order_items.discount.each do |order_item|
+          - if ( order_item.item.code || order_item.item.title ).present?
+            %div
+              %a{ href: swell_ecom.edit_discount_admin_path( order_item.item ) }=( order_item.item.code || order_item.item.title )
+
+      %td.text-right
+        %strong
+          = order.discount_formatted
+
+    %tr
+      %td
+      %td
+      %td
+        Tax
+      %td.text-right
+        %strong
+          = number_to_currency order.tax.to_f / 100
+    %tr
+      %td
+      %td
+      %td
+        Shipping
+      %td.text-right
+        %strong
+          = number_to_currency order.shipping.to_f / 100
+    %tr
+      %td
+      %td
+      %td
+        %h5{ style: 'font-weight:bold;' }
+          Total
+      %td.text-right
+        %h5{ style: 'font-weight:bold;' }
+          = number_to_currency ( order.total || 0 ).to_f / 100

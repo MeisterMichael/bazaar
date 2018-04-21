@@ -15,159 +15,77 @@
 
 		.col-xs-2
 
-
-	.row
-		.col-xs-12.col-sm-8
-			.well.white-well
-
-				.pull-right
-					%a{ href: '#', data: { toggle: :modal, target: '#edit_status_modal' } } Edit
-				%h4
-					Order Details
-					%small
-
-						.badge.order_status{ class: @order.status }
-							- if @order.pre_order? || @order.draft?
-								%i.fa.fa-circle-o
-							=@order.status.gsub(/_/,' ')
-						.badge.order_payment_status{ class: @order.payment_status }
-							- if @order.invoice? || @order.payment_method_captured?
-								%i.fa.fa-circle-o
-							=@order.payment_status.gsub(/_/,' ')
-						.badge.order_fulfillment_status{ class: @order.fulfillment_status }
-							- if @order.unfulfilled?
-								%i.fa.fa-circle-o
-							=@order.fulfillment_status.gsub(/_/,' ')
-
-				%table.table.table-light.table-bordered{ style: 'margin: 0' }
-					%thead
-						%tr
-							%th Product
-							%th{ style: 'width: 80px' } Price
-							%th.text-right{ style: 'width: 70px' } Quantity
-							%th.text-right{ style: 'width: 100px' } Subtotal
-					%tbody
-						- @order.order_items.prod.each do |order_item|
-							%tr
-								%td
-									- if ( subscription = order_item.subscription ).present? || ( subscription = order_item.item ).is_a?( SwellEcom::Subscription )
-										- if policy(subscription).admin_edit?
-											%a{ href: edit_subscription_admin_path( subscription ) }
-												= order_item.title
-												(#{subscription.code})
-										- else
-											= order_item.title
-											(#{subscription.code})
-									- else
-										= order_item.title
-
-								%td
-									= number_to_currency (order_item.price.to_f / 100)
-								%td.text-right
-									=order_item.quantity
-								%td.text-right= number_to_currency order_item.subtotal.to_f / 100
-
-						%tr
-							%td
-							%td
-							%td
-								Subtotal
-							%td.text-right
-								%strong
-									= number_to_currency @order.subtotal.to_f / 100
-
-						%tr
-							%td
-							%td
-							%td
-								Discount
-								- @order.order_items.discount.each do |order_item|
-									- if ( order_item.item.code || order_item.item.title ).present?
-										%div
-											%a{ href: swell_ecom.edit_discount_admin_path( order_item.item ) }=( order_item.item.code || order_item.item.title )
-
-							%td.text-right
-								%strong
-									= @order.discount_formatted
-
-						%tr
-							%td
-							%td
-							%td
-								Tax
-							%td.text-right
-								%strong
-									= number_to_currency @order.tax.to_f / 100
-						%tr
-							%td
-							%td
-							%td
-								Shipping
-							%td.text-right
-								%strong
-									= number_to_currency @order.shipping.to_f / 100
-						%tr
-							%td
-							%td
-							%td
-								%h5{ style: 'font-weight:bold;' }
-									Total
-							%td.text-right
-								%h5{ style: 'font-weight:bold;' }
-									= number_to_currency ( @order.total || 0 ).to_f / 100
-
-				.row
-					.col-xs-12.col-md-6.col-lg-8
-						%h4
-							Customer Notes
-						.well
-							= raw @order.customer_notes || 'N/A'
-
-			.well.white-well
-				- if policy(@order).admin_update?
-					.pull-right
-						%a{ href: '#', data: { toggle: :modal, target: '#edit_support_notes_order' } }
-							Edit
-				%h4
-					Support Notes
-				=@order.support_notes || 'N/A'
-
-		.col-xs-12.col-sm-4
-			- if @order.user.present?
+	= form_for @order, url: order_admin_index_path(@order), html: { class: 'form' } do |f|
+		.row
+			.col-xs-12.col-sm-8
 				.well.white-well
-					- if policy(@order.user).customer_admin_edit?
-						.pull-right
-							%a{ href: edit_customer_admin_path( @order.user ) }
-								Edit
-					%h5
-						Customer
-					- if policy(@order.user).customer_admin_edit?
-						%div
-							%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.full_name
-						%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.email
-					- else
-						%div= @order.user.full_name
-						= @order.user.email
 
-			.well.white-well
-				.pull-right
-					%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
-				%h5
-					Billing Address
-				= raw @order.billing_address.to_html
-
-
-			.well.white-well
-				- if policy(@order).admin_update? && not( @order.fulfilled? || @order.delivered? )
 					.pull-right
-						%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
-				%h5
-					Shipping Address
-				= raw @order.shipping_address.to_html
+						%a{ href: '#', data: { toggle: :modal, target: '#edit_status_modal' } } Edit
+					%h4
+						Order Details
+						%small
+
+							.badge.order_status{ class: @order.status }
+								- if @order.pre_order? || @order.draft?
+									%i.fa.fa-circle-o
+								=@order.status.gsub(/_/,' ')
+							.badge.order_payment_status{ class: @order.payment_status }
+								- if @order.invoice? || @order.payment_method_captured?
+									%i.fa.fa-circle-o
+								=@order.payment_status.gsub(/_/,' ')
+							.badge.order_fulfillment_status{ class: @order.fulfillment_status }
+								- if @order.unfulfilled?
+									%i.fa.fa-circle-o
+								=@order.fulfillment_status.gsub(/_/,' ')
+
+					#order_items_table
+						= render 'swell_ecom/order_admin/order_items_table', f: f, order: @order, args: {}
+				.well.white-well
+					%h4
+						Customer Notes
+					= f.text_area :customer_notes, class: 'form-control'
+
+				.well.white-well
+					%h4
+						Support Notes
+					= f.text_area :support_notes, class: 'form-control'
+
+			.col-xs-12.col-sm-4
+				- if @order.user.present?
+					.well.white-well
+						- if policy(@order.user).customer_admin_edit?
+							.pull-right
+								%a{ href: edit_customer_admin_path( @order.user ) }
+									Edit
+						%h5
+							Customer
+						- if policy(@order.user).customer_admin_edit?
+							%div
+								%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.full_name
+							%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.email
+						- else
+							%div= @order.user.full_name
+							= @order.user.email
+
+				.well.white-well
+					.pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
+					%h5
+						Billing Address
+					= raw @order.billing_address.to_html
 
 
+				.well.white-well
+					- if policy(@order).admin_update? && not( @order.fulfilled? || @order.delivered? )
+						.pull-right
+							%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
+					%h5
+						Shipping Address
+					= raw @order.shipping_address.to_html
+
+
+= render 'swell_ecom/order_item_admin/new_modal', order: @order, arg: {}
 = render 'swell_ecom/order_admin/edit_status_modal'
-= render 'swell_ecom/order_admin/refund_modal'
-= render 'swell_ecom/order_admin/support_notes_modal'
 = render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_address' }, countries: get_shipping_countries, states: get_shipping_states( @order.shipping_address.geo_country_id )
 = render 'swell_ecom/order_admin/edit_address_modal', args: { title: 'Billing Address', attribute: 'billing_address' }, countries: get_billing_countries, states: get_shipping_states( @order.billing_address.geo_country_id )

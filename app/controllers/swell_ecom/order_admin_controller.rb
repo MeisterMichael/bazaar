@@ -149,6 +149,9 @@ module SwellEcom
 			end
 
 			@order.save
+
+			@order.order_items.prod.where( quantity: 0 ).destroy_all
+
 			redirect_back fallback_location: '/admin'
 		end
 
@@ -179,8 +182,10 @@ module SwellEcom
 							:quantity,
 							:price,
 							:price_as_money,
+							:price_as_money_string,
 							:subtotal,
 							:subtotal_as_money,
+							:subtotal_as_money_string,
 							:order_item_type,
 							:title,
 							:tax_code,

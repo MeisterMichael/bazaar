@@ -34,6 +34,22 @@ module SwellEcom
 							end
 						end
 
+						define_method "#{money_attribute_name}_as_money_string" do
+							if self.try(money_attribute_name).nil?
+								nil
+							else
+								ActionController::Base.helpers.number_to_currency( self.try(money_attribute_name) / 100.0, unit: '' )
+							end
+						end
+
+						define_method "#{money_attribute_name}_as_money_string=" do |decimal_value|
+							if decimal_value.nil?
+								self.try("#{money_attribute_name}=", nil )
+							else
+								self.try("#{money_attribute_name}=", (decimal_value.to_f * 100.0).round )
+							end
+						end
+
 						define_method "#{money_attribute_name}_formatted" do
 							if self.try(money_attribute_name).nil?
 								nil
