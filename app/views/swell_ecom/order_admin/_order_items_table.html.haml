@@ -5,7 +5,7 @@
       %th{ style: 'width: 80px' } Price
       %th.text-right{ style: 'width: 70px' } Quantity
       %th.text-right{ style: 'width: 100px' } Subtotal
-  %tbody#order_items
+  %tbody#prod_order_items
     - order.order_items.prod.each do |order_item|
       = render 'swell_ecom/order_item_admin/edit_row', f: f, order_item: order_item, args: {}
   %tbody
@@ -19,9 +19,16 @@
       %td
         Subtotal
       %td.text-right
-        %strong
-          = number_to_currency order.subtotal.to_f / 100
+        %strong{ data: { for: 'order.subtotal_formatted' } }
+          = order.subtotal_formatted
 
+  %tbody#discount_order_items
+    - order.order_items.discount.each do |order_item|
+      = render 'swell_ecom/order_item_admin/edit_row', f: f, order_item: order_item, args: {}
+  %tbody
+    %tr
+      %td{ colspan: 4 }
+        %a{ href: '#', data: { toggle: :modal, target: '#new_discount_order_item_modal' } } add discount
     %tr
       %td
       %td
@@ -33,7 +40,7 @@
               %a{ href: swell_ecom.edit_discount_admin_path( order_item.item ) }=( order_item.item.code || order_item.item.title )
 
       %td.text-right
-        %strong
+        %strong{ data: { for: 'order.discount_formatted' } }
           = order.discount_formatted
 
     %tr
@@ -42,16 +49,16 @@
       %td
         Tax
       %td.text-right
-        %strong
-          = number_to_currency order.tax.to_f / 100
+        %strong{ data: { for: 'order.tax_formatted' } }
+          = order.tax_formatted
     %tr
       %td
       %td
       %td
         Shipping
       %td.text-right
-        %strong
-          = number_to_currency order.shipping.to_f / 100
+        %strong{ data: { for: 'order.shipping_formatted' } }
+          = order.shipping_formatted
     %tr
       %td
       %td
@@ -59,5 +66,5 @@
         %h5{ style: 'font-weight:bold;' }
           Total
       %td.text-right
-        %h5{ style: 'font-weight:bold;' }
-          = number_to_currency ( order.total || 0 ).to_f / 100
+        %h5{ style: 'font-weight:bold;', data: { for: 'order.total_formatted' } }
+          = order.total_formatted

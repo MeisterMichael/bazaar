@@ -152,7 +152,18 @@ module SwellEcom
 
 			@order.order_items.prod.where( quantity: 0 ).destroy_all
 
-			redirect_back fallback_location: '/admin'
+			respond_to do |format|
+				format.js {
+					render :update
+				}
+				format.json {
+					render :update
+				}
+				format.html {
+					set_flash "Order Updated", :success
+					redirect_back fallback_location: '/admin'
+				}
+			end
 		end
 
 		private

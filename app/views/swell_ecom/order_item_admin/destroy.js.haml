@@ -1,3 +1,1 @@
-$('#order_items_table').html('')
-- form_for @order_item.order, url: order_admin_index_path(@order_item.order), html: { class: 'form' } do |f|
-  $('#order_items_table').append("#{j render(partial: 'swell_ecom/order_admin/order_items_table.html', locals: { f: f, order: @order_item.order, args: {} }, layout: false)}")
+$('#order_items_table tr#order_item_#{@order_item.id}_edit_row').remove()
