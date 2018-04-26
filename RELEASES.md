@@ -1,4 +1,7 @@
 
+== V2.6.5
+* Add usage stats to discount edit view
+
 == V2.6.4
 * Add a one penny variance when comparing the order total to the paypal payment amount
 
