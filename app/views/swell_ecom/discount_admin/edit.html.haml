@@ -116,6 +116,15 @@
 						= f.collection_select :status, SwellEcom::Discount.statuses, :first, :first, {}, class: 'form-control'
 
 					%hr
+					
+					%h4
+						Stats
+
+					.form-group
+						.pull-right=SwellEcom::OrderItem.where( item: @discount ).count
+						%label # Uses
+
+					%hr
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
