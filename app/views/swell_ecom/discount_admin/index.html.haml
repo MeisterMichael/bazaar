@@ -47,6 +47,7 @@
 							%i.fa.fa-arrow-down
 					%th
 						Amount
+					%th # Uses
 					%th Status
 					%th{ style: 'width: 6em' }
 				%tbody
@@ -74,6 +75,8 @@
 										#{discount.first_discount_item.discount_amount}%
 									- else
 										#{discount.first_discount_item.discount_amount_formatted}
+							%td
+								=SwellEcom::OrderItem.where( item: discount ).count
 							%td
 								.badge{ class: discount.status }
 									= discount.status

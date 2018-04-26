@@ -1,4 +1,7 @@
 
+== V2.6.6
+* Add usage stats to discount index view table
+
 == V2.6.5
 * Add usage stats to discount edit view
 
