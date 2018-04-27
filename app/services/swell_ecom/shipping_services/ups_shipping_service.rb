@@ -24,6 +24,10 @@ module SwellEcom
 
 				@server = UPS::Connection.new(test_mode: @test_mode)
 
+				@units = (args[:units] || 'LBS').upcase # KGS || LBS
+				@unit_conversion = 1.0
+				@unit_conversion = 2.20462 if @units == 'LBS' # KGS to LBS
+
 			end
 
 			def fetch_delivery_status_for_code( code, args = {} )
@@ -75,7 +79,7 @@ module SwellEcom
 							package_weight_kgs = (line_item.package_weight * 0.001)
 
 							# rate_builder.add_package weight: package_weight_kgs.to_s, unit: 'KGS'
-							rate_builder.add_package weight: (package_weight_kgs * 2.20462).to_s, unit: 'LBS'
+							rate_builder.add_package weight: (package_weight_kgs * @unit_conversion).to_s, unit: @units
 						end
 					end
 
