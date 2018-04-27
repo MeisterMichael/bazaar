@@ -1,4 +1,7 @@
 
+== V2.6.7
+* add cached_uses to discounts
+
 == V2.6.6
 * Add usage stats to discount index view table
 
