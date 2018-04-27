@@ -1,4 +1,4 @@
-require 'paypal-sdk-rest'
+# require 'paypal-sdk-rest'
 
 module SwellEcom
 
@@ -9,6 +9,8 @@ module SwellEcom
 			PROVIDER_NAME = 'PayPalExpressCheckout'
 
 			def initialize( args = {} )
+				raise Exception.new('add "gem \'paypal-sdk-rest\'" to your Gemfile') unless defined?( PayPal::SDK )
+
 				@client_id		= args[:client_id] || ENV['PAYPAL_EXPRESS_CHECKOUT_CLIENT_ID']
 				@client_secret	= args[:client_secret] || ENV['PAYPAL_EXPRESS_CHECKOUT_CLIENT_SECRET']
 				@mode			= args[:mode] || ENV['PAYPAL_EXPRESS_CHECKOUT_MODE'] || 'sandbox' # or 'live'

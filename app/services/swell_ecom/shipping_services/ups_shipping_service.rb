@@ -12,6 +12,8 @@ module SwellEcom
 
 				super( args )
 
+				raise Exception.new('add "gem \'ups\'" to your Gemfile') unless defined?( UPS::Connection )
+
 				@ship_from	= args[:ship_from] || args[:shipper]
 				@shipper	= args[:shipper]
 

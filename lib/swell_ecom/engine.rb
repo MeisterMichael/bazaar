@@ -1,6 +1,6 @@
 
-require 'stripe'
-require 'tax_cloud'
+# require 'stripe'
+# require 'tax_cloud'
 
 module SwellEcom
 

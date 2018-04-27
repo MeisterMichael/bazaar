@@ -1,4 +1,4 @@
-require 'taxjar'
+# require 'taxjar'
 
 module SwellEcom
 
@@ -7,6 +7,8 @@ module SwellEcom
 		class TaxJarTaxService
 
 			def initialize( args = {} )
+				raise Exception.new('add "gem \'taxjar-ruby\'" to your Gemfile and "require \'taxjar\'" at the top of config/initializers/swell_ecom.rb') unless defined?( Taxjar )
+
 				@environment = args[:environment].to_sym if args[:environment].present?
 				@environment ||= :production if Rails.env.production?
 				@environment ||= :development
@@ -112,7 +114,7 @@ module SwellEcom
 				begin
 					tax_for_order = @client.tax_for_order( order_info )
 				rescue Taxjar::Error::NotFound => ex
-					
+
 					NewRelic::Agent.notice_error(ex) if defined?( NewRelic )
 					puts ex
 					order.billing_address.errors.add :base, :invalid, message: "address is invalid"
