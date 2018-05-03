@@ -15,10 +15,15 @@ module SwellEcom
 				session[:cart_id] = @cart.id
 			end
 
+			@cart.email = params[:email]
+			@cart.first_name = params[:first_name]
+
 			if params[:reset_cart].present?
 				@cart.cart_items.destroy_all
 				session[:cart_count] = 0
 			end
+
+			params[:quantity] ||= 1
 
 			line_item = @cart.cart_items.where( item_type: @item.class.name, item_id: @item.id ).last
 			if line_item.present?
