@@ -5,6 +5,7 @@ module SwellEcom
 		class StripeTransactionService < SwellEcom::TransactionService
 
 			def initialize( args = {} )
+				raise Exception.new('add "gem \'stripe\'" to your Gemfile') unless defined?( Stripe )
 				@provider_name = args[:provider_name] || 'Stripe'
 			end
 

@@ -1,4 +1,4 @@
-require 'authorizenet'
+# require 'authorizenet'
 require 'credit_card_validations'
 
 module SwellEcom
@@ -16,6 +16,8 @@ module SwellEcom
 			WHITELISTED_ERROR_MESSAGES = [ 'The credit card has expired' ]
 
 			def initialize( args = {} )
+				raise Exception.new('add "gem \'authorizenet\'" to your Gemfile') unless defined?( AuthorizeNet )
+
 				@api_login	= args[:API_LOGIN_ID] || ENV['AUTHORIZE_DOT_NET_API_LOGIN_ID']
 				@api_key	= args[:TRANSACTION_API_KEY] || ENV['AUTHORIZE_DOT_NET_TRANSACTION_API_KEY']
 				@gateway	= ( args[:GATEWAY] || ENV['AUTHORIZE_DOT_NET_GATEWAY'] || :sandbox ).to_sym

@@ -20,16 +20,16 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'jbuilder'
   s.add_dependency "swell_media"
-  s.add_dependency 'tax_cloud'
-  s.add_dependency 'stripe' #, :git => 'https://github.com/stripe/stripe-ruby'
+  # s.add_dependency 'tax_cloud'
+  # s.add_dependency 'stripe' #, :git => 'https://github.com/stripe/stripe-ruby'
   s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'rails-controller-testing'
   s.add_development_dependency 'capybara'
   s.add_development_dependency 'factory_bot_rails'
-  s.add_development_dependency 'taxjar-ruby'
-  s.add_dependency 'authorizenet'
+  # s.add_development_dependency 'taxjar-ruby'
+  # s.add_dependency 'authorizenet'
   s.add_dependency 'rest-client'
   s.add_dependency 'credit_card_validations'
-  s.add_dependency 'paypal-sdk-rest'
+  # s.add_dependency 'paypal-sdk-rest'
   s.add_development_dependency "sqlite3"
 end

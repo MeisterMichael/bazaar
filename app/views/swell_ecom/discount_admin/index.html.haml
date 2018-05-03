@@ -49,6 +49,12 @@
 						Amount
 					%th
 						Redemptions
+
+						%a{ href: discount_admin_index_path( sort_by: 'cached_uses', sort_dir: 'asc', q: params[:q], status: params[:status] ) }
+							%i.fa.fa-arrow-up
+						%a{ href: discount_admin_index_path( sort_by: 'cached_uses', sort_dir: 'desc', q: params[:q], status: params[:status] ) }
+							%i.fa.fa-arrow-down
+
 					%th Status
 					%th{ style: 'width: 6em' }
 				%tbody
@@ -77,7 +83,11 @@
 									- else
 										#{discount.first_discount_item.discount_amount_formatted}
 							%td
+<<<<<<< HEAD
 								= SwellEcom::OrderItem.where( item: discount ).count
+=======
+								=discount.cached_uses
+>>>>>>> a48d477c468735f1db70fbb51dc405c75205f464
 							%td
 								.badge{ class: discount.status }
 									= discount.status
