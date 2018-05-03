@@ -15,8 +15,8 @@ module SwellEcom
 				session[:cart_id] = @cart.id
 			end
 
-			@cart.email = params[:email]
-			@cart.first_name = params[:first_name]
+			@cart.email = params[:email] if params[:email].present?
+			@cart.first_name = params[:first_name] if params[:first_name].present?
 
 			if params[:reset_cart].present?
 				@cart.cart_items.destroy_all
