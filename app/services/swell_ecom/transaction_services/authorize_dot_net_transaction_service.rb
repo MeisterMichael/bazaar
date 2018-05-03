@@ -121,6 +121,7 @@ module SwellEcom
 						status: 'declined',
 						message: response.message_text,
 					)
+					transaction.parent_obj ||= args[:default_parent_obj]
 					transaction.parent_obj ||= order.user if order.user.persisted?
 					transaction.save
 

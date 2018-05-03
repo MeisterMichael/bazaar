@@ -71,7 +71,7 @@ module SwellEcom
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			@order_service.process( @order,
-				transaction: transaction_options,
+				transaction: transaction_options.merge( default_parent_obj: @cart ),
 				shipping: shipping_options,
 				discount: discount_options,
 			)
@@ -111,6 +111,11 @@ module SwellEcom
 				update_order_user_address( @order )
 
 				@cart.update( order_id: @order.id, status: 'success' )
+
+				# transfer declined transactions from cart to order
+				# SwellEcom::Transaction.where( parent_obj: @cart ).each do |transaction|
+				# 	transaction.update( parent_obj: @order )
+				# end
 
 				OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now

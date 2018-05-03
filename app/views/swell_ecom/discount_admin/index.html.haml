@@ -83,11 +83,7 @@
 									- else
 										#{discount.first_discount_item.discount_amount_formatted}
 							%td
-<<<<<<< HEAD
-								= SwellEcom::OrderItem.where( item: discount ).count
-=======
 								=discount.cached_uses
->>>>>>> a48d477c468735f1db70fbb51dc405c75205f464
 							%td
 								.badge{ class: discount.status }
 									= discount.status
