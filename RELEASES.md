@@ -1,4 +1,10 @@
 
+== V2.7.0
+* Send Order.ip address to authorize.net
+* Attach failed transactions to users
+* Set email and first name on cart_item post
+* Quantity or equals one on cart_item post
+
 == V2.6.7
 * add cached_uses to discounts
 

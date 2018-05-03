@@ -199,6 +199,7 @@ namespace :swell_ecom do
 		SwellEcom::GeoCountry.create :abbrev => "SM", :name => "San Marino"
 		SwellEcom::GeoCountry.create :abbrev => "SA", :name => "Saudi Arabia"
 		SwellEcom::GeoCountry.create :abbrev => "SN", :name => "Senegal"
+		SwellEcom::GeoCountry.create :abbrev => "RS", :name => "Serbia"
 		SwellEcom::GeoCountry.create :abbrev => "SC", :name => "Seychelles"
 		SwellEcom::GeoCountry.create :abbrev => "SL", :name => "Sierra Leone"
 		SwellEcom::GeoCountry.create :abbrev => "SG", :name => "Singapore"

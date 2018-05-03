@@ -149,7 +149,21 @@ module SwellEcom
 			end
 
 			@order.save
-			redirect_back fallback_location: '/admin'
+
+			@order.order_items.prod.where( quantity: 0 ).destroy_all
+
+			respond_to do |format|
+				format.js {
+					render :update
+				}
+				format.json {
+					render :update
+				}
+				format.html {
+					set_flash "Order Updated", :success
+					redirect_back fallback_location: '/admin'
+				}
+			end
 		end
 
 		private
@@ -179,8 +193,10 @@ module SwellEcom
 							:quantity,
 							:price,
 							:price_as_money,
+							:price_as_money_string,
 							:subtotal,
 							:subtotal_as_money,
+							:subtotal_as_money_string,
 							:order_item_type,
 							:title,
 							:tax_code,

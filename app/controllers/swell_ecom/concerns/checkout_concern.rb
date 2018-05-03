@@ -86,7 +86,7 @@ module SwellEcom
 
 			def initialize_services
 				@order_service = SwellEcom::OrderService.new
-				@subscription_service = SwellEcom::SubscriptionService.new( order_service: @order_service )
+				@subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( order_service: @order_service ) )
 			end
 
 			def discount_options_params

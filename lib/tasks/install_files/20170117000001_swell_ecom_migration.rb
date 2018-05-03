@@ -13,7 +13,6 @@ class SwellEcomMigration < ActiveRecord::Migration[5.1]
 			t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
-		add_index :carts, :user_id
 
 		create_table :cart_items do |t|
 			t.references 	:cart
@@ -24,8 +23,6 @@ class SwellEcomMigration < ActiveRecord::Migration[5.1]
 			t.hstore		:properties, 	default: {}
 			t.timestamps
 		end
-		add_index :cart_items, :cart_id
-		add_index :cart_items, [ :item_id, :item_type ]
 
 		create_table :geo_addresses do |t|
 			t.references	:user
@@ -45,7 +42,6 @@ class SwellEcomMigration < ActiveRecord::Migration[5.1]
 			t.boolean		:preferred, :default => false
 			t.timestamps
 		end
-		add_index :geo_addresses, :user_id
 		add_index :geo_addresses, [ :geo_country_id, :geo_state_id ]
 
 		create_table :geo_countries do |t|
@@ -61,7 +57,6 @@ class SwellEcomMigration < ActiveRecord::Migration[5.1]
 			t.string		:country
 			t.timestamps
 		end
-		add_index :geo_states, :geo_country_id
 
 		create_table :orders do |t|
 			t.references 	:user
@@ -132,7 +127,6 @@ class SwellEcomMigration < ActiveRecord::Migration[5.1]
 			t.string   :tax_code,        default: "00000"
 		end
 		add_index :products, :tags, using: 'gin'
-		add_index :products, :category_id
 		add_index :products, :slug, unique: true
 		add_index :products, :status
 		add_index :products, :seq
@@ -154,7 +148,6 @@ class SwellEcomMigration < ActiveRecord::Migration[5.1]
 			t.datetime 		:publish_at
 			t.timestamps
 		end
-		add_index :product_variants, :product_id
 		add_index :product_variants, :seq
 		add_index :product_variants, :slug, unique: true
 		add_index :product_variants, [ :option_name, :option_value ]
@@ -173,7 +166,6 @@ class SwellEcomMigration < ActiveRecord::Migration[5.1]
 			t.hstore 		:properties, default: {}
 			t.timestamps
 		end
-		add_index :transactions, [ :parent_obj_id, :parent_obj_type ]
 		add_index :transactions, :reference_code
 
 	end

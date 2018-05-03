@@ -47,7 +47,7 @@ module SwellEcom
 
 				end
 
-				@subscription_service = SubscriptionService.new
+				@subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config )
 
 				if @subscription_service.update_payment_profile( @subscription, transaction_options )
 

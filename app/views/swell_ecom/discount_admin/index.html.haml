@@ -48,11 +48,13 @@
 					%th
 						Amount
 					%th
-						\# Uses
+						Redemptions
+
 						%a{ href: discount_admin_index_path( sort_by: 'cached_uses', sort_dir: 'asc', q: params[:q], status: params[:status] ) }
 							%i.fa.fa-arrow-up
 						%a{ href: discount_admin_index_path( sort_by: 'cached_uses', sort_dir: 'desc', q: params[:q], status: params[:status] ) }
 							%i.fa.fa-arrow-down
+
 					%th Status
 					%th{ style: 'width: 6em' }
 				%tbody
