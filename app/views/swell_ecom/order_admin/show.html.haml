@@ -184,11 +184,11 @@
 										%td.text-right{ style: 'width: 100px' }
 											%h5{ style: 'font-weight:bold;' }
 												= number_to_currency ( @transactions.approved.positive.to_a.sum(&:signed_amount) / 100.0 )
-							- if policy( @order ).admin_refund?
-								.text-center
-									%a.btn.btn-success{ data: { toggle: :modal, target: '#refund_order' } }
-										%i.fa.fa-plus-square
-										Refund
+						- if policy( @order ).admin_refund? && @transactions.approved.to_a.sum(&:signed_amount) > 0
+							.text-center
+								%a.btn.btn-success{ data: { toggle: :modal, target: '#refund_order' } }
+									%i.fa.fa-plus-square
+									Refund
 			.well.white-well
 				- if policy(@order).admin_update?
 					.pull-right
