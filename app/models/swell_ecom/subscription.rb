@@ -25,6 +25,7 @@ module SwellEcom
 		validates	:price, presence: true, allow_blank: false
 		validates	:trial_amount, presence: true, allow_blank: false
 		validates	:trial_price, presence: true, allow_blank: false
+		validates_numericality_of :quantity, greater_than_or_equal_to: 1
 		validates_numericality_of :amount, greater_than_or_equal_to: 0
 		validates_numericality_of :price, greater_than_or_equal_to: 0
 		validates_numericality_of :trial_amount, greater_than_or_equal_to: 0

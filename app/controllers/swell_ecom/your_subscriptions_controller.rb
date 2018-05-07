@@ -66,6 +66,11 @@ module SwellEcom
 			else
 
 				@subscription.attributes = subscription_attributes
+
+				# recalculate amounts on change
+				@subscription.amount				= @subscription.price * @subscription.quantity
+				@subscription.trial_amount	= @subscription.trial_price * @subscription.quantity
+
 				@subscription.save
 
 			end
@@ -110,6 +115,7 @@ module SwellEcom
 				:next_charged_at,
 				:billing_interval_unit,
 				:billing_interval_value,
+				:quantity,
 				{
 					:shipping_address_attributes => [
 						:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
