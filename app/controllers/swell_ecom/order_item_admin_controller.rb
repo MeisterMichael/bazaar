@@ -8,10 +8,13 @@ module SwellEcom
 
 			@order_item = SwellEcom::OrderItem.new( order_item_params )
 			authorize( @order_item.order, :admin_update? )
-			@order_item.title = @order_item.item.title	if @order_item.title.blank?
-			@order_item.price = @order_item.item.price	if order_item_params[:price].blank?
-			@order_item.quantity	= 1										if order_item_params[:quanity].blank?
-			@order_item.subtotal	= @order_item.price * @order_item.quantity if @order_item.prod?
+			@order_item.title = @order_item.item.title					if @order_item.title.blank?
+			@order_item.price = @order_item.item.purchase_price	if order_item_params[:price].blank?
+			@order_item.quantity	= 1														if order_item_params[:quanity].blank?
+
+			if @order_item.prod?
+				@order_item.subtotal	= @order_item.price * @order_item.quantity
+			end
 
 			if @order_item.save
 				@order_service.calculate( @order_item.order )

@@ -14,7 +14,7 @@ module SwellEcom
 		belongs_to	:product
 		has_many	:subscription_plans, as: :item
 
-		money_attributes :price, :shipping_price
+		money_attributes :price, :shipping_price, :purchase_price
 		friendly_id :title, use: [ :slugged, :history ]
 
 
@@ -22,7 +22,9 @@ module SwellEcom
 			self.active
 		end
 
-
+		def purchase_price
+			self.price
+		end
 
 		def option_title( opts={} )
 			separator = opts[:separator] || ': '
