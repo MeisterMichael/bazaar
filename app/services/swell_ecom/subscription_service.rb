@@ -156,8 +156,16 @@ module SwellEcom
 			# process order
 			transaction = @order_service.process( order )
 
-			# handle response
-			if order.nested_errors.present? || !transaction || not( transaction.approved? )
+			# Transaction fails if transaction is false or not approved.
+			transaction_failed = !transaction || not( transaction.approved? )
+
+			# Processing fails if
+			# * the order has errors
+			# * the order was not paid AND the transactions failed (free orders will not return a transaction)
+			processing_failed = order.nested_errors.present?
+			processing_failed = true if not( order.paid? ) && transaction_failed
+
+			if processing_failed
 
 				if transaction.present? && transaction.persisted?
 
