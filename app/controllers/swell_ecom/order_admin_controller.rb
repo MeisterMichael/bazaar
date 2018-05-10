@@ -33,6 +33,8 @@ module SwellEcom
 
 		def create
 			@order = SwellEcom::Order.new( order_params )
+			@order.user = SwellMedia.registered_user_class.constantize.find_by( email: @order.email.downcase )
+			@order.user ||= SwellMedia.registered_user_class.constantize.create( email: @order.email.downcase, first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name )
 			@order.total ||= 0
 			@order.status = 'draft'
 
@@ -82,7 +84,15 @@ module SwellEcom
 		end
 
 		def new
-			@order = SwellEcom::Order.new order_params
+			if params[:order]
+				@order = SwellEcom::Order.new order_params
+			else
+				@order = SwellEcom::Order.new
+				@order.billing_address = SwellEcom::GeoAddress.new
+				@order.shipping_address = SwellEcom::GeoAddress.new
+			end
+			@order.total ||= 0
+			@order.status = 'draft'
 
 		end
 
@@ -203,6 +213,10 @@ module SwellEcom
 						],
 					}
 				).to_h
+
+				if order_attributes[:order_items_attributes]
+					order_attributes[:order_items_attributes] = order_attributes[:order_items_attributes].select{|order_item_attributes| order_item_attributes[:quantity].present? }
+				end
 
 				if order_attributes[:same_as_shipping] == '1' && order_attributes[:shipping_address_attributes].present?
 					order_attributes.delete(:same_as_shipping)

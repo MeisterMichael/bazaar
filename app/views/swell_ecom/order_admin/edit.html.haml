@@ -1,21 +1,28 @@
 
+= form_for @order, url: order_admin_index_path(@order), html: { class: 'form' } do |f|
+	.container-fluid
+		.row
+			.col-xs-12
+				%ul.breadcrumb
+					%li
+						%a{ href: order_admin_index_path }
+							%i.fa.fa-angle-left
+							Orders
 
-.container-fluid
-	.row
-		.col-xs-12
-			%ul.breadcrumb
-				%li
-					%a{ href: order_admin_index_path }
-						%i.fa.fa-angle-left
-						Orders
+				.pull-right
+					%a.btn.btn-primary{ href: checkout_admin_path( @order, order: { status: 'active' } ), data: { method: 'PUT' } }
+						%i.fa.fa-send
+						Process
 
-			%h2
-				%strong= @order.code
-				%small=current_user.to_local_tz(@order.created_at).to_s( :short )
+					= f.submit "Save", class: 'btn btn-primary'
 
-		.col-xs-2
+				%h2
+					%strong= @order.code
+					%small=current_user.to_local_tz(@order.created_at).to_s( :short )
 
-	= form_for @order, url: order_admin_index_path(@order), html: { class: 'form' } do |f|
+			.col-xs-2
+
+
 		.row
 			.col-xs-12.col-sm-8
 				.well.white-well
