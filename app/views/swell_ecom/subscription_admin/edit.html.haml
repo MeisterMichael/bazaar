@@ -47,6 +47,7 @@
 				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
 					%thead
 						%tr
+							%th{ style: 'width: 10em' } Date
 							%th{ style: 'width: 10em' } Type
 							%th{ style: 'width: 10em' } Status
 							%th{ style: 'width: 10em' } Gateway
@@ -56,6 +57,8 @@
 					%tbody
 						- @transactions.each do |transaction|
 							%tr
+								%td
+									=current_user.to_local_tz(transaction.created_at).to_s( :short )
 								%td
 									= transaction.transaction_type
 								%td
