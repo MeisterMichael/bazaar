@@ -1,6 +1,6 @@
 module SwellEcom
 
-	class SubscriptionService
+	class SubscriptionService < ::ApplicationService
 
 		def initialize( args = {} )
 
@@ -200,6 +200,8 @@ module SwellEcom
 
 			else
 				order.save
+
+				log_event( user: subscription.user, name: 'renewal', on: subscription, content: "auto renewed a subscription #{subscription.code}" )
 
 				# remove discount after use, if it is not for more than one order
 				subscription.discount = nil unless subscription.discount.try(:for_subscriptions?)
