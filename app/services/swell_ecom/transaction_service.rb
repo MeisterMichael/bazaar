@@ -1,6 +1,6 @@
 module SwellEcom
 
-	class TransactionService
+	class TransactionService < ::ApplicationService
 		# abstract
 
 		def calculate( obj, args = {} )
@@ -50,7 +50,7 @@ module SwellEcom
 		def calculate_order( order )
 
 			order.total = order.order_items.sum(&:subtotal)
-			
+
 		end
 
 	end

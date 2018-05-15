@@ -1,6 +1,6 @@
 module SwellEcom
 
-	class ShippingService
+	class ShippingService < ::ApplicationService
 
 		def initialize( args = {} )
 			@multiplier_adjustment = 1.00 + ( ( args[:percent_adjustment] || 0 ).to_f / 100.00 )

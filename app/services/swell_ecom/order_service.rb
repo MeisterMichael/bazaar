@@ -1,6 +1,6 @@
 module SwellEcom
 
-	class OrderService
+	class OrderService < ::ApplicationService
 		# abstract
 
 		def initialize( args = {} )
@@ -68,6 +68,9 @@ module SwellEcom
 				if transaction && transaction.approved?
 					order.status = 'active'
 					order.save
+					log_event( user: order.user, name: 'transaction_sxs', on: order, content: "transaction was approved for #{order.code}" )
+				elsif transaction.denied?
+					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied" )
 				end
 			end
 
