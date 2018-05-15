@@ -123,20 +123,7 @@ module SwellEcom
 				@expiration = 30.minutes.from_now.to_i
 				@thank_you_url = swell_ecom.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
 
-				if defined?( SwellAnalytics )
-					log_analytics_event(
-						'purchase',
-						event_category: 'swell_ecom',
-						country: client_ip_country,
-						ip: client_ip,
-						user_id: (current_user || @order.user).try(:id),
-						referrer_url: request.referrer,
-						page_url: request.original_url,
-						subject_id: @order.id,
-						subject_type: @order.class.base_class.name,
-						value: @order.total,
-					)
-				end
+				log_event( name: 'purchase', value: @order.total, on: @order )
 
 				respond_to do |format|
 					format.js {
@@ -191,21 +178,8 @@ module SwellEcom
 			);
 
 
-
-			if defined?( SwellAnalytics )
-				log_analytics_event(
-					'initiate_checkout',
-					event_category: 'swell_ecom',
-					country: client_ip_country,
-					ip: client_ip,
-					user_id: current_user.try(:id),
-					referrer_url: request.referrer,
-					page_url: request.original_url,
-					subject_id: @cart.id,
-					subject_type: @cart.class.base_class.name,
-					value: @cart.subtotal,
-				)
-			end
+			log_event( name: 'init_checkout', value: @cart.subtotal, on: @cart, content: "stared checkout process" )
+			log_event( on: @cart )
 
 			set_page_meta( title: "#{SwellMedia.app_name} - Checkout" )
 

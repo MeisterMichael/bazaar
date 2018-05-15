@@ -24,7 +24,7 @@ module SwellEcom
 				}
 			)
 
-			log_event
+			log_event( on: @cart )
 
 		end
 
@@ -44,8 +44,8 @@ module SwellEcom
 
 			end
 
-			log_event
-			
+			log_event( name: 'update_cart', value: @cart.subtotal, on: @cart, content: "updated cart quantities" )
+
 			redirect_back fallback_location: '/admin'
 		end
 

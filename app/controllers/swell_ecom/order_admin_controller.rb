@@ -38,6 +38,13 @@ module SwellEcom
 			@order.total ||= 0
 			@order.status = 'draft'
 
+			@order.order_items.select(&:prod?).each do |order_item|
+				order_item.title		||= order_item.item.title
+				order_item.price		= order_item.item.purchase_price
+				order_item.subtotal	= order_item.price * order_item.quantity
+				order_item.tax_code	= order_item.item.tax_code
+			end
+
 			if @order.save && @order.nested_errors.blank?
 				set_flash 'Success.'
 
@@ -215,7 +222,10 @@ module SwellEcom
 				).to_h
 
 				if order_attributes[:order_items_attributes]
-					order_attributes[:order_items_attributes] = order_attributes[:order_items_attributes].select{|order_item_attributes| order_item_attributes[:quantity].present? }
+					order_attributes[:order_items_attributes] = order_attributes[:order_items_attributes].select{|index, order_item_attributes| order_item_attributes[:quantity].present? }
+					order_attributes[:order_items_attributes].each do |index, order_item_attributes|
+						order_item_attributes[:order_item_type] = 'prod'
+					end
 				end
 
 				if order_attributes[:same_as_shipping] == '1' && order_attributes[:shipping_address_attributes].present?

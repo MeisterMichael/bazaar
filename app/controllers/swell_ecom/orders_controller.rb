@@ -24,6 +24,8 @@ module SwellEcom
 				}
 			)
 
+			log_event( on: @order )
+
 			@first_purchase_event = @order.properties['purchase_event_fired_at'].blank? || params[:force_purchase_event].present?
 
 			if @first_purchase_event
