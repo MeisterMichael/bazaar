@@ -132,6 +132,8 @@ module SwellEcom
 				# OrderMailer.refund( @transaction ).deliver_now # send emails on a cron
 				set_flash "Refund successful", :success
 
+				log_event( user: @order.user, name: 'refund', value: -@transaction.amount, on: @order, content: "refunded #{@transaction.amount_formatted} on order #{@order.code}" )
+
 			end
 
 			redirect_to swell_ecom.order_admin_path( @order )
