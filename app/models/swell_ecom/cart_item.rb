@@ -9,6 +9,7 @@ module SwellEcom
 		money_attributes :subtotal, :price
 
 
+		delegate :to_s, to: :item
 
 		def package_item
 			package_item = self.item
@@ -35,6 +36,8 @@ module SwellEcom
 		def package_height
 			package_item.package_height
 		end
+
+
 
 	end
 end

@@ -134,6 +134,10 @@ module SwellEcom
 			self.tags = tags_csv.split(/,\s*/)
 		end
 
+		def to_s
+			self.title
+		end
+
 		def trial?
 			self.trial_max_intervals > 0
 		end

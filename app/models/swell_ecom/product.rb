@@ -251,6 +251,10 @@ module SwellEcom
 			self.tags = tags_csv.split(/,\s*/)
 		end
 
+		def to_s
+			self.title
+		end
+
 		def as_indexed_json(options={})
 			{
 				id:					self.id,
