@@ -45,6 +45,8 @@ module SwellEcom
 
 					@subscription.update( billing_address: billing_address )
 
+					log_event( name: 'update_bill_addr', on: @subscription, content: "updated suscription #{@subscription.code} billing info" )
+
 				end
 
 				@subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config )
@@ -61,6 +63,9 @@ module SwellEcom
 						@subscription.save
 
 					end
+
+					log_event( name: 'update_payment', on: @subscription, content: "updated suscription #{@subscription.code} payment details" )
+
 				end
 
 			else
@@ -70,6 +75,20 @@ module SwellEcom
 				# recalculate amounts on change
 				@subscription.amount				= @subscription.price * @subscription.quantity
 				@subscription.trial_amount	= @subscription.trial_price * @subscription.quantity
+
+				if @subscription.status_changed?
+					if @subscription.active?
+						log_event( name: 'reactivate_sub', on: @subscription, content: "reactivated suscription #{@subscription.code}" )
+					else
+						log_event( name: 'cancel_sub', on: @subscription, content: "cancelled suscription #{@subscription.code}" )
+					end
+				else
+					log_event( name: 'update_sub', on: @subscription, content: "updated suscription #{@subscription.code}" )
+				end
+
+				log_event( name: 'update_bill_addr', on: @subscription, content: "updated suscription #{@subscription.code} billing info" ) if @subscription.billing_address.changed?
+				log_event( name: 'update_ship_addr', on: @subscription, content: "updated suscription #{@subscription.code} shipping info" ) if @subscription.shipping_address.changed?
+
 
 				@subscription.save
 
