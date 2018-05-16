@@ -63,6 +63,8 @@ module SwellEcom
 				puts e
 				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 			end
+
+			log_event( name: 'init_checkout', value: @cart.subtotal, on: @cart, content: "started checkout process", ttl: 10.minutes )
 		end
 
 		def create
@@ -123,7 +125,7 @@ module SwellEcom
 				@expiration = 30.minutes.from_now.to_i
 				@thank_you_url = swell_ecom.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
 
-				log_event( name: 'purchase', value: @order.total, on: @order )
+				log_event( name: 'purchase', value: @order.total, on: @order, content: "placed an order for $#{@order.total/100.to_f}." )
 
 				respond_to do |format|
 					format.js {
@@ -177,8 +179,6 @@ module SwellEcom
 				}
 			);
 
-
-			log_event( name: 'init_checkout', value: @cart.subtotal, on: @cart, content: "stared checkout process" )
 			log_event( on: @cart )
 
 			set_page_meta( title: "#{SwellMedia.app_name} - Checkout" )
