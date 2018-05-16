@@ -82,7 +82,7 @@ module SwellEcom
 		end
 
 		def to_s
-			self.title
+			"#{self.title} (#{self.code})"
 		end
 
 		def url

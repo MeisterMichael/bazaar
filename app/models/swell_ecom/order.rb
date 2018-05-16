@@ -55,6 +55,10 @@ module SwellEcom
 			all_errors
 		end
 
+		def to_s
+			"Order #{self.code}"
+		end
+
 		private
 
 		def generate_order_code
