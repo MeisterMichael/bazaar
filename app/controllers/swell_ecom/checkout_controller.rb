@@ -88,7 +88,7 @@ module SwellEcom
 			end
 
 
-			if @order.nested_errors.present?
+			if @order.nested_errors.present? || @order.declined?
 				respond_to do |format|
 					format.js {
 						render :create
