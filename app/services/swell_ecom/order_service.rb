@@ -71,8 +71,6 @@ module SwellEcom
 					log_event( user: order.user, name: 'transaction_sxs', on: order, content: "transaction was approved for #{order.total_formatted} on Order #{order.code}" )
 				elsif transaction && transaction.declined?
 					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}" )
-				else
-					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was rejected for #{order.total_formatted} on Order #{order.code}" )
 				end
 			end
 
