@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add Item
-			= form_for SwellEcom::OrderItem.new( order_item_type: 'prod', order: order ), url: order_item_admin_index_path( format: :js ), html: { class: 'form' }, remote: true do |f|
+			= form_for SwellEcom::OrderItem.new( order_item_type: 'prod', order: order ), url: order_item_admin_index_path(), html: { class: 'form' } do |f|
 				= f.hidden_field :order_id
 				= f.hidden_field :order_item_type
 				.modal-body
