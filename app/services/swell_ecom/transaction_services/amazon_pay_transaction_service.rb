@@ -21,7 +21,7 @@ module SwellEcom
         @access_key   = args[:access_key] || ENV['AMAZON_PAY_ACCESS_KEY']
         @secret_key   = args[:secret_key] || ENV['AMAZON_PAY_SECRET_KEY']
 
-        client_options = {}
+        @client_options = {}
         @client_options[:region] = args[:region] if args[:region]
         @client_options[:currency_code] = args[:currency_code] if args[:currency_code]
         @client_options[:sandbox] = true if @enable_debug
