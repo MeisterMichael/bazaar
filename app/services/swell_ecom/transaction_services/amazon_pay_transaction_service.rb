@@ -360,6 +360,36 @@ module SwellEcom
         return true
       end
 
+			def sign_parameters( parameters, options = {} )
+				options[:method] ||= 'POST'
+				options[:path] ||= '/'
+
+				query_parameters = []
+	      parameters.sort.map.each do |key,value|
+	        query_parameters += ["#{key}=#{CGI.escape(value).gsub('+','%20')}"]
+				end
+
+				str = "#{options[:method]}\n#{options[:host]}\n#{options[:path]}\n#{query_parameters.join('&')}"
+
+				sign_str( str, algorithm: options[:algorithm] )
+			end
+
+			def sign_str( str, options = {} )
+				algorithm = options[:algorithm] || "HmacSHA256"
+
+				if algorithm == 'HmacSHA1'
+					hash = 'sha1'
+				elsif algorithm == 'HmacSHA256'
+					hash = 'sha256'
+				else
+					raise "Non-supported signing method specified"
+				end
+
+				digest = OpenSSL::HMAC.digest(hash, @secret_key, str)
+
+				return Base64.strict_encode64(digest)
+			end
+
       def store_name( order, options = {} )
         @store_name
       end
