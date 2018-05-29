@@ -279,9 +279,9 @@ module SwellEcom
         transaction.amount = order.total
         transaction.reference_code = amazon_capture_id
 
-				trapnsaction.properties['amazon_order_reference_id'] = = args[:orderReferenceId]
-				trapnsaction.properties['amazon_capture_id'] = amazon_capture_id
-				trapnsaction.properties['amazon_authorization_id'] = amazon_authorization_id
+				transaction.properties['amazon_order_reference_id'] = args[:orderReferenceId]
+				transaction.properties['amazon_capture_id'] = amazon_capture_id
+				transaction.properties['amazon_authorization_id'] = amazon_authorization_id
 
         if response.success
           order.payment_status = 'paid'
@@ -296,6 +296,7 @@ module SwellEcom
 
           transaction.status = 'declined'
           transaction.message = response.get_element('ErrorResponse/Error','Message')
+					transaction.message = "Transaction Declined" if transaction.message.blank?
         end
 
         transaction.save
@@ -331,19 +332,19 @@ module SwellEcom
         client = get_client( transaction, args )
         res = client.refund( charge_transaction.reference_code, transaction.id, transaction.amount_as_money.to_s )
 
-				puts charge_transaction.id
-				puts res.to_xml
-				die()
 
         if res.success
 
           transaction.status = 'approved'
           transaction.parent_obj.update payment_status: 'refunded'
 
+					transaction.properties['amazon_refund_id'] = res.get_element('RefundResponse/RefundResult/RefundDetails','AmazonRefundId')
+					transaction.reference_code = transaction.properties['amazon_refund_id']
+
         else
 
           transaction.status = 'declined'
-          transaction.message = response.get_element('ErrorResponse/Error','Message')
+          transaction.message = res.get_element('ErrorResponse/Error','Message')
 
         end
 
