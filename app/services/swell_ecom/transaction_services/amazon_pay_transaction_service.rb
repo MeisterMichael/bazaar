@@ -15,7 +15,9 @@ module SwellEcom
         @store_name = args[:store_name]
 
         @provider_name  = args[:provider_name] || DEFAULT_PROVIDER_NAME
-				@enable_debug   = not( Rails.env.production? ) || ENV['AMAZON_PAY_DEBUG'] == '1' || @gateway == :sandbox
+				@sandbox_mode   = Rails.env.development?
+				@sandbox_mode   = (ENV['AMAZON_PAY_SANDBOX'] == '1') unless ENV['AMAZON_PAY_SANDBOX'].blank?
+				@sandbox_mode   = args[:sandbox] if args.has_key? :sandbox
 
         @merchant_id  = args[:merchant_id] || ENV['AMAZON_PAY_MERCHANT_ID']
         @access_key   = args[:access_key] || ENV['AMAZON_PAY_ACCESS_KEY']
@@ -25,7 +27,7 @@ module SwellEcom
         @client_options = {}
         @client_options[:region] = args[:region] if args[:region]
         @client_options[:currency_code] = args[:currency_code] if args[:currency_code]
-        @client_options[:sandbox] = true if @enable_debug
+        @client_options[:sandbox] = true if @sandbox_mode
 
 			end
 
