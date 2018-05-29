@@ -44,7 +44,7 @@ module SwellEcom
 	      end
 	    end
 
-      def get_client( order, args = {} )
+      def get_client( obj, args = {} )
         return AmazonPay::Client.new(
           @merchant_id,
           @access_key,
@@ -60,6 +60,7 @@ module SwellEcom
 
         store_name = self.store_name( order, args )
         seller_note = nil #@todo
+        seller_capture_note = nil #@todo
         custom_information = nil #@todo
         authorization_note = nil #@todo
 
@@ -229,7 +230,8 @@ module SwellEcom
           # Set a unique id for your current authorization
           # of this payment.
           transaction.save!
-          authorization_reference_id = transaction.id
+          authorization_reference_id = "#{transaction.id}-a"
+					capture_reference_id = "#{transaction.id}-c"
 
           # Make the Authorize API call to authorize the
           # transaction. You can also capture the amount
@@ -243,10 +245,29 @@ module SwellEcom
             currency_code: order.currency.upcase, # Default: USD
             seller_authorization_note: authorization_note,
             transaction_timeout: 0, # Set to 0 for synchronous mode
-            capture_now: true # Set this to true if you want to capture the amount in the same API call
+            capture_now: false # Set this to true if you want to capture the amount in the same API call
           )
 
-          amazon_authorization_id = response.get_element('AuthorizeResponse/AuthorizeResult/AuthorizationDetails','AmazonAuthorizationId')
+					if response.success
+
+						amazon_authorization_id = response.get_element('AuthorizeResponse/AuthorizeResult/AuthorizationDetails','AmazonAuthorizationId')
+
+						# Make the Capture API call if you did not set the
+						# 'capture_now' parameter to 'true'. There are
+						# additional optional parameters that are not used
+						# below.
+						response = client.capture(
+							amazon_authorization_id,
+							capture_reference_id,
+							order.total_as_money.to_s,
+							currency_code: order.currency.upcase, # Default: USD
+							seller_capture_note: seller_capture_note,
+						)
+
+						amazon_capture_id = response.get_element('CaptureResponse/CaptureResult/CaptureDetails','AmazonCaptureId')
+
+					end
+
         else
           order.status = 'active'
           order.errors.add(:base, :processing_error, message: "Missing transaction information.")
@@ -256,7 +277,11 @@ module SwellEcom
         order.status = 'active'
 
         transaction.amount = order.total
-        transaction.reference_code = amazon_authorization_id
+        transaction.reference_code = amazon_capture_id
+
+				trapnsaction.properties['amazon_order_reference_id'] = = args[:orderReferenceId]
+				trapnsaction.properties['amazon_capture_id'] = amazon_capture_id
+				trapnsaction.properties['amazon_authorization_id'] = amazon_authorization_id
 
         if response.success
           order.payment_status = 'paid'
@@ -270,7 +295,7 @@ module SwellEcom
           order.save if order.persisted?
 
           transaction.status = 'declined'
-          transaction.message ||= response.get_element('ErrorResponse/Error','Message')
+          transaction.message = response.get_element('ErrorResponse/Error','Message')
         end
 
         transaction.save
@@ -303,8 +328,12 @@ module SwellEcom
 
         transaction.save
 
-        client = get_client( order, args )
+        client = get_client( transaction, args )
         res = client.refund( charge_transaction.reference_code, transaction.id, transaction.amount_as_money.to_s )
+
+				puts charge_transaction.id
+				puts res.to_xml
+				die()
 
         if res.success
 
@@ -314,7 +343,7 @@ module SwellEcom
         else
 
           transaction.status = 'declined'
-          transaction.message = 'Refund declined' # @todo get message from result
+          transaction.message = response.get_element('ErrorResponse/Error','Message')
 
         end
 
