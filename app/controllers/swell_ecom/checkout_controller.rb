@@ -43,7 +43,11 @@ module SwellEcom
 					@cart.last_name = @order.billing_address.last_name || @cart.last_name
 				end
 
-				@cart.checkout_cache[:order_attributes] = get_order_attributes
+				order_items_attributes = @order.order_items.select(&:prod?).collect do |order_item|
+					order_item.attributes.to_h.select{ |key,val| not( ['id','updated_at','created_at','order_id'].include?( key.to_s ) ) }
+				end
+
+				@cart.checkout_cache[:order_attributes] = get_order_attributes.merge( order_items_attributes: order_items_attributes )
 				@cart.checkout_cache[:shipping_options] = shipping_options
 				@cart.checkout_cache[:discount_options] = discount_options
 

@@ -93,6 +93,10 @@ module SwellEcom
 
 		end
 
+		def transaction_service
+			@transaction_service
+		end
+
 		def validate( order, args )
 			return false if order.nested_errors.present?
 

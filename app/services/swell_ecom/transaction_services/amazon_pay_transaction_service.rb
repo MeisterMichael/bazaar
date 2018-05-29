@@ -20,6 +20,7 @@ module SwellEcom
         @merchant_id  = args[:merchant_id] || ENV['AMAZON_PAY_MERCHANT_ID']
         @access_key   = args[:access_key] || ENV['AMAZON_PAY_ACCESS_KEY']
         @secret_key   = args[:secret_key] || ENV['AMAZON_PAY_SECRET_KEY']
+        @client_id   	= args[:client_id] || ENV['AMAZON_PAY_CLIENT_ID']
 
         @client_options = {}
         @client_options[:region] = args[:region] if args[:region]
@@ -36,6 +37,12 @@ module SwellEcom
 			def capture_payment_method( order, args = {} )
 
 			end
+
+	    def self.custom_escape(val)
+	      val.to_s.gsub(/([^\w.~-]+)/) do
+	        '%' + Regexp.last_match(1).unpack('H2' * Regexp.last_match(1).bytesize).join('%').upcase
+	      end
+	    end
 
       def get_client( order, args = {} )
         return AmazonPay::Client.new(
@@ -360,6 +367,22 @@ module SwellEcom
         return true
       end
 
+			def sign_pay_parameters( parameters = {} )
+				parameters[:sellerId] ||= @merchant_id
+				parameters[:accessKey] ||= @access_key
+				parameters[:lwaClientId] ||= @client_id
+				parameters[:paymentAction] ||= 'None'
+				parameters[:shippingAddressRequired] ||= 'false'
+				parameters[:signature] = self.sign_parameters( parameters, host: "payments.amazon.com" )
+				parameters[:signature] = self.class.custom_escape( parameters[:signature] )
+
+				parameters
+			end
+
+			def validate_pay_signature( signature, parameters, options = {} )
+				self.sign_parameters( parameters, options ) == signature
+			end
+
 			def sign_parameters( parameters, options = {} )
 				options[:method] ||= 'POST'
 				options[:path] ||= '/'
@@ -370,8 +393,14 @@ module SwellEcom
 				end
 
 				str = "#{options[:method]}\n#{options[:host]}\n#{options[:path]}\n#{query_parameters.join('&')}"
+				
+				signature = sign_str( str, algorithm: options[:algorithm] )
 
-				sign_str( str, algorithm: options[:algorithm] )
+				if options[:escape] then
+					signature = self.class.custom_escape( signature )
+				end
+
+				signature
 			end
 
 			def sign_str( str, options = {} )
