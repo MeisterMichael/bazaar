@@ -29,10 +29,10 @@ module SwellEcom
 
 			end
 
-      def calculate_order( order, options = {} )
-        set_address_information( order, options )
-        super(order, options)
-      end
+      # def calculate_order( order, options = {} )
+      #   set_address_information( order, options )
+      #   super(order, options)
+      # end
 
 			def capture_payment_method( order, args = {} )
 
@@ -54,25 +54,26 @@ module SwellEcom
       end
 
 			def process( order, args = {} )
+				args = args.symbolize_keys
+
         client = get_client( order, args )
 
         store_name = self.store_name( order, args )
         seller_note = nil #@todo
         custom_information = nil #@todo
         authorization_note = nil #@todo
-        die()
 
         # These values are grabbed from the Amazon Pay
         # Address and Wallet widgets
-        # args[:address_consent_token], args[:amazon_order_reference_id], args[:amazon_billing_agreement_id]
+        # args[:address_consent_token], args[:orderReferenceId], args[:amazon_billing_agreement_id]
 
-        order.payment_profile_reference ||= ( args[:amazon_order_reference_id] || args[:amazon_billing_agreement_id] )
+        order.provider_customer_payment_profile_reference ||= ( args[:orderReferenceId] || args[:amazon_billing_agreement_id] )
 
         transaction = SwellEcom::Transaction.new(
           provider: provider_name,
           amount: order.total,
           currency: order.currency,
-          customer_payment_profile_reference: order.payment_profile_reference,
+          customer_payment_profile_reference: order.provider_customer_payment_profile_reference,
           status: 'declined',
         )
         transaction.parent_obj ||= args[:default_parent_obj]
@@ -82,13 +83,14 @@ module SwellEcom
         order.payment_status = 'declined'
 
         if order.parent.is_a?( SwellEcom::Subscription )
+					raise Exception.new('Unable to process subscription rebills')
 
           # The following API call is not needed at this point, but
           # can be used in the future when you need to validate that
           # the payment method is still valid with the associated billing
           # agreement id.
           res = client.validate_billing_agreement(
-            order.payment_profile_reference
+            order.provider_customer_payment_profile_reference
           )
 
           if res.success
@@ -128,7 +130,7 @@ module SwellEcom
           end
 
         elsif args[:amazon_billing_agreement_id].present?
-
+					raise Exception.new('Unable to process subscriptions')
 
           # To get the buyers full address if shipping/tax
           # calculations are needed you can use the following
@@ -195,14 +197,14 @@ module SwellEcom
           # to make the Capture API call separately.
           amazon_authorization_id = res.get_element('AuthorizeOnBillingAgreementResponse/AuthorizeOnBillingAgreementResult/AuthorizationDetails','AmazonAuthorizationId')
 
-        elsif args[:amazon_order_reference_id].present?
+        elsif args[:orderReferenceId].present?
 
           # To get the buyers full address if shipping/tax
           # calculations are needed you can use the following
           # API call to obtain the order reference details.
           order_reference_res = client.get_order_reference_details(
-            args[:amazon_order_reference_id],
-            address_consent_token: args[:address_consent_token]
+            args[:orderReferenceId],
+            address_consent_token: args[:addressConsentToken]
           )
 
   	      # self.calculate( order, args )
@@ -211,7 +213,7 @@ module SwellEcom
           # configure the Amazon Order Reference Id.
           order.save
           client.set_order_reference_details(
-            args[:amazon_order_reference_id],
+            args[:orderReferenceId],
             order.total_as_money.to_s,
             currency_code: order.currency.upcase, # Default: USD
             seller_note: seller_note,
@@ -222,7 +224,7 @@ module SwellEcom
           # Make the ConfirmOrderReference API call to
           # confirm the details set in the API call
           # above.
-          client.confirm_order_reference(args[:amazon_order_reference_id])
+          client.confirm_order_reference(args[:orderReferenceId])
 
           # Set a unique id for your current authorization
           # of this payment.
@@ -235,7 +237,7 @@ module SwellEcom
           # separately. There are additional optional
           # parameters not used below.
           response = client.authorize(
-            args[:amazon_order_reference_id],
+            args[:orderReferenceId],
             authorization_reference_id,
             order.total_as_money.to_s,
             currency_code: order.currency.upcase, # Default: USD
@@ -268,8 +270,7 @@ module SwellEcom
           order.save if order.persisted?
 
           transaction.status = 'declined'
-          transaction.message ||= '' #@todo
-          die()
+          transaction.message ||= response.get_element('ErrorResponse/Error','Message')
         end
 
         transaction.save
@@ -313,8 +314,7 @@ module SwellEcom
         else
 
           transaction.status = 'declined'
-          transaction.message = '' # @todo
-          die()
+          transaction.message = 'Refund declined' # @todo get message from result
 
         end
 
@@ -324,6 +324,7 @@ module SwellEcom
 			end
 
       def set_address_information( order, options )
+				raise Exception.new('set_address_information is incomplete')
         client = get_client( order, args )
 
         if options[:amazon_billing_agreement_id].present?
@@ -342,27 +343,29 @@ module SwellEcom
             )
           end
 
-        elsif options[:amazon_order_reference_id].present?
+        elsif options[:orderReferenceId].present?
 
           # To get the buyers full address if shipping/tax
           # calculations are needed you can use the following
           # API call to obtain the order reference details.
-          if options[:address_consent_token].present?
+          if options[:addressConsentToken].present?
             res = client.get_order_reference_details(
-              options[:amazon_order_reference_id],
+              options[:orderReferenceId],
               address_consent_token: options[:address_consent_token]
             )
           else
             res = client.get_order_reference_details(
-              options[:amazon_order_reference_id]
+              options[:orderReferenceId]
             )
           end
+
+					# puts res.to_xml
+
         else
           return false
         end
 
         # @todo extract billing/shipping addresses from res
-        die()
 
         return true
       end
@@ -393,7 +396,7 @@ module SwellEcom
 				end
 
 				str = "#{options[:method]}\n#{options[:host]}\n#{options[:path]}\n#{query_parameters.join('&')}"
-				
+
 				signature = sign_str( str, algorithm: options[:algorithm] )
 
 				if options[:escape] then
