@@ -1,4 +1,8 @@
 
+== V2.11.0
+* Amazon Pay
+* Extra email validation
+
 == V2.7.0
 * Send Order.ip address to authorize.net
 * Attach failed transactions to users
