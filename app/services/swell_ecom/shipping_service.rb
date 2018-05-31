@@ -36,6 +36,7 @@ module SwellEcom
 		def find_rates( obj, args = {} )
 			return self.find_order_rates( obj, args ) if obj.is_a? Order
 			return self.find_cart_rates( obj, args ) if obj.is_a? Cart
+			return self.find_subscription_rates( obj, args ) if obj.is_a? Subscription
 		end
 
 		def process( order, args = {} )
@@ -101,6 +102,11 @@ module SwellEcom
 
 		def find_order_rates( order, args = {} )
 			find_address_rates( order.shipping_address, order.order_items.select{ |order_item| order_item.prod? }, args )
+		end
+
+		def find_subscription_rates( subscription, args = {} )
+			plan = subscription.subscription_plan
+			find_address_rates( subscription.shipping_address, [OrderItem.new( item: subscription, quantity: subscription.quantity )], args )
 		end
 
 		def find_address_rates( geo_address, line_items, args = {} )

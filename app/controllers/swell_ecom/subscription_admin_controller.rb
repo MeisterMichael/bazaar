@@ -82,6 +82,14 @@ module SwellEcom
 			set_page_meta( title: "#{@subscription.code} | Subscription" )
 		end
 
+		def edit_shipping_carrier_service
+
+			@shipping_service = SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
+
+			@shipping_rates = @shipping_service.find_rates( @subscription )
+
+		end
+
 		def index
 			authorize( SwellEcom::Subscription, :admin? )
 			sort_by = params[:sort_by] || 'created_at'
@@ -144,13 +152,16 @@ module SwellEcom
 
 			end
 
-
-			redirect_back fallback_location: '/admin'
+			if params[:redirect_to] == 'edit'
+				redirect_to edit_subscription_admin_path( @subscription )
+			else
+				redirect_back fallback_location: '/admin'
+			end
 		end
 
 		private
 			def subscription_params
-				params.require( :subscription ).permit( :next_charged_at, :quantity, :price_as_money, :trial_price_as_money, :billing_interval_value, :billing_interval_unit, :status, :discount_id, user_attributes: [ :first_name, :last_name, :email ] )
+				params.require( :subscription ).permit( :next_charged_at, :shipping_carrier_service_id, :quantity, :price_as_money, :trial_price_as_money, :billing_interval_value, :billing_interval_unit, :status, :discount_id, user_attributes: [ :first_name, :last_name, :email ] )
 			end
 
 			def get_subscription
