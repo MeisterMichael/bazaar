@@ -1,7 +1,12 @@
 
-== V2.11.0
-* Amazon Pay
-* Extra email validation
+== 2.12.0
+* Subscription shipping preferences 
+
+== V2.7.0
+* Send Order.ip address to authorize.net
+* Attach failed transactions to users
+* Set email and first name on cart_item post
+* Quantity or equals one on cart_item post
 
 == V2.7.0
 * Send Order.ip address to authorize.net

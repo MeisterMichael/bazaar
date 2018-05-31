@@ -9,6 +9,7 @@ module SwellEcom
 		belongs_to :user
 		belongs_to :subscription_plan
 		belongs_to :discount, required: false
+		belongs_to :shipping_carrier_service, required: false
 
 		belongs_to 	:billing_address, class_name: 'GeoAddress'
 		belongs_to 	:shipping_address, class_name: 'GeoAddress'
