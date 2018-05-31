@@ -74,6 +74,7 @@ SwellEcom::Engine.routes.draw do
 	resources :your_orders, only: [:index, :show]
 	resources :your_subscriptions, only: [:index, :show, :update, :destroy] do
 		put :update_discount, on: :member
+		get :edit_shipping_preferences, on: :member
 	end
 
 	resources :zendesk, only: [:index] do

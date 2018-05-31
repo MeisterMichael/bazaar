@@ -27,6 +27,14 @@ module SwellEcom
 			set_page_meta( title: "Subscription Details \##{@subscription.code} " )
 		end
 
+		def edit_shipping_preferences
+
+			@shipping_service = SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
+
+			@shipping_rates = @shipping_service.find_rates( @subscription )
+
+		end
+
 		def update
 
 			if ( payment_info = params[:payment_info] ).present?
@@ -134,6 +142,7 @@ module SwellEcom
 				:next_charged_at,
 				:billing_interval_unit,
 				:billing_interval_value,
+				:shipping_carrier_service_id,
 				:quantity,
 				{
 					:shipping_address_attributes => [
