@@ -66,17 +66,18 @@ module SwellEcom
 			return false if not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
 
 
-			rates = find_order_rates( order, args ).sort_by{ |rate| rate[:price] }
+			rates = find_order_rates( order, args )
+			sorted_rates = rates.sort_by{ |rate| rate[:price] }
 
 			if args[:rate_code].present?
-				rate = rates.select{ |rate| rate[:carrier_service].service_code == args[:rate_code] }.first
+				rate = sorted_rates.select{ |rate| rate[:carrier_service].service_code == args[:rate_code] }.first
 			elsif args[:rate_name].present?
-				rate = rates.select{ |rate| rate[:carrier_service].service_name == args[:rate_name] }.first
+				rate = sorted_rates.select{ |rate| rate[:carrier_service].service_name == args[:rate_name] }.first
 			elsif args[:shipping_carrier_service_id].present?
-				rate = rates.select{ |rate| rate[:carrier_service].id == args[:shipping_carrier_service_id].to_i }.first
+				rate = sorted_rates.select{ |rate| rate[:carrier_service].id == args[:shipping_carrier_service_id].to_i }.first
 			end
 
-			rate ||= find_default_rate( rates )
+			rate ||= find_default_rate( sorted_rates )
 
 			if rate.present?
 				order.order_items.new( item: rate[:carrier_service], price: rate[:price], subtotal: rate[:price], title: (rate[:label] || rate[:name]), order_item_type: 'shipping', tax_code: '11000', properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] } )
@@ -84,6 +85,8 @@ module SwellEcom
 			else
 				order.shipping = 0
 			end
+
+			return { success: true, rates: rates }
 		end
 
 		def find_cart_rates( cart, args = {} )

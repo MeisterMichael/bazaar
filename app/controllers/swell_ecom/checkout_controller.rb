@@ -59,13 +59,20 @@ module SwellEcom
 
 			begin
 
-				@order_service.calculate( @order,
+				res = @order_service.calculate( @order,
 					transaction: transaction_options,
 					shipping: shipping_options,
 					discount: discount_options,
 				)
 
-				@shipping_rates = @shipping_service.find_rates( @order, shipping_options ) if @order.shipping_address.geo_country.present?
+				if @order.shipping_address.geo_country.present?
+					if res && res[:shipping].present? && res[:shipping][:rates].present?
+						@shipping_rates = res[:shipping][:rates]
+					else
+						@shipping_rates = @shipping_service.find_rates( @order, shipping_options )
+					end
+				end
+
 			rescue Exception => e
 				puts e
 				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
