@@ -1,4 +1,4 @@
-require 'authorizenet'
+# require 'authorizenet'
 require 'credit_card_validations'
 
 module SwellEcom
@@ -16,6 +16,8 @@ module SwellEcom
 			WHITELISTED_ERROR_MESSAGES = [ 'The credit card has expired' ]
 
 			def initialize( args = {} )
+				raise Exception.new('add "gem \'authorizenet\'" to your Gemfile') unless defined?( AuthorizeNet )
+
 				@api_login	= args[:API_LOGIN_ID] || ENV['AUTHORIZE_DOT_NET_API_LOGIN_ID']
 				@api_key	= args[:TRANSACTION_API_KEY] || ENV['AUTHORIZE_DOT_NET_TRANSACTION_API_KEY']
 				@gateway	= ( args[:GATEWAY] || ENV['AUTHORIZE_DOT_NET_GATEWAY'] || :sandbox ).to_sym
@@ -108,8 +110,20 @@ module SwellEcom
 
 					order.payment_status = 'declined'
 
-					transaction = false
-					transaction = Transaction.create( transaction_type: 'charge', reference_code: direct_response.try(:transaction_id), customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: @provider_name, amount: order.total, currency: order.currency, status: 'declined', message: response.message_text )
+					transaction = Transaction.new(
+						transaction_type: 'charge',
+						reference_code: direct_response.try(:transaction_id),
+						customer_profile_reference: profiles[:customer_profile_reference],
+						customer_payment_profile_reference: profiles[:customer_payment_profile_reference],
+						provider: @provider_name,
+						amount: order.total,
+						currency: order.currency,
+						status: 'declined',
+						message: response.message_text,
+					)
+					transaction.parent_obj ||= args[:default_parent_obj]
+					transaction.parent_obj ||= order.user if order.user.persisted?
+					transaction.save
 
 					if WHITELISTED_ERROR_MESSAGES.include? response.message_text
 						order.errors.add(:base, :processing_error, message: response.message_text )
@@ -249,7 +263,7 @@ module SwellEcom
 			end
 
 			def update_subscription_payment_profile( subscription, args = {} )
-				payment_profile = request_payment_profile( subscription.user, subscription.billing_address, args[:credit_card], errors: subscription.errors )
+				payment_profile = request_payment_profile( subscription.user, subscription.billing_address, args[:credit_card], errors: subscription.errors, ip: subscription.order.ip )
 
 				return false unless payment_profile
 
@@ -276,7 +290,7 @@ module SwellEcom
 
 				if args[:credit_card].present?
 
-					payment_profile = request_payment_profile( order.user, order.billing_address, args[:credit_card], email: order.email, errors: order.errors )
+					payment_profile = request_payment_profile( order.user, order.billing_address, args[:credit_card], email: order.email, errors: order.errors, ip: order.ip )
 
 					return payment_profile if payment_profile && order.nested_errors.blank?
 
@@ -294,6 +308,9 @@ module SwellEcom
 			def request_payment_profile( user, billing_address, credit_card, args={} )
 				anet_transaction = AuthorizeNet::CIM::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 				errors = args[:errors]
+
+				ip_address = args[:ip] if args[:ip].present?
+				ip_address ||= user.try(:ip) if user.try(:ip).present?
 
 				billing_address_state = billing_address.state
 				billing_address_state = billing_address.geo_state.try(:abbrev) if billing_address_state.blank?
@@ -351,7 +368,7 @@ module SwellEcom
 					:phone			=> billing_address.phone,
 					:address		=> anet_billing_address,
 					:description	=> "#{anet_billing_address.first_name} #{anet_billing_address.last_name}",
-					:ip				=> args[:ip] || ( user.try(:ip).blank? ? nil : user.try(:ip) ),
+					:ip				=> ip_address,
 				)
 				anet_customer_profile.payment_profiles = anet_payment_profile
 

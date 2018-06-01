@@ -1,4 +1,4 @@
-class SwellEcomCheckoutCacheMigration < ActiveRecord::Migration[5.1]
+class SwellEcomCartCheckoutCacheMigration < ActiveRecord::Migration[5.1]
 	def change
 		add_column :carts, :first_name, :string
 		add_column :carts, :last_name, :string

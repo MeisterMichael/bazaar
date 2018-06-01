@@ -27,6 +27,11 @@ module SwellEcom
 			end
 		end
 
+		def to_s
+			"#{slf.reference_code}: #{self.transaction_type} #{self.status} #{self.provider} #{self.amount.to_f / 100}"
+
+		end
+
 		def self.negative
 			where( 'transaction_type < 0' )
 		end

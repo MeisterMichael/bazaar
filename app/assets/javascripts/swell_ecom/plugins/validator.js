@@ -9,6 +9,8 @@
 +function ($) {
   'use strict';
 
+  var EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
   // VALIDATOR CLASS DEFINITION
   // ==========================
 
@@ -76,7 +78,11 @@
     'native': function ($el) {
       var el = $el[0]
       if (el.checkValidity) {
-        return !el.checkValidity() && !el.validity.valid && (el.validationMessage || "error!")
+        var valid = !el.checkValidity() && !el.validity.valid && (el.validationMessage || "error!")
+        if( !valid && $el.attr('type') && $el.attr('type').toLowerCase() == 'email' && !EMAIL_REGEX.test($el.val().toLowerCase()) ) {
+          valid = "The email address has an invalid format.  Please correct all errors and typos.";
+        }
+        return valid
       }
     },
     'match': function ($el) {

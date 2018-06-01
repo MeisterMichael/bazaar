@@ -3,7 +3,7 @@
 
 module SwellEcom
 
-	class DiscountService
+	class DiscountService < ::ApplicationService
 
 		def initialize( args = {} )
 		end

@@ -26,7 +26,7 @@ module SwellEcom
 		validates	:trial_interval_unit, presence: true, allow_blank: false
 		validates_inclusion_of :trial_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.'
 
-		money_attributes :trial_price, :price, :shipping_price
+		money_attributes :trial_price, :price, :shipping_price, :purchase_price
 
 		mounted_at '/subscriptions'
 
@@ -50,8 +50,7 @@ module SwellEcom
 		def page_event_data
 			category_name = self.product_category.name if self.respond_to?(:product_category)
 
-			event_price = self.price_as_money
-			event_price = self.trial_price_as_money if self.trial?
+			event_price = self.purchase_price_as_money
 
 			data = {
 				id: swell_ecom_uid,
@@ -98,6 +97,14 @@ module SwellEcom
 			active? && publish_at < Time.zone.now
 		end
 
+		def purchase_price
+			if self.trial?
+				self.trial_price
+			else
+				self.price
+			end
+		end
+
 		def sanitized_content
 			ActionView::Base.full_sanitizer.sanitize( self.content )
 		end
@@ -125,6 +132,10 @@ module SwellEcom
 
 		def tags_csv=(tags_csv)
 			self.tags = tags_csv.split(/,\s*/)
+		end
+
+		def to_s
+			self.title
 		end
 
 		def trial?

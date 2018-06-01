@@ -54,7 +54,7 @@ module SwellEcom
 		after_update :on_update
 		before_save	:set_publish_at
 
-		money_attributes :price, :suggested_price, :shipping_price
+		money_attributes :price, :suggested_price, :shipping_price, :purchase_price
 		mounted_at '/store'
 		friendly_id :slugger, use: [ :slugged, :history ]
 		acts_as_taggable_array_on :tags
@@ -115,6 +115,10 @@ module SwellEcom
 
 		def published?
 			active? && publish_at < Time.zone.now
+		end
+
+		def purchase_price
+			self.price
 		end
 
 		# e.g. Product.record_search( category_name: 'Shirts', text: 'live amrap' )
@@ -245,6 +249,10 @@ module SwellEcom
 
 		def tags_csv=(tags_csv)
 			self.tags = tags_csv.split(/,\s*/)
+		end
+
+		def to_s
+			self.title
 		end
 
 		def as_indexed_json(options={})

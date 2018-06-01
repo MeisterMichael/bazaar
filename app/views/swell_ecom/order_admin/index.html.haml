@@ -6,8 +6,8 @@
 		.col-xs-10
 			%h2 Orders
 		.col-xs-2
-			- if policy(SwellEcom::Order).admin_create?
-				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_order_modal' } }
+			-# if policy(SwellEcom::Order).admin_create?
+				%a.btn.btn-success{ href: swell_ecom.new_order_admin_path() }
 					%i.fa.fa-plus-square
 					New
 	.row{ style: 'margin-top: 0' }
@@ -61,6 +61,3 @@
 	.row
 		.col-xs-6
 			= raw paginate @orders
-
-
-= render 'swell_ecom/order_admin/new_modal', args: {}

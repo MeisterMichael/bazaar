@@ -8,5 +8,9 @@ module SwellEcom
 
 		belongs_to :order, required: false
 
+		def to_s
+			"Cart \##{self.id}"
+		end
+
 	end
 end

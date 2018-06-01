@@ -1,6 +1,6 @@
 module SwellEcom
 
-	class OrderService
+	class OrderService < ::ApplicationService
 		# abstract
 
 		def initialize( args = {} )
@@ -28,14 +28,21 @@ module SwellEcom
 
 			self.calculate_order_before( obj, args ) if obj.is_a? SwellEcom::Order
 
-			@shipping_service.calculate( obj, args[:shipping] )
-			@discount_service.calculate( obj, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
-			@tax_service.calculate( obj, args[:tax] )
-			@discount_service.calculate( obj, args[:discount] ) # calucate again after taxes
-			@transaction_service.calculate( obj, args[:transaction] )
+			shipping_response					= @shipping_service.calculate( obj, args[:shipping] )
+			discount_pretax_response	= @discount_service.calculate( obj, args[:discount].merge( pre_tax: true ) ) # calculate discounts pre-tax
+			tax_response							= @tax_service.calculate( obj, args[:tax] )
+			discount_response					= @discount_service.calculate( obj, args[:discount] ) # calucate again after taxes
+			transaction_response			= @transaction_service.calculate( obj, args[:transaction] )
 
 			self.calculate_order_after( obj, args ) if obj.is_a? SwellEcom::Order
 
+			{
+				shipping: shipping_response,
+				discount_pretax: discount_pretax_response,
+				discount: discount_response,
+				tax: tax_response,
+				transaction: transaction_response,
+			}
 		end
 
 		def discount_service
@@ -72,6 +79,9 @@ module SwellEcom
 				if transaction && transaction.approved?
 					order.status = 'active'
 					order.save
+					log_event( user: order.user, name: 'transaction_sxs', on: order, content: "transaction was approved for #{order.total_formatted} on Order #{order.code}" )
+				elsif transaction && transaction.declined?
+					log_event( user: order.user, name: 'transaction_failed', on: transaction.parent_obj, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}" )
 				end
 			end
 

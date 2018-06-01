@@ -3,7 +3,7 @@
 
 module SwellEcom
 
-	class TaxService
+	class TaxService < ::ApplicationService
 
 		def initialize( args = {} )
 		end

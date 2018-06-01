@@ -22,7 +22,9 @@ module SwellEcom
 						products: @cart.cart_items.collect{|cart_item| cart_item.item.page_event_data.merge( quantity: cart_item.quantity ) }
 					}
 				}
-			);
+			)
+
+			log_event( on: @cart )
 
 		end
 
@@ -41,6 +43,8 @@ module SwellEcom
 				end
 
 			end
+
+			log_event( name: 'update_cart', value: @cart.subtotal, on: @cart, content: "updated cart quantities" )
 
 			redirect_back fallback_location: '/admin'
 		end

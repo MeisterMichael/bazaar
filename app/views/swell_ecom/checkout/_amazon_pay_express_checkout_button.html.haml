@@ -1,0 +1,28 @@
+%div{ id: (args[:id] || 'AmazonPayButton') }
+
+:javascript
+	OffAmazonPayments.Button("#{(args[:id] || 'AmazonPayButton')}", "#{(args[:merchant_id] || ENV['AMAZON_PAY_MERCHANT_ID'])}", {
+		type: "hostedPayment",
+		hostedParametersProvider: function(done){
+			args = {
+				amount: $("#order_total_amount").data('amount'),
+				currencyCode: $("#order_total_amount").data('currency'),
+				shippingAddressRequired: 'false',
+				paymentAction: 'None',
+			}
+
+			// Call the back end to combine button args with
+			// other seller config param values and sign it.
+			$.getJSON("/generateRequestSignature",
+				args,
+				function(data) {
+					// console.log('data',JSON.stringify(data),data)
+					done(data)
+				}
+			)
+		},
+		onError: function(e) {
+			// your error handling code
+			// console.log('onError',e.getErrorCode(),e.getErrorMessage())
+		}
+	});

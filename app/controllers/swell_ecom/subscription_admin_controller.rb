@@ -60,7 +60,7 @@ module SwellEcom
 			puts JSON.pretty_generate subscription_options[:shipping_address].to_json
 			puts JSON.pretty_generate subscription_options[:billing_address].to_json
 
-			@subscription_service = SwellEcom::SubscriptionService.new()
+			@subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config )
 			@subscription = @subscription_service.subscribe( user, plan, subscription_options )
 
 			if @subscription.errors.present?
@@ -82,6 +82,14 @@ module SwellEcom
 			set_page_meta( title: "#{@subscription.code} | Subscription" )
 		end
 
+		def edit_shipping_carrier_service
+
+			@shipping_service = SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
+
+			@shipping_rates = @shipping_service.find_rates( @subscription )
+
+		end
+
 		def index
 			authorize( SwellEcom::Subscription, :admin? )
 			sort_by = params[:sort_by] || 'created_at'
@@ -98,7 +106,7 @@ module SwellEcom
 		def payment_profile
 			authorize( @subscription, :admin_update? )
 
-			@subscription_service = SwellEcom::SubscriptionService.new
+			@subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config )
 
 			address_attributes = params.require( :subscription ).require( :billing_address_attributes ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
 			address = GeoAddress.create( address_attributes.merge( user: @subscription.user ) )
@@ -144,13 +152,16 @@ module SwellEcom
 
 			end
 
-
-			redirect_back fallback_location: '/admin'
+			if params[:redirect_to] == 'edit'
+				redirect_to edit_subscription_admin_path( @subscription )
+			else
+				redirect_back fallback_location: '/admin'
+			end
 		end
 
 		private
 			def subscription_params
-				params.require( :subscription ).permit( :next_charged_at, :quantity, :price_as_money, :trial_price_as_money, :billing_interval_value, :billing_interval_unit, :status, :discount_id, user_attributes: [ :first_name, :last_name, :email ] )
+				params.require( :subscription ).permit( :next_charged_at, :shipping_carrier_service_id, :quantity, :price_as_money, :trial_price_as_money, :billing_interval_value, :billing_interval_unit, :status, :discount_id, user_attributes: [ :first_name, :last_name, :email ] )
 			end
 
 			def get_subscription

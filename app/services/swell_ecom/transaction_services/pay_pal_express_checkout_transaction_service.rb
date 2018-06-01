@@ -1,4 +1,4 @@
-require 'paypal-sdk-rest'
+# require 'paypal-sdk-rest'
 
 module SwellEcom
 
@@ -9,6 +9,8 @@ module SwellEcom
 			PROVIDER_NAME = 'PayPalExpressCheckout'
 
 			def initialize( args = {} )
+				raise Exception.new('add "gem \'paypal-sdk-rest\'" to your Gemfile') unless defined?( PayPal::SDK )
+
 				@client_id		= args[:client_id] || ENV['PAYPAL_EXPRESS_CHECKOUT_CLIENT_ID']
 				@client_secret	= args[:client_secret] || ENV['PAYPAL_EXPRESS_CHECKOUT_CLIENT_SECRET']
 				@mode			= args[:mode] || ENV['PAYPAL_EXPRESS_CHECKOUT_MODE'] || 'sandbox' # or 'live'
@@ -49,8 +51,9 @@ module SwellEcom
 						NewRelic::Agent.notice_error( Exception.new("PayPalExpressCheckout Payment Error: #{payment.error}") ) if defined?( NewRelic )
 						order.errors.add(:base, :processing_error, message: "Transaction declined.")
 
-					elsif payment_amount != order.total
+					elsif not( ((order.total-1)..(order.total+1)).include?( payment_amount ) )
 
+						NewRelic::Agent.notice_error( Exception.new("PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}") ) if defined?( NewRelic )
 						puts "PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}" if @mode == 'sandbox'
 						order.errors.add(:base, :processing_error, message: "PayPal checkout amount does not match invoice.")
 

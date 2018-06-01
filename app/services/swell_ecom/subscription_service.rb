@@ -1,6 +1,6 @@
 module SwellEcom
 
-	class SubscriptionService
+	class SubscriptionService < ::ApplicationService
 
 		def initialize( args = {} )
 
@@ -41,6 +41,7 @@ module SwellEcom
 				args[:provider]			||= order.provider
 				args[:provider_customer_profile_reference] ||= order.provider_customer_profile_reference
 				args[:provider_customer_payment_profile_reference] ||= order.provider_customer_payment_profile_reference
+				args[:shipping_carrier_service_id] = order.order_items.shipping.first.item_id
 
 				args[:discount] = order.order_items.discount.first.try(:item)
 
@@ -103,6 +104,7 @@ module SwellEcom
 				amount: args[:amount],
 				trial_price: args[:trial_price],
 				price: args[:price],
+				shipping_carrier_service_id: args[:shipping_carrier_service_id],
 			)
 
 			if subscription.respond_to? :properties
@@ -156,14 +158,22 @@ module SwellEcom
 			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present? && discount.active? && discount.in_progress?( now: time_now )
 
 			# process order
-			transaction = @order_service.process( order )
+			transaction = @order_service.process( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id } )
 
-			# handle response
-			if order.nested_errors.present? || !transaction || not( transaction.approved? )
+			# Transaction fails if transaction is false or not approved.
+			transaction_failed = !transaction || not( transaction.approved? )
+
+			# Processing fails if
+			# * the order has errors
+			# * the order was not paid AND the transactions failed (free orders will not return a transaction)
+			processing_failed = order.nested_errors.present?
+			processing_failed = true if not( order.paid? ) && transaction_failed
+
+			if processing_failed
 
 				if transaction.present? && transaction.persisted?
 
-					transaction.parent_obj ||= subscription
+					transaction.parent_obj = subscription
 					transaction.save
 
 				else
@@ -194,6 +204,8 @@ module SwellEcom
 
 			else
 				order.save
+
+				log_event( user: subscription.user, name: 'renewal', on: subscription, content: "auto renewed a subscription #{subscription.code}" )
 
 				# remove discount after use, if it is not for more than one order
 				subscription.discount = nil unless subscription.discount.try(:for_subscriptions?)

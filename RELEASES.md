@@ -1,4 +1,31 @@
 
+== 2.12.0
+* Subscription shipping preferences 
+
+== V2.7.0
+* Send Order.ip address to authorize.net
+* Attach failed transactions to users
+* Set email and first name on cart_item post
+* Quantity or equals one on cart_item post
+
+== V2.7.0
+* Send Order.ip address to authorize.net
+* Attach failed transactions to users
+* Set email and first name on cart_item post
+* Quantity or equals one on cart_item post
+
+== V2.6.7
+* add cached_uses to discounts
+
+== V2.6.6
+* Add usage stats to discount index view table
+
+== V2.6.5
+* Add usage stats to discount edit view
+
+== V2.6.4
+* Add a one penny variance when comparing the order total to the paypal payment amount
+
 == V2.1.11
 * Case insensitive discount code
 * Catch more active shipping response errors

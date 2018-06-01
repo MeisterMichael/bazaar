@@ -33,8 +33,17 @@ module SwellEcom
 
 		def create
 			@order = SwellEcom::Order.new( order_params )
+			@order.user = SwellMedia.registered_user_class.constantize.find_by( email: @order.email.downcase )
+			@order.user ||= SwellMedia.registered_user_class.constantize.create( email: @order.email.downcase, first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name )
 			@order.total ||= 0
 			@order.status = 'draft'
+
+			@order.order_items.select(&:prod?).each do |order_item|
+				order_item.title		||= order_item.item.title
+				order_item.price		= order_item.item.purchase_price
+				order_item.subtotal	= order_item.price * order_item.quantity
+				order_item.tax_code	= order_item.item.tax_code
+			end
 
 			if @order.save && @order.nested_errors.blank?
 				set_flash 'Success.'
@@ -82,7 +91,15 @@ module SwellEcom
 		end
 
 		def new
-			@order = SwellEcom::Order.new order_params
+			if params[:order]
+				@order = SwellEcom::Order.new order_params
+			else
+				@order = SwellEcom::Order.new
+				@order.billing_address = SwellEcom::GeoAddress.new
+				@order.shipping_address = SwellEcom::GeoAddress.new
+			end
+			@order.total ||= 0
+			@order.status = 'draft'
 
 		end
 
@@ -114,6 +131,8 @@ module SwellEcom
 
 				# OrderMailer.refund( @transaction ).deliver_now # send emails on a cron
 				set_flash "Refund successful", :success
+
+				log_system_event( user: @order.user, name: 'refund', value: -@transaction.amount, on: @order, content: "refunded #{@transaction.amount_formatted} on order #{@order.code}" )
 
 			end
 
@@ -149,7 +168,21 @@ module SwellEcom
 			end
 
 			@order.save
-			redirect_back fallback_location: '/admin'
+
+			@order.order_items.prod.where( quantity: 0 ).destroy_all
+
+			respond_to do |format|
+				format.js {
+					render :update
+				}
+				format.json {
+					render :update
+				}
+				format.html {
+					set_flash "Order Updated", :success
+					redirect_back fallback_location: '/admin'
+				}
+			end
 		end
 
 		private
@@ -179,14 +212,23 @@ module SwellEcom
 							:quantity,
 							:price,
 							:price_as_money,
+							:price_as_money_string,
 							:subtotal,
 							:subtotal_as_money,
+							:subtotal_as_money_string,
 							:order_item_type,
 							:title,
 							:tax_code,
 						],
 					}
 				).to_h
+
+				if order_attributes[:order_items_attributes]
+					order_attributes[:order_items_attributes] = order_attributes[:order_items_attributes].select{|index, order_item_attributes| order_item_attributes[:quantity].present? }
+					order_attributes[:order_items_attributes].each do |index, order_item_attributes|
+						order_item_attributes[:order_item_type] = 'prod'
+					end
+				end
 
 				if order_attributes[:same_as_shipping] == '1' && order_attributes[:shipping_address_attributes].present?
 					order_attributes.delete(:same_as_shipping)

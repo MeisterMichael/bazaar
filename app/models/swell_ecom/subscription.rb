@@ -9,6 +9,7 @@ module SwellEcom
 		belongs_to :user
 		belongs_to :subscription_plan
 		belongs_to :discount, required: false
+		belongs_to :shipping_carrier_service, required: false
 
 		belongs_to 	:billing_address, class_name: 'GeoAddress'
 		belongs_to 	:shipping_address, class_name: 'GeoAddress'
@@ -25,6 +26,7 @@ module SwellEcom
 		validates	:price, presence: true, allow_blank: false
 		validates	:trial_amount, presence: true, allow_blank: false
 		validates	:trial_price, presence: true, allow_blank: false
+		validates_numericality_of :quantity, greater_than_or_equal_to: 1
 		validates_numericality_of :amount, greater_than_or_equal_to: 0
 		validates_numericality_of :price, greater_than_or_equal_to: 0
 		validates_numericality_of :trial_amount, greater_than_or_equal_to: 0
@@ -78,6 +80,10 @@ module SwellEcom
 
 		def title
 			subscription_plan.title
+		end
+
+		def to_s
+			"#{self.title} (#{self.code})"
 		end
 
 		def url

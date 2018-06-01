@@ -47,6 +47,7 @@
 				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
 					%thead
 						%tr
+							%th{ style: 'width: 10em' } Date
 							%th{ style: 'width: 10em' } Type
 							%th{ style: 'width: 10em' } Status
 							%th{ style: 'width: 10em' } Gateway
@@ -56,6 +57,8 @@
 					%tbody
 						- @transactions.each do |transaction|
 							%tr
+								%td
+									=current_user.to_local_tz(transaction.created_at).to_s( :short )
 								%td
 									= transaction.transaction_type
 								%td
@@ -72,6 +75,25 @@
 								%tr
 									%td{ colspan: 6 }
 										= transaction.message
+
+			.well.white-well
+				%h4 Timeline
+
+				- if Bunyan::Event.where( target_obj: @subscription ).or( Bunyan::Event.where( user_id: @subscription.user_id ) ).where( category: [ 'account', 'ecom' ] ).empty?
+					.row
+						.col-xs-12
+							No Timeline Entries Found
+				- else
+					.row
+						.col-sm-12
+							%table.table
+								- Bunyan::Event.where( target_obj: @subscription ).or( Bunyan::Event.where( user_id: @subscription.user_id ) ).where( category: [ 'account', 'ecom' ] ).order( created_at: :desc ).limit( 20 ).each do |event|
+									%tr
+										%td
+											= event.to_s
+										%td
+											= time_ago_in_words( event.created_at )
+											ago
 
 
 		.col-xs-4
@@ -165,6 +187,16 @@
 				%h5
 					Shipping Address
 				= raw @subscription.shipping_address.to_html
+
+				%hr
+
+				.pull-right
+					%a{ href: swell_ecom.edit_shipping_carrier_service_subscription_admin_path( @subscription ) } Edit
+				%h5 Shipping Method
+				- if @subscription.shipping_carrier_service.present?
+					%div= @subscription.shipping_carrier_service.shipping_option.try(:name) || @subscription.shipping_carrier_service.name
+				- else
+					%div Default
 
 = render 'swell_ecom/subscription_admin/edit_address_modal', args: { title: 'Billing Address', attribute: 'billing_address' }, countries: get_billing_countries, states: get_billing_states( @subscription.billing_address.geo_country.id )
 = render 'swell_ecom/subscription_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_address' }, countries: get_shipping_countries, states: get_shipping_states( @subscription.shipping_address.geo_country.id )

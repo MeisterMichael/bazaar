@@ -24,7 +24,7 @@ namespace :swell_ecom do
 	task process_subscriptions: :environment do
 
 		time_now = Time.now
-		subscription_service = SwellEcom::SubscriptionService.new
+		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config )
 
 		SwellEcom::Subscription.ready_for_next_charge( time_now ).find_each do |subscription|
 

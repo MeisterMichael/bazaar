@@ -1,5 +1,5 @@
 
-require 'active_shipping'
+# require 'active_shipping'
 # Gem requirements
 # => gem 'active_shipping'
 #
@@ -24,6 +24,7 @@ module SwellEcom
 			def initialize( args = {} )
 				super( args )
 
+
 				warehouse_address = args[:warehouse] || SwellEcom.warehouse_address
 				@origin = ActiveShipping::Location.new(
 					country: warehouse_address[:country],
@@ -33,6 +34,8 @@ module SwellEcom
 				)
 
 				args[:class]	||= 'ActiveShipping::USPS'
+
+				raise Exception.new('add "gem \'active_shipping\'" to your Gemfile') unless defined?( args[:class].constantize )
 				# args[:config]	= args[:config].merge( test: true ) unless Rails.env.production?
 
 				@shipping_service = args[:class].constantize.new( args[:config] )

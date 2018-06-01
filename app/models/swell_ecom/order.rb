@@ -56,6 +56,10 @@ module SwellEcom
 			all_errors
 		end
 
+		def to_s
+			"Order #{self.code}"
+		end
+
 		private
 
 		def order_address_users_match

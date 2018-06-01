@@ -43,7 +43,14 @@ module SwellEcom
 					@cart.last_name = @order.billing_address.last_name || @cart.last_name
 				end
 
-				@cart.checkout_cache[:order_attributes] = get_order_attributes
+				order_items_attributes = @order.order_items.select(&:prod?).collect do |order_item|
+					order_item.attributes.to_h.select{ |key,val| not( ['id','updated_at','created_at','order_id'].include?( key.to_s ) ) }
+				end
+
+				order_attributes = get_order_attributes.merge( order_items_attributes: order_items_attributes )
+				order_attributes = order_attributes.to_h.select{ |key,val| not( ['id','updated_at','created_at','user_id', 'user'].include?( key.to_s ) ) }
+
+				@cart.checkout_cache[:order_attributes] = order_attributes
 				@cart.checkout_cache[:shipping_options] = shipping_options
 				@cart.checkout_cache[:discount_options] = discount_options
 
@@ -52,17 +59,26 @@ module SwellEcom
 
 			begin
 
-				@order_service.calculate( @order,
+				res = @order_service.calculate( @order,
 					transaction: transaction_options,
 					shipping: shipping_options,
 					discount: discount_options,
 				)
 
-				@shipping_rates = @shipping_service.find_rates( @order, shipping_options ) if @order.shipping_address.geo_country.present?
+				if @order.shipping_address.geo_country.present?
+					if res && res[:shipping].present? && res[:shipping][:rates].present?
+						@shipping_rates = res[:shipping][:rates]
+					else
+						@shipping_rates = @shipping_service.find_rates( @order, shipping_options )
+					end
+				end
+
 			rescue Exception => e
 				puts e
 				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 			end
+
+			log_event( name: 'init_checkout', value: @cart.subtotal, on: @cart, content: "started checkout process", ttl: 10.minutes )
 		end
 
 		def create
@@ -76,7 +92,7 @@ module SwellEcom
 			@order.source = 'Consumer Checkout'
 
 			@order_service.process( @order,
-				transaction: transaction_options,
+				transaction: transaction_options.merge( default_parent_obj: @cart ),
 				shipping: shipping_options,
 				discount: discount_options,
 			)
@@ -91,7 +107,7 @@ module SwellEcom
 			end
 
 
-			if @order.nested_errors.present?
+			if @order.nested_errors.present? || @order.declined?
 				respond_to do |format|
 					format.js {
 						render :create
@@ -117,26 +133,18 @@ module SwellEcom
 
 				@cart.update( order_id: @order.id, status: 'success' )
 
+				# transfer declined transactions from cart to order
+				# SwellEcom::Transaction.where( parent_obj: @cart ).each do |transaction|
+				# 	transaction.update( parent_obj: @order )
+				# end
+
 				OrderMailer.receipt( @order ).deliver_now
 				#OrderMailer.notify_admin( @order ).deliver_now
 
 				@expiration = 30.minutes.from_now.to_i
 				@thank_you_url = swell_ecom.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
 
-				if defined?( SwellAnalytics )
-					log_analytics_event(
-						'purchase',
-						event_category: 'swell_ecom',
-						country: client_ip_country,
-						ip: client_ip,
-						user_id: (current_user || @order.user).try(:id),
-						referrer_url: request.referrer,
-						page_url: request.original_url,
-						subject_id: @order.id,
-						subject_type: @order.class.base_class.name,
-						value: @order.total,
-					)
-				end
+				log_event( user: @order.user, name: 'purchase', value: @order.total, on: @order, content: "placed an order for $#{@order.total/100.to_f}." )
 
 				respond_to do |format|
 					format.js {
@@ -190,22 +198,7 @@ module SwellEcom
 				}
 			);
 
-
-
-			if defined?( SwellAnalytics )
-				log_analytics_event(
-					'initiate_checkout',
-					event_category: 'swell_ecom',
-					country: client_ip_country,
-					ip: client_ip,
-					user_id: current_user.try(:id),
-					referrer_url: request.referrer,
-					page_url: request.original_url,
-					subject_id: @cart.id,
-					subject_type: @cart.class.base_class.name,
-					value: @cart.subtotal,
-				)
-			end
+			log_event( on: @cart )
 
 			set_page_meta( title: "#{SwellMedia.app_name} - Checkout" )
 

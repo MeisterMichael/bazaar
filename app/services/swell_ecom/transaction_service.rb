@@ -1,12 +1,12 @@
 module SwellEcom
 
-	class TransactionService
+	class TransactionService < ::ApplicationService
 		# abstract
 
 		def calculate( obj, args = {} )
 
-			return self.calculate_order( obj ) if obj.is_a? Order
-			return self.calculate_cart( obj ) if obj.is_a? Cart
+			return self.calculate_order( obj, args ) if obj.is_a? Order
+			return self.calculate_cart( obj, args ) if obj.is_a? Cart
 
 		end
 
@@ -37,7 +37,7 @@ module SwellEcom
 
 		protected
 
-		def calculate_cart( cart )
+		def calculate_cart( cart, options = {} )
 
 			cart.estimated_total = cart.estimated_tax + cart.estimated_shipping
 
@@ -47,10 +47,10 @@ module SwellEcom
 
 		end
 
-		def calculate_order( order )
+		def calculate_order( order, options = {} )
 
 			order.total = order.order_items.sum(&:subtotal)
-			
+
 		end
 
 	end

@@ -10,7 +10,7 @@
 				.modal-body{ style: 'text-align: center;' }
 					.form-group
 						$
-						= number_field_tag :amount, @order.total / 100.0, min: 0.01, step: 0.01, class: 'form-control', placeholder: '0.00'
+						= number_field_tag :amount, @transactions.approved.to_a.sum(&:signed_amount) / 100.0, min: 0.01, step: 0.01, class: 'form-control', placeholder: '0.00'
 
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }

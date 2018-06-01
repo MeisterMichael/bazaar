@@ -27,6 +27,14 @@ module SwellEcom
 			set_page_meta( title: "Subscription Details \##{@subscription.code} " )
 		end
 
+		def edit_shipping_preferences
+
+			@shipping_service = SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
+
+			@shipping_rates = @shipping_service.find_rates( @subscription )
+
+		end
+
 		def update
 
 			if ( payment_info = params[:payment_info] ).present?
@@ -45,9 +53,11 @@ module SwellEcom
 
 					@subscription.update( billing_address: billing_address )
 
+					log_event( name: 'update_bill_addr', on: @subscription, content: "updated suscription #{@subscription.code} billing info" )
+
 				end
 
-				@subscription_service = SubscriptionService.new
+				@subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config )
 
 				if @subscription_service.update_payment_profile( @subscription, transaction_options )
 
@@ -61,11 +71,33 @@ module SwellEcom
 						@subscription.save
 
 					end
+
+					log_event( name: 'update_payment', on: @subscription, content: "updated suscription #{@subscription.code} payment details" )
+
 				end
 
 			else
 
 				@subscription.attributes = subscription_attributes
+
+				# recalculate amounts on change
+				@subscription.amount				= @subscription.price * @subscription.quantity
+				@subscription.trial_amount	= @subscription.trial_price * @subscription.quantity
+
+				if @subscription.status_changed?
+					if @subscription.active?
+						log_event( name: 'reactivate_sub', on: @subscription, content: "reactivated suscription #{@subscription.code}" )
+					else
+						log_event( name: 'cancel_sub', on: @subscription, content: "cancelled suscription #{@subscription.code}" )
+					end
+				else
+					log_event( name: 'update_sub', on: @subscription, content: "updated suscription #{@subscription.code}" )
+				end
+
+				log_event( name: 'update_bill_addr', on: @subscription, content: "updated suscription #{@subscription.code} billing info" ) if @subscription.billing_address.changed?
+				log_event( name: 'update_ship_addr', on: @subscription, content: "updated suscription #{@subscription.code} shipping info" ) if @subscription.shipping_address.changed?
+
+
 				@subscription.save
 
 			end
@@ -110,6 +142,8 @@ module SwellEcom
 				:next_charged_at,
 				:billing_interval_unit,
 				:billing_interval_value,
+				:shipping_carrier_service_id,
+				:quantity,
 				{
 					:shipping_address_attributes => [
 						:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,

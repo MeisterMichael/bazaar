@@ -40,7 +40,7 @@ describe "SubscriptionService" do
 
 	it "should support instantiation" do
 
-		subscription_service = SwellEcom::SubscriptionService.new( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service )
+		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 		subscription_service.should be_instance_of(SwellEcom::SubscriptionService)
 
 	end
@@ -109,7 +109,7 @@ describe "SubscriptionService" do
 
 		sleep 2.25.minutes # sleep 2 minutes to get over the duplicate window
 
-		subscription_service = SwellEcom::SubscriptionService.new( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service )
+		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 
 		order = subscription_service.charge_subscription( subscription )
 
@@ -151,7 +151,7 @@ describe "SubscriptionService" do
 
 		sleep 2.25.minutes # sleep 2 minutes to get over the duplicate window
 
-		subscription_service = SwellEcom::SubscriptionService.new( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service )
+		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 
 		order = subscription_service.charge_subscription( subscription )
 
@@ -185,7 +185,7 @@ describe "SubscriptionService" do
 
 	it "should not charge inactive" do
 
-		subscription_service = SwellEcom::SubscriptionService.new( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service )
+		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 		subscription = new_trial1_subscription
 
 		subscription.status = 'canceled'
@@ -204,7 +204,7 @@ describe "SubscriptionService" do
 
 	it "should not charge if subscription is not yet past next_charged_at" do
 
-		subscription_service = SwellEcom::SubscriptionService.new( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service )
+		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 		subscription = new_trial1_subscription
 		time_now = Time.now
 
@@ -215,7 +215,7 @@ describe "SubscriptionService" do
 
 	it "should handle expired credit cards" do
 
-		subscription_service = SwellEcom::SubscriptionService.new( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service )
+		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 		subscription = new_trial1_subscription
 		time_now = Time.now + 2.years
 
