@@ -13,7 +13,7 @@ describe "AuthorizeDotNetTransactionService" do
 		return { card_number: '4111111111111111', expiration: "#{exp_month}/#{exp_year}", card_code: '1234' }
 	}
 	let(:new_subscription_plan_order) {
-		order = SwellEcom::Order.new( billing_address: address, shipping_address: address, user: user )
+		order = SwellEcom::CheckoutOrder.new( billing_address: address, shipping_address: address, user: user )
 		order.order_items.new item: subscription_plan, price: subscription_plan.price, subtotal: subscription_plan.price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
 
 		order.define_singleton_method(:properties) do
@@ -26,7 +26,7 @@ describe "AuthorizeDotNetTransactionService" do
 		order
 	}
 	let(:new_trial_subscription_plan_order) {
-		order = SwellEcom::Order.new( billing_address: address, shipping_address: address, user: user )
+		order = SwellEcom::CheckoutOrder.new( billing_address: address, shipping_address: address, user: user )
 		order.order_items.new item: subscription_plan, price: subscription_plan.trial_price, subtotal: subscription_plan.trial_price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
 
 		order.define_singleton_method(:properties) do
@@ -119,7 +119,7 @@ describe "AuthorizeDotNetTransactionService" do
 		response = transaction_service.capture_payment_method( order, credit_card: credit_card )
 
 		expect(response.errors.full_messages.join('')).to eq ''
-		response.should be_instance_of(SwellEcom::Order)
+		response.should be_instance_of(SwellEcom::CheckoutOrder)
 		expect(response.errors.present?).to eq false
 		expect(response.payment_status).to eq 'payment_method_captured'
 		expect(response.status).to eq 'pre_order'

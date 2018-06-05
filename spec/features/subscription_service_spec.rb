@@ -10,7 +10,7 @@ describe "SubscriptionService" do
 		subscription_plan = SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 2, price: 12900, billing_interval_unit: 'weeks', billing_interval_value: 4, trial_interval_unit: 'days', trial_interval_value: 7 )
 		subscription = SwellEcom::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now, provider: 'Authorize.net' )
 
-		order = SwellEcom::Order.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
+		order = SwellEcom::CheckoutOrder.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
 		order.order_items.new item: subscription_plan, subscription: subscription, price: subscription_plan.trial_price, subtotal: subscription_plan.trial_price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
 		@transaction_service.process( order, credit_card: credit_card )
 
@@ -21,7 +21,7 @@ describe "SubscriptionService" do
 		subscription_plan = SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 1, price: 12900, billing_interval_unit: 'weeks', billing_interval_value: 4, trial_interval_unit: 'days', trial_interval_value: 7 )
 		subscription = SwellEcom::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now, provider: 'Authorize.net' )
 
-		order = SwellEcom::Order.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
+		order = SwellEcom::CheckoutOrder.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
 		order.order_items.new item: subscription_plan, subscription: subscription, price: subscription_plan.trial_price, subtotal: subscription_plan.trial_price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
 		@transaction_service.process( order, credit_card: credit_card )
 
@@ -113,7 +113,7 @@ describe "SubscriptionService" do
 
 		order = subscription_service.charge_subscription( subscription )
 
-		order.should be_instance_of(SwellEcom::Order)
+		order.should be_instance_of(SwellEcom::CheckoutOrder)
 		expect(order.payment_status).to eq 'paid'
 		expect(order.fulfillment_status).to eq 'unfulfilled'
 		expect(order.generated_by).to eq 'system_generaged'
@@ -155,7 +155,7 @@ describe "SubscriptionService" do
 
 		order = subscription_service.charge_subscription( subscription )
 
-		order.should be_instance_of(SwellEcom::Order)
+		order.should be_instance_of(SwellEcom::CheckoutOrder)
 		expect(order.payment_status).to eq 'paid'
 		expect(order.fulfillment_status).to eq 'unfulfilled'
 		expect(order.generated_by).to eq 'system_generaged'
@@ -197,7 +197,7 @@ describe "SubscriptionService" do
 
 		subscription.status = 'active'
 		order = subscription_service.charge_subscription( subscription )
-		order.should be_instance_of(SwellEcom::Order)
+		order.should be_instance_of(SwellEcom::CheckoutOrder)
 
 	end
 
@@ -223,7 +223,7 @@ describe "SubscriptionService" do
 		order = subscription_service.charge_subscription( subscription )
 		expect( subscription.status ).to eq 'failed'
 
-		order.should be_instance_of(SwellEcom::Order)
+		order.should be_instance_of(SwellEcom::CheckoutOrder)
 		expect(order.payment_status).to eq 'declined'
 		expect(order.fulfillment_status).to eq 'unfulfilled'
 		expect( order.errors.present? ).to eq true

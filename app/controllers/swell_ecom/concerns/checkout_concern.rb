@@ -8,14 +8,16 @@ module SwellEcom
 
 				# if order user exists, update it's address info with the
 				# billing address, if not already set
-				if order.user.present?
-					order.user.update(
+				if ( user = order.user ).present?
+					user.update(
 						address1: (order.user.address1 || order.billing_address.street),
 						address2: (order.user.address2 || order.billing_address.street2),
 						city: (order.user.city || order.billing_address.city),
 						state: (order.user.state || order.billing_address.state_abbrev),
 						zip: (order.user.zip || order.billing_address.zip),
-						phone: (order.user.phone || order.billing_address.phone)
+						phone: (order.user.phone || order.billing_address.phone),
+						preferred_billing_address_id: (user.preferred_billing_address_id || order.billing_address.id),
+						preferred_shipping_address_id: (user.preferred_shipping_address_id || order.shipping_address.id),
 					)
 				end
 

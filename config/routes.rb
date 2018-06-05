@@ -70,6 +70,15 @@ SwellEcom::Engine.routes.draw do
 
 	resources :subscription_plans, path: 'subscriptions'
 
+	resources :wholesale_checkout, only: [:create,:index] do
+		post :calculate, on: :collection
+		post :confirm, on: :collection
+		get :thank_you, on: :member, path: 'thank-you'
+	end
+	
+	resources :wholesale_item_admin, only: [:create,:update,:destroy]
+	resources :wholesale_profile_admin, except: [:new]
+
 	resources :your_account, only: [:index]
 	resources :your_orders, only: [:index, :show]
 	resources :your_subscriptions, only: [:index, :show, :update, :destroy] do

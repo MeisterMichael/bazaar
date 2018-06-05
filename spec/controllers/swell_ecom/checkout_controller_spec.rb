@@ -101,8 +101,8 @@ RSpec.describe SwellEcom::CheckoutController, :type => :controller do
 			expect( new_cart.present? ).to eq(true)
 			expect( new_cart.status ).to eq('success')
 
-			order = SwellEcom::Order.find_by( code: body_json['order_code'] )
-			expect(order.class).to eq( SwellEcom::Order )
+			order = SwellEcom::CheckoutOrder.find_by( code: body_json['order_code'] )
+			expect(order.class).to eq( SwellEcom::CheckoutOrder )
 			expect( order.code ).to eq( body_json['order_code'] )
 			expect( order.payment_status ).to eq( 'paid' )
 			expect( order.fulfillment_status ).to eq( 'unfulfilled' )
@@ -205,8 +205,8 @@ RSpec.describe SwellEcom::CheckoutController, :type => :controller do
 			expect( new_cart.present? ).to eq(true)
 			expect( new_cart.status ).to eq('success')
 
-			order = SwellEcom::Order.find_by( code: body_json['order_code'] )
-			expect(order.class).to eq( SwellEcom::Order )
+			order = SwellEcom::CheckoutOrder.find_by( code: body_json['order_code'] )
+			expect(order.class).to eq( SwellEcom::CheckoutOrder )
 			expect( order.status ).to eq( 'active' )
 			expect( order.code ).to eq( body_json['order_code'] )
 			expect( order.payment_status ).to eq( 'paid' )
@@ -297,8 +297,8 @@ RSpec.describe SwellEcom::CheckoutController, :type => :controller do
 			expect( new_cart.present? ).to eq(true)
 			expect( new_cart.status ).to eq('success')
 
-			order = SwellEcom::Order.find_by( code: body_json['order_code'] )
-			expect(order.class).to eq( SwellEcom::Order )
+			order = SwellEcom::CheckoutOrder.find_by( code: body_json['order_code'] )
+			expect(order.class).to eq( SwellEcom::CheckoutOrder )
 			expect( order.status ).to eq( 'pre_order' )
 			expect( order.code ).to eq( body_json['order_code'] )
 			expect( order.payment_status ).to eq( 'payment_method_captured' )
