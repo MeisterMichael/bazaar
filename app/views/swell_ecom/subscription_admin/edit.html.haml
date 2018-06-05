@@ -55,6 +55,12 @@
 							%th.text-right{ style: 'width: 10em' } Amount
 							%th{ style: 'width: 4em' } Currency
 					%tbody
+						- if @transactions.blank?
+							%tr
+								%td{ colspan: 7 }
+									\- No Transactions Found -
+
+
 						- @transactions.each do |transaction|
 							%tr
 								%td
