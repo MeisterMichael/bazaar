@@ -2,6 +2,7 @@
 namespace :swell_ecom do
 
 	task backfill_geo_address_tags: :environment do
+		puts "backfill_geo_address_tags"
 
 		SwellEcom::GeoAddress.where( id: SwellEcom::Order.select(:shipping_address_id) ).find_each do |geo_address|
 			geo_address.tags = geo_address.tags + ['shipping_address']
@@ -20,6 +21,7 @@ namespace :swell_ecom do
 	end
 
 	task migrate_all_orders_to_checkout_order: :environment do
+		puts "migrate_all_orders_to_checkout_order"
 
 		orders = SwellEcom::Order.all
 		orders.update_all( type: SwellEcom.checkout_order_class_name, source: 'Consumer Checkout' )
