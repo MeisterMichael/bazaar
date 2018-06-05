@@ -1,7 +1,6 @@
 module SwellEcom
 	class SubscriptionAdminController < SwellEcom::EcomAdminController
 
-
 		before_action :get_subscription, except: [ :index ]
 		before_action :init_search_service, only: [:index]
 
@@ -101,6 +100,11 @@ module SwellEcom
 			@subscriptions = @search_service.subscription_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Subscriptions" )
+		end
+
+		def new
+			@subscription = SwellEcom::Subscription.new( shipping_address: SwellEcom::GeoAddress.new, billing_address: SwellEcom::GeoAddress.new )
+			@user = SwellMedia.registered_user_class.constantize.find( params[:user_id] )
 		end
 
 		def payment_profile
