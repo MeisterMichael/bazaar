@@ -75,7 +75,7 @@ module SwellEcom
 		def state_input
 			authorize( Order, :admin_checkout? )
 
-			@order = Order.new currency: 'usd'
+			@order = CheckoutOrder.new currency: 'usd'
 			@order.shipping_address = GeoAddress.new
 			@order.billing_address 	= GeoAddress.new
 
