@@ -58,7 +58,7 @@ module SwellEcom
 		end
 
 		def order
-			Order.joins(:order_items).where( order_items: { subscription_id: self.id } ).first
+			Order.joins(:order_items).merge(OrderItem.prod.where( subscription_id: self.id )).first
 		end
 
 		def orders
