@@ -67,7 +67,7 @@ module SwellEcom
 
 
 			rates = find_order_rates( order, args )
-			sorted_rates = rates.sort_by{ |rate| rate[:price] }
+			sorted_rates = rates.sort_by{ |rate| rate[:cost] }
 
 			if args[:rate_code].present?
 				rate = sorted_rates.select{ |rate| rate[:carrier_service].service_code == args[:rate_code] }.first
@@ -100,7 +100,7 @@ module SwellEcom
 		end
 
 		def find_default_rate( rates )
-			rate = rates.sort_by{ |rate| rate[:price] }.first
+			rate = rates.sort_by{ |rate| rate[:cost] }.first
 		end
 
 		def find_order_rates( order, args = {} )
@@ -116,7 +116,7 @@ module SwellEcom
 			cache_key = geo_address.attributes.to_json
 			cache_key = cache_key + line_items.collect(&:attributes).to_json
 
-			Rails.cache.fetch("swell_ecom/shipping_service/#{cache_key}", expires_in: 10.minutes) do
+			cached_rates = Rails.cache.fetch("swell_ecom/shipping_service/#{cache_key}", expires_in: 10.minutes) do
 
 				request_rates = request_address_rates( geo_address, line_items, args )
 
@@ -136,12 +136,22 @@ module SwellEcom
 					price = (rate[:price] * @multiplier_adjustment + @flat_adjustment).round()
 					label = carrier_service.shipping_option.try(:name) || @labels[rate[:name]] || rate[:name]
 
-					rates << { price: price, label: label, id: carrier_service.id, carrier_service: carrier_service } # @todo if carrier_service.active? && carrier_service.shipping_option.try(:active?)
+					rates << { price: price, cost: rate[:price], label: label, id: carrier_service.id, carrier_service: carrier_service } # @todo if carrier_service.active? && carrier_service.shipping_option.try(:active?)
 				end
 
 				rates
 
-		    end
+	    end
+
+			unless ( fixed_price = args[:fixed_price] ).nil?
+
+				cached_rates.each do |rate|
+					rate[:price] = fixed_price
+				end
+
+			end
+
+			cached_rates
 		end
 
 		def request_address_rates( geo_address, line_items, args = {} )

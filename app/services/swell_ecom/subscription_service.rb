@@ -105,6 +105,8 @@ module SwellEcom
 				trial_price: args[:trial_price],
 				price: args[:price],
 				shipping_carrier_service_id: args[:shipping_carrier_service_id],
+				shipping: args[:shipping],
+				tax: args[:tax],
 			)
 
 			if subscription.respond_to? :properties
@@ -158,7 +160,7 @@ module SwellEcom
 			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present? && discount.active? && discount.in_progress?( now: time_now )
 
 			# process order
-			transaction = @order_service.process( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id } )
+			transaction = @order_service.process( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping } )
 
 			# Transaction fails if transaction is false or not approved.
 			transaction_failed = !transaction || not( transaction.approved? )
