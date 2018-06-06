@@ -67,7 +67,7 @@ module SwellEcom
 		def process_purchase( order, args = {} )
 
 			if order.total == 0
-				@transaction_service.capture_payment_method( order, args[:transaction] )
+				# @transaction_service.capture_payment_method( order, args[:transaction] )
 
 				if order.nested_errors.blank?
 					order.payment_status = 'paid'
