@@ -51,6 +51,9 @@ module SwellEcom
 			subscription_options[:shipping_address] ||= subscription_options[:billing_address]
 			subscription_options[:billing_address]	||= subscription_options[:shipping_address]
 
+			subscription_options[:billing_address].user		= user
+			subscription_options[:shipping_address].user	= user
+
 			subscription_options[:trial_price]			= subscription_options[:trial_price].to_i if subscription_options[:trial_price]
 			subscription_options[:price]						= subscription_options[:price].to_i if subscription_options[:price]
 			subscription_options[:quantity]					= subscription_options[:quantity].to_i if subscription_options[:quantity]
