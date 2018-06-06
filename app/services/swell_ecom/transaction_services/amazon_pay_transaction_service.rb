@@ -276,8 +276,6 @@ module SwellEcom
           return false
         end
 
-        order.status = 'active'
-
         transaction.amount = order.total
         transaction.reference_code = amazon_capture_id
 
@@ -286,6 +284,7 @@ module SwellEcom
 				transaction.properties['amazon_authorization_id'] = amazon_authorization_id
 
         if response.success
+        	order.status = 'active'
           order.payment_status = 'paid'
           order.save
 
