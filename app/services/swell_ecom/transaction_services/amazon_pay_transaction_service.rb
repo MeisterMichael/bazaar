@@ -71,6 +71,7 @@ module SwellEcom
         # args[:address_consent_token], args[:orderReferenceId], args[:amazon_billing_agreement_id]
 
         order.provider_customer_payment_profile_reference ||= ( args[:orderReferenceId] || args[:amazon_billing_agreement_id] )
+				order.provider = self.provider_name
 
         transaction = SwellEcom::Transaction.new(
           provider: provider_name,
