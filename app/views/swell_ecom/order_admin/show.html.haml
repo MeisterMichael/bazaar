@@ -10,13 +10,17 @@
 						Orders
 
 			- if policy(@order).admin_update?
-				- if @order.pre_order? || @order.draft?
-					.pull-right
+				.pull-right
+					- if @order.review?
+						%a.btn.btn-primary{ href: accept_order_admin_path( @order ), data: { method: 'POST' } }
+							Accept
+						%a.btn.btn-default{ href: reject_order_admin_path( @order ), data: { method: 'POST' } }
+							Reject
+					- if @order.pre_order? || @order.draft?
 						%a.btn.btn-primary{ href: checkout_admin_path( @order, order: { status: 'active' } ), data: { method: 'PUT' } }
 							%i.fa.fa-send
 							Process
-				- if not( SwellEcom.automated_fulfillment )
-					.pull-right
+					- if not( SwellEcom.automated_fulfillment )
 						- if @order.unfulfilled?
 							%a.btn.btn-primary{ href: order_admin_path( @order, order: { fulfillment_status: 'fulfilled' } ), data: { method: 'PUT' } }
 								%i.fa.fa-send

@@ -10,6 +10,28 @@ module SwellEcom
 		before_action :get_order, except: [ :index, :create, :new ]
 		before_action :init_search_service, only: [:index]
 
+		def accept
+
+			if @order.review?
+
+				@order.active!
+
+				@order.order_items.where.not( subscription: nil ).each do |order_item|
+					order_item.subscription.active! if order_item.subscription.review?
+				end
+
+				@order.order_items.prod.where( item_type: SwellEcom::Subscription.base_class.name ).each do |order_item|
+					order_item.item.active! if order_item.item.review?
+				end
+
+				set_flash "Order has been activated.", :success
+
+			end
+
+			redirect_back fallback_location: '/admin'
+
+		end
+
 		def address
 			authorize( @order, :admin_update? )
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
@@ -137,6 +159,28 @@ module SwellEcom
 			end
 
 			redirect_to swell_ecom.order_admin_path( @order )
+		end
+
+		def reject
+
+			if @order.review?
+
+				@order.rejected!
+
+				@order.order_items.where.not( subscription: nil ).each do |order_item|
+					order_item.subscription.rejected!
+				end
+
+				@order.order_items.prod.where( item_type: SwellEcom::Subscription.base_class.name ).each do |order_item|
+					order_item.item.rejected!
+				end
+
+				set_flash "Order has been rejected.", :success
+
+			end
+
+			redirect_back fallback_location: '/admin'
+
 		end
 
 		def show

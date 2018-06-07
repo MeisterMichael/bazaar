@@ -29,8 +29,10 @@ SwellEcom::Engine.routes.draw do
 	resources :geo_states, only: [:index]
 
 	resources :order_admin do
+		post :accept, on: :member
 		post :address, on: :member
 		post :refund, on: :member
+		post :reject, on: :member
 		get :thank_you, on: :member
 		put :update_discount, on: :member
 	end
@@ -75,7 +77,7 @@ SwellEcom::Engine.routes.draw do
 		post :confirm, on: :collection
 		get :thank_you, on: :member, path: 'thank-you'
 	end
-	
+
 	resources :wholesale_item_admin, only: [:create,:update,:destroy]
 	resources :wholesale_profile_admin, except: [:new]
 
