@@ -1,6 +1,10 @@
 
+== 2.13.0
+* Order refactor 
+
+
 == 2.12.0
-* Subscription shipping preferences 
+* Subscription shipping preferences
 
 == V2.7.0
 * Send Order.ip address to authorize.net
