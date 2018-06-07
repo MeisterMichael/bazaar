@@ -131,6 +131,8 @@ module SwellEcom
 				# billing address, if not already set
 				update_order_user_address( @order )
 
+				@order.update( status: 'review' ) if @order.order_items.prod.sum(:quantity) > SwellEcom.review_quantity_threshold
+
 				@cart.update( order_id: @order.id, status: 'success' )
 
 				# transfer declined transactions from cart to order

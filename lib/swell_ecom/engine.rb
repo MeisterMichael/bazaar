@@ -16,6 +16,8 @@ module SwellEcom
 		mattr_accessor :discount_service_class
 		mattr_accessor :discount_service_config
 
+		mattr_accessor :review_quantity_threshold
+
 		mattr_accessor :shipping_service_class
 		mattr_accessor :shipping_service_config
 
@@ -59,6 +61,8 @@ module SwellEcom
 
 		self.discount_service_class = "SwellEcom::DiscountService"
 		self.discount_service_config = {}
+
+		self.review_quantity_threshold = 9999
 
 		self.shipping_service_class = "SwellEcom::ShippingService"
 		self.shipping_service_config = {}
