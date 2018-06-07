@@ -29,9 +29,9 @@ module SwellEcom
 		money_attributes :subtotal, :tax, :shipping, :total, :discount
 
 
-		def email=(value)
-			super( SwellMedia::Email.email_sanitize( value ) )
-		end
+		# def email=(value)
+		# 	super( SwellMedia::Email.email_sanitize( value ) )
+		# end
 
 		def self.not_archived
 			where.not( status: SwellEcom::Order.statuses['archived'] )
