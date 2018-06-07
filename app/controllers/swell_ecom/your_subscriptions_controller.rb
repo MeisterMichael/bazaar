@@ -5,6 +5,11 @@ module SwellEcom
 		before_action :get_subscription, except: [ :index ]
 
 		def destroy
+			if @subscription.review? || @subscription.rejected?
+				set_flash "Unable to edit a subscription under review"
+				redirect_back fallback_location: settings_subscriptions_path
+				return false
+			end
 
 			@subscription.canceled!
 
@@ -36,6 +41,12 @@ module SwellEcom
 		end
 
 		def update
+
+			if @subscription.review? || @subscription.rejected?
+				set_flash "Unable to edit a subscription under review"
+				redirect_back fallback_location: settings_subscriptions_path
+				return false
+			end
 
 			if ( payment_info = params[:payment_info] ).present?
 
@@ -113,6 +124,12 @@ module SwellEcom
 		end
 
 		def update_discount
+
+			if @subscription.review? || @subscription.rejected?
+				set_flash "Unable to edit a subscription under review"
+				redirect_back fallback_location: settings_subscriptions_path
+				return false
+			end
 
 			@discount = SwellEcom::Discount.active.in_progress.find_by( code: params[:code].downcase ) if params[:code].present?
 
