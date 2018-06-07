@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Status
-			= form_for @order, url: order_admin_path( @order ) do |f|
+			= form_for @order, url: order_admin_path( @order ), as: :order do |f|
 				.modal-body{ style: 'text-align: center;' }
 					.form-group
 						=f.label :status

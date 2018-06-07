@@ -1,14 +1,14 @@
 
 
 .row
-	.col-xs-10
+	.col-xs-12
 		%ul.breadcrumb
 			%li
 				%a{ href: customer_admin_index_path }
 					%i.fa.fa-angle-left
 					Customers
 		.pull-right
-			%a.btn.btn-default{ href: '#new_user_subscription_modal', data: { toggle: :modal, target: '#new_user_subscription_modal' } }
+			%a.btn.btn-default{ href: swell_ecom.new_subscription_admin_path( user_id: @user.id ) }
 				Add Subscription
 		%h2
 			%strong= @user
@@ -137,5 +137,3 @@
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
-
-= render 'swell_ecom/subscription_admin/new_user_subscription_modal', user: @user, attributes: {}

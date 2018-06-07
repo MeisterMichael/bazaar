@@ -58,11 +58,15 @@ module SwellEcom
 		end
 
 		def order
-			Order.joins(:order_items).where( order_items: { subscription_id: self.id } ).first
+			Order.joins(:order_items).merge(OrderItem.prod.where( subscription_id: self.id )).first
 		end
 
 		def orders
-			Order.where( "orders.id = :order_id OR (orders.parent_type = :subscription_type AND orders.parent_id = :subscription_id)", subscription_id: self.id, subscription_type: SwellEcom::Subscription.base_class.name, order_id: self.order.id )
+			if self.order.present?
+				Order.where( "orders.id = :order_id OR (orders.parent_type = :subscription_type AND orders.parent_id = :subscription_id)", subscription_id: self.id, subscription_type: SwellEcom::Subscription.base_class.name, order_id: self.order.id )
+			else
+				Order.where( parent: self )
+			end
 		end
 
 		def page_event_data

@@ -32,7 +32,7 @@ module SwellEcom
 		end
 
 		def create
-			@order = SwellEcom::Order.new( order_params )
+			@order = SwellEcom::CheckoutOrder.new( order_params )
 			@order.user = SwellMedia.registered_user_class.constantize.find_by( email: @order.email.downcase )
 			@order.user ||= SwellMedia.registered_user_class.constantize.create( email: @order.email.downcase, first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name )
 			@order.total ||= 0
@@ -92,9 +92,9 @@ module SwellEcom
 
 		def new
 			if params[:order]
-				@order = SwellEcom::Order.new order_params
+				@order = SwellEcom::CheckoutOrder.new order_params
 			else
-				@order = SwellEcom::Order.new
+				@order = SwellEcom::CheckoutOrder.new
 				@order.billing_address = SwellEcom::GeoAddress.new
 				@order.shipping_address = SwellEcom::GeoAddress.new
 			end

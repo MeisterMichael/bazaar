@@ -4,15 +4,15 @@ module SwellEcom
 		self.table_name = 'orders'
 		include SwellEcom::Concerns::MoneyAttributesConcern
 
-		enum status: { 'trash' => -99, 'draft' => 0, 'pre_order' => 1, 'active' => 2, 'archived' => 99 }
+		enum status: { 'trash' => -99, 'draft' => 0, 'pre_order' => 1, 'active' => 2, 'review' => 98, 'archived' => 99 }
 		enum payment_status: { 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'invoice' => 0, 'payment_method_captured' => 1, 'paid' => 2 }
 		enum fulfillment_status: { 'fulfillment_canceled' => -3, 'fulfillment_error' => -1, 'unfulfilled' => 0, 'partially_fulfulled' => 1, 'fulfilled' => 2, 'delivered' => 3 }
 		enum generated_by: { 'customer_generated' => 1, 'system_generaged' => 2 }
 
 		before_create :generate_order_code
 
-		belongs_to 	:billing_address, class_name: 'GeoAddress', validate: true, required: true
-		belongs_to 	:shipping_address, class_name: 'GeoAddress', validate: true, required: true
+		belongs_to 	:billing_address, class_name: 'SwellEcom::GeoAddress', validate: true, required: true
+		belongs_to 	:shipping_address, class_name: 'SwellEcom::GeoAddress', validate: true, required: true
 		belongs_to 	:user, required: false, class_name: SwellMedia.registered_user_class
 		belongs_to	:parent, polymorphic: true, required: false
 
@@ -22,10 +22,16 @@ module SwellEcom
 		has_one 	:cart, dependent: :destroy
 
 		validates_format_of	:email, with: Devise.email_regexp, if: :email_changed?
+		validate :order_address_users_match
 
 		accepts_nested_attributes_for :billing_address, :shipping_address, :order_items
 
 		money_attributes :subtotal, :tax, :shipping, :total, :discount
+
+
+		# def email=(value)
+		# 	super( SwellMedia::Email.email_sanitize( value ) )
+		# end
 
 		def self.not_archived
 			where.not( status: SwellEcom::Order.statuses['archived'] )
@@ -60,6 +66,11 @@ module SwellEcom
 		end
 
 		private
+
+		def order_address_users_match
+			self.errors.add(:billing_address, "does not exist.") if self.user.present? && billing_address.user != self.user
+			self.errors.add(:shipping_address, "does not exist.") if self.user.present? && shipping_address.user != self.user
+		end
 
 		def generate_order_code
 			self.code = loop do

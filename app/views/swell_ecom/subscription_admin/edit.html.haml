@@ -38,7 +38,7 @@
 									\- No Orders Found -
 						- @orders.each do |order|
 							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
-						- if ( order = @subscription.order ).present?
+						- if ( order = @subscription.order ).present? && not( @orders.include?( order ) )
 							= render 'swell_ecom/order_admin/table_row', order: order, args: { controls: false, customer: false }
 
 
@@ -55,6 +55,12 @@
 							%th.text-right{ style: 'width: 10em' } Amount
 							%th{ style: 'width: 4em' } Currency
 					%tbody
+						- if @transactions.blank?
+							%tr
+								%td{ colspan: 7 }
+									\- No Transactions Found -
+
+
 						- @transactions.each do |transaction|
 							%tr
 								%td

@@ -1,7 +1,6 @@
 module SwellEcom
 	class SubscriptionAdminController < SwellEcom::EcomAdminController
 
-
 		before_action :get_subscription, except: [ :index ]
 		before_action :init_search_service, only: [:index]
 
@@ -31,6 +30,8 @@ module SwellEcom
 			user = SwellMedia.registered_user_class.constantize.find( params[:user_id] )
 
 			subscription_options = params.require(:subscription).permit(
+				:shipping,
+				:tax,
 				:trial_price,
 				:price,
 				:quantity,
@@ -50,9 +51,14 @@ module SwellEcom
 			subscription_options[:shipping_address] ||= subscription_options[:billing_address]
 			subscription_options[:billing_address]	||= subscription_options[:shipping_address]
 
-			subscription_options[:trial_price]		= subscription_options[:trial_price].to_i if subscription_options[:trial_price]
-			subscription_options[:price]			= subscription_options[:price].to_i if subscription_options[:price]
-			subscription_options[:quantity]			= subscription_options[:quantity].to_i if subscription_options[:quantity]
+			subscription_options[:billing_address].user		= user
+			subscription_options[:shipping_address].user	= user
+
+			subscription_options[:trial_price]			= subscription_options[:trial_price].to_i if subscription_options[:trial_price]
+			subscription_options[:price]						= subscription_options[:price].to_i if subscription_options[:price]
+			subscription_options[:quantity]					= subscription_options[:quantity].to_i if subscription_options[:quantity]
+			subscription_options[:shipping]					||= 0
+			subscription_options[:tax]							||= 0
 
 			plan = SwellEcom::SubscriptionPlan.find( subscription_options.delete( :subscription_plan ) )
 
@@ -66,7 +72,7 @@ module SwellEcom
 			if @subscription.errors.present?
 				redirect_back fallback_location: '/admin'
 			else
-				@subscription.update( next_charged_at: Time.now ) # start the first charge now!
+				@subscription.update( next_charged_at: 15.minutes.from_now ) # start the first charge now!
 
 				redirect_to swell_ecom.edit_subscription_admin_path( @subscription )
 			end
@@ -101,6 +107,21 @@ module SwellEcom
 			@subscriptions = @search_service.subscription_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Subscriptions" )
+		end
+
+		def new
+			@user = SwellMedia.registered_user_class.constantize.find( params[:user_id] )
+
+			@subscription = SwellEcom::Subscription.new(
+				shipping_address: SwellEcom::GeoAddress.new(
+					first_name: @user.first_name,
+					last_name: @user.last_name,
+				),
+				billing_address: SwellEcom::GeoAddress.new(
+					first_name: @user.first_name,
+					last_name: @user.last_name,
+				),
+			)
 		end
 
 		def payment_profile

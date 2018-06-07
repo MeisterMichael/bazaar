@@ -10,7 +10,7 @@
 						#{@order.code}
 						by
 						#{@order.email}
-			= form_for @order, url: order_admin_path( @order ) do |f|
+			= form_for @order, url: order_admin_path( @order ), as: :order do |f|
 				.modal-body
 					.form-group
 						= f.text_area :support_notes, class: 'form-control'

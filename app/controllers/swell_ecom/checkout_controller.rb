@@ -86,6 +86,11 @@ module SwellEcom
 			@order.user ||= User.create_with( first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name ).find_or_create_by( email: @order.email.downcase ) if @order.email.present? && SwellEcom.create_user_on_checkout
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
+			@order.billing_address.tags = @order.billing_address.tags + ['billing_address']
+			@order.shipping_address.tags = @order.shipping_address.tags + ['shipping_address']
+
+			@order.source = 'Consumer Checkout'
+
 			@order_service.process( @order,
 				transaction: transaction_options.merge( default_parent_obj: @cart ),
 				shipping: shipping_options,
@@ -125,6 +130,8 @@ module SwellEcom
 				# if current user exists, update it's address info with the
 				# billing address, if not already set
 				update_order_user_address( @order )
+
+				@order.update( status: 'review' ) if @order.order_items.prod.sum(:quantity) > SwellEcom.review_quantity_threshold
 
 				@cart.update( order_id: @order.id, status: 'success' )
 
@@ -217,7 +224,7 @@ module SwellEcom
 
 		def get_order
 
-			@order = Order.new( get_order_attributes )
+			@order = SwellEcom.checkout_order_class_name.constantize.new( get_order_attributes )
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			discount = Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if discount_options[:code].present?

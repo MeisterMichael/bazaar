@@ -45,6 +45,10 @@ module SwellEcom
 			}
 		end
 
+		def discount_service
+			@discount_service
+		end
+
 		def process( order, args = {} )
 
 			args[:discount] ||= {}
@@ -63,7 +67,7 @@ module SwellEcom
 		def process_purchase( order, args = {} )
 
 			if order.total == 0
-				@transaction_service.capture_payment_method( order, args[:transaction] )
+				@transaction_service.capture_payment_method( order, args[:transaction] ) unless order.parent.is_a? SwellEcom::Subscription
 
 				if order.nested_errors.blank?
 					order.payment_status = 'paid'
@@ -98,6 +102,14 @@ module SwellEcom
 
 			@transaction_service.refund( args || {} )
 
+		end
+
+		def shipping_service
+			@shipping_service
+		end
+
+		def tax_service
+			@tax_service
 		end
 
 		def transaction_service

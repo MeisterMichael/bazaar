@@ -1,20 +1,47 @@
 # desc "Explaining what the task does"
 namespace :swell_ecom do
 
-		task recalculate_order_rollups: :environment do
+	task backfill_geo_address_tags: :environment do
+		puts "backfill_geo_address_tags"
 
-			orders = SwellEcom::Order.all
-			orders.find_each do |order|
+		SwellEcom::GeoAddress.where( id: SwellEcom::Order.select(:shipping_address_id) ).find_each do |geo_address|
+			geo_address.tags = geo_address.tags + ['shipping_address']
+			geo_address.save
 
-				order.shipping = order.order_items.select(&:shipping?).sum(&:subtotal)
-				order.tax = order.order_items.select(&:tax?).sum(&:subtotal)
-				order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
-				order.discount = order.order_items.select(&:discount?).sum(&:subtotal)
-				order.save
+			geo_address.user.update( preferred_shipping_address_id: geo_address.id ) if geo_address.user
+		end
 
-			end
+		SwellEcom::GeoAddress.where( id: SwellEcom::Order.select(:billing_address_id) ).find_each do |geo_address|
+			geo_address.tags = geo_address.tags + ['billing_address']
+			geo_address.save
+
+			geo_address.user.update( preferred_billing_address_id: geo_address.id ) if geo_address.user
+		end
+
+	end
+
+	task migrate_all_orders_to_checkout_order: :environment do
+		puts "migrate_all_orders_to_checkout_order"
+
+		orders = SwellEcom::Order.all
+		orders.update_all( type: SwellEcom.checkout_order_class_name, source: 'Consumer Checkout' )
+
+	end
+
+	task recalculate_order_rollups: :environment do
+
+		orders = SwellEcom::Order.all
+		orders.find_each do |order|
+
+			order.shipping = order.order_items.select(&:shipping?).sum(&:subtotal)
+			order.tax = order.order_items.select(&:tax?).sum(&:subtotal)
+			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
+			order.discount = order.order_items.select(&:discount?).sum(&:subtotal)
+			order.save
 
 		end
+
+	end
 
 
 	task migrate_order_status: :environment do

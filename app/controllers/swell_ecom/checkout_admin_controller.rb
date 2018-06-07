@@ -75,7 +75,7 @@ module SwellEcom
 		def state_input
 			authorize( Order, :admin_checkout? )
 
-			@order = Order.new currency: 'usd'
+			@order = CheckoutOrder.new currency: 'usd'
 			@order.shipping_address = GeoAddress.new
 			@order.billing_address 	= GeoAddress.new
 
@@ -132,7 +132,7 @@ module SwellEcom
 
 		def get_order
 
-			@order = Order.new( get_order_admin_attributes.merge( user: @user ) )
+			@order = SwellEcom.checkout_order_class_name.constantize.new( get_order_admin_attributes.merge( user: @user ) )
 			@order.user ||= User.find_or_create_by( email: @order.email ) if @order.email.present? && SwellEcom.create_user_on_checkout
 
 			@order.billing_address.user = @order.shipping_address.user = @order.user

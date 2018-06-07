@@ -71,6 +71,7 @@ module SwellEcom
         # args[:address_consent_token], args[:orderReferenceId], args[:amazon_billing_agreement_id]
 
         order.provider_customer_payment_profile_reference ||= ( args[:orderReferenceId] || args[:amazon_billing_agreement_id] )
+				order.provider = self.provider_name
 
         transaction = SwellEcom::Transaction.new(
           provider: provider_name,
@@ -276,8 +277,6 @@ module SwellEcom
           return false
         end
 
-        order.status = 'active'
-
         transaction.amount = order.total
         transaction.reference_code = amazon_capture_id
 
@@ -286,15 +285,17 @@ module SwellEcom
 				transaction.properties['amazon_authorization_id'] = amazon_authorization_id
 
         if response.success
+      		order.status = 'active'
           order.payment_status = 'paid'
           order.save
 
           transaction.status = 'approved'
           transaction.parent_obj = order
         else
+					order.status = 'trash'
           order.payment_status = 'declined'
-          order.errors.add(:base, :processing_error, message: "Transaction declined.")
           order.save if order.persisted?
+          order.errors.add(:base, :processing_error, message: "Transaction declined.")
 
           transaction.status = 'declined'
           transaction.message = response.get_element('ErrorResponse/Error','Message')

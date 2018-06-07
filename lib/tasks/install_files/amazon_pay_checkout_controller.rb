@@ -62,7 +62,7 @@ class AmazonPayCheckoutController < SwellEcom::CheckoutController
 	end
 
 	def get_order
-		@order = SwellEcom::Order.new( get_order_attributes )
+		@order = SwellEcom::CheckoutOrder.new( get_order_attributes )
 		@order.billing_address.user = @order.shipping_address.user = @order.user
 
 		discount = SwellEcom::Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if discount_options[:code].present?
