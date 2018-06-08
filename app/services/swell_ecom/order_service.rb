@@ -5,6 +5,9 @@ module SwellEcom
 
 		def initialize( args = {} )
 
+			@fraud_service		= args[:fraud_service]
+			@fraud_service		||= SwellEcom.fraud_service_class.constantize.new( SwellEcom.fraud_service_config )
+
 			@shipping_service		= args[:shipping_service]
 			@shipping_service		||= SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
 
@@ -122,6 +125,7 @@ module SwellEcom
 			order.validate
 			@shipping_service.validate( order.shipping_address )
 			@shipping_service.validate( order.billing_address )
+			@fraud_service.validate( order )
 
 			return not( order.nested_errors.present? )
 		end
