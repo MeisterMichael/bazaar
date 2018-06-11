@@ -131,15 +131,7 @@ module SwellEcom
 				# billing address, if not already set
 				update_order_user_address( @order )
 
-				if @order.order_items.prod.sum(:quantity) > SwellEcom.review_quantity_threshold
-
-					@order.review!
-
-					@order.order_items.prod.where.not( subscription: nil ).each do |order_item|
-						order_item.subscription.review! if order_item.subscription.active?
-					end
-
-				end
+				@fraud_service.mark_for_review( @order ) if @fraud_service.suspicious?( @order )
 
 				@cart.update( order_id: @order.id, status: 'success' )
 

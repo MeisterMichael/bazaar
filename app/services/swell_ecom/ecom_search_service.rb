@@ -67,7 +67,7 @@ module SwellEcom
 				addresses = options[:addresses] || self.address_search( term )
 				users = options[:customers] || self.customer_search( term, {}, addresses: addresses )
 
-				orders = orders.where( "email ILIKE :q OR code ILIKE :q OR billing_address_id IN (:address_ids) OR shipping_address_id IN (:address_ids) OR user_id IN (:user_ids)", q: query, address_ids: addresses.select(:id), user_ids: users.select(:id) )
+				orders = orders.where( "email ILIKE :q OR code ILIKE :q OR provider_reference ILIKE :q OR billing_address_id IN (:address_ids) OR shipping_address_id IN (:address_ids) OR user_id IN (:user_ids)", q: query, address_ids: addresses.select(:id), user_ids: users.select(:id) )
 			end
 
 			return self.apply_options_and_filters( orders, filters, options )

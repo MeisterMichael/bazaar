@@ -8,21 +8,12 @@ module SwellEcom
 
 
 		before_action :get_order, except: [ :index, :create, :new ]
-		before_action :init_search_service, only: [:index]
+		before_action :initialize_search_service, only: [ :index ]
+		before_action :initialize_fraud_service, only: [ :accept, :reject ]
 
 		def accept
 
-			if @order.review?
-
-				@order.active!
-
-				@order.order_items.where.not( subscription: nil ).each do |order_item|
-					order_item.subscription.active! if order_item.subscription.review?
-				end
-
-				@order.order_items.prod.where( item_type: SwellEcom::Subscription.base_class.name ).each do |order_item|
-					order_item.item.active! if order_item.item.review?
-				end
+			if @fraud_service.accept_review( @order )
 
 				set_flash "Order has been activated.", :success
 
@@ -163,17 +154,7 @@ module SwellEcom
 
 		def reject
 
-			if @order.review?
-
-				@order.rejected!
-
-				@order.order_items.where.not( subscription: nil ).each do |order_item|
-					order_item.subscription.rejected!
-				end
-
-				@order.order_items.prod.where( item_type: SwellEcom::Subscription.base_class.name ).each do |order_item|
-					order_item.item.rejected!
-				end
+			if @fraud_service.reject_review( @order )
 
 				set_flash "Order has been rejected.", :success
 
@@ -291,7 +272,11 @@ module SwellEcom
 				@order = Order.find_by( id: params[:id] )
 			end
 
-			def init_search_service
+			def initialize_fraud_service
+				@fraud_service = SwellEcom.fraud_service_class.constantize.new( SwellEcom.fraud_service_config )
+			end
+
+			def initialize_search_service
 				@search_service = EcomSearchService.new
 			end
 
