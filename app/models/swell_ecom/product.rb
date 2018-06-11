@@ -89,6 +89,30 @@ module SwellEcom
 				title = SwellMedia.app_name
 			end
 
+			schema_org = {
+				'@type' => 'Product',
+				'url' => self.url,
+				'description' => self.description,
+				'name' => self.title,
+				'datePublished' => self.publish_at.iso8601,
+				'image' => self.avatar,
+				'offers' => {
+					'@type' => 'Offer',
+					'availability' => ( self.open_availability? ? 'http://schema.org/InStock' : 'http://schema.org/OutOfStock' ),
+					'price' => self.price_as_money_string,
+					'priceCurrency' => self.currency,
+				}
+			}
+
+			# schema_org = schema_org.merge(
+			# 	'aggregateRating' => {
+			# 		'@type' => 'AggregateRating',
+			# 		'ratingValue' => self.rating,
+			# 		'reviewCount' => ,
+			# 	},
+			# 	'review' => reviews.collect{|review| review.page_event_data }
+			# )
+
 			return {
 				page_title: title,
 				title: self.title,
@@ -102,14 +126,7 @@ module SwellEcom
 					"product:price:amount" => self.price / 100.to_f,
 					"product:price:currency" => 'USD'
 				},
-				data: {
-					'url' => self.url,
-					'name' => self.title,
-					'description' => self.sanitized_description,
-					'datePublished' => self.publish_at.iso8601,
-					'image' => self.avatar
-				}
-
+				data: schema_org,
 			}
 		end
 
