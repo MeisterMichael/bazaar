@@ -9,10 +9,14 @@ module SwellEcom
 		class AmazonPayTransactionService < SwellEcom::TransactionService
 			DEFAULT_PROVIDER_NAME = 'AmazonPay'
 
+			BILLING_AGREEMENT_ADDRESS_XPATH = '/GetBillingAgreementDetailsResponse/GetBillingAgreementDetailsResult/BillingAgreementDetails/Destination/PhysicalDestination'
+			BILLING_AGREEMENT_BUYER_XPATH = '/GetBillingAgreementDetailsResponse/GetBillingAgreementDetailsResult/BillingAgreementDetails/Buyer'
+
+
 			def initialize( args = {} )
 				raise Exception.new('add "gem \'amazon_pay\'" to your Gemfile') unless defined?( AmazonPay )
 
-        @store_name = args[:store_name]
+        @store_name = args[:store_name] || ENV['AMAZON_PAY_STORE_NAME']
 
         @provider_name  = args[:provider_name] || DEFAULT_PROVIDER_NAME
 				@sandbox_mode   = Rails.env.development?
@@ -30,11 +34,6 @@ module SwellEcom
         @client_options[:sandbox] = true if @sandbox_mode
 
 			end
-
-      # def calculate_order( order, options = {} )
-      #   set_address_information( order, options )
-      #   super(order, options)
-      # end
 
 			def capture_payment_method( order, args = {} )
 
@@ -63,7 +62,7 @@ module SwellEcom
         store_name = self.store_name( order, args )
         seller_note = nil #@todo
         seller_capture_note = nil #@todo
-        custom_information = nil #@todo
+        custom_information = order.order_items.select(&:prod?).collect{ |order_item| "#{order_item.title} x #{order_item.quantity}" }.join(', ')
         authorization_note = nil #@todo
 
         # These values are grabbed from the Amazon Pay
@@ -81,9 +80,9 @@ module SwellEcom
           status: 'declined',
         )
         transaction.parent_obj ||= args[:default_parent_obj]
-        transaction.parent_obj ||= order.user if order.user.persisted?
+        transaction.parent_obj ||= order.user if order.user.try(:persisted?)
 
-        order.status = 'draft'
+        order.status = 'trash'
         order.payment_status = 'declined'
 
         if order.parent.is_a?( SwellEcom::Subscription )
@@ -101,13 +100,14 @@ module SwellEcom
             # Set a unique authorization reference id for your
             # first transaction on the billing agreement.
             transaction.save!
-            authorization_reference_id = transaction.id
+            order.save!
+	          authorization_reference_id = "#{order.code}-#{transaction.id}-auth"
+						capture_reference_id = "#{order.code}-#{transaction.id}-cap"
 
             # Now you can authorize your first transaction on the
             # billing agreement id. Every month you can make the
             # same API call to continue charging your buyer
             # with the 'capture_now' parameter set to true.
-            order.save
             client.authorize_on_billing_agreement(
               args[:amazon_billing_agreement_id],
               authorization_reference_id,
@@ -125,7 +125,7 @@ module SwellEcom
             # You will need the Amazon Authorization Id from the
             # AuthorizeOnBillingAgreement API response if you decide
             # to make the Capture API call separately.
-            amazon_authorization_id = res.get_element('AuthorizeOnBillingAgreementResponse/AuthorizeOnBillingAgreementResult/AuthorizationDetails','AmazonAuthorizationId')
+            amazon_authorization_id = get_result_element( res, 'AuthorizeOnBillingAgreementResponse/AuthorizeOnBillingAgreementResult/AuthorizationDetails','AmazonAuthorizationId')
 
           else
 
@@ -133,25 +133,31 @@ module SwellEcom
 
           end
 
-        elsif args[:amazon_billing_agreement_id].present?
-					raise Exception.new('Unable to process subscriptions')
+        elsif args[:billing_agreement_id].present?
+
+					plan_order_item = order.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::SubscriptionPlan ) }.first
+					subscription = plan_order_item.subscription ||= SwellEcom::Subscription.create( status: 'trash', user: order.user, subscription_plan: plan_order_item.item, shipping_address: order.shipping_address, billing_address: order.billing_address )
 
           # To get the buyers full address if shipping/tax
           # calculations are needed you can use the following
           # API call to obtain the billing agreement details.
-          order_reference_res = client.get_billing_agreement_details(
-            args[:amazon_billing_agreement_id],
-            args[:address_consent_token]
-          )
-
-  	      # self.calculate( order, args )
+          if args[:address_consent_token].present?
+            order_reference_res = client.get_billing_agreement_details(
+              args[:billing_agreement_id],
+              args[:address_consent_token]
+            )
+          else
+            order_reference_res = client.get_billing_agreement_details(
+              args[:billing_agreement_id],
+            )
+          end
 
           # Next you will need to set the various details
           # for this subscription with the following API call.
-          client.set_billing_agreement_details(
-            args[:amazon_billing_agreement_id],
+          sbad_res = client.set_billing_agreement_details(
+            args[:billing_agreement_id],
             seller_note: seller_note,
-            seller_billing_agreement_id: @subscription.code,
+            seller_billing_agreement_id: subscription.code,
             store_name: store_name,
             custom_information: custom_information,
           )
@@ -160,8 +166,8 @@ module SwellEcom
           # the Amazon Billing Agreement Id with the details set above.
           # Be sure that everything is set correctly above before
           # confirming.
-          client.confirm_billing_agreement(
-            args[:amazon_billing_agreement_id]
+          cba_res = client.confirm_billing_agreement(
+            args[:billing_agreement_id]
           )
 
           # The following API call is not needed at this point, but
@@ -169,37 +175,65 @@ module SwellEcom
           # the payment method is still valid with the associated billing
           # agreement id.
           # client.validate_billing_agreement(
-          #   args[:amazon_billing_agreement_id]
+          #   args[:billing_agreement_id]
           # )
 
           # Set a unique authorization reference id for your
           # first transaction on the billing agreement.
           transaction.save!
-          authorization_reference_id = transaction.id
+          order.save!
+          authorization_reference_id = "#{order.code}-#{transaction.id}-auth"
+					capture_reference_id = "#{order.code}-#{transaction.id}-cap"
 
           # Now you can authorize your first transaction on the
           # billing agreement id. Every month you can make the
           # same API call to continue charging your buyer
           # with the 'capture_now' parameter set to true.
-          order.save
-          client.authorize_on_billing_agreement(
-            args[:amazon_billing_agreement_id],
+          response = client.authorize_on_billing_agreement(
+            args[:billing_agreement_id],
             authorization_reference_id,
-            order.total_as_money.to_s,
+            order.total_as_money_string,
             currency_code: order.currency.upcase, # Default: USD
             seller_authorization_note: authorization_note,
             transaction_timeout: 0, # Set to 0 for synchronous mode
-            capture_now: true, # Set this to true if you want to capture the amount in the same API call
+            capture_now: false, # Set this to true if you want to capture the amount in the same API call
             seller_note: seller_note,
             seller_order_id: order.code,
             store_name: store_name,
             custom_information: custom_information,
           )
 
-          # You will need the Amazon Authorization Id from the
-          # AuthorizeOnBillingAgreement API response if you decide
-          # to make the Capture API call separately.
-          amazon_authorization_id = res.get_element('AuthorizeOnBillingAgreementResponse/AuthorizeOnBillingAgreementResult/AuthorizationDetails','AmazonAuthorizationId')
+					print('authorize_on_billing_agreement set_address_information')
+					self.set_address_information( order, args )
+
+					if response.success
+
+	          # You will need the Amazon Authorization Id from the
+	          # AuthorizeOnBillingAgreement API response if you decide
+	          # to make the Capture API call separately.
+						amazon_authorization_id = response.get_element('AuthorizeOnBillingAgreementResponse/AuthorizeOnBillingAgreementResult/AuthorizationDetails','AmazonAuthorizationId')
+
+						# Make the Capture API call if you did not set the
+						# 'capture_now' parameter to 'true'. There are
+						# additional optional parameters that are not used
+						# below.
+						response = client.capture(
+							amazon_authorization_id,
+							capture_reference_id,
+							order.total_as_money.to_s,
+							currency_code: order.currency.upcase, # Default: USD
+							seller_capture_note: seller_capture_note,
+						)
+
+						amazon_capture_id = response.get_element('CaptureResponse/CaptureResult/CaptureDetails','AmazonCaptureId')
+
+						if response.success
+
+						end
+
+					else
+	          order.errors.add(:base, :processing_error, message: "Unable to authorize payment.")
+					end
 
         elsif args[:orderReferenceId].present?
 
@@ -215,7 +249,7 @@ module SwellEcom
 
           # Make the SetOrderReferenceDetails API call to
           # configure the Amazon Order Reference Id.
-          order.save
+          order.save!
           client.set_order_reference_details(
             args[:orderReferenceId],
             order.total_as_money.to_s,
@@ -233,8 +267,8 @@ module SwellEcom
           # Set a unique id for your current authorization
           # of this payment.
           transaction.save!
-          authorization_reference_id = "#{transaction.id}-a"
-					capture_reference_id = "#{transaction.id}-c"
+          authorization_reference_id = "#{order.code}-#{transaction.id}-auth"
+					capture_reference_id = "#{order.code}-#{transaction.id}-cap"
 
           # Make the Authorize API call to authorize the
           # transaction. You can also capture the amount
@@ -269,10 +303,12 @@ module SwellEcom
 
 						amazon_capture_id = response.get_element('CaptureResponse/CaptureResult/CaptureDetails','AmazonCaptureId')
 
+					else
+	          order.errors.add(:base, :processing_error, message: "Unable to authorize payment.")
 					end
 
         else
-          order.status = 'active'
+          # order.status = 'active'
           order.errors.add(:base, :processing_error, message: "Missing transaction information.")
           return false
         end
@@ -341,13 +377,13 @@ module SwellEcom
           transaction.status = 'approved'
           transaction.parent_obj.update payment_status: 'refunded'
 
-					transaction.properties['amazon_refund_id'] = res.get_element('RefundResponse/RefundResult/RefundDetails','AmazonRefundId')
+					transaction.properties['amazon_refund_id'] = get_result_element( res, 'RefundResponse/RefundResult/RefundDetails','AmazonRefundId')
 					transaction.reference_code = transaction.properties['amazon_refund_id']
 
         else
 
           transaction.status = 'declined'
-          transaction.message = res.get_element('ErrorResponse/Error','Message')
+          transaction.message = get_result_element( res, 'ErrorResponse/Error','Message')
 
         end
 
@@ -357,24 +393,54 @@ module SwellEcom
 			end
 
       def set_address_information( order, options )
-				raise Exception.new('set_address_information is incomplete')
-        client = get_client( order, args )
+				# raise Exception.new('set_address_information is incomplete')
+        client = get_client( order, options )
 
-        if options[:amazon_billing_agreement_id].present?
+        if options[:billing_agreement_id].present?
 
           # To get the buyers full address if shipping/tax
           # calculations are needed you can use the following
           # API call to obtain the billing agreement details.
           if options[:address_consent_token].present?
             res = client.get_billing_agreement_details(
-              options[:amazon_billing_agreement_id],
+              options[:billing_agreement_id],
               options[:address_consent_token]
             )
           else
             res = client.get_billing_agreement_details(
-              options[:amazon_billing_agreement_id],
+              options[:billing_agreement_id],
             )
           end
+
+		      customer_name	= (get_result_element(res,BILLING_AGREEMENT_ADDRESS_XPATH,'Name') || "").split(' ', 2) rescue []
+		      city          = get_result_element(res,BILLING_AGREEMENT_ADDRESS_XPATH,'City')
+		      state_code    = get_result_element(res,BILLING_AGREEMENT_ADDRESS_XPATH,'StateOrRegion')
+		      country_code  = get_result_element(res,BILLING_AGREEMENT_ADDRESS_XPATH,'CountryCode')
+		      postal_code   = get_result_element(res,BILLING_AGREEMENT_ADDRESS_XPATH,'PostalCode')
+					phone					= get_result_element(res,BILLING_AGREEMENT_ADDRESS_XPATH,'Phone')
+					street				= get_result_element(res,BILLING_AGREEMENT_ADDRESS_XPATH,'AddressLine1')
+					street2				= get_result_element(res,BILLING_AGREEMENT_ADDRESS_XPATH,'AddressLine2')
+
+					buyer_email		= get_result_element(res,BILLING_AGREEMENT_BUYER_XPATH,'Email')
+
+		      billing_address = order.billing_address
+		      shipping_address = order.shipping_address
+
+		      geo_country = SwellEcom::GeoCountry.find_by( abbrev: country_code )
+		      geo_state   = SwellEcom::GeoState.find_by( geo_country: geo_country, abbrev: state_code )
+
+		      billing_address.first_name = shipping_address.first_name	= customer_name.first || 'TBD'
+		      billing_address.last_name = shipping_address.last_name		= customer_name.last || 'TBD'
+		      billing_address.phone = shipping_address.phone						= phone
+		      billing_address.street = shipping_address.street					= street || 'TBD'
+		      billing_address.street2 = shipping_address.street2				= street2
+
+		      billing_address.geo_country = shipping_address.geo_country  = geo_country
+		      billing_address.geo_state = shipping_address.geo_state      = geo_state
+		      billing_address.city = shipping_address.city                = city
+		      billing_address.zip = shipping_address.zip                  = postal_code
+
+					order.email ||= buyer_email if buyer_email.present?
 
         elsif options[:orderReferenceId].present?
 
@@ -392,13 +458,9 @@ module SwellEcom
             )
           end
 
-					# puts res.to_xml
-
         else
           return false
         end
-
-        # @todo extract billing/shipping addresses from res
 
         return true
       end
@@ -464,6 +526,14 @@ module SwellEcom
 			end
 
 			protected
+			def get_result_element( res, xpath, xml_element )
+				xml = res.to_xml
+				value = nil
+				xml.elements.each(xpath) do |element|
+					value = element.elements[xml_element].text if element.elements[xml_element].present?
+				end
+				return value
+			end
 
 		end
 
