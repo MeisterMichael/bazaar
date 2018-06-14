@@ -91,6 +91,10 @@ module SwellEcom
 
 				@subscription.attributes = subscription_attributes
 
+				if ( shipping_address_attributes = subscription_shipping_address_attributes() ).present?
+					@subscription.shipping_address = SwellEcom::GeoAddress.new( shipping_address_attributes.merge( user: @subscription.user ) )
+				end
+
 				# recalculate amounts on change
 				@subscription.amount				= @subscription.price * @subscription.quantity
 				@subscription.trial_amount	= @subscription.trial_price * @subscription.quantity
@@ -161,11 +165,6 @@ module SwellEcom
 				:billing_interval_value,
 				:shipping_carrier_service_id,
 				:quantity,
-				{
-					:shipping_address_attributes => [
-						:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
-					]
-				},
 			).to_h
 
 			attributes.delete(:status) unless ['active','on_hold'].include?( attributes[:status] )
@@ -174,6 +173,15 @@ module SwellEcom
 			attributes.delete(:billing_interval_unit) unless ['months','days','weeks'].include?( attributes[:billing_interval_unit] )
 
 			attributes
+		end
+
+		def subscription_shipping_address_attributes
+
+			attributes = params.require(:subscription).permit(
+				{
+					:shipping_address_attributes => [ :phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name, ]
+				},
+			).to_h[:shipping_address_attributes]
 		end
 
 		def transaction_options
