@@ -124,6 +124,14 @@ module SwellEcom
 				session[:cart_count] = 0
 				session[:cart_id] = nil
 
+				if @order.user.nil? && @order.email.present? && SwellEcom.create_user_on_checkout
+
+					@order.user = User.create_with( first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name ).find_or_create_by( email: @order.email.downcase )
+					@order.billing_address.user = @order.shipping_address.user = @order.user
+					@order.save
+
+				end
+
 				payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( transaction_options[:credit_card][:expiration] ) if transaction_options[:credit_card].present?
 				@subscription_service.subscribe_ordered_plans( @order, payment_profile_expires_at: payment_profile_expires_at ) if @order.active?
 
