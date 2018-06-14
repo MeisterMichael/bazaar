@@ -152,8 +152,8 @@
 					Customer
 
 				%div
-					%a{ href: edit_customer_admin_path( @subscription.user ) }= @subscription.user.full_name
-				%a{ href: edit_customer_admin_path( @subscription.user ) }= @subscription.user.email
+					%a{ href: edit_customer_admin_path( @subscription.user ) }= @subscription.user.try(:full_name)
+				%a{ href: edit_customer_admin_path( @subscription.user ) }= @subscription.user.try(:email)
 
 
 			.well.white-well
