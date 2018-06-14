@@ -21,7 +21,7 @@ module SwellEcom
 			order.order_items.each do |order_item|
 				if order_item.item.is_a? SwellEcom::SubscriptionPlan
 
-					order_item.subscription ||= self.subscribe( order.user, order_item.item, args.merge( quantity: order_item.quantity, order: order ) )
+					order_item.subscription = self.subscribe( order.user, order_item.item, args.merge( quantity: order_item.quantity, order: order, subscription: order_item.subscription ) )
 					order_item.save
 
 				end
@@ -79,7 +79,8 @@ module SwellEcom
 				current_period_end_at = start_at + trial_interval
 			end
 
-			subscription = Subscription.new(
+			subscription = args[:subscription] || Subscription.new()
+			subscription.attributes = {
 				user: user,
 				subscription_plan: plan,
 				billing_address: args[:billing_address],
@@ -107,7 +108,7 @@ module SwellEcom
 				shipping_carrier_service_id: args[:shipping_carrier_service_id],
 				shipping: args[:shipping],
 				tax: args[:tax],
-			)
+			}
 
 			if subscription.respond_to? :properties
 				subscription.properties = {
