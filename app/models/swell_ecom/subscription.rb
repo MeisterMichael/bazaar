@@ -4,9 +4,9 @@ module SwellEcom
 
 		include SwellEcom::Concerns::MoneyAttributesConcern
 
-		enum status: { 'rejected' => -5, 'on_hold' => -2, 'canceled' => -1, 'failed' => 0, 'active' => 1, 'review' => 98 }
+		enum status: { 'trash' => -99, 'rejected' => -5, 'on_hold' => -2, 'canceled' => -1, 'failed' => 0, 'active' => 1, 'review' => 98 }
 
-		belongs_to :user
+		belongs_to :user, required: false
 		belongs_to :subscription_plan
 		belongs_to :discount, required: false
 		belongs_to :shipping_carrier_service, required: false
@@ -22,20 +22,21 @@ module SwellEcom
 
 		money_attributes :amount, :trial_amount, :price, :trial_price
 
-		validates	:amount, presence: true, allow_blank: false
-		validates	:price, presence: true, allow_blank: false
-		validates	:trial_amount, presence: true, allow_blank: false
-		validates	:trial_price, presence: true, allow_blank: false
-		validates_numericality_of :quantity, greater_than_or_equal_to: 1
-		validates_numericality_of :amount, greater_than_or_equal_to: 0
-		validates_numericality_of :price, greater_than_or_equal_to: 0
-		validates_numericality_of :trial_amount, greater_than_or_equal_to: 0
-		validates_numericality_of :trial_price, greater_than_or_equal_to: 0
+		validates	:user, presence: true, allow_blank: false, unless: :trash?
+		validates	:amount, presence: true, allow_blank: false, unless: :trash?
+		validates	:price, presence: true, allow_blank: false, unless: :trash?
+		validates	:trial_amount, presence: true, allow_blank: false, unless: :trash?
+		validates	:trial_price, presence: true, allow_blank: false, unless: :trash?
+		validates_numericality_of :quantity, greater_than_or_equal_to: 1, unless: :trash?
+		validates_numericality_of :amount, greater_than_or_equal_to: 0, unless: :trash?
+		validates_numericality_of :price, greater_than_or_equal_to: 0, unless: :trash?
+		validates_numericality_of :trial_amount, greater_than_or_equal_to: 0, unless: :trash?
+		validates_numericality_of :trial_price, greater_than_or_equal_to: 0, unless: :trash?
 
-		validates	:billing_interval_value, presence: true, allow_blank: false
-		validates_numericality_of :billing_interval_value, greater_than_or_equal_to: 1
-		validates	:billing_interval_unit, presence: true, allow_blank: false
-		validates_inclusion_of :billing_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.'
+		validates	:billing_interval_value, presence: true, allow_blank: false, unless: :trash?
+		validates_numericality_of :billing_interval_value, greater_than_or_equal_to: 1, unless: :trash?
+		validates	:billing_interval_unit, presence: true, allow_blank: false, unless: :trash?
+		validates_inclusion_of :billing_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.', unless: :trash?
 
 		def avatar
 			self.subscription_plan.avatar
