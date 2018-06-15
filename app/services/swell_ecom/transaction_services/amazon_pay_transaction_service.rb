@@ -69,7 +69,7 @@ module SwellEcom
         # Address and Wallet widgets
         # args[:address_consent_token], args[:orderReferenceId], args[:amazon_billing_agreement_id]
 
-        order.provider_customer_payment_profile_reference ||= ( args[:orderReferenceId] || args[:amazon_billing_agreement_id] )
+        order.provider_customer_payment_profile_reference ||= ( args[:orderReferenceId] || args[:billing_agreement_id] )
 				order.provider = self.provider_name
 
         transaction = SwellEcom::Transaction.new(
@@ -86,15 +86,14 @@ module SwellEcom
         order.payment_status = 'declined'
 
         if order.parent.is_a?( SwellEcom::Subscription )
-					raise Exception.new('Unable to process subscription rebills')
+					# raise Exception.new('Unable to process subscription rebills')
+					billing_agreement_id = order.provider_customer_payment_profile_reference
 
           # The following API call is not needed at this point, but
           # can be used in the future when you need to validate that
           # the payment method is still valid with the associated billing
           # agreement id.
-          res = client.validate_billing_agreement(
-            order.provider_customer_payment_profile_reference
-          )
+          res = client.validate_billing_agreement( billing_agreement_id )
 
           if res.success
             # Set a unique authorization reference id for your
@@ -108,25 +107,44 @@ module SwellEcom
             # billing agreement id. Every month you can make the
             # same API call to continue charging your buyer
             # with the 'capture_now' parameter set to true.
-            client.authorize_on_billing_agreement(
-              args[:amazon_billing_agreement_id],
+            response = client.authorize_on_billing_agreement(
+              billing_agreement_id,
               authorization_reference_id,
               order.total_as_money.to_s,
               currency_code: order.currency.upcase, # Default: USD
               seller_authorization_note: authorization_note,
               transaction_timeout: 0, # Set to 0 for synchronous mode
-              capture_now: true, # Set this to true if you want to capture the amount in the same API call
+              capture_now: false, # Set this to true if you want to capture the amount in the same API call
               seller_note: seller_note,
               seller_order_id: order.code,
               store_name: store_name,
               custom_information: custom_information,
             )
 
-            # You will need the Amazon Authorization Id from the
-            # AuthorizeOnBillingAgreement API response if you decide
-            # to make the Capture API call separately.
-            amazon_authorization_id = get_result_element( res, 'AuthorizeOnBillingAgreementResponse/AuthorizeOnBillingAgreementResult/AuthorizationDetails','AmazonAuthorizationId')
+						if response.success
 
+		          # You will need the Amazon Authorization Id from the
+		          # AuthorizeOnBillingAgreement API response if you decide
+		          # to make the Capture API call separately.
+							amazon_authorization_id = response.get_element('AuthorizeOnBillingAgreementResponse/AuthorizeOnBillingAgreementResult/AuthorizationDetails','AmazonAuthorizationId')
+
+							# Make the Capture API call if you did not set the
+							# 'capture_now' parameter to 'true'. There are
+							# additional optional parameters that are not used
+							# below.
+							response = client.capture(
+								amazon_authorization_id,
+								capture_reference_id,
+								order.total_as_money.to_s,
+								currency_code: order.currency.upcase, # Default: USD
+								seller_capture_note: seller_capture_note,
+							)
+
+							amazon_capture_id = response.get_element('CaptureResponse/CaptureResult/CaptureDetails','AmazonCaptureId')
+
+						else
+		          order.errors.add(:base, :processing_error, message: "Unable to authorize payment.")
+						end
           else
 
             transaction.message = "Billing agreement no longer valid"
@@ -227,10 +245,6 @@ module SwellEcom
 
 						amazon_capture_id = response.get_element('CaptureResponse/CaptureResult/CaptureDetails','AmazonCaptureId')
 
-						if response.success
-
-						end
-
 					else
 	          order.errors.add(:base, :processing_error, message: "Unable to authorize payment.")
 					end
@@ -315,6 +329,7 @@ module SwellEcom
 
         transaction.amount = order.total
         transaction.reference_code = amazon_capture_id
+				# order.provider_reference_code = amazon_capture_id
 
 				transaction.properties['amazon_order_reference_id'] = args[:orderReferenceId]
 				transaction.properties['amazon_capture_id'] = amazon_capture_id
