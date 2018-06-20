@@ -26,7 +26,7 @@
           .col-xs-12.col-md-9
             .form-group
               = f.label :subscription_plan, 'Plan'
-              = f.collection_select :subscription_plan, SwellEcom::SubscriptionPlan.published, :id, :title, {}, class: 'form-control'
+              = f.collection_select :subscription_plan, SwellEcom::SubscriptionPlan.published, :id, :title, {}, class: 'form-control select-2-basic'
 
         = f.fields_for :shipping_address do |shipping_address_form|
 
