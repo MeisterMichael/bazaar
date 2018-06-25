@@ -8,6 +8,8 @@
 			%a{ href: swell_ecom.order_admin_path( order.id ) }
 				- if order.user.present? && order.user.full_name.try(:strip).present?
 					= order.user.full_name
+				- elsif order.billing_address.try(:full_name).try(:strip).present?
+					= order.billing_address.full_name
 				%br
 				= (order.email || order.user.try(:email) || 'N/A')
 	%td

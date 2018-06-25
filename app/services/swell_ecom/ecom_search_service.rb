@@ -57,9 +57,10 @@ module SwellEcom
 		end
 
 		def order_search( term, filters = {}, options = {} )
-			orders = Order.all
 
 			filters[:type] = SwellEcom.checkout_order_class_name unless filters.has_key? :type
+
+			orders = ( filters.delete(:type) || 'SwellEcom::Order' ).constantize.all
 
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%"

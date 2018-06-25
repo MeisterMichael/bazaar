@@ -1,3 +1,5 @@
-class FulfillmentOrder < SwellEcom::Order
+module SwellEcom
+  class FulfillmentOrder < SwellEcom::Order
 
+  end
 end

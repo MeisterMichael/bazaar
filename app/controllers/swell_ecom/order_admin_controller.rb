@@ -92,7 +92,9 @@ module SwellEcom
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
+
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			filters[:type] = @type_filter = ( params[:type] || 'SwellEcom::CheckoutOrder' )
 			filters[:not_trash] = true if params[:q].blank? # don't show trash, unless searching
 			filters[:not_archived] = true if params[:q].blank? # don't show archived, unless searching
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
