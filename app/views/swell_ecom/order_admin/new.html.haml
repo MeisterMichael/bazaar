@@ -15,7 +15,7 @@
       = f.fields_for :order_items, SwellEcom::OrderItem.new( order_item_type: 'prod' ) do |order_item_form|
         .row.order-item
           .col-xs-6.col-md-8
-            = order_item_form.grouped_collection_select :item_polymorphic_id, [ SwellEcom::Product.active, SwellEcom::SubscriptionPlan.active ], :all, :name, :polymorphic_id, Proc.new{ |item| "#{item.title} (#{item.purchase_price_formatted})" }, {}, class: 'form-control'
+            = order_item_form.select :item_polymorphic_id, grouped_options_for_select( { 'Products' => SwellEcom::Product.active.order( title: :asc ).collect{|item| ["#{item.title} (#{item.purchase_price_formatted})",item.polymorphic_id] }, 'Subscription Plans' => SwellEcom::SubscriptionPlan.active.order( title: :asc ).collect{|item| ["#{item.title} (#{item.purchase_price_formatted})",item.polymorphic_id] } } ), {}, class: 'form-control select-2-basic'
           .col-xs-6.col-md-4
             = order_item_form.number_field :quantity, class: 'form-control', value: 1, min: 1, step: 1
         .row
