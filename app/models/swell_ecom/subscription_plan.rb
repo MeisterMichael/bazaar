@@ -97,6 +97,10 @@ module SwellEcom
 			self.item.product_title
 		end
 
+		def product_url
+			self.item.product_url
+		end
+
 		def published?
 			active? && publish_at < Time.zone.now
 		end
