@@ -160,6 +160,7 @@ module SwellEcom
 
 		def calculate_subscription_order( subscription, args = {} )
 			order = generate_subscription_order( subscription, args = {} )
+			order.status = 'draft'
 
 			@order_service.calculate( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping } )
 
