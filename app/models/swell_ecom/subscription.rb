@@ -74,6 +74,10 @@ module SwellEcom
 			self.subscription_plan.page_event_data
 		end
 
+		def product_title
+			self.subscription_plan.item.product_title
+		end
+
 		def ready_for_next_charge?( time_now = nil )
 			time_now ||= Time.now
 			self.active? && self.next_charged_at < time_now

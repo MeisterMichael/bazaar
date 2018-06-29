@@ -130,6 +130,10 @@ module SwellEcom
 			}
 		end
 
+		def product_title
+			self.title
+		end
+
 		def published?
 			active? && publish_at < Time.zone.now
 		end
