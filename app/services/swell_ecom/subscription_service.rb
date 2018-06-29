@@ -122,12 +122,7 @@ module SwellEcom
 			subscription
 		end
 
-		def charge_subscription( subscription, args = {} )
-			time_now = args[:now] || Time.now
-
-			raise Exception.new("Subscription #{subscription.id } isn't ready to renew yet.  Currently it's #{time_now}, but subscription doesn't renew until #{subscription.next_charged_at}") unless subscription.next_charged_at < time_now
-			raise Exception.new("Subscription #{subscription.id } isn't active, so can't be charged.") unless subscription.active?
-
+		def generate_subscription_order( subscription, args = {} )
 			# create order
 			plan = subscription.subscription_plan
 
@@ -159,6 +154,32 @@ module SwellEcom
 			# apply the subscription discount to new orders
 			discount = subscription.discount
 			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present? && discount.active? && discount.in_progress?( now: time_now )
+
+			order
+		end
+
+		def calculate_subscription_order( subscription, args = {} )
+			order = generate_subscription_order( subscription, args = {} )
+
+			@order_service.calculate( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping } )
+
+			order
+		end
+
+		def charge_subscription( subscription, args = {} )
+			time_now = args[:now] || Time.now
+
+			raise Exception.new("Subscription #{subscription.id } isn't ready to renew yet.  Currently it's #{time_now}, but subscription doesn't renew until #{subscription.next_charged_at}") unless subscription.next_charged_at < time_now
+			raise Exception.new("Subscription #{subscription.id } isn't active, so can't be charged.") unless subscription.active?
+
+			order = generate_subscription_order( subscription, args.merge( now: time_now ) )
+
+			interval = nil
+			if subscription.is_next_interval_a_trial?
+				interval = plan.trial_interval_value.try(plan.trial_interval_unit)
+			else
+				interval = subscription.billing_interval_value.try(subscription.billing_interval_unit)
+			end
 
 			# process order
 			transaction = @order_service.process( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping } )
