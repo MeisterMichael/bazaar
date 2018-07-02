@@ -85,21 +85,21 @@
 				.well.white-well
 					%h4 Timeline
 
-					- if Bunyan::Event.where( target_obj: @subscription ).or( Bunyan::Event.where( user_id: @subscription.user_id ) ).where( category: [ 'account', 'ecom' ] ).empty?
-						.row
-							.col-xs-12
-								No Timeline Entries Found
-					- else
+					- if ( events = Bunyan::Event.where( target_obj: @subscription ).or( Bunyan::Event.where( target_obj: @subscription.orders ) ).or( Bunyan::Event.where( user_id: @subscription.user_id, created_at: Time.at(0)..(@subscription.created_at + 10.minutes) ) ).where( category: [ 'account', 'ecom' ] ) ).present?
 						.row
 							.col-sm-12
 								%table.table
-									- Bunyan::Event.where( target_obj: @subscription ).or( Bunyan::Event.where( user_id: @subscription.user_id ) ).where( category: [ 'account', 'ecom' ] ).order( created_at: :desc ).limit( 20 ).each do |event|
+									- events.order( created_at: :desc ).limit( 20 ).each do |event|
 										%tr
 											%td
 												= event.to_s
 											%td
 												= time_ago_in_words( event.created_at )
 												ago
+					- else
+					.row
+						.col-xs-12
+							No Timeline Entries Found
 
 
 		.col-xs-4
