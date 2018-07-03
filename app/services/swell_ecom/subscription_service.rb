@@ -123,6 +123,8 @@ module SwellEcom
 		end
 
 		def generate_subscription_order( subscription, args = {} )
+			time_now = args[:now] || Time.now
+			
 			# create order
 			plan = subscription.subscription_plan
 
