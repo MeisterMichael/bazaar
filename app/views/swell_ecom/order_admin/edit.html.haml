@@ -61,19 +61,14 @@
 			.col-xs-12.col-sm-4
 				- if @order.user.present?
 					.well.white-well
-						- if policy(@order.user).customer_admin_edit?
-							.pull-right
-								%a{ href: edit_customer_admin_path( @order.user ) }
-									Edit
+						.pull-right
+							%a{ href: swell_media.edit_user_admin_path( @order.user ) }
+								Edit
 						%h5
 							Customer
-						- if policy(@order.user).customer_admin_edit?
-							%div
-								%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.full_name
-							%a{ href: edit_customer_admin_path( @order.user ) }= @order.user.email
-						- else
-							%div= @order.user.full_name
-							= @order.user.email
+						%div
+							%a{ href: swell_media.edit_user_admin_path( @order.user ) }= @order.user.full_name
+						%a{ href: swell_media.edit_user_admin_path( @order.user ) }= @order.user.email
 
 				.well.white-well
 					.pull-right

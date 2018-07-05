@@ -22,7 +22,6 @@ SwellEcom::Engine.routes.draw do
 		get :state_input, on: :collection
 	end
 
-	resources :customer_admin
 	resources :discount_admin
 
 	# resources :geo_countries, only: [:index]
