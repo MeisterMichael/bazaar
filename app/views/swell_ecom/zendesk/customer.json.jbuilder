@@ -3,7 +3,7 @@ if @user.present?
 	json.first_name @user.first_name
 	json.last_name @user.last_name
 	json.email @user.email
-	json.url swell_ecom.edit_user_admin_url( @user )
+	json.url swell_media.edit_user_admin_url( @user )
 	json.orders_count @orders.count
 	json.orders_total @orders.sum(:total) / 100.0
 	json.orders(@orders) do |order|
