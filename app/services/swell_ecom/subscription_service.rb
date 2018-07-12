@@ -124,7 +124,7 @@ module SwellEcom
 
 		def generate_subscription_order( subscription, args = {} )
 			time_now = args[:now] || Time.now
-			
+
 			# create order
 			plan = subscription.subscription_plan
 
@@ -240,15 +240,20 @@ module SwellEcom
 				subscription.failed_attempts = 0 if subscription.respond_to? :failed_attempts
 
 				# update the subscriptions next date
-				subscription.current_period_start_at = subscription.next_charged_at
-				subscription.current_period_end_at = subscription.current_period_start_at + interval
-				subscription.next_charged_at = subscription.next_charged_at + interval
+				update_next_charged_at( subscription )
+				
 				subscription.save
 
 			end
 
 			order
 
+		end
+
+		def update_next_charged_at( subscription )
+			subscription.current_period_start_at = Time.now
+			subscription.current_period_end_at = subscription.current_period_start_at + interval
+			subscription.next_charged_at = subscription.current_period_end_at
 		end
 
 		def update_payment_profile( subscription, args = {} )
