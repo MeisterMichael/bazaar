@@ -87,6 +87,10 @@ module SwellEcom
 			self.active? && self.next_charged_at < time_now
 		end
 
+		def related_transactions
+			SwellEcom::Transaction.where( parent_obj: ( self.orders.to_a + [ self ] ) )
+		end
+
 		def sku
 			subscription_plan.sku
 		end
