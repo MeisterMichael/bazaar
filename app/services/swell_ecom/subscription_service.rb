@@ -177,12 +177,6 @@ module SwellEcom
 
 			order = generate_subscription_order( subscription, args.merge( now: time_now ) )
 
-			interval = nil
-			if subscription.is_next_interval_a_trial?
-				interval = plan.trial_interval_value.try(plan.trial_interval_unit)
-			else
-				interval = subscription.billing_interval_value.try(subscription.billing_interval_unit)
-			end
 
 			# process order
 			transaction = @order_service.process( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping } )
@@ -241,7 +235,7 @@ module SwellEcom
 
 				# update the subscriptions next date
 				update_next_charged_at( subscription )
-				
+
 				subscription.save
 
 			end
@@ -251,6 +245,13 @@ module SwellEcom
 		end
 
 		def update_next_charged_at( subscription )
+			interval = nil
+			if subscription.is_next_interval_a_trial?
+				interval = plan.trial_interval_value.try(plan.trial_interval_unit)
+			else
+				interval = subscription.billing_interval_value.try(subscription.billing_interval_unit)
+			end
+
 			subscription.current_period_start_at = Time.now
 			subscription.current_period_end_at = subscription.current_period_start_at + interval
 			subscription.next_charged_at = subscription.current_period_end_at
