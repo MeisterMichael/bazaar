@@ -154,6 +154,12 @@ module SwellEcom
         elsif args[:billing_agreement_id].present?
 
 					plan_order_item = order.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::SubscriptionPlan ) }.first
+
+					unless plan_order_item.present?
+	        	order.errors.add(:base, :processing_error, message: "Invalid payment method: Amazon Pay billing agreements are only available for subscriptions purchases.")
+						return false
+					end
+
 					subscription = plan_order_item.subscription ||= SwellEcom::Subscription.create( status: 'trash', user: order.user, subscription_plan: plan_order_item.item, shipping_address: order.shipping_address, billing_address: order.billing_address )
 
           # To get the buyers full address if shipping/tax
