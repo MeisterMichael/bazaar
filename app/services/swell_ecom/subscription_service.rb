@@ -7,10 +7,7 @@ module SwellEcom
 			@order_class			= args[:order_class] || SwellEcom.checkout_order_class_name
 
 			@order_service			= args[:order_service]
-			@order_service			||= SwellEcom::OrderService.new
-
-			@transaction_service	= args[:transaction_service]
-			@transaction_service	||= SwellEcom.transaction_service_class.constantize.new( SwellEcom.transaction_service_config )
+			@order_service			||= SwellEcom::OrderService.new( subscription_service: self )
 
 		end
 
@@ -155,7 +152,7 @@ module SwellEcom
 
 			# apply the subscription discount to new orders
 			discount = subscription.discount
-			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present? && discount.active? && discount.in_progress?( now: time_now )
+			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present? && discount.active? && discount.in_progress?( now: time_now ) && @order_service.discount_service.get_order_discount_errors( order, discount ).blank?
 
 			order
 		end
@@ -258,7 +255,7 @@ module SwellEcom
 		end
 
 		def update_payment_profile( subscription, args = {} )
-			@transaction_service.update_subscription_payment_profile( subscription, args )
+			@order_service.transaction_service.update_subscription_payment_profile( subscription, args )
 		end
 
 	end
