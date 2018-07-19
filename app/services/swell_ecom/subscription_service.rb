@@ -116,7 +116,7 @@ module SwellEcom
 
 			subscription.save!
 
-			log_event( user: user, name: 'subscribed', category: 'swell_ecom', on: subscription, content: "started a subscription #{subscription.code} to #{plan.title}" )
+			log_event( user: user, name: 'subscribed', category: 'ecom', on: subscription, content: "started a subscription #{subscription.code} to #{plan.title}" )
 
 			subscription
 		end
