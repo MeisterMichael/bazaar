@@ -15,6 +15,28 @@ module SwellEcom
 
 		end
 
+		def get_order_discount_errors( order, discount, args = {} )
+
+			prod_order_items		= order.order_items.select{ |order_item| order_item.prod? }
+			shipping_order_items	= order.order_items.select{ |order_item| order_item.shipping? }
+			tax_order_items			= order.order_items.select{ |order_item| order_item.tax? }
+
+			error_messages = []
+			error_messages << 'Invalid discount' if not( discount.active? ) || not( discount.in_progress? )
+			error_messages << 'Unsupported discount type' if discount.selected_users?
+			error_messages << 'Does not meet minimum purchase requirement' if discount.minimum_prod_subtotal != 0 && discount.minimum_prod_subtotal > prod_order_items.sum{ |order_item| order_item.subtotal }
+			error_messages << 'Does not meet minimum shipping requirement' if discount.minimum_shipping_subtotal != 0 && discount.minimum_shipping_subtotal > shipping_order_items.sum{ |order_item| order_item.subtotal }
+			error_messages << 'Does not meet minimum tax requirement' if discount.minimum_tax_subtotal != 0 && discount.minimum_tax_subtotal > tax_order_items.sum{ |order_item| order_item.subtotal }
+			error_messages << 'You have exceeded the limit of uses for the selected discount' if discount.limit_per_customer.present? && order.user.present? && OrderItem.where( item: discount ).joins(:order).merge( Order.where( user: order.user ) ).count >= discount.limit_per_customer
+			error_messages << 'The selected discount\'s usage limit has been exhausted' if discount.limit_global.present? && OrderItem.where( item: discount ).count >= discount.limit_global
+
+			error_messages
+		end
+
+		def validate( order, args = {} )
+			validate_order_discounts( order, order.order_items.select(&:discount?), args )
+		end
+
 		protected
 
 		def calculate_discount_amount( discount_order_item, order, args = {} )
@@ -86,26 +108,11 @@ module SwellEcom
 
 		def validate_order_discounts( order, discount_order_items, args = {} )
 			discount_order_items.each do |discount_order_item|
-				validate_order_discount( order, discount_order_item, args )
+				error_messages = get_order_discount_errors( order, discount_order_item.item, args )
+				error_messages.each do |error_message|
+					order.errors.add( :base, :discount_error, message: error_message )
+				end
 			end
-
-			return order.errors.blank?
-		end
-
-		def validate_order_discount( order, discount_order_item, args = {} )
-			discount = discount_order_item.item
-
-			prod_order_items		= order.order_items.select{ |order_item| order_item.prod? }
-			shipping_order_items	= order.order_items.select{ |order_item| order_item.shipping? }
-			tax_order_items			= order.order_items.select{ |order_item| order_item.tax? }
-
-			order.errors.add( :base, :discount_error, message: 'Invalid discount' ) if not( discount.active? ) || not( discount.in_progress? )
-			order.errors.add( :base, :discount_error, message: 'Unsupported discount type' ) if discount.selected_users?
-			order.errors.add( :base, :discount_error, message: 'Does not meet minimum purchase requirement' ) if discount.minimum_prod_subtotal != 0 && discount.minimum_prod_subtotal > prod_order_items.sum{ |order_item| order_item.subtotal }
-			order.errors.add( :base, :discount_error, message: 'Does not meet minimum shipping requirement' ) if discount.minimum_shipping_subtotal != 0 && discount.minimum_shipping_subtotal > shipping_order_items.sum{ |order_item| order_item.subtotal }
-			order.errors.add( :base, :discount_error, message: 'Does not meet minimum tax requirement' ) if discount.minimum_tax_subtotal != 0 && discount.minimum_tax_subtotal > tax_order_items.sum{ |order_item| order_item.subtotal }
-			order.errors.add( :base, :discount_error, message: 'You have exceeded the limit of uses for the selected discount' ) if discount.limit_per_customer.present? && order.user.present? && OrderItem.where( item: discount ).joins(:order).merge( Order.where( user: order.user ) ).count >= discount.limit_per_customer
-			order.errors.add( :base, :discount_error, message: 'The selected discount\'s usage limit has been exhausted' ) if discount.limit_global.present? && OrderItem.where( item: discount ).count >= discount.limit_global
 
 			return order.errors.blank?
 		end
