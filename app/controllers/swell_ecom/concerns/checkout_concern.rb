@@ -89,7 +89,6 @@ module SwellEcom
 			def initialize_services
 				@fraud_service = SwellEcom.fraud_service_class.constantize.new( SwellEcom.fraud_service_config.merge( params: params, session: session, cookies: cookies, request: request ) )
 				@order_service = SwellEcom::OrderService.new( fraud_service: @fraud_service )
-				@subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( order_service: @order_service ) )
 			end
 
 			def discount_options_params

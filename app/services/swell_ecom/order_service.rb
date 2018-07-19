@@ -20,6 +20,9 @@ module SwellEcom
 			@discount_service		= args[:discount_service]
 			@discount_service		||= SwellEcom.discount_service_class.constantize.new( SwellEcom.discount_service_config )
 
+			@subscription_service = args[:subscription_service]
+			@subscription_service		||= SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( order_service: self ) )
+
 		end
 
 		def calculate( obj, args = {} )
@@ -50,6 +53,10 @@ module SwellEcom
 
 		def discount_service
 			@discount_service
+		end
+
+		def fraud_service
+			@fraud_service
 		end
 
 		def process( order, args = {} )
@@ -88,17 +95,36 @@ module SwellEcom
 				end
 			end
 
-			if order.nested_errors.blank? && order.active?
-				begin
-					@tax_service.process( order ) if @tax_service.respond_to? :process
-				rescue Exception => e
-					puts e.message
-					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
-				end
-			end
+			self.process_purchase_success( order, args ) if order.nested_errors.blank? && order.active?
+
+			order.errors.add(:base, :processing_error, message: "Transaction was declined for #{order.total_formatted}" ) if order.declined? && order.errors.blank?
 
 			transaction
 
+		end
+
+		def process_purchase_success( order, args = {} )
+			transaction_options = args[:transaction] || {}
+
+			begin
+				@tax_service.process( order ) if @tax_service.respond_to? :process
+			rescue Exception => e
+				puts e.message
+				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+			end
+
+			if order.user.nil? && order.email.present? && SwellEcom.create_user_on_checkout
+
+				order.user = User.create_with( first_name: order.billing_address.first_name, last_name: order.billing_address.last_name ).find_or_create_by( email: order.email.downcase )
+				order.billing_address.user = order.shipping_address.user = order.user
+				order.save
+
+			end
+
+			payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( transaction_options[:credit_card][:expiration] ) if transaction_options[:credit_card].present?
+			@subscription_service.subscribe_ordered_plans( order, payment_profile_expires_at: payment_profile_expires_at ) if order.active?
+
+			true
 		end
 
 		def refund( args = {} )
@@ -109,6 +135,10 @@ module SwellEcom
 
 		def shipping_service
 			@shipping_service
+		end
+
+		def subscription_service
+			@subscription_service
 		end
 
 		def tax_service

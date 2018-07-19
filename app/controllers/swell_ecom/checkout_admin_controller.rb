@@ -43,9 +43,6 @@ module SwellEcom
 				render :index
 			else
 
-				payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( params[:credit_card][:expiration] ) if params[:credit_card].present?
-				@subscription_service.subscribe_ordered_plans( @order, payment_profile_expires_at: payment_profile_expires_at ) if @order.active?
-
 				# if current user exists, update it's address info with the
 				# billing address, if not already set
 				update_order_user_address( @order )
@@ -105,8 +102,6 @@ module SwellEcom
 				set_flash @order.nested_errors, :danger
 				redirect_back fallback_location: '/admin'
 			else
-
-				@subscription_service.subscribe_ordered_plans( @order, payment_profile_expires_at: nil ) if @order.active?
 
 				OrderMailer.receipt( @order ).deliver_now
 
