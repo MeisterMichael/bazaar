@@ -56,7 +56,7 @@ module SwellEcom
 
 				@cart.save
 
-				SwellMedia::Email.create_with( user: current_user ).find_or_create_by( email: @cart.email.downcase ) if @cart.email.present?
+				SwellMedia::Email.create_or_update_by_email( @cart.email, user: current_user )
 			end
 
 			begin
@@ -85,7 +85,7 @@ module SwellEcom
 
 		def create
 			@order.user ||= User.create_with( first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name ).find_or_create_by( email: @order.email.downcase ) if @order.email.present? && SwellEcom.create_user_on_checkout
-			SwellMedia::Email.create_with( user: @order.user ).find_or_create_by( email: @order.email.downcase ) if @order.email.present?
+			SwellMedia::Email.create_or_update_by_email( @order.email, user: @order.user )
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			@order.billing_address.tags = @order.billing_address.tags + ['billing_address']
