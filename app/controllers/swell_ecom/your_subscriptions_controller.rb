@@ -101,12 +101,12 @@ module SwellEcom
 
 				if @subscription.status_changed?
 					if @subscription.active?
-						log_event( name: 'reactivate_sub', on: @subscription, content: "reactivated suscription #{@subscription.code}" )
+						log_event( name: 'reactivate_subscription', category: 'ecom', on: @subscription, content: "reactivated suscription #{@subscription.code}" )
 					else
-						log_event( name: 'cancel_sub', on: @subscription, content: "cancelled suscription #{@subscription.code}" )
+						log_event( name: 'cancel_subscription', category: 'ecom', on: @subscription, content: "cancelled suscription #{@subscription.code}" )
 					end
 				else
-					log_event( name: 'update_sub', on: @subscription, content: "updated suscription #{@subscription.code}" )
+					log_event( name: 'update_subscription', category: 'ecom', on: @subscription, content: "updated suscription #{@subscription.code}" )
 				end
 
 				log_event( name: 'update_bill_addr', on: @subscription, content: "updated suscription #{@subscription.code} billing info" ) if @subscription.billing_address.changed?
