@@ -41,9 +41,9 @@
 					- @wholesale_profiles.each do |wholesale_profile|
 						%tr
 							%td
-								= link_to wholesale_profile.title, wholesale_profile_admin_path( wholesale_profile.id )
+								= link_to wholesale_profile.title, edit_wholesale_profile_admin_path( wholesale_profile.id )
 							%td
-								= current_user_tz_easy_read_date_format order.created_at
+								= current_user_tz_easy_read_date_format wholesale_profile.created_at
 							%td
 								.badge{ class: wholesale_profile.status }
 									= wholesale_profile.status.gsub(/_/,' ')

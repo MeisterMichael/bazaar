@@ -53,6 +53,9 @@ module SwellEcom
 			authorize( @wholesale_profile, :admin_update? )
 			@wholesale_profile.attributes = wholesale_profile_params
 			@wholesale_profile.save
+
+			set_flash( 'Wholesale profile could not be updated', :error, @wholesale_profile ) if @wholesale_profile.errors.present?
+
 			redirect_back fallback_location: '/admin'
 		end
 
@@ -65,6 +68,7 @@ module SwellEcom
 					:default_profile,
 					{
 						:wholesale_items_attributes => [
+							:id,
 							:wholesale_profile_id,
 							:item_type,
 							:item_id,
