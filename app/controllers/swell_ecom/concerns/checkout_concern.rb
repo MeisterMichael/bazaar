@@ -67,7 +67,10 @@ module SwellEcom
 				order_attributes[:billing_address_attributes]	= order_attributes[:shipping_address_attributes] if order_attributes.delete(:same_as_shipping)
 
 				if order_attributes[:order_items_attributes].present?
-					order_attributes[:order_items_attributes].each do |order_item|
+					order_item_attributes = order_attributes[:order_items_attributes]
+					order_item_attributes = order_item_attributes.values if order_item_attributes.is_a? Hash
+
+					order_item_attributes.each do |order_item|
 						order_item[:order_item_type] 	= 'prod'
 						order_item[:item]				= order_item[:item_type].constantize.find_by( id: order_item[:item_id] )
 						order_item[:title]				= order_item[:item].title

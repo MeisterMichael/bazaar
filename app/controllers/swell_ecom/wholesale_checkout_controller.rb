@@ -140,7 +140,7 @@ module SwellEcom
 				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 			end
 
-			
+
 
 			if defined?( SwellAnalytics )
 				log_analytics_event(
@@ -240,6 +240,23 @@ module SwellEcom
 
 			end
 
+			@wholesale_profile.items.each do |item|
+				unless @order.order_items.select{|order_item| order_item.item == item }.present?
+					order_item = @order.order_items.new(
+						item: item,
+						title: item.title,
+						quantity: @wholesale_profile.wholesale_items.order(min_quantity: :asc).first.min_quantity,
+						price: item.price,
+						subtotal: 0,
+						tax_code: item.tax_code,
+						order_item_type: 'prod',
+					)
+
+					order_item.price			= @wholesale_profile.get_price( quantity: order_item.quantity, item: order_item.item )
+					order_item.price			||= order_item.item.price
+					order_item.subtotal			= order_item.price * order_item.quantity
+				end
+			end
 
 		end
 
