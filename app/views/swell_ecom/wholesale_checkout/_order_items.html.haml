@@ -1,22 +1,20 @@
-- SwellEcom.wholesale_item_collections.each do |item_collection|
-	- eval(item_collection).each do |item|
-
-		= f.fields_for :order_items, ( @order.order_items.select{|order_item| order_item.item == item }.first || @order.order_items.new( item: item, title: item.title, quantity: 0, price: item.price ) ) do |order_item_form|
-			.row.order_item{ id: item.polymorphic_id.gsub(/\//,'_') }
-				= order_item_form.hidden_field :item_type
-				= order_item_form.hidden_field :item_id
-				.col-xs-4.col-lg-6
-					.form-group
-						%label=order_item_form.object.title
-				-# .col-xs-3.col-lg-2
-					.form-group.order_item_price_formatted
-						= order_item_form.object.price_formatted
-				.col-xs-2.col-lg-2
-					.form-group
-						= order_item_form.number_field :quantity, class: 'form-control', min: 0, step: 1, max: 20
-				-# .col-xs-3.col-lg-2
-					.form-group.order_item_subtotal_formatted
-						= order_item_form.object.subtotal_formatted
+- @wholesale_profile.items.each do |item|
+	= f.fields_for :order_items, ( @order.order_items.select{|order_item| order_item.item == item }.first || @order.order_items.new( item: item, title: item.title, quantity: 0, price: item.price ) ) do |order_item_form|
+		.row.order_item{ id: item.polymorphic_id.gsub(/\//,'_') }
+			= order_item_form.hidden_field :item_type
+			= order_item_form.hidden_field :item_id
+			.col-xs-4.col-lg-6
+				.form-group
+					%label=order_item_form.object.title
+			-# .col-xs-3.col-lg-2
+				.form-group.order_item_price_formatted
+					= order_item_form.object.price_formatted
+			.col-xs-2.col-lg-2
+				.form-group
+					= order_item_form.number_field :quantity, class: 'form-control', min: 0, step: 1, max: 20
+			-# .col-xs-3.col-lg-2
+				.form-group.order_item_subtotal_formatted
+					= order_item_form.object.subtotal_formatted
 -# .row
 	.col-xs-12
 		%hr

@@ -140,28 +140,7 @@ module SwellEcom
 				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 			end
 
-			# if params[:buy_now]
-			# 	add_page_event_data(
-			# 		ecommerce: {
-			# 			add: {
-			# 				actionField: {},
-			# 				products: @order.order_items.select(&:prod?).collect{|order_item| order_item.item.page_event_data.merge( quantity: order_item.quantity ) }
-			# 			}
-			# 		}
-			# 	);
-			# end
-
-			# add_page_event_data(
-			# 	ecommerce: {
-			# 		currencyCode: 'USD',
-			# 		checkout: {
-			# 			actionField: { step: 1, option: 'Initiate', revenue: @order.order_items.select(&:prod?).sum(&:subtotal_as_money) },
-			# 			products: @order.order_items.select(&:prod?).collect{|order_item| order_item.item.page_event_data.merge( quantity: order_item.quantity ) }
-			# 		}
-			# 	}
-			# );
-
-
+			
 
 			if defined?( SwellAnalytics )
 				log_analytics_event(

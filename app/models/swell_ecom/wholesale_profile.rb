@@ -18,5 +18,9 @@ module SwellEcom
 			self.wholesale_items.where( options ).where( '? > min_quantity', quantity ).order( min_quantity: :desc ).first.try(:price)
 		end
 
+		def items
+			SwellEcom::Product.where( id: wholesale_items.where( item_type: SwellEcom::Product.name ).select(:item_id) )
+		end
+
 	end
 end
