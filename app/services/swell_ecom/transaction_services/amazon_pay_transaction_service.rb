@@ -149,6 +149,7 @@ module SwellEcom
 
 						order.errors.add(:base, :processing_error, message: "Billing agreement no longer valid.")
 						transaction.message = "Billing agreement no longer valid"
+						transaction.save
 						return false
 					end
 
