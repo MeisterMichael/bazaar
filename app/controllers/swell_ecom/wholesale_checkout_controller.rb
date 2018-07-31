@@ -222,8 +222,6 @@ module SwellEcom
 			order_attributes[:user]		= current_user
 			order_attributes[:currency]	= 'USD'
 
-			order_attributes[:order_items_attributes] = order_attributes[:order_items_attributes].values.select{|order_item_attributes| order_item_attributes[:quantity].to_i > 0 } if order_attributes[:order_items_attributes]
-
 			@order = SwellEcom.wholesale_order_class_name.constantize.new( order_attributes )
 			@order.email = @order.user.email if @order.email.blank?
 
@@ -245,7 +243,7 @@ module SwellEcom
 					order_item = @order.order_items.new(
 						item: item,
 						title: item.title,
-						quantity: @wholesale_profile.wholesale_items.order(min_quantity: :asc).first.min_quantity,
+						quantity: 0,
 						price: item.price,
 						subtotal: 0,
 						tax_code: item.tax_code,

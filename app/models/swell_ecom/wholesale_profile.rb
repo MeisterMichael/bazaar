@@ -15,7 +15,7 @@ module SwellEcom
 
 			quantity = options.delete(:quantity) || 0
 
-			self.wholesale_items.where( options ).where( '? >= min_quantity', quantity ).order( min_quantity: :desc ).first.try(:price)
+			WholesaleItem.unscoped.where( wholesale_profile: self ).where( options ).where( '? >= min_quantity', quantity ).order( min_quantity: :desc ).first.try(:price)
 		end
 
 		def items
