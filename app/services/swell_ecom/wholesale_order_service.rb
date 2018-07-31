@@ -5,6 +5,9 @@ module SwellEcom
 
 		def initialize( args = {} )
 
+			@fraud_service		= args[:fraud_service]
+			@fraud_service		||= SwellEcom.fraud_service_class.constantize.new( SwellEcom.fraud_service_config )
+
 			@shipping_service		= args[:shipping_service]
 			@shipping_service		||= SwellEcom.wholesale_shipping_service_class.constantize.new( SwellEcom.wholesale_shipping_service_config )
 

@@ -122,7 +122,7 @@ module SwellEcom
 			end
 
 			payment_profile_expires_at = SwellEcom::TransactionService.parse_credit_card_expiry( transaction_options[:credit_card][:expiration] ) if transaction_options[:credit_card].present?
-			@subscription_service.subscribe_ordered_plans( order, payment_profile_expires_at: payment_profile_expires_at ) if order.active?
+			@subscription_service.subscribe_ordered_plans( order, payment_profile_expires_at: payment_profile_expires_at ) if @subscription_service.present? && order.active?
 
 			true
 		end
@@ -155,7 +155,7 @@ module SwellEcom
 			order.validate
 			@shipping_service.validate( order.shipping_address )
 			@shipping_service.validate( order.billing_address )
-			@fraud_service.validate( order )
+			@fraud_service.validate( order ) if @fraud_service
 
 			return not( order.nested_errors.present? )
 		end
