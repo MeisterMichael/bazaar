@@ -24,6 +24,8 @@ SwellEcom::Engine.routes.draw do
 
 	resources :discount_admin
 
+	resources :fulfillment_admin, only: [:create, :destroy]
+
 	# resources :geo_countries, only: [:index]
 	resources :geo_states, only: [:index]
 
