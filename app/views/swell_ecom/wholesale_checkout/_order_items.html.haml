@@ -10,7 +10,7 @@
 				= order_item_form.object.price_formatted
 		.col-xs-2.col-lg-2
 			.form-group
-				= order_item_form.number_field :quantity, class: 'form-control', min: 0, step: 1, max: 20
+				= order_item_form.number_field :quantity, class: 'form-control', min: 5, step: 1
 		-# .col-xs-3.col-lg-2
 			.form-group.order_item_subtotal_formatted
 				= order_item_form.object.subtotal_formatted
