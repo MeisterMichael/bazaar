@@ -88,6 +88,8 @@ module SwellEcom
 				end
 			else
 
+				@fraud_service.mark_for_review( @order ) if @fraud_service.suspicious?( @order )
+
 				WholesaleOrderMailer.receipt( @order ).deliver_now
 
 				if defined?( SwellAnalytics )
@@ -169,7 +171,8 @@ module SwellEcom
 
 
 		def initialize_services
-			@order_service = SwellEcom::WholesaleOrderService.new
+			@fraud_service = SwellEcom.fraud_service_class.constantize.new( SwellEcom.fraud_service_config.merge( params: params, session: session, cookies: cookies, request: request ) )
+			@order_service = SwellEcom::WholesaleOrderService.new( fraud_service: @fraud_service )
 		end
 
 
