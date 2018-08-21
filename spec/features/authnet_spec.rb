@@ -3,7 +3,7 @@ require "spec_helper"
 describe "AuthorizeDotNetTransactionService" do
 
 	let(:user) { ::User.create( email: "#{(0...20).map { (65 + rand(26)).chr }.join}@groundswellent.com", first_name: 'Michael', last_name: (0...8).map { (65 + rand(26)).chr }.join ) }
-	let(:address) { SwellEcom::GeoAddress.new( first_name: 'Michael', last_name: (0...8).map { (65 + rand(26)).chr }.join, zip: '92126', phone: "1#{(0...10).map { (rand(8)+1).to_s }.join}", street: '123 Test St', city: 'San Diego', geo_country: SwellEcom::GeoCountry.new( name: 'United States', abbrev: 'US' ), geo_state: SwellEcom::GeoState.new( name: 'California', abbrev: 'CA' ) ) }
+	let(:address) { GeoAddress.new( first_name: 'Michael', last_name: (0...8).map { (65 + rand(26)).chr }.join, zip: '92126', phone: "1#{(0...10).map { (rand(8)+1).to_s }.join}", street: '123 Test St', city: 'San Diego', geo_country: GeoCountry.new( name: 'United States', abbrev: 'US' ), geo_state: GeoState.new( name: 'California', abbrev: 'CA' ) ) }
 	let(:trial_subscription_plan) { SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, price: 12900 ) }
 	let(:subscription_plan) { SwellEcom::SubscriptionPlan.new( title: 'Test Subscription Plan', price: 12900 ) }
 	let(:credit_card) {

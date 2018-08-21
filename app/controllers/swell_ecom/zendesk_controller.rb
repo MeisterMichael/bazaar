@@ -15,7 +15,7 @@ module SwellEcom
 			# @todo normalize phone number
 
 			@user = User.find_by( email: email ) if email.present?
-			@user = User.where( id: SwellEcom::GeoAddress.where( phone: phone ).where.not( user_id: nil ).select('user_id') ).first if phone.present?
+			@user = User.where( id: GeoAddress.where( phone: phone ).where.not( user_id: nil ).select('user_id') ).first if phone.present?
 
 			@orders = SwellEcom::Order.where( user: @user ) if @user.present?
 			@orders ||= SwellEcom::Order.where( email: email ) if email.present?

@@ -77,7 +77,7 @@ module SwellEcom
 			@order.billing_address 	= GeoAddress.new
 
 			@address_attribute = ( params[:address_attribute] == 'billing_address' ? :billing_address : :shipping_address )
-			@states = SwellEcom::GeoState.where( geo_country_id: params[:geo_country_id] )
+			@states = GeoState.where( geo_country_id: params[:geo_country_id] )
 
 			render 'swell_ecom/checkout/state_input', layout: false
 		end

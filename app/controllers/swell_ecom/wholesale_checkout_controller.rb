@@ -23,8 +23,8 @@ module SwellEcom
 
 			@shipping_rates = []
 			begin
-				@order.billing_address ||= SwellEcom::GeoAddress.new
-				@order.shipping_address ||= SwellEcom::GeoAddress.new
+				@order.billing_address ||= GeoAddress.new
+				@order.shipping_address ||= GeoAddress.new
 
 
 				@order_service.calculate( @order,

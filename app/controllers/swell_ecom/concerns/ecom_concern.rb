@@ -6,13 +6,13 @@ module SwellEcom
 
 			def get_geo_addresses
 
-				@billing_countries 	||= SwellEcom::GeoCountry.where( bill_to: true )
-				@shipping_countries ||= SwellEcom::GeoCountry.where( ship_to: true )
+				@billing_countries 	||= GeoCountry.where( bill_to: true )
+				@shipping_countries ||= GeoCountry.where( ship_to: true )
 
-				@billing_states 	||= SwellEcom::GeoState.all
-				@shipping_states	||= SwellEcom::GeoState.all
-				@billing_states 	||= SwellEcom::GeoState.where( geo_country_id: @billing_countries.first.id ) if @billing_countries.count == 1
-				@shipping_states	||= SwellEcom::GeoState.where( geo_country_id: @shipping_countries.first.id ) if @shipping_countries.count == 1
+				@billing_states 	||= GeoState.all
+				@shipping_states	||= GeoState.all
+				@billing_states 	||= GeoState.where( geo_country_id: @billing_countries.first.id ) if @billing_countries.count == 1
+				@shipping_states	||= GeoState.where( geo_country_id: @shipping_countries.first.id ) if @shipping_countries.count == 1
 
 			end
 
@@ -31,7 +31,7 @@ module SwellEcom
 				if geo_country_id.present?
 					@billing_states.where( geo_country_id: geo_country_id )
 				else
-					SwellEcom::GeoState.none
+					GeoState.none
 				end
 			end
 
@@ -40,7 +40,7 @@ module SwellEcom
 				if geo_country_id.present?
 					@shipping_states.where( geo_country_id: geo_country_id )
 				else
-					SwellEcom::GeoState.none
+					GeoState.none
 				end
 			end
 

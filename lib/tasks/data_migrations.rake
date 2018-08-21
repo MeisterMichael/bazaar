@@ -4,14 +4,14 @@ namespace :swell_ecom do
 	task backfill_geo_address_tags: :environment do
 		puts "backfill_geo_address_tags"
 
-		SwellEcom::GeoAddress.where( id: SwellEcom::Order.select(:shipping_address_id) ).find_each do |geo_address|
+		GeoAddress.where( id: SwellEcom::Order.select(:shipping_address_id) ).find_each do |geo_address|
 			geo_address.tags = geo_address.tags + ['shipping_address']
 			geo_address.save
 
 			geo_address.user.update( preferred_shipping_address_id: geo_address.id ) if geo_address.user
 		end
 
-		SwellEcom::GeoAddress.where( id: SwellEcom::Order.select(:billing_address_id) ).find_each do |geo_address|
+		GeoAddress.where( id: SwellEcom::Order.select(:billing_address_id) ).find_each do |geo_address|
 			geo_address.tags = geo_address.tags + ['billing_address']
 			geo_address.save
 

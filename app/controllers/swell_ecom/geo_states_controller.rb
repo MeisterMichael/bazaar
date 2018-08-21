@@ -11,7 +11,7 @@ module SwellEcom
 			elsif @address_attribute == 'shipping_address'
 				@states = get_shipping_states( params[:geo_country_id] )
 			else
-				@states = SwellEcom::GeoState.where( geo_country_id: params[:geo_country_id] )
+				@states = GeoState.where( geo_country_id: params[:geo_country_id] )
 			end
 
 

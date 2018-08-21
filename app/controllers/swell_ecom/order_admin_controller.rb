@@ -110,8 +110,8 @@ module SwellEcom
 				@order = SwellEcom::CheckoutOrder.new order_params
 			else
 				@order = SwellEcom::CheckoutOrder.new
-				@order.billing_address = SwellEcom::GeoAddress.new
-				@order.shipping_address = SwellEcom::GeoAddress.new
+				@order.billing_address = GeoAddress.new
+				@order.shipping_address = GeoAddress.new
 			end
 			@order.total ||= 0
 			@order.status = 'draft'

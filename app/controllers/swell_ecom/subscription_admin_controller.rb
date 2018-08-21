@@ -46,8 +46,8 @@ module SwellEcom
 				},
 			).to_h
 
-			subscription_options[:shipping_address]	= SwellEcom::GeoAddress.new( subscription_options.delete(:shipping_address_attributes) ) if subscription_options[:shipping_address_attributes].present?
-			subscription_options[:billing_address]	= SwellEcom::GeoAddress.new( subscription_options.delete(:billing_address_attributes) ) if subscription_options[:billing_address_attributes].present?
+			subscription_options[:shipping_address]	= GeoAddress.new( subscription_options.delete(:shipping_address_attributes) ) if subscription_options[:shipping_address_attributes].present?
+			subscription_options[:billing_address]	= GeoAddress.new( subscription_options.delete(:billing_address_attributes) ) if subscription_options[:billing_address_attributes].present?
 			subscription_options[:shipping_address] ||= subscription_options[:billing_address]
 			subscription_options[:billing_address]	||= subscription_options[:shipping_address]
 
@@ -113,11 +113,11 @@ module SwellEcom
 			@user = SwellMedia.registered_user_class.constantize.find( params[:user_id] )
 
 			@subscription = SwellEcom::Subscription.new(
-				shipping_address: SwellEcom::GeoAddress.new(
+				shipping_address: GeoAddress.new(
 					first_name: @user.first_name,
 					last_name: @user.last_name,
 				),
-				billing_address: SwellEcom::GeoAddress.new(
+				billing_address: GeoAddress.new(
 					first_name: @user.first_name,
 					last_name: @user.last_name,
 				),

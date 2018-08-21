@@ -92,7 +92,7 @@ module SwellEcom
 				@subscription.attributes = subscription_attributes
 
 				if ( shipping_address_attributes = subscription_shipping_address_attributes() ).present?
-					@subscription.shipping_address = SwellEcom::GeoAddress.new( shipping_address_attributes.merge( user: @subscription.user ) )
+					@subscription.shipping_address = GeoAddress.new( shipping_address_attributes.merge( user: @subscription.user ) )
 				end
 
 				# recalculate amounts on change
