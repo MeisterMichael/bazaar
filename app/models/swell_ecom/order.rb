@@ -30,7 +30,7 @@ module SwellEcom
 
 
 		# def email=(value)
-		# 	super( SwellMedia::Email.email_sanitize( value ) )
+		# 	super( Email.email_sanitize( value ) )
 		# end
 
 		def self.not_archived

@@ -62,13 +62,13 @@
 				- if @order.user.present?
 					.well.white-well
 						.pull-right
-							%a{ href: swell_media.edit_user_admin_path( @order.user ) }
+							%a{ href: swell_id.edit_user_admin_path( @order.user ) }
 								Edit
 						%h5
 							Customer
 						%div
-							%a{ href: swell_media.edit_user_admin_path( @order.user ) }= @order.user.full_name
-						%a{ href: swell_media.edit_user_admin_path( @order.user ) }= @order.user.email
+							%a{ href: swell_id.edit_user_admin_path( @order.user ) }= @order.user.full_name
+						%a{ href: swell_id.edit_user_admin_path( @order.user ) }= @order.user.email
 
 				.well.white-well
 					.pull-right
