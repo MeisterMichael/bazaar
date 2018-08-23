@@ -6,9 +6,10 @@
 					&times;
 				%h4.modal-title
 					New Product
-			= form_for @plan, url: pulitzer.active_storeage_index_path, method: 'POST' do |f|
+			= form_for @plan, url: pulitzer.attachments_path, method: 'POST' do |f|
 				.modal-body
-					= form.file_field :gallery_attachments, name: :attachments
+					= hidden_field_tag :attribute, :gallery_attachments
+					= f.file_field :gallery_attachments, name: :attachments
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close
