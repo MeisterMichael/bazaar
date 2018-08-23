@@ -100,7 +100,7 @@ module SwellEcom
 			)
 
 			if params[:newsletter].present?
-				SwellMedia::Optin.create(
+				Scuttlebutt::Optin.create(
 					email: @order.email,
 					name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}",
 					ip: @order.ip,
@@ -201,7 +201,7 @@ module SwellEcom
 
 			log_event( on: @cart )
 
-			set_page_meta( title: "#{SwellMedia.app_name} - Checkout" )
+			set_page_meta( title: "#{Pulitzer.app_name} - Checkout" )
 
 			render layout: 'swell_ecom/checkout'
 		end

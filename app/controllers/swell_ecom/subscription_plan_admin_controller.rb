@@ -6,7 +6,7 @@ module SwellEcom
 		before_action :init_search_service, only: [:index]
 
 		def create
-			authorize( SwellEcom::SubscriptionPlan, :admin_create? )
+			authorize( SwellEcom::SubscriptionPlan )
 
 			@plan = SubscriptionPlan.new( plan_params )
 			@plan.publish_at ||= Time.zone.now
@@ -22,22 +22,21 @@ module SwellEcom
 		end
 
 		def destroy
-			authorize( @plan, :admin_destroy? )
+			authorize( @plan )
 			@plan.archive!
 			set_flash 'Plan archived'
 			redirect_to subscription_plan_admin_index_path
 		end
 
 		def edit
-			authorize( @plan, :admin_edit? )
-			@images = SwellMedia::Asset.where( parent_obj: @plan, use: 'gallery' ).active
+			authorize( @plan )
 
 			set_page_meta( title: "#{@plan.title} | Subscription Plan" )
 		end
 
 
 		def index
-			authorize( SwellEcom::SubscriptionPlan, :admin? )
+			authorize( SwellEcom::SubscriptionPlan )
 
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
@@ -50,7 +49,7 @@ module SwellEcom
 		end
 
 		def update
-			authorize( @plan, :admin_update? )
+			authorize( @plan )
 
 			@plan.attributes = plan_params
 			if @plan.save

@@ -10,7 +10,7 @@ module SwellEcom
 		before_action :get_order, only: [ :confirm, :create, :index ]
 
 		def confirm
-			authorize( @order, :admin_create? )
+			authorize( @order )
 
 			@order_service.calculate( @order,
 				transaction: transaction_options,
@@ -20,7 +20,7 @@ module SwellEcom
 		end
 
 		def create
-			authorize( @order, :admin_create? )
+			authorize( @order )
 
 			@order_service.process( @order,
 				transaction: transaction_options,
@@ -28,7 +28,7 @@ module SwellEcom
 			)
 
 			if params[:newsletter].present?
-				SwellMedia::Optin.create(
+				Scuttlebutt::Optin.create(
 					email: @order.email,
 					name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}",
 					ip: @order.ip,
@@ -66,11 +66,11 @@ module SwellEcom
 		end
 
 		def index
-			authorize( Order, :admin_checkout? )
+			authorize( Order )
 		end
 
 		def state_input
-			authorize( Order, :admin_checkout? )
+			authorize( Order )
 
 			@order = CheckoutOrder.new currency: 'usd'
 			@order.shipping_address = GeoAddress.new
@@ -85,7 +85,7 @@ module SwellEcom
 		def update
 			# for processing order pre_orders and drafts
 			@order = SwellEcom::Order.find( params[:id] )
-			authorize( @order, :admin_create? )
+			authorize( @order )
 
 			if @order.paid?
 				set_flash 'Already processed', :danger

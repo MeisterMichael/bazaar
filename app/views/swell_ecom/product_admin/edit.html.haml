@@ -31,7 +31,7 @@
 						= f.label :slug_pref, 'URL for this product:'
 						.input-group
 							%span.input-group-addon
-								= "#{SwellMedia.app_host}/store/"
+								= "#{Pulitzer.app_host}/store/"
 							= f.text_field :slug_pref, class: 'form-control', placeholder: @product.slug
 
 
@@ -53,7 +53,7 @@
 
 				.well.white-well
 					.pull-right
-						%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_asset_modal' } } Add Gallery Image
+						%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachment_modal' } } Add Gallery Image
 					.form-group
 						%h4 Gallery
 					-# .row
@@ -69,7 +69,7 @@
 								-# = text_field_tag :avatar_text_field, '', class: 'form-control', placeholder: 'Full Path to Image', data: { inputfor: '#product_avatar_asset_url' }
 						.col-xs-8
 							.pull-right
-								%a.btn.btn-primary{ href: '#', data: { toggle: :modal, target: '#new_gallery_asset_modal' } } Add Gallery Image
+								%a.btn.btn-primary{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachment_modal' } } Add Gallery Image
 							%h3{ style: 'margin: 0 0 1em 0;' } Gallery
 					.row
 						.col-xs-6.col-sm-3
@@ -93,7 +93,7 @@
 
 									= f.hidden_field :avatar, class: 'form-control', id: 'product_avatar'
 
-						- @images.each do |image|
+						- @product.gallery_attachments.each do |image|
 							- if image.url != @product.avatar
 								.col-xs-6.col-sm-3
 									.well
@@ -264,4 +264,4 @@
 
 = render 'swell_ecom/product_variants/new_modal', product: @product
 
-= render 'swell_media/asset_admin/new_gallery_asset', obj: @product, args: {}
+= render 'new_gallery_attachment', args: {}

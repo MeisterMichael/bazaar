@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Discounts
 		.col-xs-2
-			- if policy(SwellEcom::Discount).admin_create?
+			- if authorized?(SwellEcom::Discount, controller: SwellEcom::DiscountAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_discount_modal' } }
 					%i.fa.fa-plus-square
 					New
@@ -88,19 +88,19 @@
 								.badge{ class: discount.status }
 									= discount.status
 							%td
-								- if policy(discount).admin_edit? || policy(discount).admin_destroy?
+								- if authorized?(discount, controller: SwellEcom::DiscountAdminController, action: :edit ) || authorized?(discount, controller: SwellEcom::DiscountAdminController, action: :destroy )
 									.btn-group
 										%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
 											%i.fa.fa-cog
 											%b.caret
 										%ul.dropdown-menu
-											- if policy(discount).admin_edit?
+											- if authorized?(discount, controller: SwellEcom::DiscountAdminController, action: :edit )
 												%li
 													%a{ href: edit_discount_admin_path( discount.id ) }
 														%i.fa.fa-pencil
 														Edit
 												%li.divider
-											- if policy(discount).admin_destroy?
+											- if authorized?(discount, controller: SwellEcom::DiscountAdminController, action: :destroy )
 												%li
 													%a{ href: discount_admin_path( discount ), data: { method: 'delete', confirm: 'Are you sure?' } }
 														%i.fa.fa-trash-o

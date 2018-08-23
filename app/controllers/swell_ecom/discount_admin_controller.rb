@@ -6,7 +6,7 @@ module SwellEcom
 		before_action :init_search_service, only: [:index]
 
 		def create
-			authorize( SwellEcom::Discount, :admin_create? )
+			authorize( SwellEcom::Discount )
 
 			@discount = Discount.new( discount_params )
 			@discount.status = 'draft'
@@ -23,20 +23,20 @@ module SwellEcom
 		end
 
 		def destroy
-			authorize( @discount, :admin_destroy? )
+			authorize( @discount )
 			@discount.archive!
 			set_flash 'Discount archived'
 			redirect_to discount_discount_admin_index_path
 		end
 
 		def edit
-			authorize( @discount, :admin_edit? )
+			authorize( @discount )
 			set_page_meta( title: "#{@discount.title || @discount.code} | Discount" )
 		end
 
 
 		def index
-			authorize( SwellEcom::Discount, :admin? )
+			authorize( SwellEcom::Discount )
 
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
@@ -49,7 +49,7 @@ module SwellEcom
 		end
 
 		def update
-			authorize( @discount, :admin_update? )
+			authorize( @discount )
 
 			@discount.attributes = discount_params
 			@discount.first_discount_item.discount_amount = @discount.first_discount_item.discount_amount / 100 if @discount.first_discount_item.percent?

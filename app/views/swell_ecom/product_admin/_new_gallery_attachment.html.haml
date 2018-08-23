@@ -1,0 +1,15 @@
+#new_gallery_attachment_modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					New Product
+			= form_for @product, url: pulitzer.active_storeage_index_path, method: 'POST' do |f|
+				.modal-body
+					= form.file_field :gallery_attachments, name: :attachments
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Create', class: 'btn btn-primary'

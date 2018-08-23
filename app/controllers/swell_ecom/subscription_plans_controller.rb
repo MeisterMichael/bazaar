@@ -13,8 +13,6 @@ module SwellEcom
 		def show
 
 
-			@images = SwellMedia::Asset.where( parent_obj: @plan, use: 'gallery' ).active
-
 			set_page_meta( @plan.page_meta )
 
 			add_page_event_data(

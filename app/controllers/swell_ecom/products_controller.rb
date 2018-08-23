@@ -49,8 +49,6 @@ module SwellEcom
 				return
 			end
 
-			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
-
 			@product_category = @product.product_category
 
 			@related_products = Product.none

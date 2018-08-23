@@ -4,7 +4,7 @@ module SwellEcom
 		before_action :get_shipping_option, only: [ :update, :edit ]
 
 		def create
-			authorize( SwellEcom::ShippingOption, :admin_create? )
+			authorize( SwellEcom::ShippingOption )
 
 			@shipping_option = SwellEcom::ShippingOption.new
 			@shipping_option.attributes = shipping_carrier_plan_attributes
@@ -20,11 +20,11 @@ module SwellEcom
 		end
 
 		def edit
-			authorize( @shipping_option, :admin_edit? )
+			authorize( @shipping_option )
 		end
 
 		def index
-			authorize( SwellEcom::ShippingOption, :admin? )
+			authorize( SwellEcom::ShippingOption )
 			@shipping_options = SwellEcom::ShippingOption.all
 
 			if ['name', 'created_at'].include? params[:sort_by]
@@ -37,7 +37,7 @@ module SwellEcom
 		end
 
 		def update
-			authorize( @shipping_option, :admin_update? )
+			authorize( @shipping_option )
 
 			@shipping_option.attributes = shipping_carrier_plan_attributes
 

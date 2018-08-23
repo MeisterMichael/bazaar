@@ -3,8 +3,6 @@ module SwellEcom
 		self.table_name = 'products'
 
 		include Pulitzer::Concerns::URLConcern
-		#include SwellMedia::Concerns::AvatarAsset
-		#include SwellMedia::Concerns::ExpiresCache
 		include SwellEcom::Concerns::MoneyAttributesConcern
 		include FriendlyId
 
@@ -90,9 +88,9 @@ module SwellEcom
 
 		def page_meta
 			if self.title.present?
-				title = "#{self.title} )°( #{SwellMedia.app_name}"
+				title = "#{self.title} )°( #{Pulitzer.app_name}"
 			else
-				title = SwellMedia.app_name
+				title = Pulitzer.app_name
 			end
 
 			schema_org = {
@@ -306,7 +304,7 @@ module SwellEcom
 		protected
 
 			def set_avatar
-				self.avatar = self.avatar_attachment.service_url
+				self.avatar = self.avatar_attachment.service_url if self.avatar_attachment.attached?
 			end
 
 		private

@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Products
 		.col-xs-2.text-right
-			- if policy(SwellEcom::Product).admin_create?
+			- if authorized?(SwellEcom::Product, controller: SwellEcom::ProductAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_product' } }
 					%i.fa.fa-plus-square
 					New

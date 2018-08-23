@@ -156,7 +156,7 @@ module SwellEcom
 				)
 			end
 
-			set_page_meta( title: "#{SwellMedia.app_name} - Checkout" )
+			set_page_meta( title: "#{Pulitzer.app_name} - Checkout" )
 
 			render layout: 'swell_ecom/checkout'
 		end

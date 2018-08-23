@@ -29,7 +29,7 @@
 						= f.label :slug_pref, 'URL for this plan:'
 						.input-group
 							%span.input-group-addon
-								= "#{SwellMedia.app_host}/subscriptions/"
+								= "#{Pulitzer.app_host}/subscriptions/"
 							= f.text_field :slug_pref, class: 'form-control', placeholder: @plan.slug
 
 
@@ -48,7 +48,7 @@
 
 				.well.white-well
 					.pull-right
-						%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_asset_modal' } } Add Gallery Image
+						%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachment_modal' } } Add Gallery Image
 					.form-group
 						%h4 Gallery
 					-# .row
@@ -64,7 +64,7 @@
 								-# = text_field_tag :avatar_text_field, '', class: 'form-control', placeholder: 'Full Path to Image', data: { inputfor: '#plan_avatar_asset_url' }
 						.col-xs-8
 							.pull-right
-								%a.btn.btn-primary{ href: '#', data: { toggle: :modal, target: '#new_gallery_asset_modal' } } Add Gallery Image
+								%a.btn.btn-primary{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachment_modal' } } Add Gallery Image
 							%h3{ style: 'margin: 0 0 1em 0;' } Gallery
 					.row
 						.col-xs-6.col-sm-3
@@ -202,4 +202,4 @@
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
-= render 'swell_media/asset_admin/new_gallery_asset', obj: @plan, args: {}
+= render 'new_gallery_attachment', args: {}

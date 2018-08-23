@@ -7,7 +7,7 @@ module SwellEcom
 		def create
 
 			@order_item = SwellEcom::OrderItem.new( order_item_params )
-			authorize( @order_item.order, :admin_update? )
+			authorize( @order_item.order )
 			@order_item.title = @order_item.item.title					if @order_item.title.blank?
 			@order_item.price = @order_item.item.purchase_price	if order_item_params[:price].blank?
 			@order_item.quantity	= 1														if order_item_params[:quanity].blank?
@@ -51,7 +51,7 @@ module SwellEcom
 		def destroy
 
 			@order_item = SwellEcom::OrderItem.find( params[:id] )
-			authorize( @order_item.order, :admin_update? )
+			authorize( @order_item.order )
 
 			if @order_item.destroy
 				@order_service.calculate( @order_item.order )
@@ -91,7 +91,7 @@ module SwellEcom
 		def update
 
 			@order_item = SwellEcom::OrderItem.find( params[:id] )
-			authorize( @order_item.order, :admin_update? )
+			authorize( @order_item.order )
 
 			@order_item.attributes = order_item_params
 			@order_item.subtotal	= @order_item.price * @order_item.quantity if @order_item.prod?

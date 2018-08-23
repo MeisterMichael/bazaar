@@ -1,6 +1,6 @@
 
 module SwellEcom
-	class EcomAdminController < SwellMedia::AdminController
+	class EcomAdminController < ApplicationAdminController
 		include SwellEcom::Concerns::EcomConcern
 
 		helper_method :get_billing_countries

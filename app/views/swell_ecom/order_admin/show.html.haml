@@ -9,7 +9,7 @@
 						%i.fa.fa-angle-left
 						Orders
 
-			- if policy(@order).admin_update?
+			- if authorized?(@order, controller: SwellEcom::OrderAdminController, action: :update )
 				.pull-right
 					- if @order.review?
 						%a.btn.btn-primary{ href: accept_order_admin_path( @order ), data: { method: 'POST' } }
@@ -90,7 +90,7 @@
 							%tr
 								%td
 									- if ( subscription = order_item.subscription ).present? || ( subscription = order_item.item ).is_a?( SwellEcom::Subscription )
-										- if policy(subscription).admin_edit?
+										- if authorized?(subscription, controller: SwellEcom::SubscriptionAdminController, action: :edit)
 											%a{ href: edit_subscription_admin_path( subscription ) }
 												= order_item.title
 												(#{subscription.code})
@@ -197,13 +197,13 @@
 										%td.text-right{ style: 'width: 100px' }
 											%h5{ style: 'font-weight:bold;' }
 												= number_to_currency ( @transactions.approved.positive.to_a.sum(&:signed_amount) / 100.0 )
-						- if policy( @order ).admin_refund? && @transactions.approved.to_a.sum(&:signed_amount) > 0
+						- if authorized?( @order, controller: SwellEcom::OrderAdminController, action: :refund ) && @transactions.approved.to_a.sum(&:signed_amount) > 0
 							.text-center
 								%a.btn.btn-success{ data: { toggle: :modal, target: '#refund_order' } }
 									%i.fa.fa-plus-square
 									Refund
 			.well.white-well
-				- if policy(@order).admin_update?
+				- if authorized?(@order, controller: SwellEcom::OrderAdminController, action: :update )
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#edit_support_notes_order' } }
 							Edit
@@ -286,7 +286,7 @@
 
 
 			.well.white-well
-				- if policy(@order).admin_update? && not( @order.fulfilled? || @order.delivered? )
+				- if authorized?(@order, controller: SwellEcom::OrderAdminController, action: :update ) && not( @order.fulfilled? || @order.delivered? )
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
 				%h5
