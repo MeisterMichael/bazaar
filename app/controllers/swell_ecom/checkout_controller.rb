@@ -130,7 +130,7 @@ module SwellEcom
 				# billing address, if not already set
 				update_order_user_address( @order )
 
-				@fraud_service.mark_for_review( @order ) if @fraud_service.suspicious?( @order )
+				@fraud_service.post_processing!( @order )
 
 				@cart.update( order_id: @order.id, status: 'success' )
 

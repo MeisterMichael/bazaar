@@ -41,6 +41,10 @@ module SwellEcom
 
     end
 
+		def post_processing!( order )
+			mark_for_review( order ) if suspicious?( order )
+		end
+
     def reject_review( order )
       return false unless order.review?
 
