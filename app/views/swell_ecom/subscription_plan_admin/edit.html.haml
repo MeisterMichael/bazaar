@@ -56,7 +56,7 @@
 							.well
 								.text-center{ style: 'margin-top: -16px;line-height: 16px;' } Default Image
 								- if @plan.avatar
-									%a{ href: @plan.avatar_url, target: '_preview_image' }
+									%a{ href: @plan.avatar, target: '_preview_image' }
 										%img.img.img-responsive.center-block#plan_avatar_img{:src => @plan.avatar }
 								- else
 									%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
