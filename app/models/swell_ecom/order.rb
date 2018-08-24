@@ -45,6 +45,10 @@ module SwellEcom
 			where.not( status: SwellEcom::Order.statuses['trash'] )
 		end
 
+		def subscription_renewal?
+			self.parent.is_a?( SwellEcom::Subscription )
+		end
+
 		def has_subscription_plan?
 			self.order_items.select{ |order_item| order_item.item.is_a?( SwellEcom::SubscriptionPlan ) }.present?
 		end
