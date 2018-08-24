@@ -41,7 +41,7 @@ module SwellEcom
 
     end
 
-		def post_processing!( order )
+		def post_processing( order )
 			mark_for_review( order ) if suspicious?( order )
 		end
 
