@@ -9,6 +9,8 @@
 			= form_for @plan, url: pulitzer.attachments_path, method: 'POST' do |f|
 				.modal-body
 					= hidden_field_tag :attribute, :gallery_attachments
+					= hidden_field_tag :object_class, @plan.class.base_class.name
+					= hidden_field_tag :object_id, @plan.id
 					= f.file_field :gallery_attachments, name: :attachments
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }

@@ -56,21 +56,6 @@
 						%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachment_modal' } } Add Gallery Image
 					.form-group
 						%h4 Gallery
-					-# .row
-						.col-xs-4
-							.form-group
-								= f.label :avatar, 'Image (default):'
-								= image_tag @product.avatar, class: 'img-responsive', id: 'product_avatar_img'
-								%div{ style: 'text-align:center;padding:0.3em;' }
-									%a{ href: '#', data: { toggle: :assetup, for: '#product_avatar,#product_avatar_img', asset: { asset_type: 'image', use: 'avatar', status: 'active', parent_obj_id: @product.id, parent_obj_type: @product.class.base_class.name }.to_json, params: { authenticity_token: form_authenticity_token() }.to_json } }
-										%i.fa.fa-upload
-										upload
-								= f.hidden_field :avatar, class: 'form-control', id: 'product_avatar'
-								-# = text_field_tag :avatar_text_field, '', class: 'form-control', placeholder: 'Full Path to Image', data: { inputfor: '#product_avatar_asset_url' }
-						.col-xs-8
-							.pull-right
-								%a.btn.btn-primary{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachment_modal' } } Add Gallery Image
-							%h3{ style: 'margin: 0 0 1em 0;' } Gallery
 					.row
 						.col-xs-6.col-sm-3
 							.well
@@ -78,31 +63,20 @@
 								- if @product.avatar
 									%a{ href: @product.avatar, target: '_preview_image' }
 										%img.img.img-responsive.center-block#product_avatar_img{:src => @product.avatar }
-									.text-center{ style: 'margin-bottom: -14px;' }
-										%a{ href: '#', data: { toggle: :assetup, for: '#product_avatar,#product_avatar_img', asset: { asset_type: 'image', use: 'avatar', status: 'active', parent_obj_id: @product.id, parent_obj_type: @product.class.base_class.name }.to_json, params: { authenticity_token: form_authenticity_token() }.to_json } }
-											%i.fa.fa-upload
-											upload
-
-									= f.hidden_field :avatar, class: 'form-control', id: 'product_avatar'
 								- else
 									%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
-									.text-center{ style: 'margin-bottom: -14px;' }
-										%a{ href: '#', data: { toggle: :assetup, for: '#product_avatar,#product_avatar_img', asset: { asset_type: 'image', use: 'avatar', status: 'active', parent_obj_id: @product.id, parent_obj_type: @product.class.base_class.name }.to_json, params: { authenticity_token: form_authenticity_token() }.to_json } }
-											%i.fa.fa-upload
-											upload
-
-									= f.hidden_field :avatar, class: 'form-control', id: 'product_avatar'
+								.text-center{ style: 'margin-bottom: -14px;' }
+									= f.file_field :avatar_attachment
 
 						- @product.gallery_attachments.each do |image|
-							- if image.url != @product.avatar
-								.col-xs-6.col-sm-3
-									.well
-										%a{ href: image.url, target: '_preview_image' }
-											%img.img.img-responsive.center-block{:src => image.url }
-										.text-center{ style: 'margin-bottom: -14px;' }
-											%a{ href: swell_media.asset_admin_path( image ), data: { method: :DELETE } }
-												%i.fa.fa-trash
-												delete
+							.col-xs-6.col-sm-3
+								.well
+									%a{ href: image.service_url, target: '_preview_image' }
+										%img.img.img-responsive.center-block{:src => image.service_url }
+									.text-center{ style: 'margin-bottom: -14px;' }
+										%a{ href: pulitzer.attachment_path( image.id, object_class: @product.class.base_class.name, object_id: @product.id, attribute: :gallery_attachments ), data: { method: :delete } }
+											%i.fa.fa-trash
+											delete
 
 			.col-xs-4
 				.well.white-well
