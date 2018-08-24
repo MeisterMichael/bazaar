@@ -49,6 +49,7 @@ module SwellEcom
 
 		def is_next_interval_a_trial?
 			return false unless self.subscription_plan.trial?
+			return false if self.properties['skip_trial'] == 'yes'
 
 			if not( self.persisted? )
 				return true

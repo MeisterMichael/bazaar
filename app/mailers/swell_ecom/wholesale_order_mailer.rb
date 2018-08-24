@@ -3,8 +3,8 @@ module SwellEcom
 
 		def notify_admin( order )
 			@order = order
-			subject = "#{Pulitzer.app_name} order of #{@order.order_items.first.title}".truncate(255)
-			mail to: "gk@amraplife.com", from: "no-reply@amraplife.com", subject: subject
+			subject = "#{SwellMedia.app_name} order of #{@order.order_items.first.title}".truncate(255)
+			mail to: "gk@amraplife.com", from: SwellEcom.order_email_from, subject: subject
 		end
 
 		def receipt( order, args = {} )
