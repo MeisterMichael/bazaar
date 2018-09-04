@@ -9,17 +9,17 @@
 								.carousel-inner
 									.item.active{ data: { thumb: 0 } }
 										%img{ src: @product.avatar }
-									- @images.each_with_index do |image, idx|
+									- @product.gallery_attachments.each_with_index do |attachment, idx|
 										.item{ data: { thumb: (idx + 1) } }
-											%img{ src: image.url }
+											%img{ src: attachment.service_url }
 							.clearfix
 								#thumbcarousel.carousel.slide{ data: { interval: "false" } }
 									.carousel-inner
 										.thumb{ data: { target: "#carousel", 'slide-to' => "0" } }
 											%img{ src: @product.avatar }
-										- @images.each_with_index do |image, idx|
+										- @product.gallery_attachments.each_with_index do |attachment, idx|
 											.thumb{ data: { target: "#carousel", 'slide-to' => (idx + 1) } }
-												%img{ src: image.url }
+												= image_tag attachment.variant( resize: "100x100" ).processed.service_url
 									%a.left.carousel-control{ href: "#thumbcarousel", role: "button", data: { slide: "prev" } }
 										%span.glyphicon.glyphicon-chevron-left
 									%a.right.carousel-control{ href: "#thumbcarousel", role: "button", data: { slide: "next" } }
