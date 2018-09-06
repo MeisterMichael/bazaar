@@ -57,6 +57,19 @@ module SwellEcom
 				order.provider_customer_profile_reference = profiles[:customer_profile_reference]
 				order.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
 
+				transaction_properties = {}
+				if credit_card_info.present? && credit_card_info[:card_number].present?
+					credit_card_dector = CreditCardValidations::Detector.new( credit_card_info[:card_number] )
+
+					new_properties = {
+						'credit_card_ending_in' => credit_card_dector.number[-4,4],
+						'credit_card_brand' => credit_card_dector.brand,
+					}
+
+					order.properties = order.properties.merge(new_properties)
+					transaction_properties = transaction_properties.merge(new_properties)
+				end
+
 				anet_order = nil
 
 				# create capture
@@ -80,22 +93,7 @@ module SwellEcom
 
 						# update any subscriptions with profile ids
 
-						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: direct_response.transaction_id, customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved' )
-
-						if credit_card_info.present?
-
-							credit_card_dector = CreditCardValidations::Detector.new( credit_card_info[:card_number] )
-
-							new_properties = {
-								'credit_card_ending_in' => credit_card_dector.number[-4,4],
-								'credit_card_brand' => credit_card_dector.brand,
-							}
-
-							transaction.properties = transaction.properties.merge( new_properties ) if transaction.respond_to?( :properties )
-
-							transaction.save
-
-						end
+						transaction = SwellEcom::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: direct_response.transaction_id, customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference], provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved', properties: transaction_properties )
 
 						# sanity check
 						raise Exception.new( "SwellEcom::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
@@ -110,7 +108,7 @@ module SwellEcom
 
 					order.payment_status = 'declined'
 
-					transaction = Transaction.new(
+					transaction = SwellEcom::Transaction.new(
 						transaction_type: 'charge',
 						reference_code: direct_response.try(:transaction_id),
 						customer_profile_reference: profiles[:customer_profile_reference],
@@ -120,6 +118,7 @@ module SwellEcom
 						currency: order.currency,
 						status: 'declined',
 						message: response.message_text,
+						properties: transaction_properties,
 					)
 					transaction.parent_obj ||= args[:default_parent_obj]
 					transaction.parent_obj ||= order.user if order.user.persisted?
@@ -154,7 +153,8 @@ module SwellEcom
 
 				transaction = SwellEcom::Transaction.new( args )
 				transaction.transaction_type	= 'refund'
-				transaction.provider			= @provider_name
+				transaction.provider					= @provider_name
+				transaction.properties				= charge_transaction.properties.merge( transaction.properties ) if charge_transaction
 
 				if charge_transaction.present?
 
