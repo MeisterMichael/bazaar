@@ -68,6 +68,16 @@ module SwellEcom
 
 					order.properties = order.properties.merge(new_properties)
 					transaction_properties = transaction_properties.merge(new_properties)
+				elsif ( first_profile_transaction = SwellEcom::Transaction.where( provider: @provider_name, customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference] ).where("properties::hstore ? 'credit_card_ending_in'").first ).present?
+
+					new_properties = {
+						'credit_card_ending_in' => first_profile_transaction.properties['credit_card_ending_in'],
+						'credit_card_brand' => first_profile_transaction.properties['credit_card_brand'],
+					}
+
+					order.properties = order.properties.merge(new_properties)
+					transaction_properties = transaction_properties.merge(new_properties)
+
 				end
 
 				anet_order = nil
