@@ -224,7 +224,7 @@
 							%th.text-right{ style: 'width: 10em' } Amount
 							%th{ style: 'width: 4em' } Currency
 					%tbody
-						- @transactions.each do |transaction|
+						- @transaction_history.each do |transaction|
 							%tr
 								%td
 									=current_user.to_local_tz(transaction.created_at).to_s( :short )
@@ -236,6 +236,8 @@
 									= transaction.provider
 								%td
 									= transaction.reference_code
+									- if transaction.properties['credit_card_ending_in']
+										%small ( **** #{transaction.properties['credit_card_ending_in']} )
 								%td.text-right
 									= number_to_currency (transaction.amount.to_f / 100)
 								%td

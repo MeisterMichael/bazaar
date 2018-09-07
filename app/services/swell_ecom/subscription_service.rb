@@ -178,7 +178,24 @@ module SwellEcom
 
 
 			# process order
-			transaction = @order_service.process( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping } )
+			begin
+
+				transaction = @order_service.process( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping } )
+
+			rescue Exception => e
+
+				subscription.failed_attempts = subscription.failed_attempts + 1 if subscription.respond_to? :failed_attempts
+				subscription.failed_message = "Exception: #{e.message}" if subscription.respond_to? :failed_message
+				subscription.failed_at = Time.now if subscription.respond_to? :failed_at
+
+				# mark subscription as failed if the transaction failed
+				subscription.status = 'failed'
+
+				subscription.save
+
+				raise e
+
+			end
 
 			# Transaction fails if transaction is false or not approved.
 			transaction_failed = !transaction || not( transaction.approved? )
