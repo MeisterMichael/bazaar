@@ -19,8 +19,8 @@
 						= raw @order.shipping_address.to_html
 					.col-xs-12.col-md-6
 						%h5{ style: 'margin-bottom: 0.2em;' } Payment Method
-						- if ( transaction = @order.transactions.approved.charge.first).present? && transaction.properties['credit_card_brand'].present?
-							#{transaction.properties['credit_card_brand'].upcase} **** #{transaction.properties['credit_card_ending_in']}
+						- if ( transaction = @order.transactions.approved.charge.first).present? && transaction.credit_card_brand.present?
+							#{transaction.credit_card_brand.upcase} **** #{transaction.credit_card_ending_in}
 					.col-xs-12.col-md-3
 						%h5{ style: 'margin-bottom: 0.2em;' } Order Summary
 						.row
@@ -66,8 +66,8 @@
 									- else
 										= number_to_currency transaction.amount / 100.0
 								%td
-									- if transaction.properties['credit_card_brand'].present?
-										#{transaction.properties['credit_card_brand'].upcase} **** #{transaction.properties['credit_card_ending_in']}
+									- if transaction.credit_card_brand.present?
+										#{transaction.credit_card_brand.upcase} **** #{transaction.credit_card_ending_in}
 								%td
 									= transaction.status
 

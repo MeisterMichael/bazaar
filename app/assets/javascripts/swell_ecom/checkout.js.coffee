@@ -3,7 +3,7 @@
 #= require ./plugins/validator.js
 #= require ./custom/stripe_integration.js
 #= require ./plugins/jquery.caret.js
-#= require ./plugins/jquery.mobilePhoneNumber.js
+#= require ./plugins/jquery.mobilephonenumber.js
 #= require ./custom/geo-address
 
 $ ->

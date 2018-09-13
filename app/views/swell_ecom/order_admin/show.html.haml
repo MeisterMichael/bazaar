@@ -236,8 +236,8 @@
 									= transaction.provider
 								%td
 									= transaction.reference_code
-									- if transaction.properties['credit_card_ending_in']
-										%small ( **** #{transaction.properties['credit_card_ending_in']} )
+									- if transaction.credit_card_ending_in
+										%small ( **** #{transaction.credit_card_ending_in} )
 								%td.text-right
 									= number_to_currency (transaction.amount.to_f / 100)
 								%td
