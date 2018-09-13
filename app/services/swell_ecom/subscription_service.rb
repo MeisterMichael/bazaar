@@ -44,8 +44,8 @@ module SwellEcom
 
 				if ( charge_transaction = order.transactions.charge.approved.first ).present? && charge_transaction.respond_to?( :properties )
 
-					args[:credit_card_ending_in]	||= charge_transaction.properties['credit_card_ending_in']
-					args[:credit_card_brand]		||= charge_transaction.properties['credit_card_brand']
+					args[:credit_card_ending_in]	||= charge_transaction.credit_card_ending_in
+					args[:credit_card_brand]		||= charge_transaction.credit_card_brand
 
 				end
 
