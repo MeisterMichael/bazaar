@@ -104,7 +104,7 @@ module SwellEcom
 		end
 
 		def find_order_rates( order, args = {} )
-			find_address_rates( order.shipping_address, order.order_items.select{ |order_item| order_item.prod? }, args )
+			find_address_rates( order.shipping_address, order.order_items.select{ |order_item| order_item.prod? && order_item.quantity > 0 }, args )
 		end
 
 		def find_subscription_rates( subscription, args = {} )
