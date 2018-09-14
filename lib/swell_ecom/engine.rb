@@ -16,6 +16,9 @@ module SwellEcom
 		mattr_accessor :discount_service_class
 		mattr_accessor :discount_service_config
 
+		mattr_accessor :enable_wholesale_order_mailer
+		mattr_accessor :enable_checkout_order_mailer
+
 		mattr_accessor :fraud_service_class
 		mattr_accessor :fraud_service_config
 
@@ -59,9 +62,11 @@ module SwellEcom
 
 		mattr_accessor :create_user_on_checkout
 
-
 		self.discount_service_class = "SwellEcom::DiscountService"
 		self.discount_service_config = {}
+
+		self.enable_wholesale_order_mailer = true
+		self.enable_checkout_order_mailer = true
 
 		self.fraud_service_class = "SwellEcom::FraudService"
 		self.fraud_service_config = {}
