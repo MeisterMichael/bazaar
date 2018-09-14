@@ -92,7 +92,7 @@ module SwellEcom
 
 				@fraud_service.mark_for_review( @order ) if @fraud_service.suspicious?( @order )
 
-				WholesaleOrderMailer.receipt( @order ).deliver_now
+				WholesaleOrderMailer.receipt( @order ).deliver_now if SwellEcom.enable_wholesale_order_mailer
 
 				if defined?( SwellAnalytics )
 					log_analytics_event(

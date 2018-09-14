@@ -139,7 +139,7 @@ module SwellEcom
 				# 	transaction.update( parent_obj: @order )
 				# end
 
-				OrderMailer.receipt( @order ).deliver_now
+				OrderMailer.receipt( @order ).deliver_now if SwellEcom.enable_checkout_order_mailer
 				#OrderMailer.notify_admin( @order ).deliver_now
 
 				@expiration = 30.minutes.from_now.to_i
