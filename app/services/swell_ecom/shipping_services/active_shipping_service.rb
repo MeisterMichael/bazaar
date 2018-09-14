@@ -83,7 +83,7 @@ module SwellEcom
 
 					package_shape = line_item.package_shape || 'no_shape'
 
-					unless package_shape == 'no_shape'
+					unless package_shape == 'no_shape' || line_item.quantity <= 0
 
 						options = { units: :metic }
 
