@@ -63,6 +63,8 @@ module SwellEcom
 			@order.shipping_address.user	||= @order.user
 			@order.shipping_address.tags	= @order.shipping_address.tags + ['shipping_address']
 
+			@order.order_items = @order.order_items.select{|order_item| not(order_item.prod?) || order_item.quantity > 0 }
+
 			@order_service.process( @order,
 				transaction: transaction_options,
 				shipping: shipping_options,
