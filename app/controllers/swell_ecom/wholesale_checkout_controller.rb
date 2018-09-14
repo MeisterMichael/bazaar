@@ -94,20 +94,7 @@ module SwellEcom
 
 				WholesaleOrderMailer.receipt( @order ).deliver_now if SwellEcom.enable_wholesale_order_mailer
 
-				if defined?( SwellAnalytics )
-					log_analytics_event(
-						'purchase',
-						event_category: 'swell_ecom_wholesale',
-						country: client_ip_country,
-						ip: client_ip,
-						user_id: (current_user || @order.user).try(:id),
-						referrer_url: request.referrer,
-						page_url: request.original_url,
-						subject_id: @order.id,
-						subject_type: @order.class.base_class.name,
-						value: @order.total,
-					)
-				end
+				log_event( user: @order.user, name: 'wholesale_purchase', category: 'swell_ecom', value: @order.total, on: @order, content: "placed a wholesale order for $#{@order.total/100.to_f}." )
 
 				respond_to do |format|
 					format.js {
