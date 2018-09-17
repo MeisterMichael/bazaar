@@ -4,6 +4,7 @@ module SwellEcom
 
 		include Pulitzer::Concerns::URLConcern
 		include SwellEcom::Concerns::MoneyAttributesConcern
+		include SwellId::Concerns::PolymorphicIdentifiers
 		include FriendlyId
 
 		if defined?( Elasticsearch::Model )

@@ -4,6 +4,7 @@ module SwellEcom
 
 		include Pulitzer::Concerns::URLConcern
 		include SwellEcom::Concerns::MoneyAttributesConcern
+		include SwellId::Concerns::PolymorphicIdentifiers
 
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }

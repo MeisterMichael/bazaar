@@ -2,7 +2,7 @@ module SwellEcom
 	class OrderItem < ApplicationRecord
 		self.table_name = 'order_items'
 		include SwellEcom::Concerns::MoneyAttributesConcern
-		include SwellMedia::Concerns::PolymorphicIdentifiers
+		include SwellId::Concerns::PolymorphicIdentifiers
 
 		enum order_item_type: { 'prod' => 1, 'tax' => 2, 'shipping' => 3, 'discount' => 4 }
 
