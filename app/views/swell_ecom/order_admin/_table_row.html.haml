@@ -2,7 +2,7 @@
 	%td
 		= link_to order.code, swell_ecom.order_admin_path( order.id )
 	%td
-		= current_user_tz_easy_read_date_format order.created_at
+		= order.created_at.to_s( :short )
 	- if args[:customer] != false
 		%td
 			%a{ href: swell_ecom.order_admin_path( order.id ) }

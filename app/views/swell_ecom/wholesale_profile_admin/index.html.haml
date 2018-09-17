@@ -43,7 +43,7 @@
 							%td
 								= link_to wholesale_profile.title, edit_wholesale_profile_admin_path( wholesale_profile.id )
 							%td
-								= current_user_tz_easy_read_date_format wholesale_profile.created_at
+								= wholesale_profile.created_at.to_s( :short )
 							%td
 								.badge{ class: wholesale_profile.status }
 									= wholesale_profile.status.gsub(/_/,' ')
