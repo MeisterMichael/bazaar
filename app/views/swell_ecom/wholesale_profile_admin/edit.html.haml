@@ -23,7 +23,7 @@
 
 					.form-group
 						= f.label :description
-						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default' }.to_json }
+						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @wholesale_profile.class.base_class.name, object_id: @wholesale_profile.id }.to_json }
 
 				.well.white-well
 					%a.pull-right{ href: '#new_wholesale_item_modal', data: { toggle: :modal, target: '#new_wholesale_item_modal' } }
