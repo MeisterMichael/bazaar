@@ -4,7 +4,7 @@ module SwellEcom
 		before_action :get_wholesale_item, except: [ :index, :create ]
 
 		def create
-			authorize( SwellEcom::WholesaleItem, :admin_create? )
+			authorize( SwellEcom::WholesaleItem )
 
 			@wholesale_item = WholesaleItem.create( wholesale_item_params )
 
@@ -23,7 +23,7 @@ module SwellEcom
 		end
 
 		def destroy
-			authorize( @wholesale_item, :admin_destroy? )
+			authorize( @wholesale_item )
 			@wholesale_item.destroy
 
 			set_flash 'Item Removed', :success
@@ -32,7 +32,7 @@ module SwellEcom
 
 
 		def update
-			authorize( @wholesale_item, :admin_update? )
+			authorize( @wholesale_item )
 			@wholesale_item.attributes = wholesale_item_params
 			@wholesale_item.save
 			set_flash 'Item Updated', :success

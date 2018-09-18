@@ -6,7 +6,7 @@ module SwellEcom
 
 		def create
 			@order = SwellEcom::Order.find( params[:order_id] )
-			authorize( @order, :admin_update? )
+			authorize( @order )
 
 			begin
 				@shipping_service.fulfill_order( @order )
@@ -22,7 +22,7 @@ module SwellEcom
 
 		def destroy
 			@order = SwellEcom::Order.find( params[:id] )
-			authorize( @order, :admin_update? )
+			authorize( @order )
 
 			begin
 				@shipping_service.cancel_order_fulfillment( @order )

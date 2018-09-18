@@ -10,19 +10,19 @@
 				.modal-body{ style: 'text-align: center;' }
 					.form-group
 						=f.label :status
-						- if policy(@order).admin_update?
+						- if authorized?(@order, controller: SwellEcom::OrderAdminController, action: :update )
 							= f.collection_select :status, SwellEcom::Order.statuses, :first, :first, {}, class: 'form-control'
 						- else
 							=@order.statuses.gsub(/_/,' ')
 					.form-group
 						=f.label :payment_status
-						- if policy(@order).admin_update?
+						- if authorized?(@order, controller: SwellEcom::OrderAdminController, action: :update )
 							= f.collection_select :payment_status, SwellEcom::Order.payment_statuses, :first, :first, {}, class: 'form-control'
 						- else
 							=@order.payment_status.gsub(/_/,' ')
 					.form-group
 						=f.label :fulfillment_status
-						- if policy(@order).admin_update?
+						- if authorized?(@order, controller: SwellEcom::OrderAdminController, action: :update )
 							= f.collection_select :fulfillment_status, SwellEcom::Order.fulfillment_statuses, :first, :first, {}, class: 'form-control'
 						- else
 							=@order.fulfillment_status.gsub(/_/,' ')

@@ -2,16 +2,19 @@ module SwellEcom
 	class SubscriptionPlan < ApplicationRecord
 		self.table_name = 'subscription_plans'
 
-		include SwellMedia::Concerns::URLConcern
-		include SwellMedia::Concerns::AvatarAsset
-		#include SwellMedia::Concerns::ExpiresCache
+		include Pulitzer::Concerns::URLConcern
 		include SwellEcom::Concerns::MoneyAttributesConcern
+		include SwellId::Concerns::PolymorphicIdentifiers
 
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		belongs_to 	:item, polymorphic: true, required: false
+		has_one_attached :avatar_attachment
+		has_many_attached :embedded_attachments
+		has_many_attached :gallery_attachments
+		has_many_attached :other_attachments
 
 		validates		:title, presence: true, unless: :allow_blank_title?
 
@@ -30,6 +33,8 @@ module SwellEcom
 
 		mounted_at '/subscriptions'
 
+
+		before_save		:set_avatar
 		after_create :on_create
 		after_update :on_update
 		before_save	:set_publish_at
@@ -64,9 +69,9 @@ module SwellEcom
 
 		def page_meta
 			if self.title.present?
-				title = "#{self.title} )°( #{SwellMedia.app_name}"
+				title = "#{self.title} )°( #{Pulitzer.app_name}"
 			else
-				title = SwellMedia.app_name
+				title = Pulitzer.app_name
 			end
 
 			return {
@@ -150,6 +155,14 @@ module SwellEcom
 			self.trial_max_intervals > 0
 		end
 
+
+
+
+		protected
+
+			def set_avatar
+				self.avatar = self.avatar_attachment.service_url if self.avatar_attachment.attached?
+			end
 
 		private
 			def allow_blank_title?

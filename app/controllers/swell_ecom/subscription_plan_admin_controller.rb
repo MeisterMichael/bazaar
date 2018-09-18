@@ -6,7 +6,7 @@ module SwellEcom
 		before_action :init_search_service, only: [:index]
 
 		def create
-			authorize( SwellEcom::SubscriptionPlan, :admin_create? )
+			authorize( SwellEcom::SubscriptionPlan )
 
 			@plan = SubscriptionPlan.new( plan_params )
 			@plan.publish_at ||= Time.zone.now
@@ -22,22 +22,21 @@ module SwellEcom
 		end
 
 		def destroy
-			authorize( @plan, :admin_destroy? )
+			authorize( @plan )
 			@plan.archive!
 			set_flash 'Plan archived'
 			redirect_to subscription_plan_admin_index_path
 		end
 
 		def edit
-			authorize( @plan, :admin_edit? )
-			@images = SwellMedia::Asset.where( parent_obj: @plan, use: 'gallery' ).active
+			authorize( @plan )
 
 			set_page_meta( title: "#{@plan.title} | Subscription Plan" )
 		end
 
 
 		def index
-			authorize( SwellEcom::SubscriptionPlan, :admin? )
+			authorize( SwellEcom::SubscriptionPlan )
 
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
@@ -50,7 +49,7 @@ module SwellEcom
 		end
 
 		def update
-			authorize( @plan, :admin_update? )
+			authorize( @plan )
 
 			@plan.attributes = plan_params
 			if @plan.save
@@ -68,7 +67,7 @@ module SwellEcom
 			end
 
 			def plan_params
-				params.require( :subscription_plan ).permit( :title, :billing_interval_unit, :billing_interval_value, :billing_statement_descriptor, :price_as_money, :trial_price_as_money, :trial_interval_unit, :trial_interval_value, :trial_max_intervals, :subscription_plan_type, :seq, :avatar, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :description, :content, :cart_description, :publish_at, :shipping_price_as_money, :trial_sku, :product_sku )
+				params.require( :subscription_plan ).permit( :title, :billing_interval_unit, :billing_interval_value, :billing_statement_descriptor, :price_as_money, :trial_price_as_money, :trial_interval_unit, :trial_interval_value, :trial_max_intervals, :subscription_plan_type, :seq, :avatar, :avatar_attachment, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :description, :content, :cart_description, :publish_at, :shipping_price_as_money, :trial_sku, :product_sku )
 			end
 
 			def get_plan

@@ -23,8 +23,8 @@ module SwellEcom
 
 			@shipping_rates = []
 			begin
-				@order.billing_address ||= SwellEcom::GeoAddress.new
-				@order.shipping_address ||= SwellEcom::GeoAddress.new
+				@order.billing_address ||= GeoAddress.new
+				@order.shipping_address ||= GeoAddress.new
 
 
 				@order_service.calculate( @order,
@@ -63,6 +63,8 @@ module SwellEcom
 			@order.shipping_address.user	||= @order.user
 			@order.shipping_address.tags	= @order.shipping_address.tags + ['shipping_address']
 
+			@order.order_items = @order.order_items.select{|order_item| not(order_item.prod?) || order_item.quantity > 0 }
+
 			@order_service.process( @order,
 				transaction: transaction_options,
 				shipping: shipping_options,
@@ -90,22 +92,9 @@ module SwellEcom
 
 				@fraud_service.mark_for_review( @order ) if @fraud_service.suspicious?( @order )
 
-				WholesaleOrderMailer.receipt( @order ).deliver_now
+				WholesaleOrderMailer.receipt( @order ).deliver_now if SwellEcom.enable_wholesale_order_mailer
 
-				if defined?( SwellAnalytics )
-					log_analytics_event(
-						'purchase',
-						event_category: 'swell_ecom_wholesale',
-						country: client_ip_country,
-						ip: client_ip,
-						user_id: (current_user || @order.user).try(:id),
-						referrer_url: request.referrer,
-						page_url: request.original_url,
-						subject_id: @order.id,
-						subject_type: @order.class.base_class.name,
-						value: @order.total,
-					)
-				end
+				log_event( user: @order.user, name: 'wholesale_purchase', category: 'swell_ecom', value: @order.total, on: @order, content: "placed a wholesale order for $#{@order.total/100.to_f}." )
 
 				respond_to do |format|
 					format.js {
@@ -156,7 +145,7 @@ module SwellEcom
 				)
 			end
 
-			set_page_meta( title: "#{SwellMedia.app_name} - Checkout" )
+			set_page_meta( title: "#{Pulitzer.app_name} - Checkout" )
 
 			render layout: 'swell_ecom/checkout'
 		end

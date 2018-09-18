@@ -4,11 +4,11 @@ module SwellEcom
 		before_action :get_shipping_carrier_plan, only: [ :update, :edit ]
 
 		def edit
-			authorize( @shipping_carrier_service, :admin_edit? )
+			authorize( @shipping_carrier_service )
 		end
 
 		def index
-			authorize( SwellEcom::ShippingCarrierService, :admin? )
+			authorize( SwellEcom::ShippingCarrierService )
 			@shipping_carrier_services = SwellEcom::ShippingCarrierService.all
 
 			if ['name', 'carrier', 'service_code', 'created_at'].include? params[:sort_by]
@@ -21,7 +21,7 @@ module SwellEcom
 		end
 
 		def update
-			authorize( @shipping_carrier_service, :admin_update? )
+			authorize( @shipping_carrier_service )
 
 			@shipping_carrier_service.attributes = shipping_carrier_plan_attributes
 

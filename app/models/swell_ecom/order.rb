@@ -11,9 +11,9 @@ module SwellEcom
 
 		before_create :generate_order_code
 
-		belongs_to 	:billing_address, class_name: 'SwellEcom::GeoAddress', validate: true, required: true
-		belongs_to 	:shipping_address, class_name: 'SwellEcom::GeoAddress', validate: true, required: true
-		belongs_to 	:user, required: false, class_name: SwellMedia.registered_user_class
+		belongs_to 	:billing_address, class_name: 'GeoAddress', validate: true, required: true
+		belongs_to 	:shipping_address, class_name: 'GeoAddress', validate: true, required: true
+		belongs_to 	:user, required: false, class_name: 'User'
 		belongs_to	:parent, polymorphic: true, required: false
 
 		has_many 	:order_items, dependent: :destroy, validate: true
@@ -30,7 +30,7 @@ module SwellEcom
 
 
 		# def email=(value)
-		# 	super( SwellMedia::Email.email_sanitize( value ) )
+		# 	super( Email.email_sanitize( value ) )
 		# end
 
 		def self.not_archived
@@ -43,6 +43,10 @@ module SwellEcom
 
 		def self.not_trash
 			where.not( status: SwellEcom::Order.statuses['trash'] )
+		end
+
+		def subscription_renewal?
+			self.parent.is_a?( SwellEcom::Subscription )
 		end
 
 		def has_subscription_plan?

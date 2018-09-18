@@ -449,8 +449,8 @@ module SwellEcom
 					billing_address = order.billing_address
 					shipping_address = order.shipping_address
 
-					geo_country = SwellEcom::GeoCountry.find_by( abbrev: country_code )
-					geo_state   = SwellEcom::GeoState.find_by( geo_country: geo_country, abbrev: state_code )
+					geo_country = GeoCountry.find_by( abbrev: country_code )
+					geo_state   = GeoState.find_by( geo_country: geo_country, abbrev: state_code )
 
 
 					billing_address.first_name = shipping_address.first_name	= customer_name.first || 'TBD'

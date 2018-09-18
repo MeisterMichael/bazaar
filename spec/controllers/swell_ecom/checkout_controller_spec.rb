@@ -24,7 +24,7 @@ RSpec.describe SwellEcom::CheckoutController, :type => :controller do
 		it "subscription - success" do
 			time_now = Time.now
 
-			usa = SwellEcom::GeoCountry.create :abbrev => "US", :name => "United States"
+			usa = GeoCountry.create :abbrev => "US", :name => "United States"
 			ark = usa.geo_states.create :country => 'US', geo_country: usa, :name => 'Arkansas', :abbrev => 'AR'
 			cali = usa.geo_states.create :country => 'US', geo_country: usa, :name => 'California', :abbrev => 'CA'
 			subscription_plan = new_trial_subscription_plan
@@ -128,7 +128,7 @@ RSpec.describe SwellEcom::CheckoutController, :type => :controller do
 		it "active product - success" do
 			time_now = Time.now
 
-			usa = SwellEcom::GeoCountry.create :abbrev => "US", :name => "United States"
+			usa = GeoCountry.create :abbrev => "US", :name => "United States"
 			ark = usa.geo_states.create :country => 'US', geo_country: usa, :name => 'Arkansas', :abbrev => 'AR'
 			cali = usa.geo_states.create :country => 'US', geo_country: usa, :name => 'California', :abbrev => 'CA'
 			product = new_active_product
@@ -220,7 +220,7 @@ RSpec.describe SwellEcom::CheckoutController, :type => :controller do
 		it "pre_order - success" do
 			time_now = Time.now
 
-			usa = SwellEcom::GeoCountry.create :abbrev => "US", :name => "United States"
+			usa = GeoCountry.create :abbrev => "US", :name => "United States"
 			ark = usa.geo_states.create :country => 'US', geo_country: usa, :name => 'Arkansas', :abbrev => 'AR'
 			cali = usa.geo_states.create :country => 'US', geo_country: usa, :name => 'California', :abbrev => 'CA'
 			product = new_pre_order_product

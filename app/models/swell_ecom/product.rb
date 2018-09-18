@@ -2,10 +2,9 @@ module SwellEcom
 	class Product < ApplicationRecord
 		self.table_name = 'products'
 
-		include SwellMedia::Concerns::URLConcern
-		include SwellMedia::Concerns::AvatarAsset
-		#include SwellMedia::Concerns::ExpiresCache
+		include Pulitzer::Concerns::URLConcern
 		include SwellEcom::Concerns::MoneyAttributesConcern
+		include SwellId::Concerns::PolymorphicIdentifiers
 		include FriendlyId
 
 		if defined?( Elasticsearch::Model )
@@ -50,6 +49,12 @@ module SwellEcom
 		has_many 	:product_variants
 		has_many	:subscription_plans, as: :item
 
+		has_one_attached :avatar_attachment
+		has_many_attached :embedded_attachments
+		has_many_attached :gallery_attachments
+		has_many_attached :other_attachments
+
+		before_save		:set_avatar
 		after_create :on_create
 		after_update :on_update
 		before_save	:set_publish_at
@@ -84,9 +89,9 @@ module SwellEcom
 
 		def page_meta
 			if self.title.present?
-				title = "#{self.title} )°( #{SwellMedia.app_name}"
+				title = "#{self.title} )°( #{Pulitzer.app_name}"
 			else
-				title = SwellMedia.app_name
+				title = Pulitzer.app_name
 			end
 
 			schema_org = {
@@ -295,6 +300,13 @@ module SwellEcom
 				tags:				self.tags.collect{ |tag| { name: tag, raw_name: tag, name_downcase: tag.downcase, raw_name_downcase: tag.downcase } },
 			}.as_json
 		end
+
+
+		protected
+
+			def set_avatar
+				self.avatar = self.avatar_attachment.service_url if self.avatar_attachment.attached?
+			end
 
 		private
 			def allow_blank_title?

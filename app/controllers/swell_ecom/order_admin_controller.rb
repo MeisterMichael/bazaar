@@ -24,7 +24,7 @@ module SwellEcom
 		end
 
 		def address
-			authorize( @order, :admin_update? )
+			authorize( @order )
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
 			address = GeoAddress.create( address_attributes.merge( user: @order.user ) )
 
@@ -46,8 +46,8 @@ module SwellEcom
 
 		def create
 			@order = SwellEcom::CheckoutOrder.new( order_params )
-			@order.user = SwellMedia.registered_user_class.constantize.find_by( email: @order.email.downcase )
-			@order.user ||= SwellMedia.registered_user_class.constantize.create( email: @order.email.downcase, first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name )
+			@order.user = User.find_by( email: @order.email.downcase )
+			@order.user ||= User.create( email: @order.email.downcase, first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name )
 			@order.total ||= 0
 			@order.status = 'draft'
 
@@ -76,7 +76,7 @@ module SwellEcom
 				return
 			end
 
-			authorize( @order, :admin_edit? )
+			authorize( @order )
 
 			@order_service.calculate( @order,
 				transaction: transaction_options,
@@ -88,7 +88,7 @@ module SwellEcom
 		end
 
 		def index
-			authorize( SwellEcom::Order, :admin? )
+			authorize( SwellEcom::Order )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
@@ -110,8 +110,8 @@ module SwellEcom
 				@order = SwellEcom::CheckoutOrder.new order_params
 			else
 				@order = SwellEcom::CheckoutOrder.new
-				@order.billing_address = SwellEcom::GeoAddress.new
-				@order.shipping_address = SwellEcom::GeoAddress.new
+				@order.billing_address = GeoAddress.new
+				@order.shipping_address = GeoAddress.new
 			end
 			@order.total ||= 0
 			@order.status = 'draft'
@@ -119,7 +119,7 @@ module SwellEcom
 		end
 
 		def refund
-			authorize( @order, :admin_refund? )
+			authorize( @order )
 			refund_amount = ( params[:amount].to_f * 100 ).round
 
 			# check that refund amount doesn't exceed charges?
@@ -172,9 +172,14 @@ module SwellEcom
 				return
 			end
 
-			authorize( @order, :admin_show? )
+			authorize( @order )
 
 			@transactions = Transaction.where( parent_obj: @order )
+
+			@transaction_history = @transactions.to_a
+			@transaction_history = @transaction_history + Transaction.where( parent_obj: @order.cart ) if @order.cart
+			@transaction_history = @transaction_history + Transaction.where( parent_obj: @order.user, created_at: 1.week.ago..@order.created_at ) if @order.user
+			@transaction_history = @transaction_history.sort_by(&:created_at).reverse
 
 			set_page_meta( title: "#{@order.code} | Order" )
 		end
@@ -187,7 +192,7 @@ module SwellEcom
 
 
 		def update
-			authorize( @order, :admin_update? )
+			authorize( @order )
 			@order.attributes = order_params
 
 			if @order.fulfillment_status_changed? && @order.fulfillment_status == 'fulfilled' && ( @order.fulfillment_status == 'unfulfilled' || @order.fulfilled_at.blank? )

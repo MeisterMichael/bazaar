@@ -3,4 +3,4 @@
 	.form-control= get_billing_countries.first.name
 - else
 	.form-control.form-control-select
-		= f.collection_select :geo_country_id, countries, :id, :name, { prompt: countries.count > 1, selected: ( f.object.geo_country_id || countries.first.id ) }, { class: "geo-address-geo-countries", required: true, data: { calculate: 'true' }  }
+		= f.collection_select :geo_country_id, countries, :id, :name, { prompt: countries.count > 1, selected: ( f.object.try(:geo_country_id) || countries.first.try(:id) ) }, { class: "geo-address-geo-countries", required: true, data: { calculate: 'true' }  }

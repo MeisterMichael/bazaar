@@ -5,6 +5,8 @@ module SwellEcom
 		has_many :wholesale_items
 
 		enum status: { 'trash' => -1, 'draft' => 0, 'active' => 1, 'archived' => 2 }
+		
+		has_many_attached :embedded_attachments
 
 		accepts_nested_attributes_for :wholesale_items
 

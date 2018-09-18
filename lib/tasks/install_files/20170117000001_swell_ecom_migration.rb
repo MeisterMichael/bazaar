@@ -24,40 +24,6 @@ class SwellEcomMigration < ActiveRecord::Migration[5.1]
 			t.timestamps
 		end
 
-		create_table :geo_addresses do |t|
-			t.references	:user
-			t.references	:geo_state
-			t.references	:geo_country
-			t.integer 		:status
-			t.string		:address_type
-			t.string		:title
-			t.string		:first_name
-			t.string		:last_name
-			t.string		:street
-			t.string		:street2
-			t.string		:city
-			t.string		:state
-			t.string		:zip
-			t.string		:phone
-			t.boolean		:preferred, :default => false
-			t.timestamps
-		end
-		add_index :geo_addresses, [ :geo_country_id, :geo_state_id ]
-
-		create_table :geo_countries do |t|
-			t.string   :name
-			t.string   :abbrev
-			t.timestamps
-		end
-
-		create_table :geo_states do |t|
-			t.references	:geo_country
-			t.string		:name
-			t.string		:abbrev
-			t.string		:country
-			t.timestamps
-		end
-
 		create_table :orders do |t|
 			t.references 	:user
 			t.references 	:billing_address

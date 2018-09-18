@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Plans
 		.col-xs-2
-			- if policy(SwellEcom::SubscriptionPlan).admin_create?
+			- if authorized?(SwellEcom::SubscriptionPlan, controller: SwellEcom::SubscriptionPlanAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_subscription_plan' } }
 					%i.fa.fa-plus-square
 					New
@@ -61,19 +61,19 @@
 								.badge{ class: plan.status }
 									= plan.status
 							%td
-								- if policy(plan).admin_edit? || policy(plan).admin_destroy?
+								- if authorized?(plan, controller: SwellEcom::SubscriptionPlanAdminController, action: :edit ) || authorized?(plan, controller: SwellEcom::SubscriptionPlanAdminController, action: :destroy )
 									.btn-group
 										%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
 											%i.fa.fa-cog
 											%b.caret
 										%ul.dropdown-menu
-											- if policy(plan).admin_edit?
+											- if authorized?(plan, controller: SwellEcom::SubscriptionPlanAdminController, action: :edit )
 												%li
 													%a{ href: edit_subscription_plan_admin_path( plan.id ) }
 														%i.fa.fa-pencil
 														Edit
 												%li.divider
-											- if policy(plan).admin_destroy?
+											- if authorized?(plan, controller: SwellEcom::SubscriptionPlanAdminController, action: :destroy )
 												%li
 													%a{ href: subscription_plan_admin_path( plan ), data: { method: 'delete', confirm: 'Are you sure?' } }
 														%i.fa.fa-trash-o

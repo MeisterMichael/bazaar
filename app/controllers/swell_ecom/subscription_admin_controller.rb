@@ -5,7 +5,7 @@ module SwellEcom
 		before_action :init_search_service, only: [:index]
 
 		def address
-			authorize( @subscription, :admin_update? )
+			authorize( @subscription )
 
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
 			address = GeoAddress.create( address_attributes.merge( user: @subscription.user ) )
@@ -27,7 +27,7 @@ module SwellEcom
 		end
 
 		def create
-			user = SwellMedia.registered_user_class.constantize.find( params[:user_id] )
+			user = User.find( params[:user_id] )
 
 			subscription_options = params.require(:subscription).permit(
 				:shipping,
@@ -46,8 +46,8 @@ module SwellEcom
 				},
 			).to_h
 
-			subscription_options[:shipping_address]	= SwellEcom::GeoAddress.new( subscription_options.delete(:shipping_address_attributes) ) if subscription_options[:shipping_address_attributes].present?
-			subscription_options[:billing_address]	= SwellEcom::GeoAddress.new( subscription_options.delete(:billing_address_attributes) ) if subscription_options[:billing_address_attributes].present?
+			subscription_options[:shipping_address]	= GeoAddress.new( subscription_options.delete(:shipping_address_attributes) ) if subscription_options[:shipping_address_attributes].present?
+			subscription_options[:billing_address]	= GeoAddress.new( subscription_options.delete(:billing_address_attributes) ) if subscription_options[:billing_address_attributes].present?
 			subscription_options[:shipping_address] ||= subscription_options[:billing_address]
 			subscription_options[:billing_address]	||= subscription_options[:shipping_address]
 
@@ -80,7 +80,7 @@ module SwellEcom
 		end
 
 		def edit
-			authorize( @subscription, :admin_edit? )
+			authorize( @subscription )
 			@orders = Order.where( parent: @subscription ).order( created_at: :desc )
 
 			@transactions = SwellEcom::Transaction.where( parent_obj: ( @subscription.orders.to_a + [ @subscription ] ) ).order( created_at: :desc )
@@ -97,7 +97,7 @@ module SwellEcom
 		end
 
 		def index
-			authorize( SwellEcom::Subscription, :admin? )
+			authorize( SwellEcom::Subscription )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
@@ -110,14 +110,14 @@ module SwellEcom
 		end
 
 		def new
-			@user = SwellMedia.registered_user_class.constantize.find( params[:user_id] )
+			@user = User.find( params[:user_id] )
 
 			@subscription = SwellEcom::Subscription.new(
-				shipping_address: SwellEcom::GeoAddress.new(
+				shipping_address: GeoAddress.new(
 					first_name: @user.first_name,
 					last_name: @user.last_name,
 				),
-				billing_address: SwellEcom::GeoAddress.new(
+				billing_address: GeoAddress.new(
 					first_name: @user.first_name,
 					last_name: @user.last_name,
 				),
@@ -125,7 +125,7 @@ module SwellEcom
 		end
 
 		def payment_profile
-			authorize( @subscription, :admin_update? )
+			authorize( @subscription )
 
 			@subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config )
 
@@ -158,7 +158,7 @@ module SwellEcom
 		end
 
 		def update
-			authorize( @subscription, :admin_update? )
+			authorize( @subscription )
 			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first
 			@subscription.attributes = subscription_params
 			@subscription.trial_amount = @subscription.trial_price * @subscription.quantity

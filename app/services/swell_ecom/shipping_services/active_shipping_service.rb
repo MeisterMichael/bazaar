@@ -83,7 +83,7 @@ module SwellEcom
 
 					package_shape = line_item.package_shape || 'no_shape'
 
-					unless package_shape == 'no_shape'
+					unless package_shape == 'no_shape' || line_item.quantity <= 0
 
 						options = { units: :metic }
 
@@ -95,8 +95,7 @@ module SwellEcom
 							dims = [ line_item.package_length, line_item.package_width ] if line_item.package_length && line_item.package_width
 						end
 
-						[1..line_item.quantity].each do |i|
-
+						(1..line_item.quantity).each do |i|
 							packages << ActiveShipping::Package.new(
 								line_item.package_weight,
 								dims,

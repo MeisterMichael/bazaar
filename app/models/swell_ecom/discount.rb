@@ -8,7 +8,7 @@ module SwellEcom
 
 		has_many :discount_items
 		has_many :discount_users
-		belongs_to 	:user, required: false, class_name: SwellMedia.registered_user_class
+		belongs_to 	:user, required: false, class_name: 'User'
 
 		money_attributes :minimum_prod_subtotal, :minimum_tax_subtotal, :minimum_shipping_subtotal
 

@@ -18,7 +18,7 @@ module SwellEcom
 		end
 
 		def customer_search( term, filters = {}, options = {} )
-			users = SwellMedia.registered_user_class.constantize.all
+			users = User.all
 
 			users = users.where( id: SwellEcom::Order.select(:user_id) ) # @todo replace with a more elegant mechanism.  this one is not scalable
 
@@ -26,7 +26,9 @@ module SwellEcom
 				query = "%#{term.gsub('%','\\\\%')}%"
 
 				addresses = options[:addresses] || self.address_search( term )
-				users = SwellMedia.registered_user_class.constantize.where( "username ILIKE :q OR (first_name || ' ' || last_name) ILIKE :q OR email ILIKE :q OR phone ILIKE :q OR users.id IN ( :user_ids )", q: query, user_ids: addresses.select(:user_id) )
+
+				users = User.where( "username ILIKE :q OR (first_name || ' ' || last_name) ILIKE :q OR email ILIKE :q OR phone ILIKE :q OR users.id IN ( :user_ids )", q: query, user_ids: addresses.select(:user_id) )
+
 			end
 
 			return self.apply_options_and_filters( users, filters, options )

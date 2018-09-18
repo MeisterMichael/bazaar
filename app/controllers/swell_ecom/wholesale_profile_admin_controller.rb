@@ -4,7 +4,7 @@ module SwellEcom
 		before_action :get_wholesale_profile, except: [ :index, :create ]
 
 		def create
-			authorize( SwellEcom::WholesaleProfile, :admin_create? )
+			authorize( SwellEcom::WholesaleProfile )
 
 			@wholesale_profile = WholesaleProfile.create( wholesale_profile_params )
 
@@ -22,18 +22,18 @@ module SwellEcom
 		end
 
 		def destroy
-			authorize( @wholesale_profile, :admin_destroy? )
+			authorize( @wholesale_profile )
 			@wholesale_profile.destroy
 			redirect_to wholesale_profile_admin_index_path
 		end
 
 		def edit
-			authorize( @wholesale_profile, :admin_edit? )
+			authorize( @wholesale_profile )
 			set_page_meta( title: "Wholesale Profile" )
 		end
 
 		def index
-			authorize( SwellEcom::WholesaleProfile, :admin? )
+			authorize( SwellEcom::WholesaleProfile )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
@@ -50,7 +50,7 @@ module SwellEcom
 
 
 		def update
-			authorize( @wholesale_profile, :admin_update? )
+			authorize( @wholesale_profile )
 			@wholesale_profile.attributes = wholesale_profile_params
 			@wholesale_profile.save
 

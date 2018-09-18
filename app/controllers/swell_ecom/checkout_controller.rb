@@ -56,7 +56,7 @@ module SwellEcom
 
 				@cart.save
 
-				SwellMedia::Email.create_or_update_by_email( @cart.email, user: current_user )
+				Email.create_or_update_by_email( @cart.email, user: current_user )
 			end
 
 			begin
@@ -85,7 +85,7 @@ module SwellEcom
 
 		def create
 			@order.user ||= User.create_with( first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name ).find_or_create_by( email: @order.email.downcase ) if @order.email.present? && SwellEcom.create_user_on_checkout
-			SwellMedia::Email.create_or_update_by_email( @order.email, user: @order.user )
+			Email.create_or_update_by_email( @order.email, user: @order.user )
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			@order.billing_address.tags = @order.billing_address.tags + ['billing_address']
@@ -100,7 +100,7 @@ module SwellEcom
 			)
 
 			if params[:newsletter].present?
-				SwellMedia::Optin.create(
+				Scuttlebutt::Optin.create(
 					email: @order.email,
 					name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}",
 					ip: @order.ip,
@@ -130,7 +130,7 @@ module SwellEcom
 				# billing address, if not already set
 				update_order_user_address( @order )
 
-				@fraud_service.mark_for_review( @order ) if @fraud_service.suspicious?( @order )
+				@fraud_service.post_processing( @order )
 
 				@cart.update( order_id: @order.id, status: 'success' )
 
@@ -139,7 +139,7 @@ module SwellEcom
 				# 	transaction.update( parent_obj: @order )
 				# end
 
-				OrderMailer.receipt( @order ).deliver_now
+				OrderMailer.receipt( @order ).deliver_now if SwellEcom.enable_checkout_order_mailer
 				#OrderMailer.notify_admin( @order ).deliver_now
 
 				@expiration = 30.minutes.from_now.to_i
@@ -201,7 +201,7 @@ module SwellEcom
 
 			log_event( on: @cart )
 
-			set_page_meta( title: "#{SwellMedia.app_name} - Checkout" )
+			set_page_meta( title: "#{Pulitzer.app_name} - Checkout" )
 
 			render layout: 'swell_ecom/checkout'
 		end

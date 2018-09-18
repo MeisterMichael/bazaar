@@ -4,18 +4,18 @@ module SwellEcom
 		before_action :get_cart, except: [ :index ]
 
 		def destroy
-			authorize( @cart, :admin_destroy? )
+			authorize( @cart )
 			@cart.destroy
 			redirect_to cart_admin_index_path
 		end
 
 		def edit
-			authorize( @cart, :admin_edit? )
+			authorize( @cart )
 			set_page_meta( title: "Cart" )
 		end
 
 		def index
-			authorize( SwellEcom::Cart, :admin? )
+			authorize( SwellEcom::Cart )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
@@ -32,7 +32,7 @@ module SwellEcom
 
 
 		def update
-			authorize( @cart, :admin_update? )
+			authorize( @cart )
 			@cart.attributes = cart_params
 			@cart.save
 			redirect_back fallback_location: '/admin'

@@ -146,14 +146,14 @@
 
 			.well.white-well
 				.pull-right
-					%a{ href: swell_media.edit_user_admin_path( @subscription.user ) }
+					%a{ href: swell_id.edit_user_admin_path( @subscription.user ) }
 						Edit
 				%h5
 					Customer
 
 				%div
-					%a{ href: swell_media.edit_user_admin_path( @subscription.user ) }= @subscription.user.try(:full_name)
-				%a{ href: swell_media.edit_user_admin_path( @subscription.user ) }= @subscription.user.try(:email)
+					%a{ href: swell_id.edit_user_admin_path( @subscription.user ) }= @subscription.user.try(:full_name)
+				%a{ href: swell_id.edit_user_admin_path( @subscription.user ) }= @subscription.user.try(:email)
 
 
 			.well.white-well

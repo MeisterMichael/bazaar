@@ -9,7 +9,7 @@
 						%i.fa.fa-angle-left
 						Orders
 
-			- if policy(@order).admin_update?
+			- if authorized?(@order, controller: SwellEcom::OrderAdminController, action: :update )
 				.pull-right
 					- if @order.review?
 						%a.btn.btn-primary{ href: accept_order_admin_path( @order ), data: { method: 'POST' } }
@@ -90,7 +90,7 @@
 							%tr
 								%td
 									- if ( subscription = order_item.subscription ).present? || ( subscription = order_item.item ).is_a?( SwellEcom::Subscription )
-										- if policy(subscription).admin_edit?
+										- if authorized?(subscription, controller: SwellEcom::SubscriptionAdminController, action: :edit)
 											%a{ href: edit_subscription_admin_path( subscription ) }
 												= order_item.title
 												(#{subscription.code})
@@ -197,13 +197,13 @@
 										%td.text-right{ style: 'width: 100px' }
 											%h5{ style: 'font-weight:bold;' }
 												= number_to_currency ( @transactions.approved.positive.to_a.sum(&:signed_amount) / 100.0 )
-						- if policy( @order ).admin_refund? && @transactions.approved.to_a.sum(&:signed_amount) > 0
+						- if authorized?( @order, controller: SwellEcom::OrderAdminController, action: :refund ) && @transactions.approved.to_a.sum(&:signed_amount) > 0
 							.text-center
 								%a.btn.btn-success{ data: { toggle: :modal, target: '#refund_order' } }
 									%i.fa.fa-plus-square
 									Refund
 			.well.white-well
-				- if policy(@order).admin_update?
+				- if authorized?(@order, controller: SwellEcom::OrderAdminController, action: :update )
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#edit_support_notes_order' } }
 							Edit
@@ -224,7 +224,7 @@
 							%th.text-right{ style: 'width: 10em' } Amount
 							%th{ style: 'width: 4em' } Currency
 					%tbody
-						- @transactions.each do |transaction|
+						- @transaction_history.each do |transaction|
 							%tr
 								%td
 									=current_user.to_local_tz(transaction.created_at).to_s( :short )
@@ -236,6 +236,8 @@
 									= transaction.provider
 								%td
 									= transaction.reference_code
+									- if transaction.credit_card_ending_in
+										%small ( **** #{transaction.credit_card_ending_in} )
 								%td.text-right
 									= number_to_currency (transaction.amount.to_f / 100)
 								%td
@@ -269,13 +271,13 @@
 			- if @order.user.present?
 				.well.white-well
 					.pull-right
-						%a{ href: swell_media.edit_user_admin_path( @order.user ) }
+						%a{ href: swell_id.edit_user_admin_path( @order.user ) }
 							Edit
 					%h5
 						Customer
 					%div
-						%a{ href: swell_media.edit_user_admin_path( @order.user ) }= @order.user.full_name
-					%a{ href: swell_media.edit_user_admin_path( @order.user ) }= @order.user.email
+						%a{ href: swell_id.edit_user_admin_path( @order.user ) }= @order.user.full_name
+					%a{ href: swell_id.edit_user_admin_path( @order.user ) }= @order.user.email
 
 			.well.white-well
 				-# .pull-right
@@ -286,7 +288,7 @@
 
 
 			.well.white-well
-				- if policy(@order).admin_update? && not( @order.fulfilled? || @order.delivered? )
+				- if authorized?(@order, controller: SwellEcom::OrderAdminController, action: :update ) && not( @order.fulfilled? || @order.delivered? )
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
 				%h5

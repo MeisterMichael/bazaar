@@ -12,33 +12,6 @@
 
 ActiveRecord::Schema.define(version: 20180221114900) do
 
-  create_table "assets", force: :cascade do |t|
-    t.string "parent_obj_type"
-    t.integer "parent_obj_id"
-    t.integer "user_id"
-    t.string "title"
-    t.string "description"
-    t.text "content"
-    t.string "type"
-    t.string "sub_type"
-    t.string "use"
-    t.string "asset_type", default: "image"
-    t.string "origin_name"
-    t.string "origin_identifier"
-    t.text "origin_url"
-    t.text "upload"
-    t.integer "height"
-    t.integer "width"
-    t.integer "duration"
-    t.integer "status", default: 1
-    t.integer "availability", default: 1
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["parent_obj_id", "parent_obj_type", "asset_type", "use"], name: "swell_media_asset_use_index"
-    t.index ["parent_obj_type", "parent_obj_id"], name: "index_assets_on_parent_obj_type_and_parent_obj_id"
-    t.index ["user_id"], name: "index_assets_on_user_id"
-  end
-
   create_table "cart_items", force: :cascade do |t|
     t.integer "cart_id"
     t.string "item_type"

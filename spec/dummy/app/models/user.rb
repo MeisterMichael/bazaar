@@ -1,3 +1,3 @@
-class User < SwellMedia::User
+class User < User
 
 end

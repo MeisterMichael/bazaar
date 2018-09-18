@@ -5,7 +5,7 @@ module SwellEcom
 		before_action :init_search_service, only: [:index]
 
 		def index
-			authorize( SwellEcom::Product, :admin? )
+			authorize( SwellEcom::Product )
 			sort_by = params[:sort_by] || 'seq'
 			sort_dir = params[:sort_dir] || 'asc'
 
@@ -17,7 +17,7 @@ module SwellEcom
 		end
 
 		def create
-			authorize( SwellEcom::Product, :admin_create? )
+			authorize( SwellEcom::Product )
 
 			@product = Product.new( product_params )
 			@product.publish_at ||= Time.zone.now
@@ -33,23 +33,19 @@ module SwellEcom
 		end
 
 		def destroy
-			authorize( @product, :admin_destroy? )
+			authorize( @product )
 			@product.archive!
 			set_flash 'Product archived'
 			redirect_to product_admin_index_path
 		end
 
 		def edit
-			authorize( @product, :admin_edit? )
-			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
+			authorize( @product )
 			set_page_meta( title: "#{@product.title} | Product" )
 		end
 
 		def preview
-			authorize( @product, :admin_edit? )
-
-
-			@images = SwellMedia::Asset.where( parent_obj: @product, use: 'gallery' ).active
+			authorize( @product )
 
 			@product_category = @product.product_category
 
@@ -73,7 +69,7 @@ module SwellEcom
 		end
 
 		def update
-			authorize( @product, :admin_update? )
+			authorize( @product )
 			@product.slug = nil if params[:product][:title] != @product.title || params[:product][:slug_pref].present?
 
 			params[:product][:price] = params[:product][:price].to_f * 100 #.gsub( /\D/, '' ) if params[:product][:price].present?
@@ -98,7 +94,7 @@ module SwellEcom
 
 		private
 			def product_params
-				params.require( :product ).permit( :title, :subtitle, :slug_pref, :category_id, :description, :content, :cart_description, :price, :suggested_price, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :publish_at, :tags, :tags_csv, :avatar, :avatar_asset_file, :avatar_asset_url, :cover_image, :avatar_urls, :shopify_code, :size_info, :notes, :tax_code, :seq, :sku )
+				params.require( :product ).permit( :title, :subtitle, :slug_pref, :category_id, :description, :content, :cart_description, :price, :suggested_price, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :publish_at, :tags, :tags_csv, :avatar, :avatar_attachment, :cover_image, :avatar_urls, :shopify_code, :size_info, :notes, :tax_code, :seq, :sku )
 			end
 
 			def get_product

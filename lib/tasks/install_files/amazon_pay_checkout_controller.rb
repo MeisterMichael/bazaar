@@ -15,7 +15,7 @@ class AmazonPayCheckoutController < SwellEcom::CheckoutController
       set_flash "Your cart has changed since you checked out, please try again.", :danger
       redirect_to '/checkout'
 
-    elsif ( @amz.validate_pay_signature( URI.unescape(params[:signature]), result_parameters.to_h, algorithm: params[:algorithm], path: amazon_pay_checkout_index_path(), method: 'GET', host: SwellMedia.app_host ) )
+    elsif ( @amz.validate_pay_signature( URI.unescape(params[:signature]), result_parameters.to_h, algorithm: params[:algorithm], path: amazon_pay_checkout_index_path(), method: 'GET', host: Pulitzer.app_host ) )
 
       super()
 
