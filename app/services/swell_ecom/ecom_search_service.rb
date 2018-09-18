@@ -26,7 +26,7 @@ module SwellEcom
 				query = "%#{term.gsub('%','\\\\%')}%"
 
 				addresses = options[:addresses] || self.address_search( term )
-				users = SwellMedia.registered_user_class.constantize.where( "name ILIKE :q OR (first_name || ' ' || last_name) ILIKE :q OR email ILIKE :q OR phone ILIKE :q OR users.id IN ( :user_ids )", q: query, user_ids: addresses.select(:user_id) )
+				users = SwellMedia.registered_user_class.constantize.where( "username ILIKE :q OR (first_name || ' ' || last_name) ILIKE :q OR email ILIKE :q OR phone ILIKE :q OR users.id IN ( :user_ids )", q: query, user_ids: addresses.select(:user_id) )
 			end
 
 			return self.apply_options_and_filters( users, filters, options )
