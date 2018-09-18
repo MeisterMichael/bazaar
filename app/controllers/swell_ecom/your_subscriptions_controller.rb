@@ -169,7 +169,7 @@ module SwellEcom
 
 			attributes.delete(:status) unless ['active','on_hold'].include?( attributes[:status] )
 			attributes.delete(:next_charged_at) if attributes[:next_charged_at].blank?
-			attributes[:next_charged_at] = "#{attributes[:next_charged_at]} 08:00:00 #{current_user.local_tz}" if attributes[:next_charged_at]
+			attributes[:next_charged_at] = "#{attributes[:next_charged_at]} 08:00:00 #{current_user.timezone}" if attributes[:next_charged_at]
 			attributes.delete(:billing_interval_unit) unless ['months','days','weeks'].include?( attributes[:billing_interval_unit] )
 
 			attributes
