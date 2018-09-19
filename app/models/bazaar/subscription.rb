@@ -1,6 +1,6 @@
 module Bazaar
 	class Subscription < ApplicationRecord
-		
+
 
 		include Bazaar::Concerns::MoneyAttributesConcern
 
@@ -65,7 +65,7 @@ module Bazaar
 
 		def orders
 			if self.order.present?
-				Order.where( "orders.id = :order_id OR (orders.parent_type = :subscription_type AND orders.parent_id = :subscription_id)", subscription_id: self.id, subscription_type: Bazaar::Subscription.base_class.name, order_id: self.order.id )
+				Order.where( "bazaar_orders.id = :order_id OR (bazaar_orders.parent_type = :subscription_type AND bazaar_orders.parent_id = :subscription_id)", subscription_id: self.id, subscription_type: Bazaar::Subscription.base_class.name, order_id: self.order.id )
 			else
 				Order.where( parent: self )
 			end
