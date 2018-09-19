@@ -1,6 +1,6 @@
 module Bazaar
 	class SubscriptionPlan < ApplicationRecord
-		
+
 
 		include Pulitzer::Concerns::URLConcern
 		include Bazaar::Concerns::MoneyAttributesConcern
@@ -45,7 +45,7 @@ module Bazaar
 		friendly_id :slugger, use: [ :slugged, :history ]
 
 		def self.published( args = {} )
-			where( "subscription_plans.publish_at <= :now", now: Time.zone.now ).active
+			where( "bazaar_subscription_plans.publish_at <= :now", now: Time.zone.now ).active
 		end
 
 		def bazaar_uid

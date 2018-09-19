@@ -1,6 +1,6 @@
 module Bazaar
 	class Product < ApplicationRecord
-		
+
 
 		include Pulitzer::Concerns::URLConcern
 		include Bazaar::Concerns::MoneyAttributesConcern
@@ -66,7 +66,7 @@ module Bazaar
 
 
 		def self.published( args = {} )
-			where( "products.publish_at <= :now", now: Time.zone.now ).active
+			where( "bazaar_products.publish_at <= :now", now: Time.zone.now ).active
 		end
 
 		def bazaar_uid
