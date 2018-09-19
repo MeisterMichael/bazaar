@@ -1,7 +1,7 @@
 
 module Bazaar
 	class Order < ApplicationRecord
-		self.table_name = 'orders'
+		
 		include Bazaar::Concerns::MoneyAttributesConcern
 
 		enum status: { 'trash' => -99, 'rejected' => -5, 'draft' => 0, 'pre_order' => 1, 'active' => 2, 'review' => 98, 'archived' => 99 }

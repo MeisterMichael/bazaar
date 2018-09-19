@@ -1,6 +1,6 @@
 module Bazaar
 	class SubscriptionPlan < ApplicationRecord
-		self.table_name = 'subscription_plans'
+		
 
 		include Pulitzer::Concerns::URLConcern
 		include Bazaar::Concerns::MoneyAttributesConcern

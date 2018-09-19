@@ -1,7 +1,7 @@
 
 module Bazaar
 	class Transaction < ApplicationRecord
-		self.table_name = 'transactions'
+		
 
 		include Bazaar::Concerns::MoneyAttributesConcern
 

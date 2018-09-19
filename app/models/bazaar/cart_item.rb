@@ -1,6 +1,6 @@
 module Bazaar
 	class CartItem < ApplicationRecord
-		self.table_name = 'cart_items'
+
 		include Bazaar::Concerns::MoneyAttributesConcern
 
 		belongs_to 	:cart

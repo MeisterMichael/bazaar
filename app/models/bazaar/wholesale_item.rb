@@ -1,6 +1,6 @@
 module Bazaar
 	class WholesaleItem < ApplicationRecord
-		self.table_name = 'wholesale_items'
+
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include SwellId::Concerns::PolymorphicIdentifiers
 

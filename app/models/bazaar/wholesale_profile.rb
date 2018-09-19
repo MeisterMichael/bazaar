@@ -1,6 +1,6 @@
 module Bazaar
 	class WholesaleProfile < ApplicationRecord
-		self.table_name = 'wholesale_profiles'
+		
 
 		has_many :wholesale_items
 

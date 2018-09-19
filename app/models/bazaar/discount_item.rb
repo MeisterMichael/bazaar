@@ -1,6 +1,6 @@
 module Bazaar
 	class DiscountItem < ApplicationRecord
-		self.table_name = 'discount_items'
+		
 		include Bazaar::Concerns::MoneyAttributesConcern
 		money_attributes :discount_amount
 

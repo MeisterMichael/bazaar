@@ -1,6 +1,6 @@
 module Bazaar
 	class OrderItem < ApplicationRecord
-		self.table_name = 'order_items'
+		
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include SwellId::Concerns::PolymorphicIdentifiers
 

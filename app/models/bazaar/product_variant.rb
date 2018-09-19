@@ -1,6 +1,6 @@
 module Bazaar
 	class ProductVariant < ApplicationRecord
-		self.table_name = 'product_variants'
+		
 
 		include FriendlyId
 		include Bazaar::Concerns::MoneyAttributesConcern

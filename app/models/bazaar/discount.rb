@@ -1,6 +1,6 @@
 module Bazaar
 	class Discount < ApplicationRecord
-		self.table_name = 'discounts'
+		
 		include Bazaar::Concerns::MoneyAttributesConcern
 
 		enum status: { 'archived' => -1, 'draft' => 0, 'active' => 1 }

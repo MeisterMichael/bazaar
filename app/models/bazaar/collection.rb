@@ -1,6 +1,6 @@
 module Bazaar
 	class Collection < ApplicationRecord
-		self.table_name = 'collections'
+		
 
 		has_many :collection_items
 

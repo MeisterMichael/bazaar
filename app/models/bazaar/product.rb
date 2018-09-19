@@ -1,6 +1,6 @@
 module Bazaar
 	class Product < ApplicationRecord
-		self.table_name = 'products'
+		
 
 		include Pulitzer::Concerns::URLConcern
 		include Bazaar::Concerns::MoneyAttributesConcern

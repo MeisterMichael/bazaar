@@ -1,6 +1,6 @@
 module Bazaar
 	class Subscription < ApplicationRecord
-		self.table_name = 'subscriptions'
+		
 
 		include Bazaar::Concerns::MoneyAttributesConcern
 
