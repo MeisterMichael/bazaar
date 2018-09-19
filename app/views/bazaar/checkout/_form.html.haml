@@ -1,0 +1,29 @@
+.row
+	.col-xs-12.col-lg-8.col-lg-offset-2
+		= render "bazaar/checkout/summary_table", order: @order, args: {}
+
+	.col-xs-12
+		.row
+			.col-xs-12.col-lg-4.col-lg-offset-2
+
+				%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Contact Information
+				= render "bazaar/checkout/contact_form", f: f, order: @order, args: {}
+
+	.col-xs-12.col-lg-4.col-lg-offset-2
+		= f.fields_for :billing_address do |billing_address_form|
+			%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Billing Information
+			= render "bazaar/checkout/billing_address_form", f: billing_address_form, order: @order, args: {}
+
+			= render "bazaar/checkout/transaction_options", f: f, order: @order, args: {}
+	.col-xs-12.col-lg-4
+		= f.fields_for :shipping_address do |shipping_address_form|
+			%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Shipping Information
+			= render "bazaar/checkout/shipping_address_form", f: shipping_address_form, order: @order, args: {}
+	.col-xs-12.col-lg-6.col-lg-offset-3{ style: 'margin-top: 1.5em;margin-bottom: 1.5em;' }
+		.form-group
+			%label
+				%span Comment
+			= f.text_area :customer_notes, class: 'form-control'
+
+	.col-xs-12.text-center
+		%input.btn.btn-primary.submit{:type => "submit", :value => "Next"}/

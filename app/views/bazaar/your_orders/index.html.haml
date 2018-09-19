@@ -1,0 +1,10 @@
+.container
+	.row
+		.col-xs-12.col-md-8
+			%a{ href: bazaar.your_account_index_path() } My Account
+			> My Orders
+			%h2 My Orders
+			- @orders.each do |order|
+				= render 'bazaar/your_orders/well', order: order, args: {}
+
+			%div= raw paginate @orders

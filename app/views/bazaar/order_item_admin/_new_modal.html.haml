@@ -1,0 +1,27 @@
+#new_order_item_modal.modal.fade
+	.modal-dialog.modal-lg
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Add Item
+			= form_for Bazaar::OrderItem.new( order_item_type: 'prod', order: order ), url: order_item_admin_index_path(), html: { class: 'form' } do |f|
+				= f.hidden_field :order_id
+				= f.hidden_field :order_item_type
+				.modal-body
+					.form-group
+						= f.label :item_polymorphic_id, 'Item'
+						= f.grouped_collection_select :item_polymorphic_id, [ Bazaar::Product.active, Bazaar::SubscriptionPlan.active ], :all, :name, :polymorphic_id, Proc.new{ |item| "#{item.title} (#{item.purchase_price_formatted})" }, {}, class: 'form-control'
+					.form-group
+						= f.label :quantity
+						= f.number_field :quantity, class: 'form-control', value: 1
+					.form-group
+						= f.label :price_as_money_string, "Price"
+						= f.number_field :price_as_money_string, class: 'form-control', value: nil
+
+
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Add', class: 'btn btn-primary'

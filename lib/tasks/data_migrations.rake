@@ -1,17 +1,17 @@
 # desc "Explaining what the task does"
-namespace :swell_ecom do
+namespace :bazaar do
 
 	task backfill_geo_address_tags: :environment do
 		puts "backfill_geo_address_tags"
 
-		GeoAddress.where( id: SwellEcom::Order.select(:shipping_address_id) ).find_each do |geo_address|
+		GeoAddress.where( id: Bazaar::Order.select(:shipping_address_id) ).find_each do |geo_address|
 			geo_address.tags = geo_address.tags + ['shipping_address']
 			geo_address.save
 
 			geo_address.user.update( preferred_shipping_address_id: geo_address.id ) if geo_address.user
 		end
 
-		GeoAddress.where( id: SwellEcom::Order.select(:billing_address_id) ).find_each do |geo_address|
+		GeoAddress.where( id: Bazaar::Order.select(:billing_address_id) ).find_each do |geo_address|
 			geo_address.tags = geo_address.tags + ['billing_address']
 			geo_address.save
 
@@ -23,14 +23,14 @@ namespace :swell_ecom do
 	task migrate_all_orders_to_checkout_order: :environment do
 		puts "migrate_all_orders_to_checkout_order"
 
-		orders = SwellEcom::Order.all
-		orders.update_all( type: SwellEcom.checkout_order_class_name, source: 'Consumer Checkout' )
+		orders = Bazaar::Order.all
+		orders.update_all( type: Bazaar.checkout_order_class_name, source: 'Consumer Checkout' )
 
 	end
 
 	task recalculate_order_rollups: :environment do
 
-		orders = SwellEcom::Order.all
+		orders = Bazaar::Order.all
 		orders.find_each do |order|
 
 			order.shipping = order.order_items.select(&:shipping?).sum(&:subtotal)
@@ -46,7 +46,7 @@ namespace :swell_ecom do
 
 	task migrate_order_status: :environment do
 
-		orders = SwellEcom::Order.all
+		orders = Bazaar::Order.all
 		orders.find_each do |order|
 
 			order.payment_status = 'paid' if order.transactions.positive.present?
@@ -66,7 +66,7 @@ namespace :swell_ecom do
 	end
 
 	task migrate_subscription_customizations: :environment do
-		subscriptions = SwellEcom::Subscription.all
+		subscriptions = Bazaar::Subscription.all
 
 		subscriptions.find_each do |subscription|
 

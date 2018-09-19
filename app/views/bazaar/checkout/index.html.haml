@@ -1,0 +1,11 @@
+
+.container
+	= form_for @order, as: :order, url: bazaar.confirm_checkout_index_path(), method: 'POST', as: :order, html: { class: 'stripe_form validate_form checkout_form' } do |f|
+		= render 'form', f: f, args: {}
+
+
+%script{:src => "https://js.stripe.com/v2/", :type => "text/javascript"}
+
+- if Rails.configuration.respond_to? :stripe
+	:javascript
+		Stripe.setPublishableKey('#{Rails.configuration.stripe[:publishable_key]}');

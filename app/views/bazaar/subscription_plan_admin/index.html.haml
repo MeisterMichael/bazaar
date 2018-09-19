@@ -1,0 +1,83 @@
+
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%h2 Plans
+		.col-xs-2
+			- if authorized?(Bazaar::SubscriptionPlan, controller: Bazaar::SubscriptionPlanAdminController, action: :create )
+				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_subscription_plan' } }
+					%i.fa.fa-plus-square
+					New
+	.row{ style: 'margin-top: 0' }
+		.col-xs-6
+			= raw paginate @plans
+		.col-xs-6
+
+
+	.row
+		.col-xs-12
+			%table.table.table-light.table-bordered
+				%thead
+					%th
+						Title
+						%a{ href: subscription_plan_admin_index_path( sort_by: 'title', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: subscription_plan_admin_index_path( sort_by: 'title', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th
+						Price
+					%th
+						Every
+
+					%th
+						Created
+						%a{ href: subscription_plan_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: subscription_plan_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th Status
+					%th{ style: 'width: 6em' }
+				%tbody
+					- if @plans.blank?
+						%tr
+							%td{ colspan: 6 }
+								\- No Plans Found -
+					- @plans.each do |plan|
+						%tr
+							%td
+								= link_to plan.title, edit_subscription_plan_admin_path( plan.id )
+
+							%td
+								= number_to_currency plan.price.to_f / 100
+							%td
+								= plan.billing_interval_value
+								= plan.billing_interval_unit
+
+							%td
+								= current_user.to_local_tz(plan.created_at).to_s( :short )
+							%td
+								.badge{ class: plan.status }
+									= plan.status
+							%td
+								- if authorized?(plan, controller: Bazaar::SubscriptionPlanAdminController, action: :edit ) || authorized?(plan, controller: Bazaar::SubscriptionPlanAdminController, action: :destroy )
+									.btn-group
+										%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+											%i.fa.fa-cog
+											%b.caret
+										%ul.dropdown-menu
+											- if authorized?(plan, controller: Bazaar::SubscriptionPlanAdminController, action: :edit )
+												%li
+													%a{ href: edit_subscription_plan_admin_path( plan.id ) }
+														%i.fa.fa-pencil
+														Edit
+												%li.divider
+											- if authorized?(plan, controller: Bazaar::SubscriptionPlanAdminController, action: :destroy )
+												%li
+													%a{ href: subscription_plan_admin_path( plan ), data: { method: 'delete', confirm: 'Are you sure?' } }
+														%i.fa.fa-trash-o
+														Delete!
+
+
+= render "new_modal"

@@ -1,0 +1,120 @@
+
+.container
+	.row
+
+		= form_for @order, as: :order, url: bazaar.wholesale_checkout_index_path(), method: 'POST', html: { class: 'disable_submit_after_submit'} do |f|
+			= render 'bazaar/checkout_admin/hidden_fields', fields: shipping_options, args: {}
+			= render 'bazaar/checkout_admin/hidden_fields', fields: transaction_options, args: {}
+			= render 'bazaar/checkout_admin/hidden_fields', fields: discount_options, args: {}
+			= render 'bazaar/checkout_admin/hidden_fields', fields: tax_options, args: {}
+
+			= hidden_field_tag :from, 'confirm'
+
+			= f.fields_for :order_items do |order_item_form|
+				- if order_item_form.object.prod?
+					= order_item_form.hidden_field :item_type
+					= order_item_form.hidden_field :item_id
+					= order_item_form.hidden_field :quantity
+			= f.hidden_field :email
+			= f.fields_for :billing_address do |billing_address_form|
+				= billing_address_form.hidden_field :first_name, value: @order.billing_address.first_name
+				= billing_address_form.hidden_field :last_name, value: @order.billing_address.last_name
+				= billing_address_form.hidden_field :geo_country_id, value: @order.billing_address.geo_country_id
+				= billing_address_form.hidden_field :state, value: @order.billing_address.state
+				= billing_address_form.hidden_field :geo_state_id, value: @order.billing_address.geo_state_id
+				= billing_address_form.hidden_field :street, value: @order.billing_address.street
+				= billing_address_form.hidden_field :street2, value: @order.billing_address.street2
+				= billing_address_form.hidden_field :city, value: @order.billing_address.city
+				= billing_address_form.hidden_field :zip, value: @order.billing_address.zip
+				= billing_address_form.hidden_field :phone, value: @order.billing_address.phone
+			= f.fields_for :shipping_address do |shipping_address_form|
+				= shipping_address_form.hidden_field :first_name, value: @order.shipping_address.first_name
+				= shipping_address_form.hidden_field :last_name, value: @order.shipping_address.last_name
+				= shipping_address_form.hidden_field :geo_country_id, value: @order.shipping_address.geo_country_id
+				= shipping_address_form.hidden_field :state, value: @order.shipping_address.state
+				= shipping_address_form.hidden_field :geo_state_id, value: @order.shipping_address.geo_state_id
+				= shipping_address_form.hidden_field :street, value: @order.shipping_address.street
+				= shipping_address_form.hidden_field :street2, value: @order.shipping_address.street2
+				= shipping_address_form.hidden_field :city, value: @order.shipping_address.city
+				= shipping_address_form.hidden_field :zip, value: @order.shipping_address.zip
+				= shipping_address_form.hidden_field :phone, value: @order.shipping_address.phone
+
+			= f.hidden_field :customer_notes, class: 'form-control'
+
+			.col-xs-12.col-md-9
+				.row
+					.col-xs-12.col-md-6
+						%label Billing Address
+						.well.well-sm
+							%div
+								=@order.billing_address.first_name
+								=@order.billing_address.last_name
+							%div=@order.billing_address.street
+							%div
+								=@order.billing_address.street2
+								&nbsp;
+							%div
+								#{@order.billing_address.city}, #{(@order.billing_address.geo_state.try(:name) || @order.billing_address.state)} #{@order.billing_address.zip}
+							%div=@order.billing_address.geo_country.name
+							%div=@order.billing_address.phone
+					.col-xs-12.col-md-6
+						%label Shipping Address
+						.well.well-sm
+							%div
+								=@order.shipping_address.first_name
+								=@order.shipping_address.last_name
+							%div=@order.shipping_address.street
+							%div
+								=@order.shipping_address.street2
+								&nbsp;
+							%div
+								#{@order.shipping_address.city}, #{(@order.shipping_address.geo_state.try(:name) || @order.shipping_address.state)} #{@order.shipping_address.zip}
+							%div=@order.shipping_address.geo_country.name
+							%div=@order.shipping_address.phone
+
+				%table.table.table-light.table-bordered{ style: 'margin-bottom: 2em;' }
+					%thead
+						%tr
+							%th Product
+							%th{ style: 'width: 100px' } Price
+							%th.text-right{ style: 'width: 100px' } Quantity
+							%th.text-right{ style: 'width: 100px' } Subtotal
+					%tbody
+						- @order.order_items.each do |order_item|
+							- if order_item.prod?
+								%tr
+									-# %td avatar
+									%td
+										=order_item.title
+									%td= order_item.price_formatted
+									%td.text-right
+										=order_item.quantity
+									%td.text-right
+										= order_item.subtotal_formatted
+				- if @order.customer_notes.present?
+					%label Comment
+					.well.well-sm= @order.customer_notes
+
+					%div{ style: 'font-weight: bold;' }
+						Order Total:
+						= number_to_currency @order.total.to_f / 100
+			.col-xs-12.col-md-3
+
+				%div
+					.pull-right
+						#{@order.subtotal_formatted}
+					Items (#{@order.order_items.select(&:prod?).sum(&:quantity)}):
+				- @order.order_items.each do |order_item|
+					- unless order_item.prod?
+						%div
+							.pull-right
+								#{number_to_currency order_item.subtotal.to_f / 100}
+							#{order_item.title}:
+				%div{ style: 'font-weight: bold;' }
+					.pull-right
+						= number_to_currency @order.total.to_f / 100
+					Total:
+			.col-xs-12
+
+				.text-center
+					%input.btn.btn-primary.submit{:type => "submit", :value => "Place Order"}/

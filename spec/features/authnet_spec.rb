@@ -4,8 +4,8 @@ describe "AuthorizeDotNetTransactionService" do
 
 	let(:user) { ::User.create( email: "#{(0...20).map { (65 + rand(26)).chr }.join}@groundswellent.com", first_name: 'Michael', last_name: (0...8).map { (65 + rand(26)).chr }.join ) }
 	let(:address) { GeoAddress.new( first_name: 'Michael', last_name: (0...8).map { (65 + rand(26)).chr }.join, zip: '92126', phone: "1#{(0...10).map { (rand(8)+1).to_s }.join}", street: '123 Test St', city: 'San Diego', geo_country: GeoCountry.new( name: 'United States', abbrev: 'US' ), geo_state: GeoState.new( name: 'California', abbrev: 'CA' ) ) }
-	let(:trial_subscription_plan) { SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, price: 12900 ) }
-	let(:subscription_plan) { SwellEcom::SubscriptionPlan.new( title: 'Test Subscription Plan', price: 12900 ) }
+	let(:trial_subscription_plan) { Bazaar::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, price: 12900 ) }
+	let(:subscription_plan) { Bazaar::SubscriptionPlan.new( title: 'Test Subscription Plan', price: 12900 ) }
 	let(:credit_card) {
 		exp_month = (1 + rand(11))
 		exp_month = "0#{exp_month}" if exp_month < 10
@@ -13,7 +13,7 @@ describe "AuthorizeDotNetTransactionService" do
 		return { card_number: '4111111111111111', expiration: "#{exp_month}/#{exp_year}", card_code: '1234' }
 	}
 	let(:new_subscription_plan_order) {
-		order = SwellEcom::CheckoutOrder.new( billing_address: address, shipping_address: address, user: user )
+		order = Bazaar::CheckoutOrder.new( billing_address: address, shipping_address: address, user: user )
 		order.order_items.new item: subscription_plan, price: subscription_plan.price, subtotal: subscription_plan.price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
 
 		order.define_singleton_method(:properties) do
@@ -26,7 +26,7 @@ describe "AuthorizeDotNetTransactionService" do
 		order
 	}
 	let(:new_trial_subscription_plan_order) {
-		order = SwellEcom::CheckoutOrder.new( billing_address: address, shipping_address: address, user: user )
+		order = Bazaar::CheckoutOrder.new( billing_address: address, shipping_address: address, user: user )
 		order.order_items.new item: subscription_plan, price: subscription_plan.trial_price, subtotal: subscription_plan.trial_price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
 
 		order.define_singleton_method(:properties) do
@@ -46,12 +46,12 @@ describe "AuthorizeDotNetTransactionService" do
 	end
 
 	it "should support instantiation" do
-		SwellEcom::TransactionServices::AuthorizeDotNetTransactionService.new.should be_instance_of(SwellEcom::TransactionServices::AuthorizeDotNetTransactionService)
+		Bazaar::TransactionServices::AuthorizeDotNetTransactionService.new.should be_instance_of(Bazaar::TransactionServices::AuthorizeDotNetTransactionService)
 	end
 
 	it "should support processing orders" do
 
-		transaction_service	= SwellEcom::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
+		transaction_service	= Bazaar::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
 		order = new_subscription_plan_order
 
 
@@ -59,7 +59,7 @@ describe "AuthorizeDotNetTransactionService" do
 		transaction = transaction_service.process( order, credit_card: credit_card )
 
 		expect(order.errors.full_messages.join('')).to eq ''
-		transaction.should be_instance_of(SwellEcom::Transaction)
+		transaction.should be_instance_of(Bazaar::Transaction)
 		expect(order.errors.present?).to eq false
 		expect(order.payment_status).to eq 'paid'
 		expect(transaction.errors.present?).to eq false
@@ -73,7 +73,7 @@ describe "AuthorizeDotNetTransactionService" do
 		# Test 4 digit expiration
 		transaction = transaction_service.process( order, credit_card: credit_card.merge( expiration: '12/'+(Time.now + 1.year).strftime('%Y') ) )
 
-		transaction.should be_instance_of(SwellEcom::Transaction)
+		transaction.should be_instance_of(Bazaar::Transaction)
 		expect(order.errors.present?).to eq false
 		expect(order.payment_status).to eq 'paid'
 		expect(transaction.errors.present?).to eq false
@@ -110,7 +110,7 @@ describe "AuthorizeDotNetTransactionService" do
 
 	it "should support capture_payment_method for orders" do
 
-		transaction_service	= SwellEcom::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
+		transaction_service	= Bazaar::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
 		order = new_subscription_plan_order
 		order.payment_status = 'invoice'
 		order.status = 'pre_order'
@@ -119,7 +119,7 @@ describe "AuthorizeDotNetTransactionService" do
 		response = transaction_service.capture_payment_method( order, credit_card: credit_card )
 
 		expect(response.errors.full_messages.join('')).to eq ''
-		response.should be_instance_of(SwellEcom::CheckoutOrder)
+		response.should be_instance_of(Bazaar::CheckoutOrder)
 		expect(response.errors.present?).to eq false
 		expect(response.payment_status).to eq 'payment_method_captured'
 		expect(response.status).to eq 'pre_order'
@@ -130,7 +130,7 @@ describe "AuthorizeDotNetTransactionService" do
 		transaction = transaction_service.process( order, credit_card: credit_card )
 
 		expect(order.errors.full_messages.join('')).to eq ''
-		transaction.should be_instance_of(SwellEcom::Transaction)
+		transaction.should be_instance_of(Bazaar::Transaction)
 		expect(order.errors.present?).to eq false
 		expect(order.payment_status).to eq 'paid'
 		expect(transaction.errors.present?).to eq false
@@ -144,12 +144,12 @@ describe "AuthorizeDotNetTransactionService" do
 
 	it "should support refunding transactions" do
 
-		transaction_service	= SwellEcom::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
+		transaction_service	= Bazaar::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
 		order = new_subscription_plan_order
 
 		transaction = transaction_service.process( order, credit_card: credit_card )
 
-		transaction.should be_instance_of(SwellEcom::Transaction)
+		transaction.should be_instance_of(Bazaar::Transaction)
 		expect(order.errors.present?).to eq false
 		expect(order.payment_status).to eq 'paid'
 		expect(transaction.errors.present?).to eq false
@@ -158,7 +158,7 @@ describe "AuthorizeDotNetTransactionService" do
 
 		refund_transaction = transaction_service.refund( charge_transaction: transaction )
 
-		refund_transaction.should be_instance_of(SwellEcom::Transaction)
+		refund_transaction.should be_instance_of(Bazaar::Transaction)
 		expect(refund_transaction.errors.present?).to eq false
 		expect(refund_transaction.amount).to eq 12900
 		expect(refund_transaction.signed_amount).to eq -12900
@@ -174,12 +174,12 @@ describe "AuthorizeDotNetTransactionService" do
 	# option.
 	# it "should support partial refunding transactions" do
 	#
-	# 	transaction_service	= SwellEcom::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
+	# 	transaction_service	= Bazaar::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
 	# 	order = new_subscription_plan_order
 	#
 	# 	transaction = transaction_service.process( order, credit_card: credit_card )
 	#
-	# 	transaction.should be_instance_of(SwellEcom::Transaction)
+	# 	transaction.should be_instance_of(Bazaar::Transaction)
 	# 	expect(order.errors.present?).to eq false
 	# 	expect(transaction.errors.present?).to eq false
 	# 	expect(transaction.approved?).to eq true
@@ -187,7 +187,7 @@ describe "AuthorizeDotNetTransactionService" do
 	#
 	# 	refund_transaction = transaction_service.refund( charge_transaction: transaction, amount: 100 )
 	#
-	# 	refund_transaction.should be_instance_of(SwellEcom::Transaction)
+	# 	refund_transaction.should be_instance_of(Bazaar::Transaction)
 	# 	expect(refund_transaction.errors.present?).to eq false
 	# 	expect(refund_transaction.amount).to eq 100
 	# 	expect(refund_transaction.signed_amount).to eq -100

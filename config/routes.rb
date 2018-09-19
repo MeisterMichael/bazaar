@@ -1,4 +1,4 @@
-SwellEcom::Engine.routes.draw do
+Bazaar::Engine.routes.draw do
 
 	resources :cart_admin
 	resources :carts, only: :update
@@ -44,7 +44,7 @@ SwellEcom::Engine.routes.draw do
 		get :thank_you, on: :member, path: 'thank-you'
 	end
 
-	resources :products, path: SwellEcom.store_path do
+	resources :products, path: Bazaar.store_path do
 		# for single-item quick buy
 		get :buy, on: :member
 	end

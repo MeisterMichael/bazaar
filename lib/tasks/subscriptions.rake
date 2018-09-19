@@ -1,9 +1,9 @@
 # desc "Explaining what the task does"
-namespace :swell_ecom do
+namespace :bazaar do
 
 	task payment_profile_expiration_reminder: :environment do
 
-		subscriptions = SwellEcom::Subscription.active
+		subscriptions = Bazaar::Subscription.active
 		subscriptions = subscriptions.where( payment_profile_expires_at: Time.now..1.month.from_now ).where.not( payment_profile_expires_at: nil )
 
 		subscriptions.find_each do |subscription|
@@ -13,7 +13,7 @@ namespace :swell_ecom do
 				subscription.properties = subscription.properties.merge( 'payment_profile_expiration_reminder' => Time.now.to_i )
 				subscription.save
 
-				SwellEcom::SubscriptionMailer.payment_profile_expiration_reminder( subscription ).deliver_now
+				Bazaar::SubscriptionMailer.payment_profile_expiration_reminder( subscription ).deliver_now
 
 			end
 
@@ -24,18 +24,18 @@ namespace :swell_ecom do
 	task process_subscriptions: :environment do
 
 		time_now = Time.now
-		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config )
+		subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
 
-		SwellEcom::Subscription.ready_for_next_charge( time_now ).find_each do |subscription|
+		Bazaar::Subscription.ready_for_next_charge( time_now ).find_each do |subscription|
 
 			begin
 
 				order = subscription_service.charge_subscription( subscription, now: time_now )
 
 				if subscription.failed?
-					SwellEcom::SubscriptionMailer.renewal_failure( subscription ).deliver_now
+					Bazaar::SubscriptionMailer.renewal_failure( subscription ).deliver_now
 				elsif order.errors.blank?
-					SwellEcom::OrderMailer.receipt( order ).deliver_now
+					Bazaar::OrderMailer.receipt( order ).deliver_now
 				end
 
 			rescue Exception => e

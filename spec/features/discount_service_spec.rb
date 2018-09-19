@@ -6,22 +6,22 @@ describe "SubscriptionService" do
 	let(:address) { GeoAddress.new( first_name: 'Michael', last_name: (0...8).map { (65 + rand(26)).chr }.join, zip: '92126', street: '123 Test st', phone: "1#{(0...10).map { (rand(8)+1).to_s }.join}", city: 'San Diego', geo_country: GeoCountry.new( name: 'United States', abbrev: 'US' ), geo_state: GeoState.new( name: 'California', abbrev: 'CA' ) ) }
 	let(:new_order) {
 
-		subscription_plan = SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 2, price: 12900, billing_interval_unit: 'weeks', billing_interval_value: 4, trial_interval_unit: 'days', trial_interval_value: 7 )
-		subscription = SwellEcom::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now, provider: 'Authorize.net' )
+		subscription_plan = Bazaar::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 2, price: 12900, billing_interval_unit: 'weeks', billing_interval_value: 4, trial_interval_unit: 'days', trial_interval_value: 7 )
+		subscription = Bazaar::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now, provider: 'Authorize.net' )
 
-		order = SwellEcom::CheckoutOrder.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
+		order = Bazaar::CheckoutOrder.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
 		order.order_items.new item: subscription_plan, subscription: subscription, price: subscription_plan.trial_price, subtotal: subscription_plan.trial_price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
 
 		order
 	}
 
 	before :all do
-		@discount_service = SwellEcom::DiscountService.new
+		@discount_service = Bazaar::DiscountService.new
 	end
 
 	it "should be able to calculate fixed discount" do
 
-		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active' )
+		discount = Bazaar::Discount.new( start_at: Time.now, status: 'active' )
 		discount.discount_items.new( discount_amount: 100, discount_type: 'fixed' )
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
@@ -39,10 +39,10 @@ describe "SubscriptionService" do
 	end
 
 	it "should be able to calculate fixed_each" do
-		product = SwellEcom::Product.new
+		product = Bazaar::Product.new
 		product_order_item = new_order.order_items.new( subtotal: 14900, order_item_type: 'prod', item: product, quantity: 2 )
 
-		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active' )
+		discount = Bazaar::Discount.new( start_at: Time.now, status: 'active' )
 		discount.discount_items.new( discount_amount: 100, discount_type: 'fixed_each', order_item_type: 'prod' )
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
@@ -69,7 +69,7 @@ describe "SubscriptionService" do
 
 	it "should be able to calculate percent discount" do
 
-		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active' )
+		discount = Bazaar::Discount.new( start_at: Time.now, status: 'active' )
 		discount_item = discount.discount_items.new( discount_amount: 100, discount_type: 'percent', order_item_type: nil )
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
@@ -119,7 +119,7 @@ describe "SubscriptionService" do
 	it "should be able to calculate mixed fixed and percent discount" do
 		shipping_order_item = new_order.order_items.new( subtotal: 495, order_item_type: 'shipping' )
 
-		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active' )
+		discount = Bazaar::Discount.new( start_at: Time.now, status: 'active' )
 
 		percent_discount_item = discount.discount_items.new( discount_amount: 35, discount_type: 'percent', order_item_type: nil )
 		fixed_discount_item = discount.discount_items.new( discount_amount: 10, discount_type: 'fixed', order_item_type: nil )
@@ -157,9 +157,9 @@ describe "SubscriptionService" do
 	end
 
 	it "should be able to calculate discount for specific products/plans" do
-		product = SwellEcom::Product.new
+		product = Bazaar::Product.new
 
-		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active' )
+		discount = Bazaar::Discount.new( start_at: Time.now, status: 'active' )
 		percent_discount_item = discount.discount_items.new( discount_amount: 50, discount_type: 'percent', order_item_type: 'prod', applies_to: product )
 
 		product_order_item = new_order.order_items.new( subtotal: 14900, order_item_type: 'prod', item: product )
@@ -190,7 +190,7 @@ describe "SubscriptionService" do
 
 	it "should be able to calculate fixed discount with minimum taxes" do
 
-		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active', minimum_tax_subtotal: 10 )
+		discount = Bazaar::Discount.new( start_at: Time.now, status: 'active', minimum_tax_subtotal: 10 )
 		discount.discount_items.new( discount_amount: 100, discount_type: 'fixed' )
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
@@ -212,7 +212,7 @@ describe "SubscriptionService" do
 
 	it "should be able to calculate fixed discount with minimum prod" do
 
-		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active', minimum_prod_subtotal: 90 )
+		discount = Bazaar::Discount.new( start_at: Time.now, status: 'active', minimum_prod_subtotal: 90 )
 		discount.discount_items.new( discount_amount: 100, discount_type: 'fixed' )
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
@@ -233,7 +233,7 @@ describe "SubscriptionService" do
 
 	it "should be able to calculate fixed discount with minimum shipping" do
 
-		discount = SwellEcom::Discount.new( start_at: Time.now, status: 'active', minimum_shipping_subtotal: 100 )
+		discount = Bazaar::Discount.new( start_at: Time.now, status: 'active', minimum_shipping_subtotal: 100 )
 		discount.discount_items.new( discount_amount: 100, discount_type: 'fixed' )
 
 		shipping_order_item = new_order.order_items.new( subtotal: 495, order_item_type: 'shipping' )

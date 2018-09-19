@@ -1,5 +1,5 @@
 
-SwellEcom.configure do |config|
+Bazaar.configure do |config|
 
 	config.origin_address = {
 		street: '1412 Camino Del Mar',
@@ -11,13 +11,13 @@ SwellEcom.configure do |config|
 
 	config.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
 
-	config.transaction_service_class = "SwellEcom::TransactionServices::AuthorizeDotNetTransactionService"
+	config.transaction_service_class = "Bazaar::TransactionServices::AuthorizeDotNetTransactionService"
 	# config.transaction_service_config = {}
 
-	# config.shipping_service_class = "SwellEcom::ShippingService"
+	# config.shipping_service_class = "Bazaar::ShippingService"
 	# config.shipping_service_config = {}
 
-	# config.tax_service_class = "SwellEcom::TaxService"
+	# config.tax_service_class = "Bazaar::TaxService"
 	# config.tax_service_config = {}
 
 	config.nexus_addresses = [

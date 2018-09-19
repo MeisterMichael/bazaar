@@ -1,4 +1,4 @@
-class SwellEcomSubscriptionCustomizationMigration < ActiveRecord::Migration[5.1]
+class BazaarSubscriptionCustomizationMigration < ActiveRecord::Migration[5.1]
 	def change
 
 		add_column :subscriptions, :billing_interval_value, :integer, default: 1

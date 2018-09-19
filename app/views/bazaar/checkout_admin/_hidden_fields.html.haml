@@ -1,0 +1,11 @@
+- fields.each do |name, value|
+	- if value.is_a?(Hash) || value.is_a?(ActionController::Parameters)
+		- if args[:prefix]
+			= render 'bazaar/checkout_admin/hidden_fields', fields: value, args: { prefix: "#{args[:prefix]}[#{name}]" }
+		- else
+			= render 'bazaar/checkout_admin/hidden_fields', fields: value, args: { prefix: name }
+	- else
+		- if args[:prefix]
+			= hidden_field_tag "#{args[:prefix]}[#{name}]", value
+		- else
+			= hidden_field_tag name, value

@@ -7,10 +7,10 @@ describe "SubscriptionService" do
 	let(:credit_card) { { card_number: '4111111111111111', expiration: '12/'+(Time.now + 1.year).strftime('%y'), card_code: '1234' } }
 	let(:new_trial2_subscription) {
 
-		subscription_plan = SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 2, price: 12900, billing_interval_unit: 'weeks', billing_interval_value: 4, trial_interval_unit: 'days', trial_interval_value: 7 )
-		subscription = SwellEcom::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now, provider: 'Authorize.net' )
+		subscription_plan = Bazaar::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 2, price: 12900, billing_interval_unit: 'weeks', billing_interval_value: 4, trial_interval_unit: 'days', trial_interval_value: 7 )
+		subscription = Bazaar::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now, provider: 'Authorize.net' )
 
-		order = SwellEcom::CheckoutOrder.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
+		order = Bazaar::CheckoutOrder.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
 		order.order_items.new item: subscription_plan, subscription: subscription, price: subscription_plan.trial_price, subtotal: subscription_plan.trial_price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
 		@transaction_service.process( order, credit_card: credit_card )
 
@@ -18,10 +18,10 @@ describe "SubscriptionService" do
 	}
 	let(:new_trial1_subscription) {
 
-		subscription_plan = SwellEcom::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 1, price: 12900, billing_interval_unit: 'weeks', billing_interval_value: 4, trial_interval_unit: 'days', trial_interval_value: 7 )
-		subscription = SwellEcom::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now, provider: 'Authorize.net' )
+		subscription_plan = Bazaar::SubscriptionPlan.new( title: 'Test Trial Subscription Plan', trial_price: 99, trial_max_intervals: 1, price: 12900, billing_interval_unit: 'weeks', billing_interval_value: 4, trial_interval_unit: 'days', trial_interval_value: 7 )
+		subscription = Bazaar::Subscription.new( subscription_plan: subscription_plan, user: user, billing_address: address, shipping_address: address, quantity: 1, status: 'active', next_charged_at: Time.now, current_period_start_at: 1.week.ago, current_period_end_at: Time.now, provider: 'Authorize.net' )
 
-		order = SwellEcom::CheckoutOrder.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
+		order = Bazaar::CheckoutOrder.new( billing_address: subscription.billing_address, shipping_address: subscription.shipping_address, user: subscription.user )
 		order.order_items.new item: subscription_plan, subscription: subscription, price: subscription_plan.trial_price, subtotal: subscription_plan.trial_price, order_item_type: 'prod', quantity: 1, title: subscription_plan.title, tax_code: subscription_plan.tax_code
 		@transaction_service.process( order, credit_card: credit_card )
 
@@ -33,67 +33,67 @@ describe "SubscriptionService" do
 		@api_key	= ENV['AUTHORIZE_DOT_NET_TRANSACTION_API_KEY']
 		@gateway	= :sandbox
 
-		@transaction_service = SwellEcom::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
-		@tax_service = SwellEcom::TaxService.new
-		@shipping_service = SwellEcom::ShippingService.new
+		@transaction_service = Bazaar::TransactionServices::AuthorizeDotNetTransactionService.new( API_LOGIN_ID: @api_login, TRANSACTION_API_KEY: @api_key, GATEWAY: @gateway )
+		@tax_service = Bazaar::TaxService.new
+		@shipping_service = Bazaar::ShippingService.new
 	end
 
 	it "should support instantiation" do
 
-		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
-		subscription_service.should be_instance_of(SwellEcom::SubscriptionService)
+		subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
+		subscription_service.should be_instance_of(Bazaar::SubscriptionService)
 
 	end
 
 	it "subscription is ready" do
 
-		subscription = SwellEcom::Subscription.create( next_charged_at: 1.minute.ago, status: 'active' )
+		subscription = Bazaar::Subscription.create( next_charged_at: 1.minute.ago, status: 'active' )
 		expect(subscription.ready_for_next_charge?).to eq true
-		expect(SwellEcom::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 1
+		expect(Bazaar::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 1
 
-		subscription = SwellEcom::Subscription.create( next_charged_at: 1.minute.from_now, status: 'active' )
+		subscription = Bazaar::Subscription.create( next_charged_at: 1.minute.from_now, status: 'active' )
 		expect(subscription.ready_for_next_charge?).to eq false
-		expect(SwellEcom::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 0
+		expect(Bazaar::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 0
 
-		subscription = SwellEcom::Subscription.create( next_charged_at: 1.minute.ago, status: 'canceled' )
+		subscription = Bazaar::Subscription.create( next_charged_at: 1.minute.ago, status: 'canceled' )
 		expect(subscription.ready_for_next_charge?).to eq false
-		expect(SwellEcom::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 0
+		expect(Bazaar::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 0
 
-		subscription = SwellEcom::Subscription.create( next_charged_at: 1.minute.ago, status: 'failed' )
+		subscription = Bazaar::Subscription.create( next_charged_at: 1.minute.ago, status: 'failed' )
 		expect(subscription.ready_for_next_charge?).to eq false
-		expect(SwellEcom::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 0
+		expect(Bazaar::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 0
 
-		subscription = SwellEcom::Subscription.create( next_charged_at: 1.minute.from_now, status: 'canceled' )
+		subscription = Bazaar::Subscription.create( next_charged_at: 1.minute.from_now, status: 'canceled' )
 		expect(subscription.ready_for_next_charge?).to eq false
-		expect(SwellEcom::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 0
+		expect(Bazaar::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 0
 
-		subscription = SwellEcom::Subscription.create( next_charged_at: 1.minute.from_now, status: 'failed' )
+		subscription = Bazaar::Subscription.create( next_charged_at: 1.minute.from_now, status: 'failed' )
 		expect(subscription.ready_for_next_charge?).to eq false
-		expect(SwellEcom::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 0
+		expect(Bazaar::Subscription.where( id: subscription.id ).ready_for_next_charge.count).to eq 0
 
 	end
 
 	it "subscription is in a trial interval" do
 
-		subscription = SwellEcom::Subscription.new( subscription_plan: SwellEcom::SubscriptionPlan.new( trial_max_intervals: 0 ) )
+		subscription = Bazaar::Subscription.new( subscription_plan: Bazaar::SubscriptionPlan.new( trial_max_intervals: 0 ) )
 		expect(subscription.is_next_interval_a_trial?).to eq false
 
-		subscription = SwellEcom::Subscription.new( subscription_plan: SwellEcom::SubscriptionPlan.new( trial_max_intervals: 1 ) )
+		subscription = Bazaar::Subscription.new( subscription_plan: Bazaar::SubscriptionPlan.new( trial_max_intervals: 1 ) )
 		expect(subscription.is_next_interval_a_trial?).to eq true
 
-		subscription = SwellEcom::Subscription.new( subscription_plan: SwellEcom::SubscriptionPlan.new( trial_max_intervals: 2 ) )
+		subscription = Bazaar::Subscription.new( subscription_plan: Bazaar::SubscriptionPlan.new( trial_max_intervals: 2 ) )
 		expect(subscription.is_next_interval_a_trial?).to eq true
 
-		subscription = SwellEcom::Subscription.new( subscription_plan: SwellEcom::SubscriptionPlan.new( trial_max_intervals: 1 ) )
+		subscription = Bazaar::Subscription.new( subscription_plan: Bazaar::SubscriptionPlan.new( trial_max_intervals: 1 ) )
 		subscription.save
-		SwellEcom::OrderItem.create( subscription: subscription )
+		Bazaar::OrderItem.create( subscription: subscription )
 		expect(subscription.is_next_interval_a_trial?).to eq false
 
-		subscription = SwellEcom::Subscription.new( subscription_plan: SwellEcom::SubscriptionPlan.new( trial_max_intervals: 2 ) )
+		subscription = Bazaar::Subscription.new( subscription_plan: Bazaar::SubscriptionPlan.new( trial_max_intervals: 2 ) )
 		subscription.save
-		SwellEcom::OrderItem.create( subscription: subscription )
+		Bazaar::OrderItem.create( subscription: subscription )
 		expect(subscription.is_next_interval_a_trial?).to eq true
-		SwellEcom::OrderItem.create( item: subscription )
+		Bazaar::OrderItem.create( item: subscription )
 		expect(subscription.is_next_interval_a_trial?).to eq false
 
 
@@ -109,11 +109,11 @@ describe "SubscriptionService" do
 
 		sleep 2.25.minutes # sleep 2 minutes to get over the duplicate window
 
-		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
+		subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 
 		order = subscription_service.charge_subscription( subscription )
 
-		order.should be_instance_of(SwellEcom::CheckoutOrder)
+		order.should be_instance_of(Bazaar::CheckoutOrder)
 		expect(order.payment_status).to eq 'paid'
 		expect(order.fulfillment_status).to eq 'unfulfilled'
 		expect(order.generated_by).to eq 'system_generaged'
@@ -151,11 +151,11 @@ describe "SubscriptionService" do
 
 		sleep 2.25.minutes # sleep 2 minutes to get over the duplicate window
 
-		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
+		subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 
 		order = subscription_service.charge_subscription( subscription )
 
-		order.should be_instance_of(SwellEcom::CheckoutOrder)
+		order.should be_instance_of(Bazaar::CheckoutOrder)
 		expect(order.payment_status).to eq 'paid'
 		expect(order.fulfillment_status).to eq 'unfulfilled'
 		expect(order.generated_by).to eq 'system_generaged'
@@ -185,7 +185,7 @@ describe "SubscriptionService" do
 
 	it "should not charge inactive" do
 
-		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
+		subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 		subscription = new_trial1_subscription
 
 		subscription.status = 'canceled'
@@ -197,14 +197,14 @@ describe "SubscriptionService" do
 
 		subscription.status = 'active'
 		order = subscription_service.charge_subscription( subscription )
-		order.should be_instance_of(SwellEcom::CheckoutOrder)
+		order.should be_instance_of(Bazaar::CheckoutOrder)
 
 	end
 
 
 	it "should not charge if subscription is not yet past next_charged_at" do
 
-		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
+		subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 		subscription = new_trial1_subscription
 		time_now = Time.now
 
@@ -215,7 +215,7 @@ describe "SubscriptionService" do
 
 	it "should handle expired credit cards" do
 
-		subscription_service = SwellEcom.subscription_service_class.constantize.new( SwellEcom.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
+		subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config.merge( transaction_service: @transaction_service, tax_service: @tax_service, shipping_service: @shipping_service ) )
 		subscription = new_trial1_subscription
 		time_now = Time.now + 2.years
 
@@ -223,7 +223,7 @@ describe "SubscriptionService" do
 		order = subscription_service.charge_subscription( subscription )
 		expect( subscription.status ).to eq 'failed'
 
-		order.should be_instance_of(SwellEcom::CheckoutOrder)
+		order.should be_instance_of(Bazaar::CheckoutOrder)
 		expect(order.payment_status).to eq 'declined'
 		expect(order.fulfillment_status).to eq 'unfulfilled'
 		expect( order.errors.present? ).to eq true

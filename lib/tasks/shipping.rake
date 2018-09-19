@@ -1,11 +1,11 @@
 
-namespace :swell_ecom do
+namespace :bazaar do
 
 	# desc "Fetches and updates delivery status for all fulfilled orders"
 	task shipping_sync: :environment do
-		shipping_service = SwellEcom.shipping_service_class.constantize.new( SwellEcom.shipping_service_config )
+		shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
 
-		SwellEcom::CheckoutOrder.fulfilled.where.not( tracking_number: nil ).find_each do | order |
+		Bazaar::CheckoutOrder.fulfilled.where.not( tracking_number: nil ).find_each do | order |
 			delivery_status = shipping_service.fetch_delivery_status( order )
 
 			if delivery_status && delivery_status[:delivered_at].present?

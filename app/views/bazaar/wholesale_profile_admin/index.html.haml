@@ -1,0 +1,57 @@
+
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%h2 Wholesale Profiles
+		.col-xs-2
+			- if authorized?(Bazaar::WholesaleProfile, controller: Bazaar::WholesaleProfileAdminController, action: :create )
+				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_wholesale_profile_modal' } }
+					%i.fa.fa-plus-square
+					New
+	.row{ style: 'margin-top: 0' }
+		.col-xs-5
+			= raw paginate @wholesale_profiles
+		.col-xs-7
+
+	.row
+		.col-xs-12
+			%table.table.table-light.table-bordered
+				%thead
+					%th
+						Title
+						%a{ href: wholesale_profile_admin_index_path( status: params[:status], q: params[:q], sort_by: 'title', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: wholesale_profile_admin_index_path( status: params[:status], q: params[:q], sort_by: 'title', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th{ style: 'width: 10em' }
+						Created
+						%a{ href: wholesale_profile_admin_index_path( status: params[:status], q: params[:q], sort_by: 'created_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: wholesale_profile_admin_index_path( status: params[:status], q: params[:q], sort_by: 'created_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th{ style: 'width: 10em' }
+						Status
+				%tbody
+					- if @wholesale_profiles.blank?
+						%tr
+							%td{ colspan: 3 }
+								\- No Wholesale Profiles Found -
+					- @wholesale_profiles.each do |wholesale_profile|
+						%tr
+							%td
+								= link_to wholesale_profile.title, edit_wholesale_profile_admin_path( wholesale_profile.id )
+							%td
+								= wholesale_profile.created_at.to_s( :short )
+							%td
+								.badge{ class: wholesale_profile.status }
+									= wholesale_profile.status.gsub(/_/,' ')
+
+
+	.row
+		.col-xs-6
+			= raw paginate @wholesale_profiles
+
+
+= render 'bazaar/wholesale_profile_admin/new_modal', args: {}

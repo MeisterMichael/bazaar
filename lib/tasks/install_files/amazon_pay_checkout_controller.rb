@@ -3,7 +3,7 @@
 # +   get :create, on: :collection
 # + end
 
-class AmazonPayCheckoutController < SwellEcom::CheckoutController
+class AmazonPayCheckoutController < Bazaar::CheckoutController
 
   before_action :initialize_services, only: [ :create, :new ]
   before_action :get_amazon_pay_service, only: [ :create, :new ]
@@ -62,10 +62,10 @@ class AmazonPayCheckoutController < SwellEcom::CheckoutController
 	end
 
 	def get_order
-		@order = SwellEcom::CheckoutOrder.new( get_order_attributes )
+		@order = Bazaar::CheckoutOrder.new( get_order_attributes )
 		@order.billing_address.user = @order.shipping_address.user = @order.user
 
-		discount = SwellEcom::Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if discount_options[:code].present?
+		discount = Bazaar::Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if discount_options[:code].present?
 		order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 
 	end
@@ -83,7 +83,7 @@ class AmazonPayCheckoutController < SwellEcom::CheckoutController
   end
 
   def get_amazon_pay_service
-    @amz = @order_service.transaction_service.find_transaction_service_by_name( 'Amazon Pay' ) || SwellEcom::TransactionServices::AmazonPayTransactionService.new
+    @amz = @order_service.transaction_service.find_transaction_service_by_name( 'Amazon Pay' ) || Bazaar::TransactionServices::AmazonPayTransactionService.new
   end
 
 end

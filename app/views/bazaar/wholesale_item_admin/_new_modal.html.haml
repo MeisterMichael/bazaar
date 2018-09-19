@@ -1,0 +1,24 @@
+#new_wholesale_item_modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					New Wholesale Item
+			= form_for Bazaar::WholesaleItem.new( wholesale_profile: @wholesale_profile ), url: bazaar.wholesale_item_admin_index_path do |f|
+				.modal-body
+					= f.hidden_field :wholesale_profile_id
+					.form-group
+						= f.label :item_polymorphic_id, 'Item'
+						= f.grouped_collection_select :item_polymorphic_id, [ Bazaar::Product.active ], :all, :name, :polymorphic_id, Proc.new{ |item| "#{item.title} (#{item.price_formatted})" }, {}, class: 'form-control'
+					.form-group
+						= f.label :min_quantity
+						= f.number_field :min_quantity, class: 'form-control', min: 0, step: 1
+					.form-group
+						= f.label :price_as_money, 'Price'
+						= f.number_field :price_as_money, class: 'form-control', min: 0.00, step: 0.01
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Create', class: 'btn btn-primary'

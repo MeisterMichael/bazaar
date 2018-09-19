@@ -1,0 +1,52 @@
+
+.row
+	.col-xs-12.col-sm-6
+		.form-group.input-form-group
+			%label First Name
+			= f.text_field :first_name, class: 'form-control', required: true, data: { calculate: 'true' }
+			.help-block.with-errors
+	.col-xs-12.col-sm-6
+		.form-group.input-form-group
+			%label Last Name
+			= f.text_field :last_name, class: 'form-control', required: true, data: { calculate: 'true' }
+			.help-block.with-errors
+.row
+	.col-xs-12.col-sm-8
+		.form-group.input-form-group
+			%label Address Line 1
+			= f.text_field :street, class: 'form-control', required: true, data: { calculate: 'true' }
+			.help-block.with-errors
+	.col-xs-12.col-sm-4
+		.form-group.input-form-group
+			%label
+				Apt, suite, etc
+				%small (optional)
+			= f.text_field :street2, class: 'form-control', data: { calculate: 'true' }
+			.help-block.with-errors
+
+.form-group.input-form-group
+	%label City
+	= f.text_field :city, class: 'form-control', required: true, data: { calculate: 'true' }
+	.help-block.with-errors
+
+.row.geo-address-country-state-group{ data: { address_attribute: address_attribute } }
+	.col-xs-12.col-sm-4
+
+		.form-group.input-form-group
+			%label Country
+			= render 'bazaar/checkout/country_input', f: f, countries: countries, args: {}
+			.help-block.with-errors
+	.col-xs-12.col-sm-5
+		.form-group.address_state_toggle.geo-address-geo-state-input.input-form-group
+			%label State/Province
+			= render 'bazaar/checkout/state_input', f: f, states: states
+			.help-block.with-errors
+	.col-xs-12.col-sm-3
+		.form-group.input-form-group
+			%label Zip
+			= f.text_field :zip, class: 'form-control', required: true, data: { calculate: 'true' }
+			.help-block.with-errors
+.form-group.input-form-group
+	%label Phone Number
+	= f.telephone_field :phone, class: 'form-control telephone_formatted', required: true
+	.help-block.with-errors

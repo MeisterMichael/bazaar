@@ -1,4 +1,4 @@
-class SwellEcomSubscriptionsMigration < ActiveRecord::Migration[5.1]
+class BazaarSubscriptionsMigration < ActiveRecord::Migration[5.1]
 	def change
 
 		create_table :subscriptions do |t|

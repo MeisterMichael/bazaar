@@ -1,0 +1,15 @@
+.modal.fade#update_payment_info_modal
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Enter New Payment Information
+			= form_for @subscription, url: bazaar.your_subscription_path( @subscription.code ), as: :payment_info, html: { class: 'payment_info_form' } do |f|
+				.modal-body
+					= render 'bazaar/your_subscriptions/payment_info_form', f: f, args: {}
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Save', class: 'btn btn-primary'

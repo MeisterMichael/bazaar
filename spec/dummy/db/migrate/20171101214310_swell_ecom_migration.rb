@@ -1,4 +1,4 @@
-class SwellEcomMigration < ActiveRecord::Migration[5.1]
+class BazaarMigration < ActiveRecord::Migration[5.1]
 	def change
 
 		create_table :carts do |t|

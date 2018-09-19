@@ -3,7 +3,7 @@ require_relative 'boot'
 require 'rails/all'
 
 Bundler.require(*Rails.groups)
-require "swell_ecom"
+require "bazaar"
 
 module Dummy
   class Application < Rails::Application

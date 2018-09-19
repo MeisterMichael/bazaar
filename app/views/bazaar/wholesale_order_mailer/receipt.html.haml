@@ -1,0 +1,42 @@
+
+%h1.text-center
+	Thanks for your order!
+.text-center
+	Order Number: #{@order.code}
+
+%br
+
+%table.table.table-light.table-bordered
+	%thead
+		%tr
+			%th{ style: 'text-align: left;' } Product
+			%th{ style: 'width: 100px;text-align: right;' } Quantity
+			%th{ style: 'width: 100px;text-align: right;' } Price
+	%tbody
+		- @order.order_items.prod.each do |order_item|
+			%tr
+				%td{ style: 'padding: 8px' }
+					- if order_item.item.is_a?( Bazaar::ProductVariant )
+						%strong
+							= order_item.item.product.title
+						%br
+						= order_item.item.option_title
+
+					- else
+						%strong
+							= order_item.title
+				%td{ style: 'padding: 8px;text-align: right;' }
+					= order_item.quantity
+				%td{ style: 'padding: 8px;text-align: right;' }
+					= number_to_currency order_item.subtotal.to_f / 100
+
+%br
+- @order.order_items.each do |order_item|
+	- unless order_item.prod?
+		.text-right
+			#{order_item.title}: #{number_to_currency order_item.subtotal.to_f / 100}
+%h3
+
+
+	Total:
+	= number_to_currency @order.total.to_f / 100

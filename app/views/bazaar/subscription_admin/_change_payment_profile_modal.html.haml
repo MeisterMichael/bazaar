@@ -1,0 +1,37 @@
+.modal.fade#change_payment_profile
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Update Subscription Payment Profile
+					%small
+						#{@subscription.code}
+			= form_for @subscription, url: payment_profile_subscription_admin_path( @subscription, attribute: args[:attribute] ), method: :POST, html: {} do |f|
+				.modal-body
+
+					.form-group
+						%label
+							%span Credit Card
+						= text_field_tag 'credit_card[card_number]', '', class: 'form-control', required: true
+						.help-block.with-errors
+
+					.form-group
+						%label
+							%span Expires
+						= text_field_tag 'credit_card[expiration]', '', class: 'form-control', required: true
+						.help-block.with-errors
+
+					.form-group
+						%label
+							%span Card Code
+						= text_field_tag 'credit_card[card_code]', '', class: 'form-control', required: true
+						.help-block.with-errors
+
+					= f.fields_for :billing_address do |baf|
+						= render 'bazaar/geo_address/form', f: baf, countries: get_billing_countries, states: get_billing_states( @subscription.billing_address.geo_country_id ), id: "subscription_admin_change_payment_profile", address_attribute: :billing_address
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Save', class: 'btn btn-primary'

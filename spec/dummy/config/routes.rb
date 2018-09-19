@@ -1,3 +1,3 @@
 Rails.application.routes.draw do
-  mount SwellEcom::Engine => "/"
+  mount Bazaar::Engine => "/"
 end

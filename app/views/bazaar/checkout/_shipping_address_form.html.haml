@@ -1,0 +1,1 @@
+= render 'bazaar/checkout/geo_address', f: f, address_attribute: :shipping_address, countries: get_shipping_countries, states: get_billing_states(  order.shipping_address.geo_country_id  ), args: {}

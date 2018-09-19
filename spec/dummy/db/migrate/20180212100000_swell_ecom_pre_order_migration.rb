@@ -1,4 +1,4 @@
-class SwellEcomPreOrderMigration < ActiveRecord::Migration[5.1]
+class BazaarPreOrderMigration < ActiveRecord::Migration[5.1]
 	def change
 
 		add_column :products, :availability, :integer, default: 1

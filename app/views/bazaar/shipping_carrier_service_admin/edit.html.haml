@@ -1,0 +1,71 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					%a{ href: shipping_carrier_service_admin_index_path() }
+						%i.fa.fa-angle-left
+						Shipping Carrier Service
+			%h2
+				%strong= @shipping_carrier_service.name
+				%small= @shipping_carrier_service.created_at.to_s( :short )
+		.col-xs-2
+
+	= form_for @shipping_carrier_service, url: shipping_carrier_service_admin_path( @shipping_carrier_service ) do |f|
+		.row
+			.col-sm-6.col-md-8
+
+				.well.white-well
+					.pull-right
+						%a{ data: { toggle: :modal, target: '#shipping_carrier_service_edit_service_attributes_modal' } }
+					%h4 Carrier Service Info
+					.form-group
+						= f.label :carrier
+						%div=f.object.carrier
+
+					.form-group
+						= f.label :service_name
+						%div=f.object.service_name
+
+					.form-group
+						= f.label :service_code
+						%div=f.object.service_code || '-'
+
+					.form-group
+						= f.label :service_description
+						%div=f.object.service_description || '-'
+
+					.form-group
+						= f.label :service_group
+						%div=f.object.service_group || '-'
+
+					.form-group
+						= f.label :delivery_category
+						%div=f.object.delivery_category || '-'
+
+
+			.col-sm-6.col-md-4
+				.well.white-well
+
+					.form-group
+						= f.label :name
+						= f.text_field :name, class: 'form-control'
+
+					.form-group
+						= f.label :description
+						= f.text_field :description, class: 'form-control'
+
+					.form-group
+						= f.label :shipping_option_id, 'Shipping Option'
+						= f.collection_select :shipping_option_id, Bazaar::ShippingOption.all, :id, :name, { prompt: "Select Shipping Option" }, class: 'form-control'
+
+					.form-group
+						= f.label :status
+						= f.collection_select :status, Bazaar::ShippingCarrierService.statuses, :first, :first, {}, class: 'form-control'
+
+					.form-group
+						= f.submit 'Update', class: 'btn btn-primary'
+
+= render 'edit_service_attributes_modal', args: {}

@@ -1,0 +1,25 @@
+%table.table.table-light.table-bordered
+	%thead
+		%tr
+			-# %th{ style: 'width: 100px' } &nbsp;
+			%th &nbsp;
+			%th{ style: 'width: 100px' } Price
+			%th.text-right{ style: 'width: 100px' } Quantity
+	%tbody
+		- order.order_items.each do |order_item|
+			- if order_item.prod?
+				%tr
+					-# %td avatar
+					%td
+						- if order_item.item.is_a?( Bazaar::ProductVariant )
+							%strong
+								= order_item.item.product.title
+							%br
+							= order_item.item.option_title
+
+						- else
+							%strong
+								= order_item.item.title
+					%td= number_to_currency order_item.item.price.to_f / 100
+					%td.text-right
+						= order_item.quantity
