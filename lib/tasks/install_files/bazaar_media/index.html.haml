@@ -1,0 +1,16 @@
+.container
+	.row
+		- if @medias.present?
+			- @medias.each do |media|
+				.col-xs-12.col-md-4
+					.well
+						- if @media.avatar
+							%a{ href: media.url }
+								= image_tag media.avatar
+						%h5
+							%a{ href: media.url }
+								=media.title
+						%div
+							=media.description
+		- else
+			.col-xs-12.text-center No Results

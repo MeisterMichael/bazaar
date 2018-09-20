@@ -1,6 +1,36 @@
 # desc "Explaining what the task does"
 namespace :bazaar do
 
+	task swell_ecom_to_bazaar_install: :environment do
+
+		prefix = Time.now.utc.strftime("%Y%m%d%H%M%S").to_i
+
+		files = {
+			'bazaar_media_controller.rb' => 'app/controllers',
+			'bazaar_media.rb' => 'app/models',
+			'20180919154400_bazaar_media_migration.rb' => 'db/migrate',
+			'bazaar_media' => 'app/views',
+		}
+
+		index = 0
+		files.each do |source_file_path,destination_path|
+			source_file_name = File.basename(source_file_path)
+			source = File.join( Gem.loaded_specs["bazaar"].full_gem_path, "lib/tasks/install_files", source_file_path )
+
+			source_file_name = "#{(prefix + index)}_#{source_file_name.gsub(/^[0-9]+_/,"")}" if destination_path == 'db/migrate'
+
+			target = File.join( Rails.root, destination_path, source_file_name )
+
+			FileUtils.cp_r source, target
+
+			puts "#{source}\n-> #{target}\n"
+			index += 1
+		end
+
+		puts "To complete installation add the following to your routes file before \"get '/:id', to: 'root#show', as: 'root_show'\"\n\nresources :bazaar_media, only: [:show, :index], path: BazaarMedia.mounted_path\n\n"
+
+	end
+
 	task backfill_geo_address_tags: :environment do
 		puts "backfill_geo_address_tags"
 

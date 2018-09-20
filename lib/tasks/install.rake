@@ -18,10 +18,22 @@ namespace :bazaar do
 
 		end
 
-		source = File.join( Gem.loaded_specs["bazaar"].full_gem_path, "lib/tasks/install_files", 'bazaar.rb' )
-		target = File.join( Rails.root, 'config/initializers', "bazaar.rb" )
-		puts "#{source}\n-> #{target}\n"
-		FileUtils.cp_r source, target
+		files = {
+			'bazaar.rb' => 'config/initializers',
+		}
+
+		files.each do |source_file_path,destination_path|
+			source_file_name = File.basename(source_file_path)
+			source = File.join( Gem.loaded_specs["bazaar"].full_gem_path, "lib/tasks/install_files", source_file_path )
+			target = File.join( Rails.root, destination_path, source_file_name )
+
+			FileUtils.cp_r source, target
+
+			puts "#{source}\n-> #{target}\n"
+		end
+
+
+		Rake::Task["bazaar:swell_ecom_to_bazaar_install"].invoke
 
 	end
 
