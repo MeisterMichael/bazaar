@@ -9,9 +9,9 @@ module Bazaar
 				include FriendlyId
 
 				belongs_to :user
-				belongs_to :managed_by
-				belongs_to :category
-				belongs_to :parent
+				belongs_to :managed_by, class_name: 'User', optional: true
+				belongs_to :category, optional: true
+				belongs_to :parent, optional: true
 
 				enum status: { 'draft' => 0, 'active' => 1, 'archive' => 100, 'trash' => -50 }
 				enum availability: { 'anyone' => 1, 'logged_in_users' => 2, 'just_me' => 3 }
@@ -22,10 +22,6 @@ module Bazaar
 				validates		:title, presence: true, unless: :allow_blank_title?
 
 				attr_accessor	:slug_pref, :category_name
-
-				belongs_to	:user
-				belongs_to 	:managed_by, class_name: 'User', optional: true
-				belongs_to 	:category, optional: true
 
 				has_one_attached :avatar_attachment
 				has_one_attached :cover_attachment
