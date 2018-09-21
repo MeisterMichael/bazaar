@@ -1,0 +1,84 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					= link_to 'Admin', main_app.admin_index_path
+				%li
+					%strong
+						Bazaar Media Admin
+						= "(#{pluralize @medias.total_count, 'Media'})"
+		.col-xs-2
+			- if authorized?( BazaarMedia, controller: BazaarMediaAdminController, action: :create )
+				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_media' } }
+					%i.fa.fa-plus-square
+					New
+
+	.row
+		.col-xs-6
+			= raw paginate @medias
+		.col-xs-6
+			= form_tag bazaar_media_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= select_tag :status, options_from_collection_for_select( BazaarMedia.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+				= text_field_tag :q, params[:q], class: 'form-control'
+				= submit_tag 'Search', class: 'btn btn-primary'
+				= link_to 'Clear', bazaar_media_admin_index_path, class: 'btn btn-default btn-xs'
+
+	.row
+		.col-xs-12
+			%table.table.table-striped.table-hover{ style: 'margin-top: 1em' }
+				%thead
+					%th
+						Title
+						%a{ href: bazaar_media_admin_index_path( sort_by: 'title', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: bazaar_media_admin_index_path( sort_by: 'title', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th
+						Publish At
+						%a{ href: bazaar_media_admin_index_path( sort_by: 'publish_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: bazaar_media_admin_index_path( sort_by: 'publish_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+					%th Category
+					%th Status
+					%th
+				%tbody
+					- @medias.each do |media|
+						%tr
+							%td
+								.title{ style: 'font-size:120%;' }= link_to media.title, edit_bazaar_media_admin_path( media.id )
+								%a.btn{ 'data-clipboard-text' => media.url, style: 'padding:0;border:none;' }
+									= media.path
+									%i.fa.fa-clipboard
+
+							%td
+								= media.publish_at.to_s( :slashed_time )
+							%td
+								= media.category.try( :name )
+							%td
+								.badge{ class: media.status }
+									= media.status
+							%td
+								.btn-group
+									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+										%i.fa.fa-cog
+										%b.caret
+									%ul.dropdown-menu
+										%li
+											%a{ href: edit_bazaar_media_admin_path( media.id ) }
+												%i.fa.fa-pencil
+												Edit
+										%li
+											%a{ href: preview_bazaar_media_admin_path( media.id ) }
+												%i.fa.fa-eye
+												Preview
+										%li.divider
+										%li
+											%a{ href: bazaar_media_admin_path( media ), data: { method: 'delete', confirm: 'Are you sure?' } }
+												%i.fa.fa-trash-o
+												Delete!
+
+= render 'new_modal'
