@@ -22,7 +22,7 @@ module Bazaar
 
 			def get_bazaar_media( id )
 				begin
-					@media = Media.friendly.find( id )
+					@media = BazaarMedia.friendly.find( id )
 					if not( @media.published? )
 						raise ActionController::RoutingError.new( 'Not Found' )
 					else

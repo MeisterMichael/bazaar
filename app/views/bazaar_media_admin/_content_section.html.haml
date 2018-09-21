@@ -1,0 +1,9 @@
+.form-group
+	= f.label :avatar_caption, 'Caption'
+	= f.text_area :avatar_caption, class: 'form-control wysiwyg', data: { wysiwyg: { toolbar_sticky: false, toolbar_preset: 'admin_lite' }.to_json }
+.form-group
+	= f.label :description, 'Summary'
+	= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: false, toolbar_preset: 'admin_default', object_class: @media.class.base_class.name, object_id: @media.id }.to_json }
+
+.form-group
+	= f.text_area :content, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 200, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @media.class.base_class.name, object_id: @media.id }.to_json }

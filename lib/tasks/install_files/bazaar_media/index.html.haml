@@ -4,7 +4,7 @@
 			- @medias.each do |media|
 				.col-xs-12.col-md-4
 					.well
-						- if @media.avatar
+						- if media.avatar
 							%a{ href: media.url }
 								= image_tag media.avatar
 						%h5

@@ -1,0 +1,15 @@
+.row
+	.col-xs-10
+		%ul.breadcrumb
+			%li
+				= link_to 'Admin', main_app.admin_index_path
+			%li
+				= link_to 'Bazaar Media Admin', main_app.bazaar_media_admin_index_path
+			%li
+				%strong
+					Edit
+					= @media.title
+	.col-xs-2
+		%a.btn.btn-primary{ href: main_app.preview_bazaar_media_admin_path( @media.id ), target: '_new' }
+			%i.fa.fa-eye
+			Preview

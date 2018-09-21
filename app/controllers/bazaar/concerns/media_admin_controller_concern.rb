@@ -1,11 +1,11 @@
 module Bazaar
 	module Concerns
 
-		module MediaControllerConcern
+		module MediaAdminControllerConcern
 			extend ActiveSupport::Concern
 
 			included do
-				before_action :get_bazaar_media, only: [:show,:update,:edit,:destroy]
+				before_action :get_bazaar_media, only: [:show,:update,:edit,:destroy,:preview]
 			end
 
 
@@ -21,16 +21,25 @@ module Bazaar
 			# Instance Methods
 
 			protected
+
+			def bazaar_render( media )
+
+				set_page_meta( media.page_meta )
+
+				render media.template, layout: media.layout
+
+			end
+
 			def get_bazaar_media
-				@media = Media.friendly.find( params[:id] )
+				@media = BazaarMedia.friendly.find( params[:id] )
 			end
 
 			def change_media( media )
-				
-				media_params = params.require(:media).permit(media_param_names)
+
+				media_params = params.require(:bazaar_media).permit(media_param_names)
 
 				media.slug = nil if media_params[:slug_pref]
-				media.atttributes = media_params
+				media.attributes = media_params
 
 			end
 

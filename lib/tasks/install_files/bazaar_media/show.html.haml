@@ -2,20 +2,18 @@
 	.row
 		- if @media.avatar
 			.col-xs-12.col-md-5
-				%a{ href: media.url }
-					= image_tag media.avatar
+				%a{ href: @media.url }
+					= image_tag @media.avatar
 			.col-xs-12.col-md-7
 				%h5
-					%a{ href: media.url }
-						=media.title
+					%a{ href: @media.url }
+						=@media.title
 				%div
-					=media.description
+					=@media.description
 		- else
 			.col-xs-12
-				%a{ href: media.url }
-					= image_tag media.avatar
 				%h5
-					%a{ href: media.url }
-						=media.title
+					%a{ href: @media.url }
+						=@media.title
 				%div
-					=media.description
+					=raw @media.content

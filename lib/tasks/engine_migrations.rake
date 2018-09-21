@@ -29,7 +29,7 @@ namespace :bazaar do
 			index += 1
 		end
 
-		puts "To complete installation add the following to your routes file before \"get '/:id', to: 'root#show', as: 'root_show'\"\n\nresources :bazaar_media, only: [:show, :index], path: BazaarMedia.mounted_path\n\n"
+		puts "To complete installation add the following to your routes file before \"get '/:id', to: 'root#show', as: 'root_show'\"\n\nresources :bazaar_media_admin do\nget :preview, on: :member\ndelete :empty_trash, on: :collection\nend\nresources :bazaar_media, only: [:show, :index], path: BazaarMedia.mounted_path\n\n"
 
 	end
 

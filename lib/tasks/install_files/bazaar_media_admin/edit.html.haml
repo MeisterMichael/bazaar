@@ -1,0 +1,18 @@
+
+
+.container-fluid
+	.row
+	= render 'header_section'
+
+	= form_for @media, url: main_app.bazaar_media_admin_path( @media ) do |f|
+
+		.row
+			.col-xs-8
+				= render 'title_section', f: f
+				= render 'attachment_section', f: f
+				= render 'content_section', f: f
+
+			.col-xs-4
+				= render 'status_section', f: f
+				.form-group
+					= f.submit 'Update', class: 'btn btn-primary'
