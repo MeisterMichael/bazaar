@@ -1,20 +1,5 @@
 .row
 	.col-xs-4
-
-		.form-group
-			= f.label :avatar_attachment, "Avatar Image"
-			= f.file_field :avatar_attachment
-			- if @media.avatar
-				= image_tag @media.avatar, class: 'img-responsive'
-				%a.btn.btn-default{ 'data-clipboard-text' => @media.avatar }
-					%i.fa.fa-clipboard
-
+		= render 'pulitzer/attachments/has_one_card', f: f, attribute: :avatar_attachment, object: @media, args: {}
 	.col-xs-4
-
-		.form-group
-			= f.label :cover_attachment, "Cover Image"
-			= f.file_field :cover_attachment
-			- if @media.cover_image
-				= image_tag @media.cover_image, class: 'img-responsive'
-				%a.btn.btn-default{ 'data-clipboard-text' => @media.cover_image }
-					%i.fa.fa-clipboard
+		= render 'pulitzer/attachments/has_one_card', f: f, attribute: :cover_attachment, object: @media, args: {}
