@@ -20,6 +20,19 @@ module Bazaar
 			####################################################
 			# Instance Methods
 
+			def create
+				@media = BazaarMedia.new params.require(:bazaar_media).permit(media_param_names)
+				@media.user ||= current_user
+
+				if @media.save
+					set_flash "Media created!"
+					redirect_to edit_bazaar_media_admin_path( @media )
+				else
+					set_flash "An error occured while trying to create the media", :error, @media
+					redirect_back fallback_location: '/admin'
+				end
+			end
+
 			protected
 
 			def bazaar_render( media )
