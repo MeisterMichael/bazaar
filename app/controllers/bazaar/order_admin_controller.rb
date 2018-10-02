@@ -94,6 +94,7 @@ module Bazaar
 
 
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			filters[:renewal] = @renewal_filter = params[:renewal]
 			filters[:type] = @type_filter = ( params[:type] || 'Bazaar::CheckoutOrder' )
 			filters[:not_trash] = true if params[:q].blank? # don't show trash, unless searching
 			filters[:not_archived] = true if params[:q].blank? # don't show archived, unless searching
