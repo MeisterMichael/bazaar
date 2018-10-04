@@ -13,7 +13,7 @@ module Bazaar
 		helper_method :shipping_options
 
 		before_action :authenticate_user!
-		before_action :user_has_wholesale_profile
+		before_action :user_has_wholesale_profile, only: [ :create ]
 
 		before_action :initialize_services, only: [ :create, :index, :calculate, :confirm ]
 		before_action :get_order, only: [ :create, :index, :calculate, :confirm ]
