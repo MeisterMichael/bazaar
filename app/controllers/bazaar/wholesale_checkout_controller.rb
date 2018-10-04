@@ -13,7 +13,7 @@ module Bazaar
 		helper_method :shipping_options
 
 		before_action :authenticate_user!
-		before_action :user_has_wholesale_profile, only: [ :create ]
+		before_action :user_has_wholesale_profile
 
 		before_action :initialize_services, only: [ :create, :index, :calculate, :confirm ]
 		before_action :get_order, only: [ :create, :index, :calculate, :confirm ]
@@ -167,6 +167,14 @@ module Bazaar
 
 		protected
 
+		def authenticate_user!
+			unless current_user.present?
+				set_flash "Sign with your wholesale account to continue."
+				redirect_to '/login'
+				return false
+			end
+		end
+
 		def get_order
 
 			order_attributes = params.permit(
@@ -251,7 +259,11 @@ module Bazaar
 		end
 
 		def user_has_wholesale_profile
-			raise ActionController::RoutingError.new( 'Not Found' ) unless current_user.wholesale_profile_id.present?
+			unless current_user.wholesale_profile_id.present?
+				set_flash "This account does not have access to the wholesale checkout."
+				redirect_to '/'
+				return false
+			end
 		end
 
 
