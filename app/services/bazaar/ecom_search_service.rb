@@ -73,10 +73,10 @@ module Bazaar
 				orders = orders.where( "email ILIKE :q OR code ILIKE :q OR provider_reference ILIKE :q OR billing_address_id IN (:address_ids) OR shipping_address_id IN (:address_ids) OR user_id IN (:user_ids)", q: query, address_ids: addresses.select(:id), user_ids: users.select(:id) )
 			end
 
-			if filters.has_key?(:renewal)
-				renewal_filter = filters.delete(:renewal)
-				renewal = renewal_filter == true || renewal_filter == 'true' || renewal_filter.to_s == '1'
-				puts "renewal #{renewal}!!! #{renewal_filter || 'BOO'}"
+			unless ( renewal_filter = filters.delete(:renewal) ).blank?
+
+				renewal = %w( 1 true ).include? renewal_filter.to_s
+
 				if renewal
 					orders = orders.where( parent_type: 'Bazaar::Subscription' )
 				else
