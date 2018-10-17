@@ -14,6 +14,8 @@
 					- if @order.review?
 						%a.btn.btn-primary{ href: accept_order_admin_path( @order ), data: { method: 'POST' } }
 							Accept
+						%a.btn.btn-primary{ href: hold_order_admin_path( @order ), data: { method: 'POST' } }
+							Hold for Review
 						%a.btn.btn-default{ href: reject_order_admin_path( @order ), data: { method: 'POST' } }
 							Reject
 					- if @order.pre_order? || @order.draft?

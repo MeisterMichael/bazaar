@@ -31,6 +31,17 @@ module Bazaar
       return true
     end
 
+
+    def hold_for_review( order )
+
+      order.hold_review!
+
+      order.order_items.prod.where.not( subscription: nil ).each do |order_item|
+        order_item.subscription.hold_review! if order_item.subscription.active?
+      end
+
+    end
+
     def mark_for_review( order )
 
 			order.review!

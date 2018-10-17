@@ -87,6 +87,20 @@ module Bazaar
 			set_page_meta( title: "#{@order.code} | Order" )
 		end
 
+
+		def hold
+
+			if @fraud_service.hold_for_review( @order )
+
+				set_flash "Order has been held for review.", :success
+
+			end
+
+			redirect_back fallback_location: '/admin'
+
+		end
+
+
 		def index
 			authorize( Bazaar::Order )
 			sort_by = params[:sort_by] || 'created_at'
