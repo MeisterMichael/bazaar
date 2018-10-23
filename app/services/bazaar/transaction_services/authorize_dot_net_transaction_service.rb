@@ -43,6 +43,19 @@ module Bazaar
 				return false
 			end
 
+			def get_first_message_code( response )
+				response.messages.messages.collect(&:code).first
+			end
+
+			def get_frist_message_text( response )
+				response.messages.messages.collect(&:text).first
+			end
+
+			def get_response_success?( response )
+				return false unless response.present?
+				response.messages.resultCode == AuthorizeNet::API::MessageTypeEnum::Ok
+			end
+
 			def process( order, args = {} )
 				credit_card_info = args[:credit_card]
 
@@ -108,18 +121,31 @@ module Bazaar
 				# create capture
 				anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 				amount = order.total / 100.0 # convert cents to dollars
-				response = anet_transaction.create_transaction_auth_capture( amount, profiles[:customer_profile_reference], profiles[:customer_payment_profile_reference], anet_order )
-				direct_response = response.direct_response
-
-				transaction.reference_code = direct_response.transaction_id
 
 
-				# raise Exception.new("create auth capture error: #{response.message_text}") unless response.success?
+				request = AuthorizeNet::API::CreateTransactionRequest.new
+				request.transactionRequest = AuthorizeNet::API::TransactionRequestType.new()
+				request.transactionRequest.amount = amount
+				request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::AuthCaptureTransaction
+				request.transactionRequest.order = AuthorizeNet::API::OrderType.new(order.code)
+				request.transactionRequest.profile = AuthorizeNet::API::CustomerProfilePaymentType.new
+				request.transactionRequest.profile.customerProfileId = profiles[:customer_profile_reference]
+				request.transactionRequest.profile.paymentProfile = AuthorizeNet::API::PaymentProfile.new(profiles[:customer_payment_profile_reference])
 
-				puts response.xml if @enable_debug
+				response = anet_transaction.create_transaction(request)
+
+				# response = anet_transaction.create_transaction_auth_capture( amount, profiles[:customer_profile_reference], profiles[:customer_payment_profile_reference], anet_order )
+				transaction_response = response.transactionResponse
+
+				transaction.reference_code = transaction_response.try(:transId)
+
+
+				# raise Exception.new("create auth capture error: #{get_frist_message_text( response )}") unless get_response_success?( response )
+
+				puts response.to_xml if @enable_debug
 
 				# process response
-				if response.success? && direct_response.success?
+				if get_response_success?( response ) && ['1','Ok'].include?( transaction_response.responseCode.to_s )
 
 					# if capture is successful, save order, and create transaction.
 					order.payment_status = 'paid'
@@ -139,17 +165,17 @@ module Bazaar
 
 				else
 
-					puts response.xml if @enable_debug
+					puts response.to_xml if @enable_debug
 
 					order.payment_status = 'declined'
 
 					transaction.status = 'declined'
-					transaction.message = response.message_text
+					transaction.message = get_frist_message_text( response )
 					transaction.parent_obj = args[:default_parent_obj] || order.user
 					transaction.save
 
-					if WHITELISTED_ERROR_MESSAGES.include? response.message_text
-						order.errors.add(:base, :processing_error, message: response.message_text )
+					if WHITELISTED_ERROR_MESSAGES.include? get_frist_message_text( response )
+						order.errors.add(:base, :processing_error, message: get_frist_message_text( response ) )
 					else
 						order.errors.add(:base, :processing_error, message: "Transaction declined.")
 					end
@@ -214,16 +240,30 @@ module Bazaar
 				refund_dollar_amount = transaction.amount / 100.0
 
 				anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-				response = anet_transaction.create_transaction_refund(
-					anet_transaction_id,
-					refund_dollar_amount,
-					transaction.customer_profile_reference,
-					transaction.customer_payment_profile_reference
-				)
 
-				puts response.xml if @enable_debug
+				request = AuthorizeNet::API::CreateTransactionRequest.new
+				request.transactionRequest = AuthorizeNet::API::TransactionRequestType.new()
+				request.transactionRequest.amount = refund_dollar_amount
+				request.transactionRequest.profile = AuthorizeNet::API::CustomerProfilePaymentType.new
+				request.transactionRequest.profile.customerProfileId = transaction.customer_profile_reference
+				request.transactionRequest.profile.paymentProfile = AuthorizeNet::API::PaymentProfile.new(transaction.customer_payment_profile_reference)
+				# request.transactionRequest.payment = AuthorizeNet::API::PaymentType.new
+				# request.transactionRequest.payment.creditCard = CreditCardType.new('0015','XXXX')
+				request.transactionRequest.refTransId = anet_transaction_id
+				request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::RefundTransaction
 
-				if response.message_code == CANNOT_REFUND_CHARGE
+				response = anet_transaction.create_transaction( request )
+
+				# response = anet_transaction.create_transaction_refund(
+				# 	anet_transaction_id,
+				# 	refund_dollar_amount,
+				# 	transaction.customer_profile_reference,
+				# 	transaction.customer_payment_profile_reference
+				# )
+
+				puts response.to_xml if @enable_debug
+
+				if get_first_message_code( response ) == CANNOT_REFUND_CHARGE
 					# if you cannot refund it, that means the origonal charge
 					# hasn't been settled yet, so you...
 
@@ -231,21 +271,45 @@ module Bazaar
 						# have to void (but only if the refund is for the total amount)
 						transaction.transaction_type = 'void'
 						anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-						response = anet_transaction.create_transaction_void(anet_transaction_id)
 
-						puts response.xml if @enable_debug
+
+						request = AuthorizeNet::API::CreateTransactionRequest.new
+						request.transactionRequest = AuthorizeNet::API::TransactionRequestType.new()
+						request.transactionRequest.refTransId = anet_transaction_id
+						request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::VoidTransaction
+
+						response = anet_transaction.create_transaction(request)
+
+						puts response.to_xml if @enable_debug
 					else
 						# OR create a refund that is unlinked to the transaction
 						anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+
+
+						request = AuthorizeNet::API::CreateTransactionRequest.new
+						request.transactionRequest = AuthorizeNet::API::TransactionRequestType.new()
+						request.transactionRequest.amount = refund_dollar_amount
+						request.transactionRequest.profile = AuthorizeNet::API::CustomerProfilePaymentType.new
+						request.transactionRequest.profile.customerProfileId = transaction.customer_profile_reference
+						request.transactionRequest.profile.paymentProfile = AuthorizeNet::API::PaymentProfile.new(transaction.customer_payment_profile_reference)
+						# request.transactionRequest.payment = AuthorizeNet::API::PaymentType.new
+						# request.transactionRequest.payment.creditCard = CreditCardType.new('0015','XXXX')
+						# request.transactionRequest.refTransId = anet_transaction_id
+						request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::RefundTransaction
+
+						response = anet_transaction.create_transaction( request )
+
+
+
 						# anet_transaction.set_fields(:trans_id => nil)
-						anet_transaction.create_transaction(
-							:refund,
-							refund_dollar_amount,
-							transaction.customer_profile_reference,
-							transaction.customer_payment_profile_reference,
-							nil, #order
-							{}, #options
-						)
+						# anet_transaction.create_transaction(
+						# 	:refund,
+						# 	refund_dollar_amount,
+						# 	transaction.customer_profile_reference,
+						# 	transaction.customer_payment_profile_reference,
+						# 	nil, #order
+						# 	{}, #options
+						# )
 
 						# response = anet_transaction.create_transaction_refund(
 						# 	nil,
@@ -257,13 +321,13 @@ module Bazaar
 					end
 				end
 
-				direct_response = response.direct_response
+				transaction_response = response.transactionResponse
 
 				# process response
-				if response.success? && direct_response.success?
+				if get_response_success?( response ) && ['1','Ok'].include?( transaction_response.responseCode.to_s )
 
 					transaction.status = 'approved'
-					transaction.reference_code = direct_response.transaction_id
+					transaction.reference_code = transaction_response.try(:transId)
 
 					# if capture is successful, create transaction.
 					transaction.save
@@ -274,12 +338,12 @@ module Bazaar
 					# sanity check
 					# raise Exception.new( "Bazaar::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 				else
-					puts response.xml if @enable_debug
+					puts response.to_xml if @enable_debug
 
-					NewRelic::Agent.notice_error(Exception.new( "Authorize.net Transaction Error: #{response.message_code} - #{response.message_text}" )) if defined?( NewRelic )
+					NewRelic::Agent.notice_error(Exception.new( "Authorize.net Transaction Error: #{get_first_message_code( response )} - #{get_frist_message_text( response )}" )) if defined?( NewRelic )
 
 					transaction.status = 'declined'
-					transaction.message = response.message_text
+					transaction.message = get_frist_message_text( response )
 					transaction.save
 
 					# sanity check
@@ -347,17 +411,16 @@ module Bazaar
 				street_address = billing_address.street
 				street_address = "#{street_address}\n#{billing_address.street2}" if billing_address.street2.present?
 
-				anet_billing_address = AuthorizeNet::API::CustomerAddressType.new(
-					:firstName		=> billing_address.first_name,
-					:lastName		=> billing_address.last_name,
-					# :company		=> nil,
-					:address	=> street_address,
-					:city			=> billing_address.city,
-					:state			=> billing_address_state,
-					:zip			=> billing_address.zip,
-					:country		=> billing_address.geo_country.name,
-					:phoneNumber			=> billing_address.phone,
-				)
+				anet_billing_address = AuthorizeNet::API::CustomerAddressType.new
+				anet_billing_address.firstName		= billing_address.first_name
+				anet_billing_address.lastName			= billing_address.last_name
+				# anet_billing_address.company		= nil
+				anet_billing_address.address			= street_address
+				anet_billing_address.city					= billing_address.city
+				anet_billing_address.state				= billing_address_state
+				anet_billing_address.zip					= billing_address.zip
+				anet_billing_address.country			= billing_address.geo_country.name
+				anet_billing_address.phoneNumber	= billing_address.phone
 
 				# VALIDATE Credit card number
 				credit_card_dector = CreditCardValidations::Detector.new(credit_card[:card_number])
@@ -380,8 +443,8 @@ module Bazaar
 				formatted_number = credit_card[:card_number].gsub(/\s/,'')
 
 				anet_credit_card = AuthorizeNet::API::PaymentType.new(AuthorizeNet::API::CreditCardType.new)
-		    anet_credit_card.creditCard.cardNumber = formatted_number
-		    anet_credit_card.creditCard.expirationDate = formatted_expiration
+				anet_credit_card.creditCard.cardNumber = formatted_number
+				anet_credit_card.creditCard.expirationDate = formatted_expiration
 				anet_credit_card.creditCard.cardCode = credit_card[:card_code]
 
 				anet_payment_profile = AuthorizeNet::API::CustomerPaymentProfileType.new
@@ -406,76 +469,84 @@ module Bazaar
 				request.profile = AuthorizeNet::API::CustomerProfileType.new
 				request.profile.merchantCustomerId = user.try(:id)
 				request.profile.description = "#{anet_billing_address.firstName} #{anet_billing_address.lastName}"
-				request.profile.email = args[:email] || user.try(:email),
+				request.profile.email = (args[:email] || user.try(:email))
 				# Add the payment profile and shipping profile defined previously
 				request.profile.paymentProfiles = [anet_payment_profile]
 				# request.profile.shipToList = [shippingAddress]
 				request.validationMode = AuthorizeNet::API::ValidationModeEnum::LiveMode
 
+				puts "request #{request.to_xml}"
+
 				response = anet_transaction.create_customer_profile(request)
-				puts "response.message_code #{response.message_code}"
-				puts response.message_text
-				puts response.xml
+				# puts "request.profile.email #{request.profile.email}"
+				# puts response.methods.to_json
+				# puts "response.to_xml #{response.to_xml}"
+				# puts "get_frist_message_text( response ) #{get_frist_message_text( response )}"
+				# puts "get_first_message_code( response ) #{get_first_message_code( response )}"
+				# puts "get_response_success?( response ) #{get_response_success?( response )}"
 
-
-				die()
-
-
-
-				request = CreateCustomerPaymentProfileRequest.new
-				request.paymentProfile = paymentProfile
-				request.customerProfileId = customerProfileId
-				request.validationMode = ValidationModeEnum::LiveMode
-
-
-				# create a new customer profile
-				response = anet_transaction.create_profile( anet_customer_profile )
-
-				die()
 				# recover a customer profile if it already exists.
-				if response.message_code == ERROR_DUPLICATE_CUSTOMER_PROFILE
-					puts response.xml if @enable_debug
+				if get_first_message_code( response ) == ERROR_DUPLICATE_CUSTOMER_PROFILE
+					puts response.to_xml if @enable_debug
 
 					anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 
 
-					profile_id = response.message_text.match( /(\d{4,})/)[1]
+					profile_id = get_frist_message_text( response ).match( /(\d{4,})/)[1]
 
-					response = anet_transaction.get_profile( profile_id.to_s )
+					request = AuthorizeNet::API::GetCustomerProfileRequest.new
+					request.customerProfileId = profile_id.to_s
+					response = anet_transaction.get_customer_profile( request )
 
 					profile = response.profile
-					customer_profile_id = response.profile_id
+					customer_profile_id = profile_id.to_s
 
 					# create a new payment profile for existing customer
 					anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-					response = anet_transaction.create_payment_profile( anet_payment_profile, profile )
-					puts response.xml if @enable_debug
-					customer_payment_profile_id = response.payment_profile_id
 
-					if not( response.success? ) && response.message_code == ERROR_DUPLICATE_CUSTOMER_PAYMENT_PROFILE
-						anet_payment_profile.customer_payment_profile_id = customer_payment_profile_id
+					request = AuthorizeNet::API::CreateCustomerPaymentProfileRequest.new
+					request.customerProfileId = customer_profile_id
+					request.paymentProfile = anet_payment_profile
+
+
+					response = anet_transaction.create_customer_payment_profile( request )
+					puts response.to_xml if @enable_debug
+					customer_payment_profile_id = response.customerPaymentProfileId
+
+					if not( get_response_success?( response ) ) && get_first_message_code( response ) == ERROR_DUPLICATE_CUSTOMER_PAYMENT_PROFILE
+						anet_payment_profile = AuthorizeNet::API::CustomerPaymentProfileExType.new
+						anet_payment_profile.customerPaymentProfileId = customer_payment_profile_id
+						anet_payment_profile.payment	= anet_credit_card
+						anet_payment_profile.billTo		= anet_billing_address
+
 						anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-						response = anet_transaction.update_payment_profile( anet_payment_profile, profile )
-						puts response.xml if @enable_debug
+
+						request = AuthorizeNet::API::UpdateCustomerPaymentProfileRequest.new
+						request.customerProfileId = customer_profile_id
+						request.paymentProfile = anet_payment_profile
+
+						response = anet_transaction.update_customer_payment_profile( request )
+						puts response.to_xml if @enable_debug
 
 					end
 
 
 					return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
 
-				elsif response.success?
+				elsif get_response_success?( response )
 
-					customer_payment_profile_id = response.payment_profile_ids.last
+					customer_payment_profile_id = response.customerPaymentProfileIdList.numericString.first
+					customer_profile_id = response.customerProfileId
 
-					return { customer_profile_reference: response.profile_id, customer_payment_profile_reference: customer_payment_profile_id }
+					return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
 
 				else
 
-					puts response.xml if @enable_debug
+					puts response.to_xml if @enable_debug
 
-					NewRelic::Agent.notice_error(Exception.new( "Authorize.net Payment Profile Error: #{response.message_code} - #{response.message_text}"), custom_params: { user_id: user.try(:id) } ) if defined?( NewRelic )
+					NewRelic::Agent.notice_error(Exception.new( "Authorize.net Payment Profile Error: #{get_first_message_code( response )} - #{get_frist_message_text( response )}"), custom_params: { user_id: user.try(:id) } ) if defined?( NewRelic )
 
-					if response.message_code == ERROR_INVALID_PAYMENT_PROFILE
+					if get_first_message_code( response ) == ERROR_INVALID_PAYMENT_PROFILE
 						errors.add( :base, 'Invalid Payment Information') unless errors.nil?
 					else
 						errors.add( :base, 'Unable to create customer profile') unless errors.nil?
