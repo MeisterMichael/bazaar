@@ -171,6 +171,8 @@ module Bazaar
 
 					transaction.status = 'declined'
 					transaction.message = get_frist_message_text( response )
+					transaction.message = "#{transaction.message} -> #{transaction_response.errors.errors[0].errorText}" if transaction_response.present? && transaction_response.errors.present?
+
 					transaction.parent_obj = args[:default_parent_obj] || order.user
 					transaction.save
 
@@ -344,6 +346,8 @@ module Bazaar
 
 					transaction.status = 'declined'
 					transaction.message = get_frist_message_text( response )
+					transaction.message = "#{transaction.message} -> #{transaction_response.errors.errors[0].errorText}" if transaction_response.present? && transaction_response.errors.present?
+
 					transaction.save
 
 					# sanity check
