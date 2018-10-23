@@ -291,7 +291,7 @@ module Bazaar
 			end
 
 			def update_subscription_payment_profile( subscription, args = {} )
-				payment_profile = request_payment_profile( subscription.user, subscription.billing_address, args[:credit_card], errors: subscription.errors, ip: subscription.order.ip )
+				payment_profile = request_payment_profile( subscription.user, subscription.billing_address, args[:credit_card], errors: subscription.errors, ip: subscription.order.try(:ip) )
 
 				return false unless payment_profile
 

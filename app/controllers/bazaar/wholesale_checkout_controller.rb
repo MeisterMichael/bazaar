@@ -94,7 +94,7 @@ module Bazaar
 
 				WholesaleOrderMailer.receipt( @order ).deliver_now if Bazaar.enable_wholesale_order_mailer
 
-				log_event( user: @order.user, name: 'wholesale_purchase', category: 'bazaar', value: @order.total, on: @order, content: "placed a wholesale order for $#{@order.total/100.to_f}." )
+				log_event( user: @order.user, name: 'wholesale_purchase', category: 'ecom', value: @order.total, on: @order, content: "placed a wholesale order for $#{@order.total/100.to_f}." )
 
 				respond_to do |format|
 					format.js {
@@ -132,19 +132,6 @@ module Bazaar
 			end
 
 
-
-			if defined?( SwellAnalytics )
-				log_analytics_event(
-					'initiate_checkout',
-					event_category: 'bazaar_wholesale',
-					country: client_ip_country,
-					ip: client_ip,
-					user_id: current_user.try(:id),
-					referrer_url: request.referrer,
-					page_url: request.original_url,
-				)
-			end
-
 			set_page_meta( title: "#{Pulitzer.app_name} - Checkout" )
 
 			render layout: 'bazaar/checkout'
@@ -166,6 +153,14 @@ module Bazaar
 
 
 		protected
+
+		def authenticate_user!
+			unless current_user.present?
+				set_flash "Sign with your wholesale account to continue."
+				redirect_to '/login'
+				return false
+			end
+		end
 
 		def get_order
 
@@ -251,7 +246,11 @@ module Bazaar
 		end
 
 		def user_has_wholesale_profile
-			raise ActionController::RoutingError.new( 'Not Found' ) unless current_user.wholesale_profile_id.present?
+			unless current_user.wholesale_profile_id.present?
+				set_flash "This account does not have access to the wholesale checkout."
+				redirect_to '/'
+				return false
+			end
 		end
 
 

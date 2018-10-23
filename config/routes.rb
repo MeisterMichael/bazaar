@@ -32,6 +32,7 @@ Bazaar::Engine.routes.draw do
 	resources :order_admin do
 		post :accept, on: :member
 		post :address, on: :member
+		post :hold, on: :member
 		post :refund, on: :member
 		post :reject, on: :member
 		get :thank_you, on: :member

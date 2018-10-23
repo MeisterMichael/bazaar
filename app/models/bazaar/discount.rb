@@ -1,6 +1,6 @@
 module Bazaar
 	class Discount < ApplicationRecord
-		
+
 		include Bazaar::Concerns::MoneyAttributesConcern
 
 		enum status: { 'archived' => -1, 'draft' => 0, 'active' => 1 }
@@ -17,6 +17,7 @@ module Bazaar
 		validates :minimum_shipping_subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
 		validates :limit_per_customer, numericality: { greater_than_or_equal_to: 1 }, allow_blank: true
 		validates :limit_global, numericality: { greater_than_or_equal_to: 1 }, allow_blank: true
+		validates :code, uniqueness: true, if: :code_present?
 
 		def self.in_progress( args = {} )
 
@@ -30,6 +31,10 @@ module Bazaar
 
 		def amount
 			self.discount_items.last.try( :discount_amount )
+		end
+
+		def code_present?
+			self.code.present?
 		end
 
 		def for_subscriptions?

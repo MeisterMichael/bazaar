@@ -4,7 +4,7 @@ module Bazaar
 
 		include Bazaar::Concerns::MoneyAttributesConcern
 
-		enum status: { 'trash' => -99, 'rejected' => -5, 'on_hold' => -2, 'canceled' => -1, 'failed' => 0, 'active' => 1, 'review' => 98 }
+		enum status: { 'trash' => -99, 'rejected' => -5, 'on_hold' => -2, 'canceled' => -1, 'failed' => 0, 'active' => 1, 'review' => 98, 'hold_review' => 110 }
 
 		belongs_to :user, required: false
 		belongs_to :subscription_plan

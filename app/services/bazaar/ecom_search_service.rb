@@ -73,6 +73,17 @@ module Bazaar
 				orders = orders.where( "email ILIKE :q OR code ILIKE :q OR provider_reference ILIKE :q OR billing_address_id IN (:address_ids) OR shipping_address_id IN (:address_ids) OR user_id IN (:user_ids)", q: query, address_ids: addresses.select(:id), user_ids: users.select(:id) )
 			end
 
+			unless ( renewal_filter = filters.delete(:renewal) ).blank?
+
+				renewal = %w( 1 true ).include? renewal_filter.to_s
+
+				if renewal
+					orders = orders.where( parent_type: 'Bazaar::Subscription' )
+				else
+					orders = orders.where( "parent_type IS NULL OR NOT( parent_type = ? )", 'Bazaar::Subscription' )
+				end
+			end
+
 			return self.apply_options_and_filters( orders, filters, options )
 		end
 
