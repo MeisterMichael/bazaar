@@ -9,7 +9,7 @@ module Bazaar
 
 		before_action :get_order, except: [ :index, :create, :new ]
 		before_action :initialize_search_service, only: [ :index ]
-		before_action :initialize_fraud_service, only: [ :accept, :reject ]
+		before_action :initialize_fraud_service, only: [ :accept, :reject, :hold ]
 
 		def accept
 
