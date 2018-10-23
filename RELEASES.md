@@ -1,6 +1,10 @@
 
+== 0.7.0 Bazaar
+* Updating authorize.net to use the more recent version of their api.
+
+
 == 2.13.0
-* Order refactor 
+* Order refactor
 
 
 == 2.12.0
