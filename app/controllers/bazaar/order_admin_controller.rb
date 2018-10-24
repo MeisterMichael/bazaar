@@ -16,7 +16,7 @@ module Bazaar
 			if @fraud_service.accept_review( @order )
 
 				set_flash "Order has been activated.", :success
-				log_system_event( name: 'accept', on: @order, content: "accepted order #{@order.code}" )
+				log_system_event( name: 'accept', on: @order, content: "accepted order #{@order.code}", category: 'ecom' )
 
 			end
 
@@ -94,7 +94,7 @@ module Bazaar
 			if @fraud_service.hold_for_review( @order )
 
 				set_flash "Order has been held for review.", :success
-				log_system_event( name: 'hold_review', on: @order, content: "order held for review #{@order.code}" )
+				log_system_event( name: 'hold_review', on: @order, content: "order held for review #{@order.code}", category: 'ecom' )
 
 			end
 
