@@ -8,9 +8,11 @@ module Bazaar
 			if current_user.present?
 				raise ActionController::RoutingError.new( 'Not Found' ) if current_user != @order.user
 			else
-				verified_message = Rails.application.message_verifier('order.id').verify(params[:d])
-				raise ActionController::RoutingError.new( 'Not Found' ) unless verified_message[:id] == @order.id && verified_message[:code] == params[:id] && verified_message[:expiration].to_s == params[:t]
-				if Time.now.to_i > params[:t].to_i
+				begin
+					verified_message = Rails.application.message_verifier('order.id').verify(params[:d])
+					raise ActionController::RoutingError.new( 'Not Found' ) unless verified_message[:id] == @order.id && verified_message[:code] == params[:id] && verified_message[:expiration].to_s == params[:t]
+					raise ActionController::RoutingError.new( 'Not Found' ) if Time.now.to_i > params[:t].to_i
+				rescue Exception => e
 					set_flash 'Login to view your orders'
 					redirect_to '/login'
 					return false
