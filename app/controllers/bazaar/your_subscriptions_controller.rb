@@ -135,7 +135,7 @@ module Bazaar
 				return false
 			end
 
-			@discount = Bazaar::Discount.active.in_progress.find_by( code: params[:code].downcase ) if params[:code].present?
+			@discount = Bazaar::Discount.active.in_progress.find_by( code: params[:code].downcase.strip ) if params[:code].present?
 
 			if @discount.present? && @subscription.update( discount: @discount )
 

@@ -3,6 +3,8 @@ module Bazaar
 
 		include Bazaar::Concerns::MoneyAttributesConcern
 
+		before_save :downcase_code
+
 		enum status: { 'archived' => -1, 'draft' => 0, 'active' => 1 }
 		enum availability: { 'anyone' => 1, 'selected_users' => 2 }
 
@@ -35,6 +37,14 @@ module Bazaar
 
 		def code_present?
 			self.code.present?
+		end
+
+		def downcase_code
+			if self.code.strip.blank?
+				self.code = nil
+			else
+				self.code = self.code.downcase.strip
+			end
 		end
 
 		def for_subscriptions?
