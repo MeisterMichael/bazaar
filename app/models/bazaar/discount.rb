@@ -40,10 +40,12 @@ module Bazaar
 		end
 
 		def downcase_code
-			if self.code.strip.blank?
-				self.code = nil
-			else
-				self.code = self.code.downcase.strip
+			if self.code.present?
+				if self.code.strip.blank?
+					self.code = nil
+				else
+					self.code = self.code.downcase.strip
+				end
 			end
 		end
 
