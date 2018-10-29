@@ -23,7 +23,7 @@ module Bazaar
 			users = users.where( id: Bazaar::Order.select(:user_id) ) # @todo replace with a more elegant mechanism.  this one is not scalable
 
 			if term.present?
-				query = "%#{term.gsub('%','\\\\%')}%"
+				query = "%#{term.gsub('%','\\\\%')}%".downcase
 
 				addresses = options[:addresses] || self.address_search( term )
 
@@ -38,7 +38,7 @@ module Bazaar
 			discounts = Bazaar::Discount.all
 
 			if term.present?
-				query = "%#{term.gsub('%','\\\\%')}%"
+				query = "%#{term.gsub('%','\\\\%')}%".downcase
 
 				discounts = discounts.where( "title ILIKE :q OR code ILIKE :q OR description ILIKE :q", q: query )
 			end
@@ -50,7 +50,7 @@ module Bazaar
 			addresses = GeoAddress.all
 
 			if term.present?
-				query = "%#{term.gsub('%','\\\\%')}%"
+				query = "%#{term.gsub('%','\\\\%')}%".downcase
 
 				addresses = addresses.where( "street ILIKE :q OR phone ILIKE :q OR (first_name || '' || last_name) ILIKE :q ", q: query )
 			end
@@ -65,7 +65,7 @@ module Bazaar
 			orders = ( filters.delete(:type) || 'Bazaar::Order' ).constantize.all
 
 			if term.present?
-				query = "%#{term.gsub('%','\\\\%')}%"
+				query = "%#{term.gsub('%','\\\\%')}%".downcase
 
 				addresses = options[:addresses] || self.address_search( term )
 				users = options[:customers] || self.customer_search( term, {}, addresses: addresses )
@@ -91,7 +91,7 @@ module Bazaar
 			products = Bazaar::Product.all
 
 			if term.present?
-				query = "%#{term.gsub('%','\\\\%')}%"
+				query = "%#{term.gsub('%','\\\\%')}%".downcase
 
 				products = products.where( "title ILIKE :q OR description ILIKE :q", q: query )
 			end
@@ -103,7 +103,7 @@ module Bazaar
 			plans = Bazaar::SubscriptionPlan.all
 
 			if term.present?
-				query = "%#{term.gsub('%','\\\\%')}%"
+				query = "%#{term.gsub('%','\\\\%')}%".downcase
 
 				plans = plans.where( "title ILIKE :q OR description ILIKE :q", q: query )
 			end
@@ -115,7 +115,7 @@ module Bazaar
 			subscriptions = Subscription.all
 
 			if term.present?
-				query = "%#{term.gsub('%','\\\\%')}%"
+				query = "%#{term.gsub('%','\\\\%')}%".downcase
 
 				addresses = options[:addresses] || self.address_search( term )
 				users = options[:customers] || self.customer_search( term, {}, addresses: addresses )
