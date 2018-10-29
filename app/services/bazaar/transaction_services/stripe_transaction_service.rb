@@ -10,9 +10,9 @@ module Bazaar
 			end
 
 			def capture_payment_method( order, args = {} )
-				# @todo
-				throw Exception.new('@todo StripeTransactionService#capture_payment_method')
-
+				order.payment_status = 'declined'
+				order.errors.add(:base, "Unable to process this payment method")
+				return false
 			end
 
 			def process( order, args = {} )

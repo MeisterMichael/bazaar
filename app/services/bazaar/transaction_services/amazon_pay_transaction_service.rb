@@ -36,7 +36,9 @@ module Bazaar
 			end
 
 			def capture_payment_method( order, args = {} )
-
+				order.payment_status = 'declined'
+				order.errors.add(:base, "Unable to process this payment method")
+				return false
 			end
 
 			def self.custom_escape(val)
