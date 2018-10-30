@@ -1,5 +1,5 @@
 
-= form_for @order, url: order_admin_path(@order), html: { class: 'form' } do |f|
+= form_for @order, url: order_admin_path(@order), as: :order, html: { class: 'form' } do |f|
 	.container-fluid
 		.row
 			.col-xs-12

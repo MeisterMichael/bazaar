@@ -1,4 +1,4 @@
-= form_for @order, url: bazaar.order_admin_index_path(), html: { class: 'form' } do |f|
+= form_for @order, url: bazaar.order_admin_index_path(), as: :order, html: { class: 'form' } do |f|
 
   %h1 New Order
 
@@ -15,7 +15,7 @@
       = f.fields_for :order_items, Bazaar::OrderItem.new( order_item_type: 'prod' ) do |order_item_form|
         .row.order-item
           .col-xs-6.col-md-8
-            = order_item_form.select :item_polymorphic_id, grouped_options_for_select( { 'Products' => Bazaar::Product.active.order( title: :asc ).collect{|item| ["#{item.title} (#{item.purchase_price_formatted})",item.polymorphic_id] }, 'Subscription Plans' => Bazaar::SubscriptionPlan.active.order( title: :asc ).collect{|item| ["#{item.title} (#{item.purchase_price_formatted})",item.polymorphic_id] } } ), {}, class: 'form-control select-2-basic'
+            = order_item_form.select :item_polymorphic_id, grouped_options_for_select( { 'Products' => Bazaar::Product.active.order( title: :asc ).collect{|item| [item.title,item.polymorphic_id] }, 'Subscription Plans' => Bazaar::SubscriptionPlan.active.order( title: :asc ).collect{|item| ["#{item.title} (#{item.purchase_price_formatted})",item.polymorphic_id] } } ), {}, class: 'form-control select-2-basic'
           .col-xs-6.col-md-4
             = order_item_form.number_field :quantity, class: 'form-control', value: 1, min: 1, step: 1
         .row
