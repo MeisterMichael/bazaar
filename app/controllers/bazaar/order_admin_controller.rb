@@ -49,6 +49,7 @@ module Bazaar
 			@order = Bazaar::CheckoutOrder.new( order_params )
 			@order.user = User.find_by( email: @order.email.downcase )
 			@order.user ||= User.create( email: @order.email.downcase, first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name )
+			@order.billing_address.user = @order.shipping_address.user = @order.user
 			@order.total ||= 0
 			@order.status = 'draft'
 
