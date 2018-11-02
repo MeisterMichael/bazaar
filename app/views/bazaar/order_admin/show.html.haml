@@ -281,12 +281,13 @@
 						%a{ href: swell_id.edit_user_admin_path( @order.user ) }= @order.user.full_name
 					%a{ href: swell_id.edit_user_admin_path( @order.user ) }= @order.user.email
 
-			.well.white-well
-				-# .pull-right
-					%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
-				%h5
-					Billing Address
-				= raw @order.billing_address.to_html
+			- if @order.respond_to?( :billing_address ) && @order.billing_address.present?
+				.well.white-well
+					-# .pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
+					%h5
+						Billing Address
+					= raw @order.billing_address.to_html
 
 
 			.well.white-well

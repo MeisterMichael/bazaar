@@ -1,7 +1,7 @@
 
 module Bazaar
 	class Order < ApplicationRecord
-		
+
 		include Bazaar::Concerns::MoneyAttributesConcern
 
 		enum status: { 'trash' => -99, 'rejected' => -5, 'draft' => 0, 'pre_order' => 1, 'active' => 2, 'review' => 98, 'archived' => 99, 'hold_review' => 110 }
@@ -11,8 +11,8 @@ module Bazaar
 
 		before_create :generate_order_code
 
-		belongs_to 	:billing_address, class_name: 'GeoAddress', validate: true, required: true
-		belongs_to 	:shipping_address, class_name: 'GeoAddress', validate: true, required: true
+		# belongs_to 	:billing_address, class_name: 'GeoAddress' # set in subsclass
+		# belongs_to 	:shipping_address, class_name: 'GeoAddress' # set in subsclass
 		belongs_to 	:user, required: false, class_name: 'User'
 		belongs_to	:parent, polymorphic: true, required: false
 
@@ -23,8 +23,6 @@ module Bazaar
 
 		validates_format_of	:email, with: Devise.email_regexp, if: :email_changed?
 		validate :order_address_users_match
-
-		accepts_nested_attributes_for :billing_address, :shipping_address, :order_items
 
 		money_attributes :subtotal, :tax, :shipping, :total, :discount
 
@@ -72,8 +70,8 @@ module Bazaar
 		private
 
 		def order_address_users_match
-			self.errors.add(:billing_address, "does not exist.") if self.user.present? && billing_address.user != self.user
-			self.errors.add(:shipping_address, "does not exist.") if self.user.present? && shipping_address.user != self.user
+			self.errors.add(:billing_address, "does not exist.") if self.user.present? && billing_address.present? && billing_address.user != self.user
+			self.errors.add(:shipping_address, "does not exist.") if self.user.present? && shipping_address.present? && shipping_address.user != self.user
 		end
 
 		def generate_order_code
