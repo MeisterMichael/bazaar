@@ -126,26 +126,43 @@ module Bazaar
 				session[:cart_count] = 0
 				session[:cart_id] = nil
 
-				# if current user exists, update it's address info with the
-				# billing address, if not already set
-				update_order_user_address( @order )
+				begin
+					# if current user exists, update it's address info with the
+					# billing address, if not already set
+					update_order_user_address( @order )
 
-				@fraud_service.post_processing( @order )
+					@fraud_service.post_processing( @order )
 
-				@cart.update( order_id: @order.id, status: 'success' )
+					@cart.update( order_id: @order.id, status: 'success' )
 
-				# transfer declined transactions from cart to order
-				# Bazaar::Transaction.where( parent_obj: @cart ).each do |transaction|
-				# 	transaction.update( parent_obj: @order )
-				# end
+					# transfer declined transactions from cart to order
+					# Bazaar::Transaction.where( parent_obj: @cart ).each do |transaction|
+					# 	transaction.update( parent_obj: @order )
+					# end
+				rescue Exception => e
+					puts e if Rails.env.development?
+					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				end
 
-				OrderMailer.receipt( @order ).deliver_now if Bazaar.enable_checkout_order_mailer
-				#OrderMailer.notify_admin( @order ).deliver_now
+				begin
+					OrderMailer.receipt( @order ).deliver_now if Bazaar.enable_checkout_order_mailer
+					#OrderMailer.notify_admin( @order ).deliver_now
+				rescue Exception => e
+					puts e if Rails.env.development?
+					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				end
 
-				@expiration = 30.minutes.from_now.to_i
-				@thank_you_url = bazaar.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
+				begin
+					@expiration = 30.minutes.from_now.to_i
+					@thank_you_url = bazaar.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
 
-				log_event( user: @order.user, name: 'purchase', value: @order.total, on: @order, content: "placed an order for $#{@order.total/100.to_f}." )
+					log_event( user: @order.user, name: 'purchase', value: @order.total, on: @order, content: "placed an order for $#{@order.total/100.to_f}." )
+
+				rescue Exception => e
+					puts e if Rails.env.development?
+					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				end
+
 
 				respond_to do |format|
 					format.js {
