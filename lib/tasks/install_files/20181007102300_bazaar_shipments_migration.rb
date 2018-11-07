@@ -14,7 +14,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.float				:length
 			t.float				:width
 			t.float				:height
-			t.integer			:shape, default: 1
+			t.integer			:shape, default: 0
 			t.float				:weight
 			t.integer			:cost
 
@@ -59,18 +59,28 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.string			:name
 			t.text				:description
 			t.string			:code
-			t.float				:length
-			t.float				:width
-			t.float				:height
-			t.integer			:shape, default: 1
-			t.float				:weight
+			t.integer			:status, default: 0
+			t.float				:length, default: nil
+			t.float				:width, default: nil
+			t.float				:height, default: nil
+			t.integer			:shape, default: 0
+			t.float				:weight, default: nil
+			t.integer			:sku_cost, default: nil
+			t.integer			:sku_value, default: nil
+			t.integer			:restriction_type, default: -1
+			t.timestamps
+		end
+
+		create_table :bazaar_sku_country_restrictions do |t|
+			t.belongs_to	:sku
+			t.belongs_to	:geo_country
 			t.timestamps
 		end
 
 		create_table :bazaar_warehouses do |t|
 			t.string			:name
 			t.belongs_to	:geo_address
-			t.integer			:status, default: 1
+			t.integer			:status, default: 0
 			t.timestamps
 		end
 
