@@ -73,7 +73,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.timestamps
 		end
 
-		create_table :bazaar_sku_country_restrictions do |t|
+		create_table :bazaar_sku_countries do |t|
 			t.belongs_to	:sku
 			t.belongs_to	:geo_country
 			t.timestamps
@@ -97,7 +97,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.timestamps
 		end
 
-		create_table :bazaar_warehouse_sku_country_restrictions do |t|
+		create_table :bazaar_warehouse_sku_countries do |t|
 			t.belongs_to	:sku
 			t.belongs_to	:geo_country
 			t.timestamps
