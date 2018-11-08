@@ -97,6 +97,9 @@
 						= f.label :product_sku, 'SKU'
 						= f.text_field :product_sku, class: 'form-control'
 
+					.form-group
+						= f.label :renewal_offer_sku, 'SKU'
+						= f.collection_select :renewal_offer_sku, Bazaar::Sku.active.order(code: :asc), :id, :name, { prompt: true }, class: 'form-control'
 
 					.form-group
 						= f.label :package_shape
@@ -154,6 +157,10 @@
 						.form-group
 							= f.label :trial_sku, 'SKU'
 							= f.text_field :trial_sku, class: 'form-control'
+
+						.form-group
+							= f.label :trial_offer_sku, 'SKU'
+							= f.collection_select :trial_offer_sku, Bazaar::Sku.active.order(code: :asc), :id, :name, {}, class: 'form-control'
 
 					%hr
 

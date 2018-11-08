@@ -27,6 +27,8 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 
 			# The When
 			t.datetime		:estimated_delivered_at
+			t.datetime		:canceled_at
+			t.datetime		:packed_at
 			t.datetime		:shipped_at
 			t.datetime		:delivered_at
 			t.datetime		:returned_at
@@ -94,9 +96,9 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 		end
 
 
-		add_column :bazaar_products, :sku_id, :integer, default: nil
-		add_column :bazaar_subscription_plans, :trial_sku_id, :integer, default: nil
-		add_column :bazaar_subscription_plans, :sku_id, :integer, default: nil
+		add_column :bazaar_products, :offer_sku_id, :integer, default: nil
+		add_column :bazaar_subscription_plans, :trial_offer_sku_id, :integer, default: nil
+		add_column :bazaar_subscription_plans, :renewal_offer_sku_id, :integer, default: nil
 
 
 	end

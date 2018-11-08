@@ -115,6 +115,12 @@
 							= f.label :sku, 'SKU'
 							= f.text_field :sku, class: 'form-control'
 
+					- if f.object.respond_to? :offer_sku
+						.form-group
+							= f.label :offer_sku, 'SKU'
+							= f.collection_select :offer_sku, Bazaar::Sku.active.order(code: :asc), :id, :name, { prompt: true }, class: 'form-control'
+
+
 					.form-group
 						= f.label :package_shape
 						= f.collection_select :package_shape, Bazaar::Product.package_shapes, :first, :first, {}, class: 'form-control'
