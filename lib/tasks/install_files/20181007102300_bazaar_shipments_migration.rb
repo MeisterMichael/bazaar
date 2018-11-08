@@ -69,7 +69,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.float				:weight, default: nil
 			t.integer			:sku_cost, default: nil
 			t.integer			:sku_value, default: nil
-			t.integer			:restriction_type, default: -1
+			t.integer			:restriction_type, default: 0
 			t.timestamps
 		end
 
@@ -93,6 +93,13 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.datetime		:quantity_updated_at
 			t.integer			:status
 			t.integer			:priority, default: 1
+			t.integer			:restriction_type, default: 0
+			t.timestamps
+		end
+
+		create_table :bazaar_warehouse_sku_country_restrictions do |t|
+			t.belongs_to	:sku
+			t.belongs_to	:geo_country
 			t.timestamps
 		end
 
