@@ -115,8 +115,15 @@
 						= f.label :status
 						= f.collection_select :status, Bazaar::Discount.statuses, :first, :first, {}, class: 'form-control'
 
+					- if @discount.user.present?
+						.form-group
+							%label Owner
+							%div
+								%a{ href: swell_id.edit_user_admin_path( @discount.user ) }
+									= @discount.user.full_name
+
 					%hr
-					
+
 					%h4
 						Stats
 
