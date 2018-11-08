@@ -44,6 +44,7 @@ module Bazaar
 		attr_accessor	:category_name
 		attr_accessor	:slug_pref
 
+		belongs_to 	:sku, required: false
 		belongs_to 	:product_category, foreign_key: :category_id, required: false
 		has_many 	:product_options
 		has_many 	:product_variants

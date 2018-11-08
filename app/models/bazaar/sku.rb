@@ -8,6 +8,7 @@ module Bazaar
 
 		enum status: { 'draft' => 0, 'active' => 100 }
 		enum restriction_type: { 'blacklist' => -1, 'whitelist' => 1 }
+		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		money_attributes :sku_cost, :sku_value
 	end

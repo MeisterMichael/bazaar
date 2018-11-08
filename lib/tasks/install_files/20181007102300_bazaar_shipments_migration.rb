@@ -89,6 +89,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.belongs_to	:sku
 			t.integer			:quantity
 			t.datetime		:quantity_updated_at
+			t.integer			:status
 			t.timestamps
 		end
 
