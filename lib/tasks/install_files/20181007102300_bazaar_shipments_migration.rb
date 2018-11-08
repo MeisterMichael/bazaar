@@ -92,6 +92,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.integer			:quantity
 			t.datetime		:quantity_updated_at
 			t.integer			:status
+			t.integer			:priority, default: 1
 			t.timestamps
 		end
 
