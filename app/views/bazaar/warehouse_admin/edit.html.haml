@@ -1,0 +1,107 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					%a{ href: warehouse_admin_index_path }
+						%i.fa.fa-angle-left
+						Warehouses
+			%h2
+				%strong= @warehouse.name
+				%small= current_user.to_local_tz(@warehouse.created_at).to_s( :short )
+
+		.col-xs-2
+
+
+	= form_for @warehouse, url: bazaar.warehouse_admin_path( @warehouse ) do |f|
+		.row
+			.col-xs-8
+				.well.white-well
+					%h4 Shipments
+
+					%table.table.table-light.table-bordered{ style: 'margin:0;' }
+						%thead
+							%th Items
+							%th Destination
+							%th &nbsp;
+						%tbody
+							- if @shipments.blank?
+								%tr
+									%td{ colspan: 3 }
+										\- No Shipments -
+							- @shipments.each do |shipment|
+								%tr
+									%td=shipment.shipment_skus.includes(:sku).collect{|shipment_sku| "#{shipment_sku.sku.code}x#{shipment_sku.quantity}" }.join(',')
+									%td=raw shipment.destination_address.to_html
+									%td
+										&nbsp;
+					= raw paginate @shipments
+
+				.well.white-well
+					%h4 Skus
+
+					%table.table.table-light.table-bordered{ style: 'margin:0;' }
+						%thead
+							%th
+								Sku
+							%th Quantity
+							%th &nbsp;
+						%tbody
+							- if @warehouse_skus.blank?
+								%tr
+									%td{ colspan: 3 }
+										\- No Skus -
+							- @warehouse_skus.each do |warehouse_sku|
+								%tr
+									%td=warehouse_sku.sku.code
+									%td=warehouse_sku.quantity
+									%td
+										&nbsp;
+				.well.white-well
+					.pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#new_warehouse_country_modal' } }
+							%i.fa.fa-plus-square
+							Add Country
+					%h4 Restrictions
+					.form-group
+						= f.collection_select :restriction_type, Bazaar::Warehouse.restriction_types, :first, :first, {}, class: 'form-control'
+
+					%table.table.table-light.table-bordered{ style: 'margin:0;' }
+						%thead
+							%th
+								Country
+							%th &nbsp;
+						%tbody
+							- if @warehouse_countries.blank?
+								%tr
+									%td{ colspan: 2 }
+										\- No Countries -
+							- @warehouse_countries.each do |warehouse_country|
+								%tr
+									%td=warehouse_country.geo_country.name
+									%td.text-right
+										%a.btn.btn-danger{ href: bazaar.warehouse_country_admin_path( warehouse_country ), data: { method: :delete, confirm: 'Are you sure?' } }
+											%i.fa.fa-trash
+
+
+			.col-xs-4
+				.well.white-well
+					%h4
+						Warehouse Settings
+
+					.form-group
+						= f.label :name
+						= f.text_field :name, class: 'form-control'
+
+					.form-group
+						= f.label :status
+						= f.collection_select :status, Bazaar::Warehouse.statuses, :first, :first, {}, class: 'form-control'
+
+					%hr
+
+					.form-group
+						= f.submit 'Update', class: 'btn btn-primary'
+
+= render "bazaar/warehouse_country_admin/new_modal"

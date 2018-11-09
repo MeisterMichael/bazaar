@@ -83,6 +83,13 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.string			:name
 			t.belongs_to	:geo_address
 			t.integer			:status, default: 0
+			t.integer			:restriction_type, default: 0
+			t.timestamps
+		end
+
+		create_table :bazaar_warehouse_countries do |t|
+			t.belongs_to	:warehouse
+			t.belongs_to	:geo_country
 			t.timestamps
 		end
 

@@ -76,6 +76,9 @@ Bazaar::Engine.routes.draw do
 
 	resources :subscription_plans, path: 'subscriptions'
 
+	resources :warehouse_admin
+	resources :warehouse_country_admin
+
 	resources :wholesale_checkout, only: [:create,:index] do
 		post :calculate, on: :collection
 		post :confirm, on: :collection
