@@ -40,7 +40,8 @@
 								= link_to warehouse.name, edit_warehouse_admin_path( warehouse.id )
 
 							%td
-								= warehouse.geo_address.to_html
+								- if warehouse.geo_address
+									= warehouse.geo_address.to_html
 
 							%td
 								= current_user.to_local_tz(warehouse.created_at).to_s( :short )

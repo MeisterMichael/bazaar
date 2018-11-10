@@ -66,6 +66,12 @@ Bazaar::Engine.routes.draw do
 	resources :shipping_carrier_service_admin, only: [:index,:edit,:update]
 	resources :shipping_option_admin, only: [:index,:edit,:update,:create]
 
+	resources :shipment_admin
+	resources :shipment_sku_admin
+
+	resources :sku_admin
+	resources :sku_country_admin
+
 	resources :subscription_admin do
 		post :cancel, on: :member
 		post :address, on: :member
@@ -78,6 +84,7 @@ Bazaar::Engine.routes.draw do
 
 	resources :warehouse_admin
 	resources :warehouse_country_admin
+	resources :warehouse_sku_admin
 
 	resources :wholesale_checkout, only: [:create,:index] do
 		post :calculate, on: :collection

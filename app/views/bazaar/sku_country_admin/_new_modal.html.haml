@@ -1,0 +1,18 @@
+#new_sku_country_modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Add Country
+			= form_for @sku.sku_countries.new, url: bazaar.sku_country_admin_index_path do |f|
+				= f.hidden_field :sku_id
+				.modal-body
+					.form-group
+						= f.label :geo_country_id, 'Country'
+						= f.collection_select :geo_country_id, GeoCountry.all.order(name: :asc), :id, :name, {}, class: 'form-control'
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Submit', class: 'btn btn-primary'

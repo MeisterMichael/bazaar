@@ -13,12 +13,22 @@ module Bazaar
 				redirect_to edit_warehouse_admin_path( @warehouse )
 			else
 				set_flash 'Warehouse could not be created', :error, @warehouse
-				redirect_back fallback_location: '/admin'
+				redirect_back fallback_location: warehouse_admin_index_path()
+			end
+		end
+
+		def destroy
+			if @warehouse.trash!
+				set_flash "Warehouse deleted", :success
+				redirect_to warehouse_admin_index_path()
+			else
+				set_flash @warehouse.errors.full_messages, :danger
+				redirect_back fallback_location: warehouse_admin_index_path()
 			end
 		end
 
 		def index
-			@warehouses = Bazaar::Warehouse.all.order( name: :asc ).page( params[:page] ).per( 10 )
+			@warehouses = Bazaar::Warehouse.all.joins(:geo_addresses).order( name: :asc ).page( params[:page] ).per( 10 )
 
 			set_page_meta( title: "Warehouse Admin" )
 		end
@@ -26,7 +36,7 @@ module Bazaar
 		def edit
 			authorize( @warehouse )
 
-			@shipments = @warehouse.shipments.page(params[:page]).per(10)
+			@shipments = @warehouse.shipments.order( created_at: :desc ).page(params[:page]).per(10)
 			@warehouse_countries = @warehouse.warehouse_countries.includes(:geo_country).order('geo_countries.name ASC')
 			@warehouse_skus = @warehouse.warehouse_skus.includes(:sku).order('bazaar_skus.code ASC')
 
@@ -42,7 +52,7 @@ module Bazaar
 			else
 				set_flash @warehouse.errors.full_messages, :danger
 			end
-			redirect_back fallback_location: '/admin'
+			redirect_back fallback_location: warehouse_admin_index_path()
 		end
 
 		protected

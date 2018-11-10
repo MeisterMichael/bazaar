@@ -1,0 +1,73 @@
+
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%h2 Skus
+		.col-xs-2
+			- if authorized?(Bazaar::Sku, controller: Bazaar::SkuAdminController, action: :create )
+				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_sku_modal' } }
+					%i.fa.fa-plus-square
+					New
+	.row{ style: 'margin-top: 0' }
+		.col-xs-6
+			= raw paginate @skus
+		.col-xs-6
+
+
+	.row
+		.col-xs-12
+			%table.table.table-light.table-bordered
+				%thead
+					%th
+						Name
+					%th
+						Code
+					%th
+						Created
+					%th
+						Status
+					%th{ style: 'width: 6em' }
+				%tbody
+					- if @skus.blank?
+						%tr
+							%td{ colspan: 5 }
+								\- No Skus Found -
+					- @skus.each do |sku|
+						%tr
+							%td
+								- if sku.name
+									= link_to sku.name, edit_sku_admin_path( sku.id )
+								- else
+									= link_to 'N/A', edit_sku_admin_path( sku.id )
+
+							%td
+								= sku.code
+
+							%td
+								= current_user.to_local_tz(sku.created_at).to_s( :short )
+							%td
+								.badge{ class: sku.status }
+									= sku.status
+							%td
+								- if authorized?(sku, controller: Bazaar::SkuAdminController, action: :edit ) || authorized?(sku, controller: Bazaar::SkuAdminController, action: :destroy )
+									.btn-group
+										%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+											%i.fa.fa-cog
+											%b.caret
+										%ul.dropdown-menu
+											- if authorized?(sku, controller: Bazaar::SkuAdminController, action: :edit )
+												%li
+													%a{ href: edit_sku_admin_path( sku.id ) }
+														%i.fa.fa-pencil
+														Edit
+												%li.divider
+											- if authorized?(sku, controller: Bazaar::SkuAdminController, action: :destroy )
+												%li
+													%a{ href: sku_admin_path( sku ), data: { method: 'delete', confirm: 'Are you sure?' } }
+														%i.fa.fa-trash-o
+														Delete!
+
+
+= render "new_modal"

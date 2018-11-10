@@ -96,11 +96,12 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 		create_table :bazaar_warehouse_skus do |t|
 			t.belongs_to	:warehouse
 			t.belongs_to	:sku
-			t.integer			:quantity
+			t.integer			:quantity, default: 0
 			t.datetime		:quantity_updated_at
-			t.integer			:status
+			t.integer			:status, default: 0
 			t.integer			:priority, default: 1
 			t.integer			:restriction_type, default: 0
+			t.json				:properties
 			t.timestamps
 		end
 
