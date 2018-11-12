@@ -28,7 +28,7 @@ module Bazaar
 		end
 
 		def index
-			@warehouses = Bazaar::Warehouse.all.joins(:geo_addresses).order( name: :asc ).page( params[:page] ).per( 10 )
+			@warehouses = Bazaar::Warehouse.all.order( name: :asc ).page( params[:page] ).per( 10 )
 
 			set_page_meta( title: "Warehouse Admin" )
 		end
