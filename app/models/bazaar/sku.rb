@@ -2,6 +2,7 @@ module Bazaar
 	class Sku < ApplicationRecord
 		include Bazaar::Concerns::MoneyAttributesConcern
 
+		has_many	:offer_skus
 		has_many	:warehouse_skus
 		has_many	:shipment_skus
 		has_many	:shipments, through: :shipment_skus

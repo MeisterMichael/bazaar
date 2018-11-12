@@ -1,0 +1,34 @@
+#new_offer_sku_modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Add Sku to #{parent_obj.to_s}
+			= form_for Bazaar::OfferSku.new( parent_obj: parent_obj ), url: bazaar.offer_sku_admin_index_path do |f|
+				= f.hidden_field :parent_obj_type
+				= f.hidden_field :parent_obj_id
+				- if args[:start_interval]
+					= f.hidden_field :start_interval, value: args[:start_interval]
+				- if args[:max_intervals]
+					= f.hidden_field :max_intervals, value: args[:max_intervals]
+				.modal-body
+					.form-group
+						= f.label :sku_id, 'SKU'
+						= f.collection_select :sku_id, Bazaar::Sku.active.order(code: :asc), :id, :to_s, {}, class: 'form-control'
+					- unless args[:start_interval]
+						.form-group
+							= f.label :start_interval
+							= f.number_field :start_interval, class: 'form-control', min: 1, step: 1
+					- unless args[:max_intervals]
+						.form-group
+							= f.label :max_intervals
+							= f.number_field :max_intervals, value: nil, class: 'form-control', min: 1, step: 1, placeholder: 'unlimited'
+					.form-group
+						= f.label :quantity
+						= f.number_field :quantity, value: 1, class: 'form-control', min: 1, step: 1
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Add', class: 'btn btn-primary'

@@ -1,6 +1,18 @@
 class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 	def change
 
+		create_table :bazaar_offer_skus do |t|
+			t.belongs_to	:parent_obj, polymorphic: true
+			t.belongs_to	:sku
+			t.integer			:quantity, default: 1
+			t.integer			:start_interval, default: 1
+			t.integer			:max_intervals, default: nil
+			t.integer			:status, default: 1
+			t.datetime		:trashed_at, default: nil
+			t.json				:properties
+			t.timestamps
+		end
+
 		create_table :bazaar_shipments do |t|
 			t.integer			:status, default: 0
 			t.string			:carrier_status, default: nil
@@ -53,7 +65,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 		create_table :bazaar_shipment_skus do |t|
 			t.belongs_to	:shipment
 			t.belongs_to	:sku
-			t.integer			:quantity
+			t.integer			:quantity, default: 1
 			t.timestamps
 		end
 
@@ -110,12 +122,6 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.belongs_to	:geo_country
 			t.timestamps
 		end
-
-
-		add_column :bazaar_products, :offer_sku_id, :integer, default: nil
-		add_column :bazaar_subscription_plans, :trial_offer_sku_id, :integer, default: nil
-		add_column :bazaar_subscription_plans, :renewal_offer_sku_id, :integer, default: nil
-
 
 	end
 end
