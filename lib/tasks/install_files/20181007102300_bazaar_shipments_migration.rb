@@ -8,6 +8,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.integer			:start_interval, default: 1
 			t.integer			:max_intervals, default: nil
 			t.integer			:status, default: 1
+			t.integer			:apply, default: 1
 			t.datetime		:trashed_at, default: nil
 			t.json				:properties
 			t.timestamps

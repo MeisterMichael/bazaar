@@ -6,6 +6,7 @@ module Bazaar
 		belongs_to :sku
 
 		enum status: { 'trash' => -1, 'active' => 1 }
+		enum apply: { 'per_quantity' => 1, 'per_order' => 2 }
 
 		def set_trashed_at
 			self.trashed_at ||= Time.now if self.trash?

@@ -203,12 +203,13 @@
 						%th{ style: 'width: 6em' } Start Interval
 						%th{ style: 'width: 6em' } Max Intervals
 						%th &nbsp;
+						%th{ style: 'width: 6em' } Apply
 						%th{ style: 'width: 6em' } Quantity
 						%th{ style: 'width: 10em' } Created At
 						%th{ style: 'width: 6em' }
 					- if @plan.offer_skus.active.count == 0
 						%tr
-							%td{ colspan: 6 }
+							%td{ colspan: 7 }
 								\- No SKUs Found -
 					- @plan.offer_skus.active.includes(:sku).order( start_interval: :asc, id: :asc ).each do |offer_sku|
 						%tr
@@ -219,6 +220,8 @@
 							%td
 								%a{ href: bazaar.edit_sku_admin_path( offer_sku.sku ) }
 									= offer_sku.sku.to_s
+							%td
+								= offer_sku.apply
 							%td
 								= offer_sku.quantity
 							%td

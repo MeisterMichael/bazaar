@@ -28,6 +28,9 @@
 					.form-group
 						= f.label :quantity
 						= f.number_field :quantity, value: 1, class: 'form-control', min: 1, step: 1
+					.form-group
+						= f.label :apply
+						= f.collection_select :apply, Bazaar::OfferSku.applies, :first, :first, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

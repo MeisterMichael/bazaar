@@ -37,10 +37,10 @@
 					- @skus.each do |sku|
 						%tr
 							%td
-								- if sku.name
-									= link_to sku.name, edit_sku_admin_path( sku.id )
-								- else
+								- if sku.name.blank?
 									= link_to 'N/A', edit_sku_admin_path( sku.id )
+								- else
+									= link_to sku.name, edit_sku_admin_path( sku.id )
 
 							%td
 								= sku.code

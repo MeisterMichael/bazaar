@@ -45,7 +45,7 @@ module Bazaar
 		end
 
 		def offer_sku_params
-			params.require(:offer_sku).permit( :parent_obj_id, :parent_obj_type, :sku_id, :quantity, :start_interval, :max_intervals )
+			params.require(:offer_sku).permit( :parent_obj_id, :parent_obj_type, :sku_id, :quantity, :start_interval, :max_intervals, :apply )
 		end
 
 	end

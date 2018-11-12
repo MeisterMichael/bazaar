@@ -192,18 +192,21 @@
 				%table.table.table-light.table-bordered{ style: 'margin:0;' }
 					%thead
 						%th &nbsp;
+						%th{ style: 'width: 6em' } Apply
 						%th{ style: 'width: 6em' } Quantity
 						%th{ style: 'width: 10em' } Created At
 						%th{ style: 'width: 6em' }
 					- if @product.offer_skus.active.count == 0
 						%tr
-							%td{ colspan: 4 }
+							%td{ colspan: 5 }
 								\- No SKUs Found -
 					- @product.offer_skus.active.includes(:sku).order( id: :asc ).each do |offer_sku|
 						%tr
 							%td
 								%a{ href: bazaar.edit_sku_admin_path( offer_sku.sku ) }
 									= offer_sku.sku.to_s
+							%td
+								= offer_sku.apply
 							%td
 								= offer_sku.quantity
 							%td
@@ -237,7 +240,7 @@
 						%th{ style: 'width: 10em' }
 					- if @product.product_variants.count == 0
 						%tr
-							%td{ colspan: 6 }
+							%td{ colspan: 7 }
 								\- No Variants Found -
 					- @product.product_variants.order( seq: :asc ).each do |variant|
 						= form_for variant do |f|
@@ -269,7 +272,7 @@
 
 
 
-= render 'bazaar/offer_sku_admin/new_modal', parent_obj: @product, args: { interval: 0, max_intervals: 1 }
+= render 'bazaar/offer_sku_admin/new_modal', parent_obj: @product, args: { start_interval: 1, max_intervals: 1 }
 = render 'bazaar/product_variants/new_modal', product: @product
 
 = render 'new_gallery_attachment', args: {}
