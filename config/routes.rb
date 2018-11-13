@@ -65,6 +65,8 @@ Bazaar::Engine.routes.draw do
 		post :generate, on: :member
 	end
 
+	resources :shipment_admin
+
 	resources :shipping_carrier_service_admin, only: [:index,:edit,:update]
 	resources :shipping_option_admin, only: [:index,:edit,:update,:create]
 
