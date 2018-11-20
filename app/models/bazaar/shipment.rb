@@ -10,7 +10,7 @@ module Bazaar
 		has_many :shipment_logs
 		has_many :shipment_skus
 
-		enum status: { 'pending' => 0, 'picking' => 100, 'packed' => 200, 'shipped' => 300, 'delivered' => 400, 'returned' => 500 }
+		enum status: { 'canceled' => -1, 'pending' => 0, 'picking' => 100, 'packed' => 200, 'shipped' => 300, 'delivered' => 400, 'returned' => 500 }
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		money_attributes :cost

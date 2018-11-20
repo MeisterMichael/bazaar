@@ -1,6 +1,6 @@
 module Bazaar
 	class OrderItem < ApplicationRecord
-		
+
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include SwellId::Concerns::PolymorphicIdentifiers
 
@@ -12,6 +12,19 @@ module Bazaar
 		belongs_to :subscription, required: false, validate: true
 
 		money_attributes :subtotal, :price
+
+		def item_interval
+			subscription = self.subscription
+			subscription ||= self.item if self.item.is_a? Bazaar::Subscription
+
+			interval = 1
+			interval = subscription.orders.where( created_at: Time.at(0)..self.order.created_at ).count if subscription.present?
+			interval
+		end
+
+		def offer_skus
+			package_item.offer_skus.for_interval( self.item_interval )
+		end
 
 		def package_item
 			package_item = self.item

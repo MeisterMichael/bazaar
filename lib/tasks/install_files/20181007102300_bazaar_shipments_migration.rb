@@ -15,13 +15,16 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 		end
 
 		create_table :bazaar_shipments do |t|
+			t.string			:code
 			t.integer			:status, default: 0
 			t.string			:carrier_status, default: nil
 			t.text				:notes, default: nil
 			t.belongs_to	:order, default: nil
+			t.string			:email, default: nil
 
 			# The Who - is preparing and delivering the shipment
 			t.string			:fulfilled_by, default: nil
+			t.string			:fulfillment_id, default: nil
 
 			# The What - size and weight of the shipment
 			t.float				:length
@@ -49,6 +52,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			# The How - the shipment is being sent
 			t.string			:carrier, default: nil
 			t.string			:carrier_service_level, default: nil
+			t.string			:requested_service_level, default: 'standard'
 
 			t.hstore			:properties
 			t.timestamps
@@ -59,7 +63,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.string			:carrier_status, default: nil
 			t.string			:subject
 			t.text				:details
-			t.hstore			:properties
+			t.json				:properties
 			t.timestamps
 		end
 
