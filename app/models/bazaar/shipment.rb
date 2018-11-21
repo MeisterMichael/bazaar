@@ -3,7 +3,7 @@ module Bazaar
 		include Bazaar::Concerns::MoneyAttributesConcern
 
 		belongs_to	:order, required: false
-		belongs_to	:destination_address, required: false
+		belongs_to	:destination_address, class_name: 'GeoAddress', validate: true, required: false
 		belongs_to	:source_address, required: false
 		belongs_to	:warehouse, required: false
 

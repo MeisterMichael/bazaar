@@ -8,8 +8,8 @@ module Bazaar
 		enum status: { 'trash' => -1, 'active' => 1 }
 		enum apply: { 'per_quantity' => 1, 'per_order' => 2 }
 
-		def for_interval( interval )
-			self.where( "? >= start_interval AND ( max_intervals IS NULL OR ? <= ( start_interval + max_intervals ) )" )
+		def self.for_interval( interval )
+			self.where( ":interval >= start_interval AND ( max_intervals IS NULL OR :interval <= ( start_interval + max_intervals ) )", interval: interval )
 		end
 
 		def set_trashed_at
