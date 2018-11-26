@@ -17,9 +17,12 @@ module Bazaar
 			@shipping_service.calculate( @order ) if @order.shipping_address.validate
 			@order.payment_status = 'paid'
 			@order.shipping = 0
+			@order.total = 0 if @order.total.nil?
+
 			@order.order_items.each do |order_item|
-				order_item.price = 0
-				order_item.subtotal = 0
+				order_item.title		= order_item.item.title if order_item.title.blank?
+				order_item.price		= 0
+				order_item.subtotal	= 0
 			end
 
 			if @order.save
