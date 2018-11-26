@@ -10,7 +10,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.integer			:status, default: 1
 			t.integer			:apply, default: 1
 			t.datetime		:trashed_at, default: nil
-			t.json				:properties
+			t.json				:properties, default: {}
 			t.timestamps
 		end
 
@@ -54,7 +54,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.string			:carrier_service_level, default: nil
 			t.string			:requested_service_level, default: 'standard'
 
-			t.hstore			:properties
+			t.hstore			:properties, default: {}
 			t.timestamps
 		end
 
@@ -63,7 +63,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.string			:carrier_status, default: nil
 			t.string			:subject
 			t.text				:details
-			t.json				:properties
+			t.json				:properties, default: {}
 			t.timestamps
 		end
 
@@ -118,7 +118,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.integer			:status, default: 0
 			t.integer			:priority, default: 1
 			t.integer			:restriction_type, default: 0
-			t.json				:properties
+			t.json				:properties, default: {}
 			t.timestamps
 		end
 
