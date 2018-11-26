@@ -6,5 +6,9 @@ module Bazaar
 
 		enum status: { 'disabled' => -100, 'active' => 100 }
 		enum restriction_type: { 'blacklist' => -1, 'unrestricted' => 0, 'whitelist' => 1 }
+
+		def code
+			self.warehouse_code || self.sku.try(:code)
+		end
 	end
 end

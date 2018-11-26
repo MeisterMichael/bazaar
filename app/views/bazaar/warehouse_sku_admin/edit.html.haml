@@ -28,6 +28,9 @@
 			= f.label :priority
 			= f.number_field :priority, class: 'form-control', step: 1
 		.form-group
+			= f.label :warehouse_code, 'Warehouse Code'
+			= f.text_field :warehouse_code, class: 'form-control'
+		.form-group
 			= f.label :status
 			= f.collection_select :status, Bazaar::WarehouseSku.statuses, :first, :first, {}, class: 'form-control'
 

@@ -55,7 +55,7 @@ module Bazaar
 		end
 
 		def warehouse_sku_params
-			params.require(:warehouse_sku).permit( :warehouse_id, :sku_id, :sku, :quantity, :status, :priority )
+			params.require(:warehouse_sku).permit( :warehouse_id, :sku_id, :sku, :quantity, :status, :priority, :warehouse_code )
 		end
 
 

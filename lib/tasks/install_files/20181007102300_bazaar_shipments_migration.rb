@@ -113,6 +113,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 		create_table :bazaar_warehouse_skus do |t|
 			t.belongs_to	:warehouse
 			t.belongs_to	:sku
+			t.string			:warehouse_code, default: nil
 			t.integer			:quantity, default: 0
 			t.datetime		:quantity_updated_at
 			t.integer			:status, default: 0
