@@ -98,6 +98,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 
 		create_table :bazaar_warehouses do |t|
 			t.string			:name
+			t.string			:slug
 			t.belongs_to	:geo_address
 			t.integer			:status, default: 0
 			t.integer			:restriction_type, default: 0
