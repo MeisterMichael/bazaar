@@ -50,11 +50,11 @@ module Bazaar
 			@order.user = User.find_by( email: @order.email.downcase )
 			@order.user ||= User.create( email: @order.email.downcase, first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name )
 			@order.billing_address.user = @order.shipping_address.user = @order.user
-			@order.total ||= 0
+			@order.total = 0 if @order.total.nil?
 			@order.status = 'draft'
 
 			@order.order_items.select(&:prod?).each do |order_item|
-				order_item.title		||= order_item.item.title
+				order_item.title		= order_item.item.title if order_item.title.blank?
 				order_item.price		= order_item.item.purchase_price
 				order_item.subtotal	= order_item.price * order_item.quantity
 				order_item.tax_code	= order_item.item.tax_code
