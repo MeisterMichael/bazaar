@@ -7,6 +7,7 @@ module Bazaar
 		has_many	:shipment_skus
 		has_many	:shipments, through: :shipment_skus
 		has_many	:sku_countries
+		has_many	:offer_skus
 
 		enum status: { 'trash' => -1, 'draft' => 0, 'active' => 100 }
 		enum restriction_type: { 'blacklist' => -1, 'unrestricted' => 0, 'whitelist' => 1 }

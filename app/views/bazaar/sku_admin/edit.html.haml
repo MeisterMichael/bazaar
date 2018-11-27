@@ -67,6 +67,35 @@
 										%a.btn.btn-default{ href: bazaar.edit_warehouse_sku_admin_path( warehouse_sku ) }
 											%i.fa.fa-edit
 
+
+				.well.white-well
+					%h4 Offers
+
+					%table.table.table-light.table-bordered{ style: 'margin:0;' }
+						%thead
+							%th Name
+							%th Type
+						%tbody
+							- if @offers.blank?
+								%tr
+									%td{ colspan: 2 }
+										\- No Offers -
+							- @offers.each do |offer|
+								%tr
+									- if offer.is_a? Bazaar::SubscriptionPlan
+
+										%td
+											= link_to offer.title, edit_subscription_plan_admin_path(offer)
+										%td Subscription Plan
+									- elsif offer.is_a? Bazaar::Product
+
+										%td
+											= link_to offer.title, edit_product_admin_path(offer)
+										%td Product
+									- else
+										%td=offer.to_s
+										%td=offer.class
+
 				.well.white-well
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#new_sku_country_modal' } }
