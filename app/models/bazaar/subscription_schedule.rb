@@ -1,13 +1,16 @@
 module Bazaar
 	class SubscriptionSchedule < ApplicationRecord
-		before_save :set_trashed_at
+		before_save :set_trashed_at, :set_default_sequence
 
-		belongs_to :parent_obj, polymorphic: true
+		belongs_to :subscription
 
 		validate :sequence_uniq
 
 		enum status: { 'trash' => -1, 'active' => 1 }
 
+		def set_default_sequence
+			self.sequence ||= self.class.base_class.where( parent_obj: self.parent_obj ).active.order( sequence: :desc ).limit(1).pluck(:sequence).first || 1
+		end
 
 		def set_trashed_at
 			self.trashed_at ||= Time.now if self.trash?
