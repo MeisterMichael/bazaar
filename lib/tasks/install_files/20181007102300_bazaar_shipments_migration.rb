@@ -3,7 +3,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 
 		# the schedule template for a subscription
 		create_table :bazaar_offer_schedules do |t|
-			t.belongs_to	:parent_obj, polymorphic: true
+			t.belongs_to	:parent_obj, polymorphic: true, index: { name: 'index_bazaar_offer_schedules_on_parent_obj' }
 			t.integer			:start_interval, default: 1
 			t.integer			:max_intervals, default: nil
 			t.string			:interval_unit, default: "month"
@@ -29,7 +29,7 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 
 		# the schedule for a subscription
 		create_table :bazaar_subscription_schedules do |t|
-			t.belongs_to	:parent_obj, polymorphic: true
+			t.belongs_to	:parent_obj, polymorphic: true, index: { name: 'index_bazaar_subscription_schedules_on_parent_obj' }
 			t.integer			:sequence, default: 1
 			t.integer			:max_intervals, default: 1
 			t.string			:interval_unit, default: "month"
