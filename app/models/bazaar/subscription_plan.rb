@@ -11,6 +11,7 @@ module Bazaar
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		belongs_to 	:item, polymorphic: true, required: false
+		has_many :offer_schedules, as: :parent_obj
 		has_many :offer_skus, as: :parent_obj
 		has_one_attached :avatar_attachment
 		has_many_attached :embedded_attachments

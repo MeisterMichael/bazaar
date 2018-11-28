@@ -14,6 +14,8 @@ module Bazaar
 		belongs_to 	:billing_address, class_name: 'GeoAddress'
 		belongs_to 	:shipping_address, class_name: 'GeoAddress'
 
+		has_many :subscription_schedules, as: :parent_obj
+
 		before_create :generate_order_code
 		before_create :initialize_timestamps
 		before_save :update_timestamps
