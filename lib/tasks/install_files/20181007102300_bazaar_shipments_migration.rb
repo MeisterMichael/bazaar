@@ -1,6 +1,18 @@
 class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 	def change
 
+		# the pricing template for a subscription
+		create_table :bazaar_offer_prices do |t|
+			t.belongs_to	:parent_obj, polymorphic: true, index: { name: 'index_bazaar_offer_prices_on_parent_obj' }
+			t.integer			:sequence, default: 1
+			t.integer			:max_intervals, default: nil
+			t.integer			:price, default: 0
+			t.integer			:status, default: 1
+			t.datetime		:trashed_at, default: nil
+			t.json				:properties, default: {}
+			t.timestamps
+		end
+
 		# the schedule template for a subscription
 		create_table :bazaar_offer_schedules do |t|
 			t.belongs_to	:parent_obj, polymorphic: true, index: { name: 'index_bazaar_offer_schedules_on_parent_obj' }
@@ -22,6 +34,18 @@ class BazaarShipmentsMigration < ActiveRecord::Migration[5.1]
 			t.integer			:max_intervals, default: nil
 			t.integer			:status, default: 1
 			t.integer			:apply, default: 1
+			t.datetime		:trashed_at, default: nil
+			t.json				:properties, default: {}
+			t.timestamps
+		end
+
+		# the pricing for a subscription
+		create_table :bazaar_subscription_prices do |t|
+			t.belongs_to	:subscription
+			t.integer			:sequence, default: 1
+			t.integer			:max_intervals, default: nil
+			t.integer			:price, default: 0
+			t.integer			:status, default: 1
 			t.datetime		:trashed_at, default: nil
 			t.json				:properties, default: {}
 			t.timestamps

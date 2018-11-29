@@ -11,6 +11,7 @@ module Bazaar
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		belongs_to 	:item, polymorphic: true, required: false
+		has_many :offer_prices, as: :parent_obj
 		has_many :offer_schedules, as: :parent_obj
 		has_many :offer_skus, as: :parent_obj
 		has_one_attached :avatar_attachment
@@ -39,7 +40,7 @@ module Bazaar
 		before_save		:set_avatar
 		after_create :on_create
 		after_update :on_update
-		before_save	:set_publish_at
+		before_save	:set_publish_at, :update_schedule_and_price_on_change
 
 		attr_accessor	:slug_pref
 
@@ -157,7 +158,33 @@ module Bazaar
 			self.trial_max_intervals > 0
 		end
 
+		def update_schedule_and_price_on_change
+			update_schedule! if not( self.persisted? ) || self.trial_max_intervals_changed? || self.trial_interval_value_changed? || self.trial_interval_unit_changed? || self.billing_interval_value_changed? || self.billing_interval_unit_changed?
+			update_prices! if not( self.persisted? ) || self.trial_price_changed? || self.price_changed?
+		end
 
+		def update_schedule!
+			self.offer_schedules.each do |offer_schedule|
+				offer_schedule.trash!
+			end
+
+			if "#{self.trial_interval_value} #{self.trial_interval_unit.strip}".downcase == "#{self.billing_interval_value} #{self.billing_interval_unit.strip}".downcase
+				self.offer_schedules.new( max_intervals: nil, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
+			else
+				self.offer_schedules.new( max_intervals: self.trial_max_intervals, interval_unit: self.trial_interval_unit, interval_value: self.trial_interval_value, status: 'active' ) if self.trial?
+				self.offer_schedules.new( max_intervals: nil, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
+			end
+
+		end
+
+		def update_prices!
+			self.offer_prices.each do |offer_price|
+				offer_price.trash!
+			end
+
+			self.offer_prices.new( max_intervals: self.trial_max_intervals, price: self.trial_price, status: 'active' ) if self.trial?
+			self.offer_prices.new( max_intervals: nil, price: self.price, status: 'active' )
+		end
 
 
 		protected
