@@ -1,23 +1,31 @@
 module Bazaar
 	class OfferPrice < ApplicationRecord
-		before_save :set_trashed_at, :set_default_sequence
+		before_save :set_trashed_at
 
 		belongs_to :parent_obj, polymorphic: true
 
-		validate :sequence_uniq
-
 		enum status: { 'trash' => -1, 'active' => 1 }
 
-		def set_default_sequence
-			self.sequence ||= self.class.base_class.where( parent_obj: self.parent_obj ).active.order( sequence: :desc ).limit(1).pluck(:sequence).first || 1
+		validate :validate_start_interval_uniq
+
+		include Bazaar::Concerns::MoneyAttributesConcern
+		money_attributes :price
+
+		def end_interval
+			n = self.class.base_class.where( parent_obj: self.parent_obj ).where('start_interval > ?',self.start_interval).active.order( start_interval: :asc ).first
+			if n.present?
+				n.start_interval - 1
+			else
+				nil
+			end
 		end
 
 		def set_trashed_at
 			self.trashed_at ||= Time.now if self.trash?
 		end
 
-		def sequence_uniq
-			self.errors.add( :sequence, "sequence must not be unique") if self.class.base_class.where( parent_obj: self.parent_obj, sequence: self.sequence ).where.not( id: self.id ).active.present?
+		def validate_start_interval_uniq
+			self.errors.add( :start_interval, "start interval must not be unique") if self.class.base_class.where( parent_obj: self.parent_obj, start_interval: self.start_interval ).where.not( id: self.id ).active.present?
 		end
 
 	end

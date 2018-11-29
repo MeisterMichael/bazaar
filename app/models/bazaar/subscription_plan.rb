@@ -40,7 +40,10 @@ module Bazaar
 		before_save		:set_avatar
 		after_create :on_create
 		after_update :on_update
-		before_save	:set_publish_at, :update_schedule_and_price_on_change
+		before_save	:set_publish_at
+		before_update :update_schedule_and_price_on_change
+		after_create :update_schedule!
+		after_create :update_prices!
 
 		attr_accessor	:slug_pref
 
@@ -159,8 +162,8 @@ module Bazaar
 		end
 
 		def update_schedule_and_price_on_change
-			update_schedule! if not( self.persisted? ) || self.trial_max_intervals_changed? || self.trial_interval_value_changed? || self.trial_interval_unit_changed? || self.billing_interval_value_changed? || self.billing_interval_unit_changed?
-			update_prices! if not( self.persisted? ) || self.trial_price_changed? || self.price_changed?
+			update_schedule! if self.trial_max_intervals_changed? || self.trial_interval_value_changed? || self.trial_interval_unit_changed? || self.billing_interval_value_changed? || self.billing_interval_unit_changed?
+			update_prices! if self.trial_price_changed? || self.price_changed?
 		end
 
 		def update_schedule!
@@ -169,10 +172,10 @@ module Bazaar
 			end
 
 			if "#{self.trial_interval_value} #{self.trial_interval_unit.strip}".downcase == "#{self.billing_interval_value} #{self.billing_interval_unit.strip}".downcase
-				self.offer_schedules.new( max_intervals: nil, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
+				self.offer_schedules.create!( start_interval: 1, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
 			else
-				self.offer_schedules.new( max_intervals: self.trial_max_intervals, interval_unit: self.trial_interval_unit, interval_value: self.trial_interval_value, status: 'active' ) if self.trial?
-				self.offer_schedules.new( max_intervals: nil, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
+				self.offer_schedules.create!( start_interval: 1, interval_unit: self.trial_interval_unit, interval_value: self.trial_interval_value, status: 'active' ) if self.trial?
+				self.offer_schedules.create!( start_interval: self.trial_max_intervals + 1, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
 			end
 
 		end
@@ -182,8 +185,12 @@ module Bazaar
 				offer_price.trash!
 			end
 
-			self.offer_prices.new( max_intervals: self.trial_max_intervals, price: self.trial_price, status: 'active' ) if self.trial?
-			self.offer_prices.new( max_intervals: nil, price: self.price, status: 'active' )
+			if self.trial_price == self.price
+				self.offer_prices.create!( start_interval: 1, price: self.price, status: 'active' )
+			else
+				self.offer_prices.create!( start_interval: 1, price: self.trial_price, status: 'active' ) if self.trial?
+				self.offer_prices.create!( start_interval: self.trial_max_intervals + 1, price: self.price, status: 'active' )
+			end
 		end
 
 

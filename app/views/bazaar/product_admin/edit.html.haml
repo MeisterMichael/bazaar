@@ -180,6 +180,27 @@
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
+	-# .row#schedule
+		.col-xs-12
+			.well.white-well
+				-# %a.pull-right{ href: '#new_offer_schedule_modal', data: { toggle: :modal, target: '#new_offer_schedule_modal' } }
+					%i.fa.fa-plus
+					Add Schedule Item
+				%h4
+					Schedule
+
+				= render 'bazaar/subscription_plan_admin/schedule_table', offer_schedules: @product.offer_schedules, args: {}
+
+	-# .row#price
+		.col-xs-12
+			.well.white-well
+				-# %a.pull-right{ href: '#new_offer_price_modal', data: { toggle: :modal, target: '#new_offer_price_modal' } }
+					%i.fa.fa-plus
+					Add Price
+				%h4
+					Prices
+
+				= render 'bazaar/subscription_plan_admin/price_table', offer_prices: @product.offer_prices, args: {}
 	.row#skus
 		.col-xs-12
 			.well.white-well
@@ -188,33 +209,7 @@
 					Add Sku
 				%h4
 					SKUs
-
-				%table.table.table-light.table-bordered{ style: 'margin:0;' }
-					%thead
-						%th &nbsp;
-						%th{ style: 'width: 6em' } Apply
-						%th{ style: 'width: 6em' } Quantity
-						%th{ style: 'width: 10em' } Created At
-						%th{ style: 'width: 6em' }
-					- if @product.offer_skus.active.count == 0
-						%tr
-							%td{ colspan: 5 }
-								\- No SKUs Found -
-					- @product.offer_skus.active.includes(:sku).order( id: :asc ).each do |offer_sku|
-						%tr
-							%td
-								%a{ href: bazaar.edit_sku_admin_path( offer_sku.sku ) }
-									= offer_sku.sku.to_s
-							%td
-								= offer_sku.apply
-							%td
-								= offer_sku.quantity
-							%td
-								= current_user.to_local_tz(offer_sku.created_at).to_s( :short )
-							%td.text-right
-								%a.btn.btn-danger.btn-xs{ href: offer_sku_admin_path( offer_sku ), data: { method: :delete, confirm: 'Are you sure?' } }
-									%i.fa.fa-trash
-
+				= render 'bazaar/subscription_plan_admin/sku_table', offer_skus: @product.offer_skus, args: {}
 
 
 	.row#variants

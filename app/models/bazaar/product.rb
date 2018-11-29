@@ -44,6 +44,7 @@ module Bazaar
 		attr_accessor	:category_name
 		attr_accessor	:slug_pref
 
+		has_many :offer_prices, as: :parent_obj
 		has_many :offer_schedules, as: :parent_obj
 		has_many :offer_skus, as: :parent_obj
 		belongs_to 	:product_category, foreign_key: :category_id, required: false
@@ -60,6 +61,9 @@ module Bazaar
 		after_create :on_create
 		after_update :on_update
 		before_save	:set_publish_at
+		after_create :update_schedule!
+		after_create :update_prices!
+		before_update :update_price_on_change
 
 		money_attributes :price, :suggested_price, :shipping_price, :purchase_price
 		mounted_at '/store'
@@ -303,6 +307,26 @@ module Bazaar
 			}.as_json
 		end
 
+
+		def update_price_on_change
+			update_prices! if self.price_changed?
+		end
+
+		def update_schedule!
+			self.offer_schedules.each do |offer_schedule|
+				offer_schedule.trash!
+			end
+
+			self.offer_schedules.create!( start_interval: 1, max_intervals: 1, interval_value: 0, status: 'active' )
+		end
+
+		def update_prices!
+			self.offer_prices.each do |offer_price|
+				offer_price.trash!
+			end
+
+			self.offer_prices.create!( start_interval: 1, price: self.price, status: 'active' )
+		end
 
 		protected
 
