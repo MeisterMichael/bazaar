@@ -4,7 +4,7 @@ module Bazaar
 		belongs_to	:sku
 
 		def warehouse_sku
-			warehouse = shipment_sku.shipment.warehouse
+			warehouse = self.shipment.warehouse
 
 			if warehouse.present?
 				self.sku.warehouse_skus.where( warehouse: warehouse ).first
