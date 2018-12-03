@@ -16,6 +16,20 @@ module Bazaar
 		friendly_id :slugger, use: [ :slugged, :history ]
 		attr_accessor	:slug_pref
 
+		def self.select_for_country( geo_country )
+			self.select do |warehouse|
+				if warehouse.unrestricted?
+					true
+				else
+					if warehouse.blacklist?
+						not( warehouse.warehouse_countries.where( geo_country: geo_country ).present? )
+					else
+						warehouse.warehouse_countries.where( geo_country: geo_country ).present?
+					end
+				end
+			end
+		end
+
 		protected
 		def slugger
 			if self.slug_pref.present?
