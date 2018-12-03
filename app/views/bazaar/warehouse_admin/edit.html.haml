@@ -50,20 +50,21 @@
 
 					%table.table.table-light.table-bordered{ style: 'margin:0;' }
 						%thead
-							%th
-								Sku
+							%th Sku
+							%th Warehouse Code
 							%th Quantity
 							%th Status
 							%th &nbsp;
 						%tbody
 							- if @warehouse_skus.blank?
 								%tr
-									%td{ colspan: 4 }
+									%td{ colspan: 5 }
 										\- No Skus -
 							- @warehouse_skus.each do |warehouse_sku|
 								%tr
 									%td
 										= link_to warehouse_sku.sku.to_s, edit_sku_admin_path(warehouse_sku.sku)
+									%td=warehouse_sku.warehouse_code
 									%td=warehouse_sku.quantity
 									%td=warehouse_sku.status
 									%td.text-right
