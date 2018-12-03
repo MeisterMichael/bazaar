@@ -47,6 +47,9 @@ module Bazaar
 			authorize( @warehouse )
 
 			@warehouse.attributes = warehouse_params
+
+			log_event( { name:'warehouse_update', category: 'admin', on: @warehouse, content: "changed #{@warehouse.name}: #{@warehouse.changes.collect{|attribute,changes| "#{attribute} changed from '#{changes.first}' to '#{changes.last}'" }.join(', ')}." } ) if @warehouse.changes.present?
+
 			if @warehouse.save
 				set_flash "Warehouse Updated", :success
 			else
@@ -57,7 +60,7 @@ module Bazaar
 
 		protected
 		def get_warehouse
-			@warehouse = Bazaar::Warehouse.find params[:id]
+			@warehouse = Bazaar::Warehouse.friendly.find params[:id]
 		end
 
 		def warehouse_params

@@ -8,6 +8,9 @@ module Bazaar
 			@warehouse_country = Bazaar::WarehouseCountry.new( warehouse_country_params )
 
 			if @warehouse_country.save
+
+				log_event( { name:'warehouse_update', category: 'admin', on: @warehouse_country.warehouse, content: "added warehouse country filter #{@warehouse_country.geo_country.abbrev} to warehouse #{@warehouse_country.warehouse.name}." } )
+
 				set_flash 'Country added'
 				redirect_back fallback_location: edit_warehouse_admin_path( @warehouse_country.warehouse )
 			else
@@ -20,6 +23,8 @@ module Bazaar
 			authorize( @warehouse_country )
 
 			if @warehouse_country.destroy
+				log_event( { name:'warehouse_update', category: 'admin', on: @warehouse_country.warehouse, content: "removed warehouse country filter #{@warehouse_country.geo_country.abbrev} from warehouse #{@warehouse_country.warehouse.name}." } )
+
 				set_flash 'Country removed'
 				redirect_back fallback_location: edit_warehouse_admin_path( @warehouse_country.warehouse )
 			else

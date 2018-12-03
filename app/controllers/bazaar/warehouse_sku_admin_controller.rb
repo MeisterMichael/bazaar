@@ -37,6 +37,7 @@ module Bazaar
 			@warehouse_sku.attributes = warehouse_sku_params
 			authorize( @warehouse_sku )
 
+			log_event( { name:'warehouse_sku_update', category: 'admin', on: @warehouse_sku, content: "changed #{@warehouse_sku.sku.code} for warehouse #{@warehouse_sku.warehouse.name}: #{@warehouse_sku.changes.collect{|attribute,changes| "#{attribute} changed from '#{changes.first}' to '#{changes.last}'" }.join(', ')}." } ) if @warehouse_sku.changes.present?
 
 			if @warehouse_sku.save
 				set_flash 'Sku updated'
