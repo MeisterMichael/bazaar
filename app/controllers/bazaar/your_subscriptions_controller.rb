@@ -106,7 +106,7 @@ module Bazaar
 						log_event( name: 'cancel_subscription', category: 'ecom', on: @subscription, content: "cancelled suscription #{@subscription.code}" )
 					end
 				else
-					log_event( name: 'update_subscription', category: 'ecom', on: @subscription, content: "updated suscription #{@subscription.code}" )
+					log_event( name: 'update_subscription', category: 'ecom', on: @subscription, content: "updated suscription #{@subscription.code}: #{@subscription.changes.collect{|attribute,changes| "#{attribute} changed from '#{changes.first}' to '#{changes.last}'" }.join(', ')}." )
 				end
 
 				log_event( name: 'update_bill_addr', on: @subscription, content: "updated suscription #{@subscription.code} billing info" ) if @subscription.billing_address.changed?
