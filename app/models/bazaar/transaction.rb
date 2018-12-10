@@ -1,7 +1,6 @@
 
 module Bazaar
 	class Transaction < ApplicationRecord
-		
 
 		include Bazaar::Concerns::MoneyAttributesConcern
 
@@ -10,7 +9,7 @@ module Bazaar
 		belongs_to :parent_obj, polymorphic: true, required: false # subscription, order
 		belongs_to :billing_address, required: false, class_name: 'GeoAddress'
 
-		money_attributes :amount
+		money_attributes :amount, :signed_amount
 
 		def negative?
 			void? || chargeback? || refund?
