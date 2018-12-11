@@ -548,7 +548,9 @@ module Bazaar
 
 					puts response.to_xml if @enable_debug
 
-					NewRelic::Agent.notice_error(Exception.new( "Authorize.net Payment Profile Error: #{get_first_message_code( response )} - #{get_frist_message_text( response )}"), custom_params: { user_id: user.try(:id) } ) if defined?( NewRelic )
+					NewRelic::Agent.notice_error(Exception.new( "Authorize.net (#{@provider_name}) Payment Profile Error: #{get_first_message_code( response )} - #{get_frist_message_text( response )}"), custom_params: { user_id: user.try(:id) } ) if defined?( NewRelic )
+
+					log_event( user: order.user, name: 'transaction_failed', on: order, content: "Authorize.net (#{@provider_name}) Payment Profile Error: #{get_first_message_code( response )} - #{get_frist_message_text( response )}" )
 
 					if get_first_message_code( response ) == ERROR_INVALID_PAYMENT_PROFILE
 						errors.add( :base, 'Invalid Payment Information') unless errors.nil?
