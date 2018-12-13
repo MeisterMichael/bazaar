@@ -555,7 +555,7 @@ module Bazaar
 					if get_first_message_code( response ) == ERROR_INVALID_PAYMENT_PROFILE
 						errors.add( :base, 'Invalid Payment Information') unless errors.nil?
 					else
-						errors.add( :base, 'Unable to Process Payment') unless errors.nil?
+						errors.add( :base, 'We are unable to process your transaction.  Please verify your address, payment information and try again.') unless errors.nil?
 					end
 
 				end
