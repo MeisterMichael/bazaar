@@ -21,7 +21,11 @@ module Bazaar
 
 
 			def capture_payment_method( order, args = {} )
+				order.provider = @provider_name
 				order.payment_status = 'declined'
+				order.save
+				log_event( user: user, on: order, name: 'error', content: "Unable to process capture with PayPal" )
+
 				order.errors.add(:base, "Unable to process this payment method")
 				return false
 			end
@@ -43,17 +47,37 @@ module Bazaar
 
 				order.provider_customer_profile_reference = payer_id
 				order.provider_customer_payment_profile_reference = payment_id
+				order.save
+
+				transaction = Bazaar::Transaction.create(
+					parent_obj: order,
+					transaction_type: 'charge',
+					reference_code: payment_id,
+					customer_profile_reference: payer_id,
+					customer_payment_profile_reference: payment_id,
+					provider: @provider_name,
+					amount: order.total,
+					currency: order.currency,
+					status: 'declined'
+				)
+
 
 				if payment_id.present? && payer_id.present? && ( payment = PayPal::SDK::REST::Payment.find(payment_id) ).present?
 
 					payment_amount = ( payment.transactions.sum{|transaction| transaction.amount.total.to_f } * 100 ).to_i
 
-				    if payment.error
+					if payment.error
+
+						transaction.message = payment.error
+						transaction.save
 
 						NewRelic::Agent.notice_error( Exception.new("PayPalExpressCheckout Payment Error: #{payment.error}") ) if defined?( NewRelic )
 						order.errors.add(:base, :processing_error, message: "Transaction declined.")
 
 					elsif not( ((order.total-1)..(order.total+1)).include?( payment_amount ) )
+
+						transaction.message = "PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}"
+						transaction.save
 
 						NewRelic::Agent.notice_error( Exception.new("PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}") ) if defined?( NewRelic )
 						puts "PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}" if @mode == 'sandbox'
@@ -61,26 +85,27 @@ module Bazaar
 
 					elsif payment.execute( payer_id: payer_id )
 
-						transaction = Bazaar::Transaction.create( transaction_type: 'charge', reference_code: payment_id, customer_profile_reference: payer_id, customer_payment_profile_reference: payment_id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved' )
-
 						order.payment_status = 'paid'
 
 						if order.save
-
-							transaction.update( parent_obj: order )
-
+							transaction.status = 'approved'
 							return transaction
-
 						end
 
 
 					else
+
+						transaction.message = "Transaction declined."
+						transaction.save
 
 						order.errors.add(:base, :processing_error, message: "Transaction declined.")
 
 					end
 
 				else
+
+					transaction.message = "PayPalExpressCheckout Payment Error: Payer and/or payment id not present"
+					transaction.save
 
 					NewRelic::Agent.notice_error( Exception.new("PayPalExpressCheckout Payment Error: Payer and/or payment id not present") ) if defined?( NewRelic )
 					order.errors.add(:base, :processing_error, message: "Invalid PayPal Credentials.")

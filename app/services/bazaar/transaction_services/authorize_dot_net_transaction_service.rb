@@ -65,12 +65,14 @@ module Bazaar
 				profiles = get_order_customer_profile( order, credit_card: credit_card_info )
 				return false if profiles == false
 
-				order.payment_status = 'payment_method_captured'
 				order.provider = @provider_name
 				order.provider_customer_profile_reference = profiles[:customer_profile_reference]
 				order.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
+				order.save
 
 				transaction = Bazaar::Transaction.new(
+					billing_address: order.billing_address,
+					parent_obj: order,
 					transaction_type: 'charge',
 					customer_profile_reference: profiles[:customer_profile_reference],
 					customer_payment_profile_reference: profiles[:customer_payment_profile_reference],
@@ -79,8 +81,6 @@ module Bazaar
 					currency: order.currency,
 					status: 'declined',
 				)
-
-				transaction.billing_address = order.billing_address if transaction.respond_to? :billing_address
 
 				transaction_properties = {}
 
@@ -115,6 +115,8 @@ module Bazaar
 						transaction.properties[attribute] = value
 					end
 				end
+
+				transaction.save
 
 				anet_order = nil
 
@@ -152,7 +154,6 @@ module Bazaar
 
 					if order.save
 
-						transaction.parent_obj = order
 						transaction.status = 'approved'
 						transaction.save
 
@@ -167,13 +168,13 @@ module Bazaar
 
 					puts response.to_xml if @enable_debug
 
+					order.status = 'failed'
 					order.payment_status = 'declined'
+					order.save
 
 					transaction.status = 'declined'
 					transaction.message = get_frist_message_text( response )
 					transaction.message = "#{transaction.message} -> #{transaction_response.errors.errors[0].errorText}" if transaction_response.present? && transaction_response.errors.present?
-
-					transaction.parent_obj = args[:default_parent_obj] || order.user
 					transaction.save
 
 					if WHITELISTED_ERROR_MESSAGES.include? get_frist_message_text( response )
@@ -550,7 +551,7 @@ module Bazaar
 
 					NewRelic::Agent.notice_error(Exception.new( "Authorize.net (#{@provider_name}) Payment Profile Error: #{get_first_message_code( response )} - #{get_frist_message_text( response )}"), custom_params: { user_id: user.try(:id) } ) if defined?( NewRelic )
 
-					log_event( user: user, name: 'transaction_failed', content: "Authorize.net (#{@provider_name}) Payment Profile Error: #{get_first_message_code( response )} - #{get_frist_message_text( response )}" )
+					log_event( user: user, on: order, name: 'error', content: "Authorize.net (#{@provider_name}) Payment Profile Error: #{get_first_message_code( response )} - #{get_frist_message_text( response )}" )
 
 					if get_first_message_code( response ) == ERROR_INVALID_PAYMENT_PROFILE
 						errors.add( :base, 'Invalid Payment Information') unless errors.nil?

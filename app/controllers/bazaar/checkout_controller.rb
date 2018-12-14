@@ -93,11 +93,16 @@ module Bazaar
 
 			@order.source = 'Consumer Checkout'
 
-			@order_service.process( @order,
-				transaction: transaction_options.merge( default_parent_obj: @cart ),
-				shipping: shipping_options,
-				discount: discount_options,
-			)
+			begin
+				@order_service.process( @order,
+					transaction: transaction_options.merge( default_parent_obj: @cart ),
+					shipping: shipping_options,
+					discount: discount_options,
+				)
+			rescue Exception => e
+				@order.errors.add( :base, :processing_error, message: 'An error occured during transaction processing.  Please contact support for assistance.' ) if @order.failed?
+				log_event( user: @order.user, on: @order, name: 'error', message: "#{e.class.name} - #{e.message}" )
+			end
 
 			if params[:newsletter].present?
 				Scuttlebutt::Optin.create(
@@ -109,7 +114,7 @@ module Bazaar
 			end
 
 
-			if @order.nested_errors.present?
+			if @order.failed?
 				respond_to do |format|
 					format.js {
 						render :create

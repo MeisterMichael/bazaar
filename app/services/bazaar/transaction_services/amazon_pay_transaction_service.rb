@@ -36,7 +36,12 @@ module Bazaar
 			end
 
 			def capture_payment_method( order, args = {} )
+				order.provider = self.provider_name
 				order.payment_status = 'declined'
+				order.save
+
+				log_event( user: user, on: order, name: 'error', content: "AmazonPay Payment Profile Error: Unable to process this payment method" )
+
 				order.errors.add(:base, "Unable to process this payment method")
 				return false
 			end
@@ -74,18 +79,17 @@ module Bazaar
 				order.provider_customer_payment_profile_reference ||= ( args[:orderReferenceId] || args[:billing_agreement_id] )
 				order.provider = self.provider_name
 
-				transaction = Bazaar::Transaction.new(
+				transaction = Bazaar::Transaction.create!(
+					parent_obj: order,
 					provider: provider_name,
 					amount: order.total,
 					currency: order.currency,
 					customer_payment_profile_reference: order.provider_customer_payment_profile_reference,
 					status: 'declined',
 				)
-				transaction.parent_obj ||= args[:default_parent_obj]
-				transaction.parent_obj ||= order.user if order.user.try(:persisted?)
-
-				order.status = 'trash'
+				order.status = 'failed'
 				order.payment_status = 'declined'
+				order.save!
 
 				if order.parent.is_a?( Bazaar::Subscription )
 					# raise Exception.new('Unable to process subscription rebills')
@@ -100,8 +104,6 @@ module Bazaar
 					if res.success
 						# Set a unique authorization reference id for your
 						# first transaction on the billing agreement.
-						transaction.save!
-						order.save!
 						authorization_reference_id = "#{order.code}-#{transaction.id}-auth"
 						capture_reference_id = "#{order.code}-#{transaction.id}-cap"
 
@@ -145,6 +147,8 @@ module Bazaar
 							amazon_capture_id = response.get_element('CaptureResponse/CaptureResult/CaptureDetails','AmazonCaptureId')
 
 						else
+							transaction.message = "Unable to authorize payment"
+							transaction.save
 							order.errors.add(:base, :processing_error, message: "Unable to authorize payment.")
 						end
 					else
@@ -160,6 +164,7 @@ module Bazaar
 					plan_order_item = order.order_items.select{ |order_item| order_item.item.is_a?( Bazaar::SubscriptionPlan ) }.first
 
 					unless plan_order_item.present?
+						log_event( user: user, on: order, name: 'error', content: "AmazonPay Payment Error: Invalid payment method: Amazon Pay billing agreements are only available for subscriptions purchases." )
 						order.errors.add(:base, :processing_error, message: "Invalid payment method: Amazon Pay billing agreements are only available for subscriptions purchases.")
 						return false
 					end
@@ -208,8 +213,6 @@ module Bazaar
 
 					# Set a unique authorization reference id for your
 					# first transaction on the billing agreement.
-					transaction.save!
-					order.save!
 					authorization_reference_id = "#{order.code}-#{transaction.id}-auth"
 					capture_reference_id = "#{order.code}-#{transaction.id}-cap"
 
@@ -256,6 +259,8 @@ module Bazaar
 						amazon_capture_id = response.get_element('CaptureResponse/CaptureResult/CaptureDetails','AmazonCaptureId')
 
 					else
+						transaction.message = 'Unable to authorize payment'
+						transaction.save
 						order.errors.add(:base, :processing_error, message: "Unable to authorize payment.")
 					end
 
@@ -273,7 +278,6 @@ module Bazaar
 
 					# Make the SetOrderReferenceDetails API call to
 					# configure the Amazon Order Reference Id.
-					order.save!
 					client.set_order_reference_details(
 						args[:orderReferenceId],
 						order.total_as_money.to_s,
@@ -290,7 +294,6 @@ module Bazaar
 
 					# Set a unique id for your current authorization
 					# of this payment.
-					transaction.save!
 					authorization_reference_id = "#{order.code}-#{transaction.id}-auth"
 					capture_reference_id = "#{order.code}-#{transaction.id}-cap"
 
@@ -328,11 +331,15 @@ module Bazaar
 						amazon_capture_id = response.get_element('CaptureResponse/CaptureResult/CaptureDetails','AmazonCaptureId')
 
 					else
+						transaction.message = 'Unable to authorize payment.'
+						transaction.save
 						order.errors.add(:base, :processing_error, message: "Unable to authorize payment.")
 					end
 
 				else
 					# order.status = 'active'
+					transaction.message = 'Missing transaction information.'
+					transaction.save
 					order.errors.add(:base, :processing_error, message: "Missing transaction information.")
 					return false
 				end
@@ -355,7 +362,7 @@ module Bazaar
 				else
 					order.status = 'trash'
 					order.payment_status = 'declined'
-					order.save if order.persisted?
+					order.save
 					order.errors.add(:base, :processing_error, message: "Transaction declined.")
 
 					transaction.status = 'declined'
