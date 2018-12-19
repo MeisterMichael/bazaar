@@ -38,6 +38,7 @@ module Bazaar
 
 			@shipments = @warehouse.shipments.order( created_at: :desc ).page(params[:page]).per(10)
 			@warehouse_countries = @warehouse.warehouse_countries.includes(:geo_country).order('geo_countries.name ASC')
+			@warehouse_states = @warehouse.warehouse_states.includes(:geo_state).merge( GeoState.includes(:geo_country) ).order('geo_countries.name ASC, geo_states.name ASC')
 			@warehouse_skus = @warehouse.warehouse_skus.includes(:sku).order('bazaar_skus.code ASC')
 
 			set_page_meta( title: "#{@warehouse.name} | Warehouse Admin" )
@@ -64,7 +65,7 @@ module Bazaar
 		end
 
 		def warehouse_params
-			params.require(:warehouse).permit( :name, :geo_address_id, :status, :restriction_type )
+			params.require(:warehouse).permit( :name, :geo_address_id, :status, :country_restriction_type, :state_restriction_type )
 		end
 
 	end

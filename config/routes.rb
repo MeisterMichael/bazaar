@@ -88,6 +88,7 @@ Bazaar::Engine.routes.draw do
 
 	resources :warehouse_admin
 	resources :warehouse_country_admin
+	resources :warehouse_state_admin
 	resources :warehouse_sku_admin
 
 	resources :wholesale_checkout, only: [:create,:index] do

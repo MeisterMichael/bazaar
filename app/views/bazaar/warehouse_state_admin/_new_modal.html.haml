@@ -1,0 +1,18 @@
+#new_warehouse_state_modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Add State
+			= form_for @warehouse.warehouse_states.new, url: bazaar.warehouse_state_admin_index_path do |f|
+				= f.hidden_field :warehouse_id
+				.modal-body
+					.form-group
+						= f.label :geo_state_id, 'State'
+						= f.collection_select :geo_state_id, GeoState.all.includes(:geo_country).order('geo_countries.abbrev ASC',name: :asc), :id, Proc.new{|item| "#{item.name} (#{item.geo_country.abbrev})" }, {}, class: 'form-control'
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Submit', class: 'btn btn-primary'

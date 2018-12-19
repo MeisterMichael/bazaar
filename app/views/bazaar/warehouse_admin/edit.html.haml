@@ -77,9 +77,9 @@
 						%a{ href: '#', data: { toggle: :modal, target: '#new_warehouse_country_modal' } }
 							%i.fa.fa-plus-square
 							Add Country
-					%h4 Restrictions
+					%h4 Country Restrictions
 					.form-group
-						= f.collection_select :restriction_type, Bazaar::Warehouse.restriction_types, :first, :first, {}, class: 'form-control'
+						= f.collection_select :country_restriction_type, Bazaar::Warehouse.country_restriction_types, :first, Proc.new{|item| item.first.to_s.split('_').last }, {}, class: 'form-control'
 
 					%table.table.table-light.table-bordered{ style: 'margin:0;' }
 						%thead
@@ -96,6 +96,34 @@
 									%td=warehouse_country.geo_country.name
 									%td.text-right
 										%a.btn.btn-danger{ href: bazaar.warehouse_country_admin_path( warehouse_country ), data: { method: :delete, confirm: 'Are you sure?' } }
+											%i.fa.fa-trash
+
+				.well.white-well
+					.pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#new_warehouse_state_modal' } }
+							%i.fa.fa-plus-square
+							Add State
+					%h4 State Restrictions
+					.form-group
+						= f.collection_select :state_restriction_type, Bazaar::Warehouse.state_restriction_types, :first, Proc.new{|item| item.first.to_s.split('_').last }, {}, class: 'form-control'
+
+					%table.table.table-light.table-bordered{ style: 'margin:0;' }
+						%thead
+							%th
+								State
+							%th &nbsp;
+						%tbody
+							- if @warehouse_states.blank?
+								%tr
+									%td{ colspan: 2 }
+										\- No States -
+							- @warehouse_states.each do |warehouse_state|
+								%tr
+									%td
+										=warehouse_state.geo_state.name
+										(#{warehouse_state.geo_state.geo_country.name})
+									%td.text-right
+										%a.btn.btn-danger{ href: bazaar.warehouse_state_admin_path( warehouse_state ), data: { method: :delete, confirm: 'Are you sure?' } }
 											%i.fa.fa-trash
 
 
@@ -118,4 +146,5 @@
 						= f.submit 'Update', class: 'btn btn-primary'
 
 = render "bazaar/warehouse_country_admin/new_modal"
+= render "bazaar/warehouse_state_admin/new_modal"
 = render "bazaar/warehouse_sku_admin/new_modal"
