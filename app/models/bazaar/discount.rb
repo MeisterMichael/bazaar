@@ -2,6 +2,7 @@ module Bazaar
 	class Discount < ApplicationRecord
 
 		include Bazaar::Concerns::MoneyAttributesConcern
+		include Bazaar::DiscountSearchable if (Bazaar::DiscountSearchable rescue nil)
 
 		before_save :downcase_code
 

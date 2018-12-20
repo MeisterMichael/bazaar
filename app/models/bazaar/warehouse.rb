@@ -1,6 +1,7 @@
 module Bazaar
 	class Warehouse < ApplicationRecord
 		include FriendlyId
+		include Bazaar::WarehouseSearchable if (Bazaar::WarehouseSearchable rescue nil)
 
 		has_many :warehouse_skus
 		has_many :warehouse_countries

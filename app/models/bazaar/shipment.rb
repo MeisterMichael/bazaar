@@ -1,6 +1,7 @@
 module Bazaar
 	class Shipment < ApplicationRecord
 		include Bazaar::Concerns::MoneyAttributesConcern
+		include Bazaar::ShipmentSearchable if (Bazaar::ShipmentSearchable rescue nil)
 
 		belongs_to	:order, required: false
 		belongs_to	:destination_address, class_name: 'GeoAddress', validate: true, required: false

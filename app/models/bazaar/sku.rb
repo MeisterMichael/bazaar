@@ -1,6 +1,7 @@
 module Bazaar
 	class Sku < ApplicationRecord
 		include Bazaar::Concerns::MoneyAttributesConcern
+		include Bazaar::SkuSearchable if (Bazaar::SkuSearchable rescue nil)
 
 		has_many	:offer_skus
 		has_many	:warehouse_skus
