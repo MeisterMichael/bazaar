@@ -63,7 +63,7 @@ module Bazaar
 
 		def calculate_order( order, args={} )
 			order.shipping = 0
-			return false if not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
+			return false if order.shipping_address.nil? || not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
 
 
 			rates = find_order_rates( order, args )
