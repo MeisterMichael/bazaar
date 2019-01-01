@@ -15,10 +15,6 @@ module Bazaar
 					indexes :description, analyzer: 'english', index_options: 'offsets'
 					indexes :content, analyzer: 'english', index_options: 'offsets'
 					indexes :published?, type: 'boolean'
-
-					indexes :tags, type: 'nested' do
-						indexes :name, analyzer: 'english', index_options: 'offsets'
-					end
 				end
 			end
 		end
