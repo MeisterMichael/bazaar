@@ -10,5 +10,7 @@ class BazaarCurrencyMigration < ActiveRecord::Migration[5.1]
 			t.timestamps
 		end
 
+		add_column :geo_countries, :currency_id, :bigint, default: nil
+
 	end
 end
