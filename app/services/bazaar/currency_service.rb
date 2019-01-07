@@ -14,12 +14,15 @@ module Bazaar
 		}
 
 		def get_usd_currency_rate( currency )
-			MARKETPLACE_CURRENCIES_CONVERSION_RATE[currency]
+			rate = Currency.where( code: currency ).last.try(:usd_conversion_rate)
+			rate ||= MARKETPLACE_CURRENCIES_CONVERSION_RATE[currency]
+
+			rate
 		end
 
 		def convert( value, from_currency, to_currency, options = {} )
-			usd_value = 1 / get_usd_currency_rate( from_currency ) * value.to_f
-			to_value = get_usd_currency_rate( to_currency ) * value.to_f
+			usd_value = 1.0 / get_usd_currency_rate( from_currency ) * value.to_f
+			to_value = get_usd_currency_rate( to_currency ) * usd_value.to_f
 			to_value
 		end
 
