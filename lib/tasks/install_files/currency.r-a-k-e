@@ -21,5 +21,24 @@ namespace :bazaar do
 
 		end
 
+		GeoCountry.all.each do |geo_country|
+			country = ISO3166::Country.new(geo_country.abbrev)
+
+			if country.present?
+
+				currency_code = country.currency_code
+
+				geo_country.currency_id = Bazaar::Currency.where( code: currency_code ).first.try(:id) if geo_country.respond_to? :currency_id
+				geo_country.save
+
+			else
+
+				puts "unable to find currency data for #{geo_country.abbrev}"
+
+			end
+
+		end
+
 	end
+
 end
