@@ -13,6 +13,7 @@ module Bazaar
 					indexes :email, analyzer: 'english', index_options: 'offsets'
 					indexes :billing_address, analyzer: 'english', index_options: 'offsets'
 					indexes :shipping_address, analyzer: 'english', index_options: 'offsets'
+					indexes :public, type: 'boolean'
 				end
 			end
 		end

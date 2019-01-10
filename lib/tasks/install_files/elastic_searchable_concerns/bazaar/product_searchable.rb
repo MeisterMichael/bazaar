@@ -15,6 +15,7 @@ module Bazaar
 					indexes :description, analyzer: 'english', index_options: 'offsets'
 					indexes :content, analyzer: 'english', index_options: 'offsets'
 					indexes :published?, type: 'boolean'
+					indexes :public, type: 'boolean'
 				end
 			end
 		end
