@@ -1,3 +1,6 @@
+# Inorder for this rake task to function the following gems must be installed.
+# gem 'countries'
+# gem 'money-open-exchange-rates'
 
 namespace :bazaar do
 
