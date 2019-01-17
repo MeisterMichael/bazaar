@@ -7,7 +7,7 @@ module Bazaar
 			warehouse = self.shipment.warehouse
 
 			if warehouse.present?
-				self.sku.warehouse_skus.where( warehouse: warehouse ).first
+				self.sku.warehouse_skus.active.where( warehouse: warehouse ).first
 			else
 				nil
 			end

@@ -3,6 +3,7 @@ module Bazaar
 	class Transaction < ApplicationRecord
 
 		include Bazaar::Concerns::MoneyAttributesConcern
+		include Bazaar::TransactionSearchable if (Bazaar::TransactionSearchable rescue nil)
 
 		enum transaction_type: { 'void' => -3, 'chargeback' => -2, 'refund' => -1, 'preauth' => 0, 'charge' => 1 }
 		enum status: { 'declined' => -1, 'approved' => 1 }

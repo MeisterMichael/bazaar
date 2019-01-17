@@ -1,6 +1,7 @@
 module Bazaar
 	class Sku < ApplicationRecord
 		include Bazaar::Concerns::MoneyAttributesConcern
+		include Bazaar::SkuSearchable if (Bazaar::SkuSearchable rescue nil)
 
 		has_many	:offer_skus
 		has_many	:warehouse_skus
@@ -10,7 +11,8 @@ module Bazaar
 		has_many	:offer_skus
 
 		enum status: { 'trash' => -1, 'draft' => 0, 'active' => 100 }
-		enum restriction_type: { 'blacklist' => -1, 'unrestricted' => 0, 'whitelist' => 1 }
+		enum country_restriction_type: { 'countries_blacklist' => -1, 'countries_unrestricted' => 0, 'countries_whitelist' => 1 }
+		enum state_restriction_type: { 'states_blacklist' => -1, 'states_unrestricted' => 0, 'states_whitelist' => 1 }
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		money_attributes :sku_cost, :sku_value

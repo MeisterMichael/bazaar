@@ -3,6 +3,7 @@ module Bazaar
 
 
 		include Bazaar::Concerns::MoneyAttributesConcern
+		include Bazaar::SubscriptionSearchable if (Bazaar::SubscriptionSearchable rescue nil)
 
 		enum status: { 'trash' => -99, 'rejected' => -5, 'on_hold' => -2, 'canceled' => -1, 'failed' => 0, 'active' => 1, 'review' => 98, 'hold_review' => 110 }
 

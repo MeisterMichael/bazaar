@@ -5,6 +5,7 @@ module Bazaar
 		include Pulitzer::Concerns::URLConcern
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include SwellId::Concerns::PolymorphicIdentifiers
+		include Bazaar::ProductSearchable if (Bazaar::ProductSearchable rescue nil)
 
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
@@ -208,18 +209,6 @@ module Bazaar
 			def set_publish_at
 				# set publish_at
 				self.publish_at ||= Time.zone.now
-			end
-
-			def on_create
-				if defined?( Elasticsearch::Model )
-					__elasticsearch__.index_document
-				end
-			end
-
-			def on_update
-			 	if defined?( Elasticsearch::Model )
-					__elasticsearch__.index_document rescue Product.first.__elasticsearch__.update_document
-				end
 			end
 
 	end

@@ -193,6 +193,8 @@ module Bazaar
 
 				subscription.save
 
+				log_event( name: 'subscription_failed', category: 'ecom', on: subscription, content: "subscription #{subscription.code} failed to renew due to: #{subscription.failed_message}" )
+
 				raise e
 
 			end

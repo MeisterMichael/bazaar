@@ -1,0 +1,47 @@
+# Inorder for this rake task to function the following gems must be installed.
+# gem 'countries'
+# gem 'money-open-exchange-rates'
+
+namespace :bazaar do
+
+	task cache_currnecy_rates: :environment do
+		require 'money/bank/open_exchange_rates_bank'
+
+		# Memory store per default; for others just pass as argument a class like
+		# explained in https://github.com/RubyMoney/money#exchange-rate-stores
+		oxr = Money::Bank::OpenExchangeRatesBank.new
+		oxr.app_id = ENV['OPEN_EXCHANGE_RATES_APP_ID']
+		rates = oxr.update_rates
+
+		timestamp = oxr.rates_timestamp.to_f
+
+		rates.each do |currency_code,rate|
+			currency = Bazaar::Currency.create_with( name: currency_code ).find_or_create_by( code: currency_code )
+
+			currency.history[timestamp] = rate
+			currency.usd_conversion_rate = rate
+			currency.save
+
+		end
+
+		GeoCountry.all.each do |geo_country|
+			country = ISO3166::Country.new(geo_country.abbrev)
+
+			if country.present?
+
+				currency_code = country.currency_code
+
+				geo_country.currency_id = Bazaar::Currency.where( code: currency_code ).first.try(:id) if geo_country.respond_to? :currency_id
+				geo_country.save
+
+			else
+
+				puts "unable to find currency data for #{geo_country.abbrev}"
+
+			end
+
+		end
+
+	end
+
+end

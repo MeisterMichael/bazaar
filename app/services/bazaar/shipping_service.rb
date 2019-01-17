@@ -63,6 +63,7 @@ module Bazaar
 
 		def calculate_order( order, args={} )
 			order.shipping = 0
+			return false if order.shipping_address.nil?
 			return false if not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
 
 

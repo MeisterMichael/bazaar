@@ -6,34 +6,7 @@ module Bazaar
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include SwellId::Concerns::PolymorphicIdentifiers
 		include FriendlyId
-
-		if defined?( Elasticsearch::Model )
-
-			include Elasticsearch::Model
-
-			settings index: { number_of_shards: 1 } do
-				mappings dynamic: 'false' do
-					indexes :id, type: 'integer'
-					indexes :category_id, type: 'integer'
-					indexes :category_name, analyzer: 'english', index_options: 'offsets'
-					indexes :raw_category_name, index: :not_analyzed
-					indexes :slug, index: :not_analyzed
-					indexes :created_at, type: 'date'
-					indexes :title, analyzer: 'english', index_options: 'offsets'
-					indexes :title_downcase_raw, type: :string, index: :not_analyzed
-					indexes :description, analyzer: 'english', index_options: 'offsets'
-					indexes :published?, type: 'boolean'
-
-					indexes :tags, type: 'nested' do
-						indexes :name, analyzer: 'english', index_options: 'offsets'
-						indexes :raw_name, index: :not_analyzed
-						indexes :name_downcase, analyzer: 'english', index_options: 'offsets'
-						indexes :raw_name_downcase, index: :not_analyzed
-					end
-				end
-			end
-
-		end
+		include Bazaar::ProductSearchable if (Bazaar::ProductSearchable rescue nil)
 
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
@@ -58,8 +31,6 @@ module Bazaar
 		has_many_attached :other_attachments
 
 		before_save		:set_avatar
-		after_create :on_create
-		after_update :on_update
 		before_save	:set_publish_at
 		after_create :update_schedule!
 		after_create :update_prices!
@@ -342,18 +313,6 @@ module Bazaar
 			def set_publish_at
 				# set publish_at
 				self.publish_at ||= Time.zone.now
-			end
-
-			def on_create
-				if defined?( Elasticsearch::Model )
-					__elasticsearch__.index_document
-				end
-			end
-
-			def on_update
-			 	if defined?( Elasticsearch::Model )
-					__elasticsearch__.index_document rescue Product.first.__elasticsearch__.update_document
-				end
 			end
 
 	end

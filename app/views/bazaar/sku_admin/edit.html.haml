@@ -105,7 +105,7 @@
 							Add Country
 					%h4 Restrictions
 					.form-group
-						= f.collection_select :restriction_type, Bazaar::Sku.restriction_types, :first, :first, {}, class: 'form-control'
+						= f.collection_select :country_restriction_type, Bazaar::Sku.country_restriction_types, :first, :first, {}, class: 'form-control'
 
 					%table.table.table-light.table-bordered{ style: 'margin:0;' }
 						%thead

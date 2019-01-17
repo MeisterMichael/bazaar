@@ -1,6 +1,7 @@
 module Bazaar
 	class Collection < ApplicationRecord
-		
+
+		include Bazaar::CollectionSearchable if (Bazaar::CollectionSearchable rescue nil)
 
 		has_many :collection_items
 

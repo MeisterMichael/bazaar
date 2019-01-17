@@ -41,6 +41,7 @@ module Bazaar
 
 				return self.calculate_order( obj ) if obj.is_a? Order
 				return self.calculate_cart( obj ) if obj.is_a? Cart
+				return false
 
 			end
 
@@ -106,6 +107,7 @@ module Bazaar
 
 			def calculate_order( order )
 				order.tax = 0
+				return false if order.billing_address.nil?
 				return false if not( order.billing_address.validate ) || order.billing_address.geo_country.blank? || order.billing_address.zip.blank?
 				return false if order.billing_address.geo_country.abbrev == 'US' && order.billing_address.geo_state.blank?
 
