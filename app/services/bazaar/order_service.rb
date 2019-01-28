@@ -66,13 +66,13 @@ module Bazaar
 			args[:tax] ||= {}
 			args[:transaction] ||= {}
 
-			self.calculate( order, args )
-			return nil unless self.validate( order, args )
-
 			# Save as a failed before processing... assuming failure (in case of
 			# unrecoverable error) and recognizing success.
 			order_status = order.status.to_s
-			return nil unless order.update( status: 'failed', payment_status: 'declined' )
+			return nil unless order.update( status: 'failed' )
+
+			self.calculate( order, args )
+			return nil unless self.validate( order, args )
 
 			return self.process_capture_payment_method( order, args ) if order_status == 'pre_order'
 			return self.process_purchase( order, args ) if order_status == 'active'
