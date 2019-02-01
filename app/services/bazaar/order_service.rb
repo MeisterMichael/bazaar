@@ -88,16 +88,22 @@ module Bazaar
 		def process_purchase( order, args = {} )
 
 			if order.total == 0
-				if order.parent.is_a? Bazaar::Subscription
+				transaction = @transaction_service.capture_payment_method( order, args[:transaction] ) unless order.parent.is_a? Bazaar::Subscription
 
+				if transaction
 					order.payment_status = 'paid'
 					order.status = 'active'
 					order.save
-
-					return nil
 				else
-					transaction = @transaction_service.capture_payment_method( order, args[:transaction] )
+					order.status = 'failed' unless order.trash?
+					order.payment_status = 'declined'
+					order.save
+
+					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}" )
+
 				end
+
+				return nil
 			else
 				transaction = @transaction_service.process( order, args[:transaction] )
 			end
