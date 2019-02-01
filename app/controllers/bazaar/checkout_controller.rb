@@ -114,7 +114,7 @@ module Bazaar
 			end
 
 
-			if @order.active?
+			if @order.active? && @order.paid?
 
 				session[:cart_count] = 0
 				session[:cart_id] = nil
