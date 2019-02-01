@@ -114,20 +114,8 @@ module Bazaar
 			end
 
 
-			if @order.failed?
-				respond_to do |format|
-					format.js {
-						render :create
-					}
-					format.json {
-						render :create
-					}
-					format.html {
-						set_flash @order.nested_errors, :danger
-						redirect_back fallback_location: '/checkout'
-					}
-				end
-			else
+			if @order.active?
+
 				session[:cart_count] = 0
 				session[:cart_id] = nil
 
@@ -178,6 +166,21 @@ module Bazaar
 					}
 					format.html {
 						redirect_to @thank_you_url
+					}
+				end
+
+			else
+
+				respond_to do |format|
+					format.js {
+						render :create
+					}
+					format.json {
+						render :create
+					}
+					format.html {
+						set_flash @order.nested_errors, :danger
+						redirect_back fallback_location: '/checkout'
 					}
 				end
 
