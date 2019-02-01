@@ -74,49 +74,57 @@ module Bazaar
 			self.calculate( order, args )
 			return nil unless self.validate( order, args )
 
-			return self.process_capture_payment_method( order, args ) if order_status == 'pre_order'
-			return self.process_purchase( order, args ) if order_status == 'active'
-			raise Exception.new( 'OrderService#process: invalid order status' )
+			if order_status == 'pre_order'
+				result = self.process_capture_payment_method( order, args )
+			elsif order_status == 'active'
+				result = self.process_purchase( order, args )
+			else
+				raise Exception.new( 'OrderService#process: invalid order status' )
+			end
+
+			result
 		end
 
 		def process_purchase( order, args = {} )
 
 			if order.total == 0
-				@transaction_service.capture_payment_method( order, args[:transaction] ) unless order.parent.is_a? Bazaar::Subscription
-
-				if order.nested_errors.blank?
+				if order.parent.is_a? Bazaar::Subscription
 
 					order.payment_status = 'paid'
 					order.status = 'active'
 					order.save
 
+					return nil
+				else
+					transaction = @transaction_service.capture_payment_method( order, args[:transaction] )
 				end
+			else
+				transaction = @transaction_service.process( order, args[:transaction] )
+			end
+
+			if transaction && transaction.approved?
+
+				order.payment_status = 'paid'
+				order.status = 'active'
+				order.save
+
+				log_event( user: order.user, name: 'transaction_sxs', on: order, content: "transaction was approved for #{order.total_formatted} on Order #{order.code}" )
+
+				self.process_purchase_success( order, args )
 
 			else
 
-				transaction = @transaction_service.process( order, args[:transaction] )
+				order.status = 'failed' unless order.trash?
+				order.payment_status = 'declined'
+				order.save
 
-				if transaction && transaction.approved?
-
-					order.payment_status = 'paid'
-					order.status = 'active'
-					order.save
-
-					log_event( user: order.user, name: 'transaction_sxs', on: order, content: "transaction was approved for #{order.total_formatted} on Order #{order.code}" )
-
-					self.process_purchase_success( order, args )
-
+				if transaction && transaction.declined?
+					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}" )
 				else
-
-					if transaction && transaction.declined?
-						log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}" )
-					else
-						log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}" )
-					end
-
-					self.process_purchase_failure( order, args )
-
+					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}" )
 				end
+
+				self.process_purchase_failure( order, args )
 
 			end
 
@@ -203,7 +211,28 @@ module Bazaar
 
 		def process_capture_payment_method( order, args = {} )
 			transaction = @transaction_service.capture_payment_method( order, args[:transaction] )
-			order.save
+
+			if transaction && transaction.approved?
+
+				order.payment_status = 'payment_method_captured'
+				order.status = 'active'
+				order.save
+
+				log_event( user: order.user, name: 'transaction_sxs', on: order, content: "transaction payment capture was approved for #{order.total_formatted} on Order #{order.code}" )
+
+			else
+
+				order.payment_status = 'declined'
+				order.status = 'failed'
+				order.save
+
+				if transaction && transaction.declined?
+					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction payment capture was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}" )
+				else
+					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction payment capture was denied for #{order.total_formatted} on Order #{order.code}" )
+				end
+
+			end
 
 			transaction
 		end

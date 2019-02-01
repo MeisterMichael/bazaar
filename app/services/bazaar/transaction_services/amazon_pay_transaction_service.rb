@@ -337,7 +337,6 @@ module Bazaar
 					end
 
 				else
-					# order.status = 'active'
 					transaction.message = 'Missing transaction information.'
 					transaction.save
 					order.errors.add(:base, :processing_error, message: "Missing transaction information.")
@@ -353,7 +352,6 @@ module Bazaar
 				transaction.properties['amazon_authorization_id'] = amazon_authorization_id
 
 				if response.success
-					order.status = 'active'
 					order.payment_status = 'paid'
 					order.save
 
