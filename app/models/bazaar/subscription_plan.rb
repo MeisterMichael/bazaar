@@ -39,8 +39,6 @@ module Bazaar
 
 
 		before_save		:set_avatar
-		after_create :on_create
-		after_update :on_update
 		before_save	:set_publish_at
 		before_update :update_schedule_and_price_on_change
 		after_create :update_schedule!
