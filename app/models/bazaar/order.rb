@@ -33,6 +33,10 @@ module Bazaar
 		# 	super( Email.email_sanitize( value ) )
 		# end
 
+		def self.positive_status
+			where('status > 0')
+		end
+
 		def self.not_archived
 			where.not( status: Bazaar::Order.statuses['archived'] )
 		end
