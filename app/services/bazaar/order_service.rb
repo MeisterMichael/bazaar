@@ -88,7 +88,18 @@ module Bazaar
 		def process_purchase( order, args = {} )
 
 			if order.total == 0
-				transaction = @transaction_service.capture_payment_method( order, args[:transaction] ) unless order.parent.is_a? Bazaar::Subscription
+				if order.parent.is_a? Bazaar::Subscription
+					transaction ||= order.transactions.create(
+						transaction_type: 'charge',
+						status: 'approved',
+						provider: nil,
+						currency: order.currency,
+						message: 'no charge',
+						amount: 0,
+					)
+				else
+					transaction = @transaction_service.capture_payment_method( order, args[:transaction] )
+				end
 
 				if transaction
 					order.payment_status = 'paid'
@@ -103,7 +114,7 @@ module Bazaar
 
 				end
 
-				return nil
+				return transaction
 			else
 				transaction = @transaction_service.process( order, args[:transaction] )
 			end
