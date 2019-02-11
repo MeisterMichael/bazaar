@@ -51,6 +51,22 @@ module Bazaar
 			}
 		end
 
+		def create_order_transaction( order, attributes = {} )
+			transaction = Bazaar::Transaction.create({
+				transaction_type: 'charge',
+				status: 'declined',
+				parent_obj_id: order.id,
+				parent_obj_type: order.class.base_class.name,
+				billing_address_id: order.billing_address_id,
+				provider: order.provider,
+				currency: order.currency,
+				amount: order.total,
+				message: order.nested_errors.join('. '),
+			}.merge(attributes))
+
+			transaction
+		end
+
 		def discount_service
 			@discount_service
 		end
@@ -69,10 +85,12 @@ module Bazaar
 			# Save as a failed before processing... assuming failure (in case of
 			# unrecoverable error) and recognizing success.
 			order_status = order.status.to_s
-			return nil unless order.update( status: 'failed' )
+			return nil unless order.update( status: 'failed', payment_status: 'payment_failed' )
 
 			self.calculate( order, args )
-			return nil unless self.validate( order, args )
+			unless self.validate( order, args )
+				return create_order_transaction( order, transaction_type: 'charge', status: 'declined' )
+			end
 
 			if order_status == 'pre_order'
 				result = self.process_capture_payment_method( order, args )
@@ -88,20 +106,22 @@ module Bazaar
 		def process_purchase( order, args = {} )
 
 			if order.total == 0
-				if order.parent.is_a? Bazaar::Subscription
-					transaction ||= order.transactions.create(
-						transaction_type: 'charge',
-						status: 'approved',
-						provider: nil,
-						currency: order.currency,
-						message: 'no charge',
-						amount: 0,
-					)
-				else
-					transaction = @transaction_service.capture_payment_method( order, args[:transaction] )
+				# There is only a change of declining when capturing, otherise it is
+				# approved for $0, and we already have the payment method details.
+				transaction_status = 'approved'
+				transaction_type = 'charge'
+				result = true
+
+				# capture the payment method if first purchase... aka not renewal
+				if not( order.subscription_renewal? )
+					transaction_type = 'preauth'
+					result = @transaction_service.capture_payment_method( order, args[:transaction] )
+					transaction_status = 'declined' unless result
 				end
 
-				if transaction
+				transaction = create_order_transaction( order, transaction_type: transaction_type, status: transaction_status )
+
+				if transaction.approved?
 					order.payment_status = 'paid'
 					order.status = 'active'
 					order.save
@@ -110,40 +130,40 @@ module Bazaar
 					order.payment_status = 'declined'
 					order.save
 
-					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}" )
-
+					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}." )
 				end
 
-				return transaction
 			else
+
 				transaction = @transaction_service.process( order, args[:transaction] )
-			end
 
-			if transaction && transaction.approved?
+				# @TODO ensure that all process calls return a transaction.  THen remove this.
+				transaction = create_order_transaction( order, transaction_type: 'charge', status: 'declined' ) unless transaction
 
-				order.payment_status = 'paid'
-				order.status = 'active'
-				order.save
+				if transaction.approved?
 
-				log_event( user: order.user, name: 'transaction_sxs', on: order, content: "transaction was approved for #{order.total_formatted} on Order #{order.code}" )
+					order.payment_status = 'paid'
+					order.status = 'active'
+					order.save
 
-				self.process_purchase_success( order, args )
+					log_event( user: order.user, name: 'transaction_sxs', on: order, content: "transaction was approved for #{order.total_formatted} on Order #{order.code}. #{transaction.message}" )
 
-			else
+					self.process_purchase_success( order, args )
 
-				order.status = 'failed' unless order.trash?
-				order.payment_status = 'declined'
-				order.save
-
-				if transaction && transaction.declined?
-					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}" )
 				else
-					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}" )
+
+					order.status = 'failed' unless order.trash?
+					order.payment_status = 'declined'
+					order.save
+
+					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}." )
+
+					self.process_purchase_failure( order, args )
+
 				end
 
-				self.process_purchase_failure( order, args )
-
 			end
+
 
 			transaction
 
@@ -227,9 +247,13 @@ module Bazaar
 		end
 
 		def process_capture_payment_method( order, args = {} )
-			transaction = @transaction_service.capture_payment_method( order, args[:transaction] )
+			result = @transaction_service.capture_payment_method( order, args[:transaction] )
+			transaction_status = 'declined'
+			transaction_status = 'approved' if result
 
-			if transaction && transaction.approved?
+			transaction = create_order_transaction( order, transaction_type: 'preauth', status: transaction_status )
+
+			if transaction.approved?
 
 				order.payment_status = 'payment_method_captured'
 				order.status = 'active'
@@ -243,11 +267,7 @@ module Bazaar
 				order.status = 'failed'
 				order.save
 
-				if transaction && transaction.declined?
-					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction payment capture was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}" )
-				else
-					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction payment capture was denied for #{order.total_formatted} on Order #{order.code}" )
-				end
+				log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction payment capture was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}" )
 
 			end
 

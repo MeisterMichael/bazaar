@@ -6,7 +6,7 @@ module Bazaar
 		include Bazaar::OrderSearchable if (Bazaar::OrderSearchable rescue nil)
 
 		enum status: { 'trash' => -99, 'rejected' => -5, 'failed' => -1, 'draft' => 0, 'pre_order' => 1, 'active' => 2, 'review' => 98, 'archived' => 99, 'hold_review' => 110 }
-		enum payment_status: { 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'invoice' => 0, 'payment_method_captured' => 1, 'paid' => 2 }
+		enum payment_status: { 'payment_failed' => -4, 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'invoice' => 0, 'payment_method_captured' => 1, 'paid' => 2 }
 		enum fulfillment_status: { 'fulfillment_canceled' => -3, 'fulfillment_error' => -1, 'unfulfilled' => 0, 'partially_fulfulled' => 1, 'fulfilled' => 2, 'delivered' => 3, 'return_to_sender' => 4 }
 		enum generated_by: { 'customer_generated' => 1, 'system_generaged' => 2 }
 
