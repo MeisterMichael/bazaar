@@ -85,13 +85,11 @@ module Bazaar
 
 					elsif payment.execute( payer_id: payer_id )
 
+						transaction.status = 'approved'
+						transaction.save
+
 						order.payment_status = 'paid'
-
-						if order.save
-							transaction.status = 'approved'
-							return transaction
-						end
-
+						order.save
 
 					else
 
@@ -113,7 +111,7 @@ module Bazaar
 				end
 
 
-				return false
+				return transaction
 			end
 
 			def provider_name
