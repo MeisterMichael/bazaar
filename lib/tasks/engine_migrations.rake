@@ -10,12 +10,17 @@ namespace :bazaar do
 
 		puts "Bazaar::OrderSku.count #{Bazaar::OrderSku.count}"
 		puts "Bazaar::OrderOffer.count #{Bazaar::OrderOffer.count}"
-		puts "Bazaar::OrderItem.count #{Bazaar::OrderItem.count}"
+		puts "Bazaar::OrderItem.count #{Bazaar::OrderItem.prod.count}"
 
 		Bazaar::OrderItem.prod.find_each do |order_item|
-			order_item.create_offer_relations!
+			order_offer = order_item.create_offer_relations!
+			print "order_offer #{order_offer.id}\r"
+			order_offer.subscription = order_item.subscription
+			order_offer.subscription ||= order_item.order.parent if order_item.order.parent.is_a? Bazaar::Subscription
+			order_offer.save!
+			true
 		end
-		
+
 		puts "Bazaar::OrderSku.count #{Bazaar::OrderSku.count}"
 		puts "Bazaar::OrderOffer.count #{Bazaar::OrderOffer.count}"
 	end

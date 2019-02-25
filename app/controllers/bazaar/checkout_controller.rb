@@ -102,6 +102,7 @@ module Bazaar
 			rescue Exception => e
 				@order.errors.add( :base, :processing_error, message: 'An error occured during transaction processing.  Please contact support for assistance.' ) if @order.failed?
 				log_event( user: @order.user, on: @order, name: 'error', message: "#{e.class.name} - #{e.message}" )
+				raise e
 			end
 
 			if params[:newsletter].present?

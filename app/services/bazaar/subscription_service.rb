@@ -21,6 +21,11 @@ module Bazaar
 					order_item.subscription = self.subscribe( order.user, order_item.item, args.merge( quantity: order_item.quantity, order: order, subscription: order_item.subscription ) )
 					order_item.save
 
+					# also save the subscription into the OrderOffer
+					order_offer = order_item.order_offer
+					order_offer.subscription = order_item.subscription
+					order_offer.save!
+
 				end
 			end
 
@@ -80,6 +85,7 @@ module Bazaar
 			subscription.attributes = {
 				user: user,
 				subscription_plan: plan,
+				offer: plan.offer,
 				billing_address: args[:billing_address],
 				shipping_address: args[:shipping_address],
 				quantity: quantity,
