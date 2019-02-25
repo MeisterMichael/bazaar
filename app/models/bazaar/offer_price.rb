@@ -30,7 +30,7 @@ module Bazaar
 
 		def validate_start_interval_uniq
 			with_same_interval = self.class.base_class.where( parent_obj: self.parent_obj, start_interval: self.start_interval ).where.not( id: self.id ).active
-			self.errors.add( :start_interval, "start interval must not be unique #{self.to_json} -> #{with_same_interval.collect(&:to_json)}") if with_same_interval.present?
+			self.errors.add( :start_interval, "start interval must not be unique") if with_same_interval.present?
 		end
 
 	end
