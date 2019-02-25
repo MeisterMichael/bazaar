@@ -7,15 +7,16 @@ module Bazaar
 
 		enum status: { 'trash' => -99, 'rejected' => -5, 'on_hold' => -2, 'canceled' => -1, 'failed' => 0, 'active' => 1, 'review' => 98, 'hold_review' => 110 }
 
-		belongs_to :user, required: false
-		belongs_to :subscription_plan
-		belongs_to :discount, required: false
-		belongs_to :shipping_carrier_service, required: false
+		belongs_to	:user, required: false
+		belongs_to	:subscription_plan
+		belongs_to	:discount, required: false
+		belongs_to	:shipping_carrier_service, required: false
+		belongs_to	:offer
 
 		belongs_to 	:billing_address, class_name: 'GeoAddress'
 		belongs_to 	:shipping_address, class_name: 'GeoAddress'
 
-		has_many :subscription_schedules, as: :parent_obj
+		has_many		:subscription_schedules, as: :parent_obj
 
 		before_create :generate_order_code
 		before_create :initialize_timestamps

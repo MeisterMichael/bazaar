@@ -18,6 +18,8 @@ module Bazaar
 		belongs_to	:parent, polymorphic: true, required: false
 
 		has_many 	:order_items, dependent: :destroy, validate: true
+		has_many 	:order_offers, dependent: :destroy, validate: true
+		has_many 	:order_skus, dependent: :destroy, validate: true
 		has_many	:shipments
 		has_many	:transactions, as: :parent_obj
 

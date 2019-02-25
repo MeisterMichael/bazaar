@@ -12,9 +12,10 @@ module Bazaar
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		belongs_to 	:item, polymorphic: true, required: false
-		has_many :offer_prices, as: :parent_obj
-		has_many :offer_schedules, as: :parent_obj
-		has_many :offer_skus, as: :parent_obj
+		belongs_to :offer
+		has_many :offer_prices, through: :offer
+		has_many :offer_schedules, through: :offer
+		has_many :offer_skus, through: :offer
 		has_one_attached :avatar_attachment
 		has_many_attached :embedded_attachments
 		has_many_attached :gallery_attachments
@@ -40,6 +41,7 @@ module Bazaar
 
 		before_save		:set_avatar
 		before_save	:set_publish_at
+		before_save :update_offer
 		before_update :update_schedule_and_price_on_change
 		after_create :update_schedule!
 		after_create :update_prices!
@@ -160,35 +162,52 @@ module Bazaar
 			self.trial_max_intervals > 0
 		end
 
+		def update_offer
+			self.offer ||= Bazaar::Offer.new
+			self.offer.title						= self.title
+			self.offer.status						= self.status
+			self.offer.availability			= self.availability
+			self.offer.avatar						= self.avatar
+			self.offer.tax_code					= self.tax_code
+			self.offer.description			= self.description
+			self.offer.cart_description	= self.cart_description
+		end
+
+		def update_offer!
+			update_offer
+			self.save
+			self.offer.save
+		end
+
 		def update_schedule_and_price_on_change
 			update_schedule! if self.trial_max_intervals_changed? || self.trial_interval_value_changed? || self.trial_interval_unit_changed? || self.billing_interval_value_changed? || self.billing_interval_unit_changed?
 			update_prices! if self.trial_price_changed? || self.price_changed?
 		end
 
 		def update_schedule!
-			self.offer_schedules.each do |offer_schedule|
+			self.offer.offer_schedules.each do |offer_schedule|
 				offer_schedule.trash!
 			end
 
 			if "#{self.trial_interval_value} #{self.trial_interval_unit.strip}".downcase == "#{self.billing_interval_value} #{self.billing_interval_unit.strip}".downcase
-				self.offer_schedules.create!( start_interval: 1, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
+				self.offer.offer_schedules.create!( start_interval: 1, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
 			else
-				self.offer_schedules.create!( start_interval: 1, interval_unit: self.trial_interval_unit, interval_value: self.trial_interval_value, status: 'active' ) if self.trial?
-				self.offer_schedules.create!( start_interval: self.trial_max_intervals + 1, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
+				self.offer.offer_schedules.create!( start_interval: 1, interval_unit: self.trial_interval_unit, interval_value: self.trial_interval_value, status: 'active' ) if self.trial?
+				self.offer.offer_schedules.create!( start_interval: self.trial_max_intervals + 1, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
 			end
 
 		end
 
 		def update_prices!
-			self.offer_prices.each do |offer_price|
+			self.offer.offer_prices.each do |offer_price|
 				offer_price.trash!
 			end
 
 			if self.trial_price == self.price
-				self.offer_prices.create!( start_interval: 1, price: self.price, status: 'active' )
+				self.offer.offer_prices.create!( start_interval: 1, price: self.price, status: 'active' )
 			else
-				self.offer_prices.create!( start_interval: 1, price: self.trial_price, status: 'active' ) if self.trial?
-				self.offer_prices.create!( start_interval: self.trial_max_intervals + 1, price: self.price, status: 'active' )
+				self.offer.offer_prices.create!( start_interval: 1, price: self.trial_price, status: 'active' ) if self.trial?
+				self.offer.offer_prices.create!( start_interval: self.trial_max_intervals + 1, price: self.price, status: 'active' )
 			end
 		end
 

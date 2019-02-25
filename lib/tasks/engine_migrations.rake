@@ -1,6 +1,25 @@
 # desc "Explaining what the task does"
 namespace :bazaar do
 
+	task backfill_order_offer_relations: :environment do
+		puts "Bazaar::OrderSku.count #{Bazaar::OrderSku.count}"
+		puts "Bazaar::OrderOffer.count #{Bazaar::OrderOffer.count}"
+
+		Bazaar::OrderSku.delete_all
+		Bazaar::OrderOffer.delete_all
+
+		puts "Bazaar::OrderSku.count #{Bazaar::OrderSku.count}"
+		puts "Bazaar::OrderOffer.count #{Bazaar::OrderOffer.count}"
+		puts "Bazaar::OrderItem.count #{Bazaar::OrderItem.count}"
+
+		Bazaar::OrderItem.prod.find_each do |order_item|
+			order_item.create_offer_relations!
+		end
+		
+		puts "Bazaar::OrderSku.count #{Bazaar::OrderSku.count}"
+		puts "Bazaar::OrderOffer.count #{Bazaar::OrderOffer.count}"
+	end
+
 	task swell_ecom_to_bazaar_install: :environment do
 
 		prefix = Time.now.utc.strftime("%Y%m%d%H%M%S").to_i

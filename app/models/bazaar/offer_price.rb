@@ -20,12 +20,17 @@ module Bazaar
 			end
 		end
 
+		def self.for_interval( interval )
+			self.where( ":interval >= start_interval AND ( max_intervals IS NULL OR :interval <= ( start_interval + max_intervals ) )", interval: interval )
+		end
+
 		def set_trashed_at
 			self.trashed_at ||= Time.now if self.trash?
 		end
 
 		def validate_start_interval_uniq
-			self.errors.add( :start_interval, "start interval must not be unique") if self.class.base_class.where( parent_obj: self.parent_obj, start_interval: self.start_interval ).where.not( id: self.id ).active.present?
+			with_same_interval = self.class.base_class.where( parent_obj: self.parent_obj, start_interval: self.start_interval ).where.not( id: self.id ).active
+			self.errors.add( :start_interval, "start interval must not be unique #{self.to_json} -> #{with_same_interval.collect(&:to_json)}") if with_same_interval.present?
 		end
 
 	end

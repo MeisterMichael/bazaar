@@ -17,9 +17,10 @@ module Bazaar
 		attr_accessor	:category_name
 		attr_accessor	:slug_pref
 
-		has_many :offer_prices, as: :parent_obj
-		has_many :offer_schedules, as: :parent_obj
-		has_many :offer_skus, as: :parent_obj
+		belongs_to :offer
+		has_many :offer_prices, through: :offer
+		has_many :offer_schedules, through: :offer
+		has_many :offer_skus, through: :offer
 		belongs_to 	:product_category, foreign_key: :category_id, required: false
 		has_many 	:product_options
 		has_many 	:product_variants
@@ -32,6 +33,7 @@ module Bazaar
 
 		before_save		:set_avatar
 		before_save	:set_publish_at
+		before_save :update_offer
 		after_create :update_schedule!
 		after_create :update_prices!
 		before_update :update_price_on_change
@@ -278,25 +280,41 @@ module Bazaar
 			}.as_json
 		end
 
+		def update_offer
+			self.offer ||= Bazaar::Offer.new
+			self.offer.title						= self.title
+			self.offer.status						= self.status
+			self.offer.availability			= self.availability
+			self.offer.avatar						= self.avatar
+			self.offer.tax_code					= self.tax_code
+			self.offer.description			= self.description
+			self.offer.cart_description	= self.cart_description
+		end
+
+		def update_offer!
+			update_offer
+			self.save
+			self.offer.save
+		end
 
 		def update_price_on_change
 			update_prices! if self.price_changed?
 		end
 
 		def update_schedule!
-			self.offer_schedules.each do |offer_schedule|
+			self.offer.offer_schedules.each do |offer_schedule|
 				offer_schedule.trash!
 			end
 
-			self.offer_schedules.create!( start_interval: 1, max_intervals: 1, interval_value: 0, status: 'active' )
+			self.offer.offer_schedules.create!( start_interval: 1, max_intervals: 1, interval_value: 0, status: 'active' )
 		end
 
 		def update_prices!
-			self.offer_prices.each do |offer_price|
+			self.offer.offer_prices.each do |offer_price|
 				offer_price.trash!
 			end
 
-			self.offer_prices.create!( start_interval: 1, price: self.price, status: 'active' )
+			self.offer.offer_prices.create!( start_interval: 1, price: self.price, status: 'active' )
 		end
 
 		protected

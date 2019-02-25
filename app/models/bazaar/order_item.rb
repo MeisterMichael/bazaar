@@ -6,12 +6,33 @@ module Bazaar
 
 		enum order_item_type: { 'prod' => 1, 'tax' => 2, 'shipping' => 3, 'discount' => 4 }
 
+		before_save :create_offer_relations
+
 		belongs_to :item, polymorphic: true, required: false
 		belongs_to :order
 
 		belongs_to :subscription, required: false, validate: true
 
 		money_attributes :subtotal, :price
+
+		def create_offer_relations
+			return unless self.prod?
+			offer = self.item.offer
+
+			offer_price = offer.offer_prices.active.for_interval( 1 ).first.price
+			order_offer = self.order.order_offers.new( offer: offer, tax_code: offer.tax_code, title: offer.title, quantity: self.quantity, price: offer_price, subtotal: offer_price * self.quantity )
+
+			order_offer.offer.offer_skus.active.for_interval( order_offer.subscription_interval ).each do |offer_sku|
+				order_sku = self.order.order_skus.to_a.find{ |order_sku| order_sku.sku == offer_sku.sku }
+				order_sku ||= self.order.order_skus.new( sku: offer_sku.sku, quantity: 0 )
+				order_sku.quantity = order_sku.quantity + offer_sku.calculate_quantity( order_offer.quantity )
+			end
+		end
+
+		def create_offer_relations!
+			create_offer_relations
+			self.order.save
+		end
 
 		def item_interval
 			subscription = self.subscription
@@ -55,7 +76,6 @@ module Bazaar
 			return self.properties['package_height'].to_f if self.properties['package_height']
 			package_item.package_height
 		end
-
 
 
 
