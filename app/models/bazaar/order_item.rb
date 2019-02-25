@@ -21,6 +21,8 @@ module Bazaar
 
 			offer_price = offer.offer_prices.active.for_interval( 1 ).first.price
 			new_order_offer = self.order.order_offers.new( offer: offer, tax_code: offer.tax_code, title: offer.title, quantity: self.quantity, price: offer_price, subtotal: offer_price * self.quantity )
+			new_order_offer.subscription = self.item if self.item.is_a? Bazaar::Subscription
+			new_order_offer.subscription_interval = Bazaar::OrderOffer.joins(:order).merge(Bazaar::Order.positive_status).where( subscription: new_order_offer.subscription ).maximum(:subscription_interval).to_i + 1 if new_order_offer.subscription
 
 			new_order_offer.offer.offer_skus.active.for_interval( new_order_offer.subscription_interval ).each do |offer_sku|
 				order_sku = self.order.order_skus.to_a.find{ |order_sku| order_sku.sku == offer_sku.sku }
