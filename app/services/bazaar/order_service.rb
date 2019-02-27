@@ -235,14 +235,14 @@ module Bazaar
 		protected
 		def calculate_order_before( order, args = {} )
 
-			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
-			order.status = 'pre_order' if order.order_items.select{|order_item| order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order? }.present?
+			order.subtotal = order.order_offers.sum(&:subtotal)
+			order.status = 'pre_order' if order.order_offers.select{|order_offer| order_offer.offer.pre_order? }.present?
 
 		end
 
 		def calculate_order_after( order, args = {} )
 
-			order.total = order.order_items.sum(&:subtotal)
+			order.total = order.subtotal + order.shipping + order.taxes - order.discount
 
 		end
 
