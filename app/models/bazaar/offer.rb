@@ -32,5 +32,9 @@ module Bazaar
 			self.trashed_at ||= Time.now if self.trash?
 		end
 
+		def subscription_plan
+			Bazaar::SubscriptionPlan.where( offer: self ).first
+		end
+
 	end
 end
