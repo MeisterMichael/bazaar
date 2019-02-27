@@ -19,14 +19,9 @@ module Bazaar
 
 			order.active!
 
-			order.order_items.where.not( subscription: nil ).each do |order_item|
-				order_item.subscription.active! if order_item.subscription.review?
+			order.order_offers.where.not( subscription: nil ).each do |order_offer|
+				order_offer.subscription.active! if order_offer.subscription.review?
 			end
-
-			order.order_items.prod.where( item_type: Bazaar::Subscription.base_class.name ).each do |order_item|
-				order_item.item.active! if order_item.item.review?
-			end
-
 
 			return true
 		end
@@ -36,8 +31,8 @@ module Bazaar
 
 			order.hold_review!
 
-			order.order_items.prod.where.not( subscription: nil ).each do |order_item|
-				order_item.subscription.hold_review! if order_item.subscription.active?
+			order.order_offers.where.not( subscription: nil ).each do |order_offer|
+				order_offer.subscription.hold_review! if order_offer.subscription.active?
 			end
 
 		end
@@ -46,8 +41,8 @@ module Bazaar
 
 			order.review!
 
-			order.order_items.prod.where.not( subscription: nil ).each do |order_item|
-				order_item.subscription.review! if order_item.subscription.active?
+			order.order_offers.where.not( subscription: nil ).each do |order_offer|
+				order_offer.subscription.review! if order_offer.subscription.active?
 			end
 
 		end
@@ -61,12 +56,8 @@ module Bazaar
 
 			order.rejected!
 
-			order.order_items.where.not( subscription: nil ).each do |order_item|
-				order_item.subscription.rejected!
-			end
-
-			order.order_items.prod.where( item_type: Bazaar::Subscription.base_class.name ).each do |order_item|
-				order_item.item.rejected!
+			order.order_offers.where.not( subscription: nil ).each do |order_offer|
+				order_offer.subscription.rejected!
 			end
 
 			return true
