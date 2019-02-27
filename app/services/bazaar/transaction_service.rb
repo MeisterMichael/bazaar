@@ -49,7 +49,8 @@ module Bazaar
 
 		def calculate_order( order, options = {} )
 
-			order.total = order.order_items.sum(&:subtotal)
+			order.subtotal = order.order_offers.sum(&:subtotal)
+			order.total = order.subtotal + order.shipping + order.taxes - order.discount
 
 		end
 
