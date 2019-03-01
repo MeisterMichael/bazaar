@@ -233,7 +233,27 @@ module Bazaar
 		end
 
 		protected
+		# def build_shipments( order, args = {} )
+
 		def calculate_order_before( order, args = {} )
+
+			order.order_items.to_a.select(&:prod?).each do |order_item|
+
+				offer = order_item.item.offer
+
+				offer_price = offer.offer_prices.active.for_interval( 1 ).first.price
+				new_order_offer = order_item.order.order_offers.new( offer: offer, tax_code: offer.tax_code, title: offer.title, quantity: order_item.quantity, price: offer_price, subtotal: offer_price * order_item.quantity )
+
+				new_order_offer.offer.offer_skus.active.for_interval( new_order_offer.subscription_interval ).each do |offer_sku|
+					order_sku = order_item.order.order_skus.to_a.find{ |order_sku| order_sku.sku == offer_sku.sku }
+					order_sku ||= order_item.order.order_skus.new( sku: offer_sku.sku, quantity: 0 )
+					order_sku.quantity = order_sku.quantity + offer_sku.calculate_quantity( new_order_offer.quantity )
+				end
+
+			end
+
+			# build_shipments( order, args )
+
 
 			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
 			order.status = 'pre_order' if order.order_items.select{|order_item| order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order? }.present?
