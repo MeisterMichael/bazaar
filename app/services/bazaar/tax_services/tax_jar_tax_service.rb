@@ -210,11 +210,13 @@ module Bazaar
 				order_total = order.order_items.select{ |order_item| order_item.prod? }.sum(&:subtotal) / 100.0
 				discount_total = order.order_items.select{ |order_item| order_item.discount? }.sum(&:subtotal) / 100.0
 
+				discount_remaining = discount_total
 				discount_applied = 0
+
 				line_items = []
 				order.order_items.each do |order_item|
 					if order_item.prod?
-						discount = [ -(discount_total - discount_applied), order_item.subtotal ].min
+						discount = [ discount_remaining, -order_item.subtotal_as_money ].max
 
 						line_items << {
 							:quantity => order_item.quantity,
@@ -222,26 +224,28 @@ module Bazaar
 							:product_tax_code => order_item.tax_code,
 							:product_identifier => order_item.sku,
 							:description => order_item.title,
-							:discount => discount,
+							:discount => -discount,
 						}
 
-						discount_applied = discount_applied - discount
+						discount_applied = discount_applied + discount
+						discount_remaining = (discount_total - discount_applied).round(8)
 					end
 				end
 
+
 				order_info = {
-				    :to_country => order.shipping_address.geo_country.try(:abbrev),
-				    :to_zip => order.shipping_address.zip,
-				    :to_city => order.shipping_address.city,
-				    :to_state => order.shipping_address.state_abbrev,
-				    :from_country => @warehouse_address[:country] || @origin_address[:country],
-				    :from_zip => @warehouse_address[:zip] || @origin_address[:zip],
-				    :from_city => @warehouse_address[:city] || @origin_address[:city],
-				    :from_state => @warehouse_address[:state] || @origin_address[:state],
-				    :amount => order_total + shipping_amount + discount_total,
-				    :shipping => shipping_amount,
-				    :nexus_addresses => @nexus_addresses,
-				    :line_items => line_items,
+					:to_country => order.shipping_address.geo_country.try(:abbrev),
+					:to_zip => order.shipping_address.zip,
+					:to_city => order.shipping_address.city,
+					:to_state => order.shipping_address.state_abbrev,
+					:from_country => @warehouse_address[:country] || @origin_address[:country],
+					:from_zip => @warehouse_address[:zip] || @origin_address[:zip],
+					:from_city => @warehouse_address[:city] || @origin_address[:city],
+					:from_state => @warehouse_address[:state] || @origin_address[:state],
+					:amount => order_total + shipping_amount + discount_total,
+					:shipping => shipping_amount + discount_remaining,
+					:nexus_addresses => @nexus_addresses,
+					:line_items => line_items,
 				}
 
 				order_info[:transaction_id] = order.code if order.code.present?
