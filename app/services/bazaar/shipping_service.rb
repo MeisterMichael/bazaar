@@ -89,7 +89,7 @@ module Bazaar
 				order.shipping = rate[:price]
 
 				# @todo replace with proper multi shipment rate calculation
-				if ( shipment = order.shipments.to_a.first )
+				order.shipments.to_a.each do |shipment|
 					shipment.carrier_service_level = shipping_order_item.item.service_name if shipping_order_item.item.respond_to?(:service_name)
 					shipment.price = shipping_order_item.price
 					shipment.cost = rate[:cost]
