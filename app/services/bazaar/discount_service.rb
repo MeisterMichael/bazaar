@@ -24,9 +24,9 @@ module Bazaar
 			error_messages = []
 			error_messages << 'Invalid discount' if not( discount.active? ) || not( discount.in_progress? )
 			error_messages << 'Unsupported discount type' if discount.selected_users?
-			error_messages << 'Does not meet minimum purchase requirement' if discount.minimum_prod_subtotal != 0 && discount.minimum_prod_subtotal > prod_order_items.sum{ |order_item| order_item.subtotal }
-			error_messages << 'Does not meet minimum shipping requirement' if discount.minimum_shipping_subtotal != 0 && discount.minimum_shipping_subtotal > shipping_order_items.sum{ |order_item| order_item.subtotal }
-			error_messages << 'Does not meet minimum tax requirement' if discount.minimum_tax_subtotal != 0 && discount.minimum_tax_subtotal > tax_order_items.sum{ |order_item| order_item.subtotal }
+			error_messages << 'The discount does not meet the minimum purchase requirement' if discount.minimum_prod_subtotal != 0 && discount.minimum_prod_subtotal > prod_order_items.sum{ |order_item| order_item.subtotal }
+			error_messages << 'The discount does not meet the minimum shipping requirement' if discount.minimum_shipping_subtotal != 0 && discount.minimum_shipping_subtotal > shipping_order_items.sum{ |order_item| order_item.subtotal }
+			error_messages << 'The discount does not meet the minimum tax requirement' if discount.minimum_tax_subtotal != 0 && discount.minimum_tax_subtotal > tax_order_items.sum{ |order_item| order_item.subtotal }
 			error_messages << 'You have exceeded the limit of uses for the selected discount' if discount.limit_per_customer.present? && order.user.present? && OrderItem.where( item: discount ).joins(:order).merge( Order.where( user: order.user ).positive_status ).count >= discount.limit_per_customer
 			error_messages << 'The selected discount\'s usage limit has been exhausted' if discount.limit_global.present? && OrderItem.where( item: discount ).count >= discount.limit_global
 
