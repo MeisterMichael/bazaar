@@ -26,7 +26,9 @@ module Bazaar
 		end
 
 		def fetch_delivery_status( order, args = {} )
-			fetch_delivery_status_for_code( order.tracking_number, args )
+			shipment = order.shipments.where( tracking_number: order.tracking_number ).first
+
+			fetch_delivery_status_for_code( order.tracking_number, args.merge( shipment: shipment ) )
 		end
 
 		def fetch_delivery_status_for_code( code, args = {} )

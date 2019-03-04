@@ -62,6 +62,32 @@ module Bazaar
 						status[:delivered_at] = event.time if event.name.downcase.include?( 'delivered' )
 						status[:shipped_at] ||= event.time
 					end
+
+
+
+					if args[:shipment].present?
+						shipment = args[:shipment]
+
+						shipment.carrier			= tracking_info.carrier_name
+
+						shipment.shipped_at		= tracking_info.ship_time
+						shipment.delivered_at	= tracking_info.actual_delivery_date
+
+						shipment.status = 'shipped' if shipment.shipped_at
+						shipment.status = 'delivered' if shipment.delivered_at
+
+						tracking_info.shipment_events.each do |event|
+							created_at = Time.parse(event.time.to_s)
+
+							shipment.shipment_logs.created_with(
+								subject: event.name,
+								details: event.message,
+							).find_or_create_by( created_at: created_at, carrier_status: event.name )
+						end
+
+						shipment.save
+
+					end
 				rescue ActiveShipping::ResponseError => e
 					return false if e.message.include? 'status update is not yet available'
 					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
