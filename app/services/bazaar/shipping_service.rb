@@ -87,6 +87,14 @@ module Bazaar
 			if rate.present?
 				shipping_order_item = order.order_items.new( item: rate[:carrier_service], price: rate[:price], subtotal: rate[:price], title: (rate[:label] || rate[:name]), order_item_type: 'shipping', tax_code: '11000', properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] } )
 				order.shipping = rate[:price]
+
+				# @todo replace with proper multi shipment rate calculation
+				if ( shipment = order.shipments.to_a.first )
+					shipment.carrier_service_level = shipping_order_item.item.service_name if shipping_order_item.item.respond_to?(:service_name)
+					shipment.price = shipping_order_item.price
+					shipment.cost = rate[:cost]
+				end
+
 			else
 				order.shipping = 0
 			end
