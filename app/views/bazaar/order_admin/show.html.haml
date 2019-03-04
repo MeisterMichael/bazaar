@@ -286,7 +286,7 @@
 								%tr
 									%td{ colspan: 6, style: 'padding-left: 4em;' }
 										#{current_user.to_local_tz(shipment_log.created_at).to_s( :short )} |
-										#{shipment_log.subject} | #{shipment_log.message}
+										#{shipment_log.subject} | #{shipment_log.details}
 										(#{shipment_log.carrier_status})
 
 
