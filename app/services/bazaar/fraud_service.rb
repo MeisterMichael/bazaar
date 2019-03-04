@@ -45,7 +45,7 @@ module Bazaar
 			end
 
 			order.shipments.each do |shipment|
-				shipment.hold_review!
+				shipment.hold_review! if shipment.pending?
 			end
 
 		end
