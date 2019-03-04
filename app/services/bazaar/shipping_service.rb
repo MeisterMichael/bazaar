@@ -62,6 +62,8 @@ module Bazaar
 		end
 
 		def calculate_order( order, args={} )
+			initialize_order_shipments( order, args )
+
 			order.shipping = 0
 			return false if order.shipping_address.nil?
 			return false if not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
@@ -153,6 +155,21 @@ module Bazaar
 			end
 
 			cached_rates
+		end
+
+		def initialize_order_shipments( order, args = {} )
+
+			shipment = order.shipments.new(
+				destination_address: order.shipping_address,
+			)
+
+			order.order_skus.each do |order_sku|
+				shipment.shipment_skus.new(
+					sku: order_sku.sku,
+					quantity: order_sku.quantity,
+				)
+			end
+
 		end
 
 		def request_address_rates( geo_address, line_items, args = {} )

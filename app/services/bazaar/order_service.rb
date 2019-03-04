@@ -251,8 +251,6 @@ module Bazaar
 
 			end
 
-			initialize_shipments( order, args )
-
 			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
 			order.status = 'pre_order' if order.order_items.select{|order_item| order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order? }.present?
 
@@ -261,22 +259,6 @@ module Bazaar
 		def calculate_order_after( order, args = {} )
 
 			order.total = order.order_items.sum(&:subtotal)
-
-		end
-
-
-		def initialize_shipments( order, args = {} )
-			
-			shipment = order.shipments.new(
-				destination_address: order.shipping_address,
-			)
-
-			order.order_skus.each do |order_sku|
-				shipment.shipment_skus.new(
-					sku: order_sku.sku,
-					quantity: order_sku.quantity,
-				)
-			end
 
 		end
 
