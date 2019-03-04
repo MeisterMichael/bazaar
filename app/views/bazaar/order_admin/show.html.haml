@@ -254,15 +254,16 @@
 				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
 					%thead
 						%tr
-							%th{ style: 'width: 10em' } Created At
-							%th{ style: 'width: 10em' } Status
-							%th{ style: 'width: 10em' } Carrier
+							%th{ style: 'width: 8em' } Created At
+							%th{ style: 'width: 8em' } Status
+							%th{ style: 'width: 8em' } Carrier
+							%th{ style: 'width: 8em' } Warehouse
 							%th{ style: 'width: 15em' } Items
 							%th Tracking
 					%tbody
 						- unless @shipments.present?
 							%tr
-								%td{ colspan: 5 } - No Shipments -
+								%td{ colspan: 6 } - No Shipments -
 						- @shipments.each do |shipment|
 							%tr
 								%td
@@ -271,6 +272,8 @@
 									= shipment.status
 								%td
 									= shipment.carrier || '-'
+								%td
+									= shipment.warehouse.try(:name) || '-'
 								%td
 									= raw shipment.shipment_skus.collect{|shipment_sku| "#{shipment_sku.sku.code} x #{shipment_sku.quantity}" }.join('<br/>')
 								%td
@@ -281,7 +284,7 @@
 										= shipment.tracking_code || '-'
 							- shipment.shipment_logs.each do |shipment_log|
 								%tr
-									%td{ colspan: 5, style: 'padding-left: 4em;' }
+									%td{ colspan: 6, style: 'padding-left: 4em;' }
 										#{current_user.to_local_tz(shipment_log.created_at).to_s( :short )} |
 										#{shipment_log.subject} | #{shipment_log.message}
 										(#{shipment_log.carrier_status})
