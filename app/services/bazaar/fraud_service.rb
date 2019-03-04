@@ -27,6 +27,10 @@ module Bazaar
 				order_item.item.active! if order_item.item.review?
 			end
 
+			order.shipments.each do |shipment|
+				shipment.pending! if shipment.item.review?
+			end
+
 
 			return true
 		end
@@ -40,6 +44,10 @@ module Bazaar
 				order_item.subscription.hold_review! if order_item.subscription.active?
 			end
 
+			order.shipments.each do |shipment|
+				shipment.hold_review!
+			end
+
 		end
 
 		def mark_for_review( order )
@@ -48,6 +56,10 @@ module Bazaar
 
 			order.order_items.prod.where.not( subscription: nil ).each do |order_item|
 				order_item.subscription.review! if order_item.subscription.active?
+			end
+
+			order.shipments.each do |shipment|
+				shipment.review! if shipment.pending?
 			end
 
 		end
@@ -67,6 +79,10 @@ module Bazaar
 
 			order.order_items.prod.where( item_type: Bazaar::Subscription.base_class.name ).each do |order_item|
 				order_item.item.rejected!
+			end
+
+			order.shipments.each do |shipment|
+				shipment.rejected!
 			end
 
 			return true
