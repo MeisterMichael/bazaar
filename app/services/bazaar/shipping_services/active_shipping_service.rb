@@ -79,7 +79,7 @@ module Bazaar
 						tracking_info.shipment_events.each do |event|
 							created_at = Time.parse(event.time.to_s)
 
-							shipment.shipment_logs.created_with(
+							shipment.shipment_logs.create_with(
 								subject: event.name,
 								details: event.message,
 							).find_or_create_by( created_at: created_at, carrier_status: event.name )
