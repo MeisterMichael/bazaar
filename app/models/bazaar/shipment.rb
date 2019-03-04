@@ -26,7 +26,9 @@ module Bazaar
 				self.shipment_skus.each do |shipment_sku|
 					warehouse_sku = shipment_sku.warehouse_sku
 
-					self.errors.add( :base, "Warehouse '#{warehouse_sku.warehouse.name}' does not support the sku #{shipment_sku.sku.code}") unless warehouse_sku.present? && warehouse_sku.code.present?
+					unless warehouse_sku.present? && warehouse_sku.code.present?
+						self.errors.add( :base, "Warehouse '#{self.try(:warehouse).try(:name)}' does not support the sku #{shipment_sku.sku.code}") 
+					end
 				end
 			end
 		end
