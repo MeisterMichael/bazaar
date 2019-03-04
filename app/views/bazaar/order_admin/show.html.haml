@@ -249,6 +249,43 @@
 									%td{ colspan: 6 }
 										= transaction.message
 
+			.well.white-well
+				%h4 Shipments
+				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
+					%thead
+						%tr
+							%th{ style: 'width: 10em' } Created At
+							%th{ style: 'width: 10em' } Status
+							%th{ style: 'width: 10em' } Carrier
+							%th{ style: 'width: 15em' } Items
+							%th Tracking
+					%tbody
+						- unless @shipments.present?
+							%tr
+								%td{ colspan: 5 } - No Shipments -
+						- @shipments.each do |shipment|
+							%tr
+								%td
+									=current_user.to_local_tz(shipment.created_at).to_s( :short )
+								%td
+									= shipment.status
+								%td
+									= shipment.carrier || '-'
+								%td
+									= raw shipment.shipment_skus.collect{|shipment_sku| "#{shipment_sku.sku.code} x #{shipment_sku.quantity}" }.join('<br/>')
+								%td
+									- if shipment.tracking_url
+										%a{ href: shipment.tracking_url, _target: 'tracking' }
+											= shipment.tracking_code || '-'
+									- else
+										= shipment.tracking_code || '-'
+							- shipment.shipment_logs.each do |shipment_log|
+								%tr
+									%td{ colspan: 5, style: 'padding-left: 4em;' }
+										#{current_user.to_local_tz(shipment_log.created_at).to_s( :short )} |
+										#{shipment_log.subject} | #{shipment_log.message}
+										(#{shipment_log.carrier_status})
+
 
 			- if defined?(Bunyan)
 				.well.white-well

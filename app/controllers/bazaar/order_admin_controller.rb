@@ -199,6 +199,8 @@ module Bazaar
 			@transaction_history = @transaction_history + Transaction.where( parent_obj: @order.user, created_at: 1.week.ago..@order.created_at ) if @order.user
 			@transaction_history = @transaction_history.sort_by(&:created_at).reverse
 
+			@shipments = @order.shipments
+
 			set_page_meta( title: "#{@order.code} | Order" )
 		end
 
