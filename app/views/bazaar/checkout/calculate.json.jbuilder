@@ -8,7 +8,7 @@ json.taxes 							@order.order_items.select(&:tax?).sum(&:subtotal)
 json.shipping 						@order.order_items.select(&:shipping?).sum(&:subtotal)
 json.total							@order.total || 0
 
-json.shipping_options(@shipping_rates) do |shipping_rate|
+json.shipping_options(@order.shipments.to_a.collect(&:rates).flatten) do |shipping_rate|
 	json.label		shipping_rate[:label]
 	json.name		shipping_rate[:carrier_service].name
 	json.id			shipping_rate[:id]

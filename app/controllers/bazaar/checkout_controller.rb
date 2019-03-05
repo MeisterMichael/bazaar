@@ -33,8 +33,6 @@ module Bazaar
 
 			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
 
-			@shipping_rates = []
-
 			if @cart.present?
 				@cart.email = @order.email if @order.email.present? && @order.email.match( Devise::email_regexp ).present?
 
@@ -61,19 +59,11 @@ module Bazaar
 
 			begin
 
-				res = @order_service.calculate( @order,
+				@order_service.calculate( @order,
 					transaction: transaction_options,
 					shipping: shipping_options,
 					discount: discount_options,
 				)
-
-				if @order.shipping_address.geo_country.present?
-					if res && res[:shipping].present? && res[:shipping][:rates].present?
-						@shipping_rates = res[:shipping][:rates]
-					else
-						@shipping_rates = @shipping_service.find_rates( @order, shipping_options )
-					end
-				end
 
 			rescue Exception => e
 				puts e

@@ -70,8 +70,32 @@ module Bazaar
 			return false if order.shipping_address.nil?
 			return false if not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
 
+			order.shipments.to_a.each do |shipment|
+				calculate_shipment( shipment, args )
 
-			rates = find_order_rates( order, args )
+				rate = shipment.rates.find{ |rate| rate[:selected] }
+
+				if rate.present?
+					shipping_order_item = order.order_items.new( item: rate[:carrier_service], price: rate[:price], subtotal: rate[:price], title: (rate[:label] || rate[:name]), order_item_type: 'shipping', tax_code: '11000', properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] } )
+					order.shipping += rate[:price]
+				end
+			end
+
+			return true
+
+		end
+
+		def calculate_shipment( shipment, args = {} )
+			shipment.rates = []
+			shipment.shipping_carrier_service = nil
+			shipment.carrier_service_level = nil
+			shipment.price = nil
+			shipment.cost = nil
+
+			rates = find_shipment_rates( shipment, args )
+			rates.each do |rate|
+				rate[:shipment] = shipment
+			end
 			sorted_rates = rates.sort_by{ |rate| rate[:cost] }
 
 			if args[:rate_code].present?
@@ -84,19 +108,20 @@ module Bazaar
 
 			rate ||= find_default_rate( sorted_rates )
 
-			if rate.present?
-				shipping_order_item = order.order_items.new( item: rate[:carrier_service], price: rate[:price], subtotal: rate[:price], title: (rate[:label] || rate[:name]), order_item_type: 'shipping', tax_code: '11000', properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] } )
-				order.shipping = rate[:price]
+			rate[:selected] = true
 
-				# @todo replace with proper multi shipment rate calculation
-				order.shipments.to_a.each do |shipment|
-					shipment.carrier_service_level = shipping_order_item.item.service_name if shipping_order_item.item.respond_to?(:service_name)
-					shipment.price = shipping_order_item.price
-					shipment.cost = rate[:cost]
+			shipment.rates = rates
+
+			if rate.present?
+
+				if rate[:carrier_service].is_a? Bazaar::ShippingCarrierService
+					shipment.shipping_carrier_service = rate[:carrier_service]
+					shipment.carrier_service_level = rate[:carrier_service].service_name
 				end
 
-			else
-				order.shipping = 0
+				shipment.price = rate[:price]
+				shipment.cost = rate[:cost]
+
 			end
 
 			return { success: true, rates: rates }
@@ -118,6 +143,11 @@ module Bazaar
 
 		def find_order_rates( order, args = {} )
 			find_address_rates( order.shipping_address, order.order_items.select{ |order_item| order_item.prod? && order_item.quantity > 0 }, args )
+		end
+
+		def find_shipment_rates( shipment, args = {} )
+			# @todo update order rate calculation to shipments rather than order
+			find_order_rates( shipment.order, args )
 		end
 
 		def find_subscription_rates( subscription, args = {} )

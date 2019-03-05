@@ -21,7 +21,6 @@ module Bazaar
 
 		def calculate
 
-			@shipping_rates = []
 			begin
 				@order.billing_address ||= GeoAddress.new
 				@order.shipping_address ||= GeoAddress.new
@@ -33,7 +32,6 @@ module Bazaar
 					discount: discount_options,
 				)
 
-				@shipping_rates = @order_service.shipping_service.find_rates( @order, shipping_options ) if @order.shipping_address.geo_country.present?
 			rescue Exception => e
 				puts e
 				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
