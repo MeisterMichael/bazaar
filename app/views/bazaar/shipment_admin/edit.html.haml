@@ -1,0 +1,80 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					%a{ href: shipment_admin_index_path }
+						%i.fa.fa-angle-left
+						shipments
+			%h2
+				%strong= @shipment.destination_address.to_s
+				%small= current_user.to_local_tz(@shipment.created_at).to_s( :short )
+
+		.col-xs-2
+
+
+	= form_for @shipment, url: bazaar.shipment_admin_path( @shipment ) do |f|
+		.row
+			.col-xs-8
+				.row
+					.col-xs-6
+						.well.white-well
+							- if @shipment.warehouse
+								%div
+									%a{ href: bazaar.warehouse_admin_path( @shipment.warehouse.id ) }
+										=@shipment.warehouse.name
+							= raw @shipment.source_address.try(:to_html)
+					.col-xs-6
+						.well.white-well
+							= raw @shipment.destination_address.try(:to_html) || 'N/A'
+				.well.white-well
+					%h4 Skus
+
+					%table.table.table-light.table-bordered{ style: 'margin:0;' }
+						%thead
+							%th Name
+							%th Quantity
+						%tbody
+							- if @shipment.shipment_skus.blank?
+								%tr
+									%td{ colspan: 2 }
+										\- No Skus -
+							- @shipment.shipment_skus.each do |shipment_sku|
+								%tr
+									%td=shipment_sku.sku.code
+									%td=shipment_sku.quantity
+				.well.white-well
+					%h4 Logs
+
+					%table.table.table-light.table-bordered{ style: 'margin:0;' }
+						%thead
+							%th Date
+							%th Subject
+							%th Description
+						%tbody
+							- if @shipment.shipment_logs.blank?
+								%tr
+									%td{ colspan: 3 }
+										\- No Logs -
+							- @shipment.shipment_logs.each do |shipment_log|
+								%tr
+									%td=current_user.to_local_tz(shipment_log.created_at).to_s( :short )
+									%td=shipment_log.subject
+									%td=shipment_log.description
+
+
+			-# .col-xs-4
+				.well.white-well
+					%h4
+						Shipment Settings
+
+					.form-group
+						= f.label :status
+						= f.collection_select :status, Bazaar::Shipment.statuses, :first, :first, {}, class: 'form-control'
+
+					%hr
+
+					.form-group
+						= f.submit 'Update', class: 'btn btn-primary'

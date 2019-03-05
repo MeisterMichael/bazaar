@@ -1,6 +1,13 @@
 module Bazaar
 	class ShipmentAdminController < Bazaar::EcomAdminController
 
+		def edit
+			@shipment = Bazaar::Shipment.find( params[:id] )
+			authorize( @shipment )
+
+			set_page_meta( title: "Shipment #{@shipment.created_at}" )
+		end
+
 		def index
 			authorize( Bazaar::Shipment )
 			@sort_by = params[:sort_by] || 'created_at'
