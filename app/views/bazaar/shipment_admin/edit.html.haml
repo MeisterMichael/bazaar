@@ -65,7 +65,7 @@
 									%td=shipment_log.description
 
 
-			-# .col-xs-4
+			.col-xs-4
 				.well.white-well
 					%h4
 						Shipment Settings
@@ -73,6 +73,10 @@
 					.form-group
 						= f.label :status
 						= f.collection_select :status, Bazaar::Shipment.statuses, :first, :first, {}, class: 'form-control'
+
+					.form-group
+						= f.label :processable_at
+						= f.text_field :processable_at, value: current_user.to_local_tz( @shipment.processable_at ), class: 'form-control datetimepicker'
 
 					%hr
 

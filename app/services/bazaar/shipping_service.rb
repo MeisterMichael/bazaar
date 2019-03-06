@@ -45,6 +45,12 @@ module Bazaar
 			# @todo
 		end
 
+		def process_shipment( shipment )
+			shipment.processable_at = Time.now
+			shipment.status = 'pending'
+			shipment.save
+		end
+
 		def validate( geo_address )
 			# @todo
 			not( geo_address.errors.present? )
@@ -201,6 +207,7 @@ module Bazaar
 
 			shipment = order.shipments.new(
 				destination_address: order.shipping_address,
+				status: 'draft',
 			)
 
 			order.order_skus.each do |order_sku|

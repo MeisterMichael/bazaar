@@ -36,7 +36,11 @@ module Bazaar
 		# end
 
 		def self.positive_status
-			where('status > 0')
+			where('bazaar_orders.status > 0')
+		end
+
+		def self.negative_status
+			where('bazaar_orders.status < 0')
 		end
 
 		def self.not_archived

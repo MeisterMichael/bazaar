@@ -196,6 +196,10 @@ module Bazaar
 			payment_profile_expires_at = Bazaar::TransactionService.parse_credit_card_expiry( transaction_options[:credit_card][:expiration] ) if transaction_options[:credit_card].present?
 			@subscription_service.subscribe_ordered_plans( order, payment_profile_expires_at: payment_profile_expires_at ) if @subscription_service.present? && order.active?
 
+			order.shipments.each do |shipment|
+				@shipping_service.process_shipment( shipment )
+			end
+
 			true
 		end
 
