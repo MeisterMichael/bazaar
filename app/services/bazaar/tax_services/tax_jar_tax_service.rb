@@ -188,6 +188,25 @@ module Bazaar
 					end
 				end
 
+				if tax_for_order.freight_taxable
+					order.shipments.each do |shipment|
+						shipment.tax = (tax_breakdown.shipping.tax_collectable * 100).to_i
+
+						TAX_RESULTS_FIELDS.each do |field|
+							field_key = field.gsub(/_tax_collectable|_amount$/,'')
+							field_value = tax_breakdown.shipping.try(field)
+							if not( field_value.nil? ) && field_value.abs > 0.0
+								field_value = (field_value * 100).to_i # convet to cents
+								shipment.tax_breakdown[field_key] = field_value
+							end
+						end
+					end
+				else
+					order.shipments.to_a.each do |shipment|
+						shipment.tax = 0
+					end
+				end
+
 				return order
 
 			end
