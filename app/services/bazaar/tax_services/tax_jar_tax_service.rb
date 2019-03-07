@@ -174,13 +174,16 @@ module Bazaar
 				# Save tax breakdown per order offers
 				tax_breakdown.line_items.each_with_index do |line_item, index|
 					order_offer = order.order_offers.to_a[index]
-					order_offer.tax = (line_item.tax_collectable * 100).to_i
-					TAX_RESULTS_FIELDS.each do |field|
-						field_key = field.gsub(/_tax_collectable/,'')
-						field_value = line_item.try(field)
-						if not( field_value.nil? ) && field_value.abs > 0.0
-							field_value = (field_value * 100).to_i # convet to cents
-							order_offer.tax_breakdown[field_key] = field_value
+
+					if order_offer
+						order_offer.tax = (line_item.tax_collectable * 100).to_i
+						TAX_RESULTS_FIELDS.each do |field|
+							field_key = field.gsub(/_tax_collectable/,'')
+							field_value = line_item.try(field)
+							if not( field_value.nil? ) && field_value.abs > 0.0
+								field_value = (field_value * 100).to_i # convet to cents
+								order_offer.tax_breakdown[field_key] = field_value
+							end
 						end
 					end
 				end
