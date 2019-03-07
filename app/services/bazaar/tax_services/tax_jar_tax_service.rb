@@ -6,7 +6,7 @@ module Bazaar
 
 		class TaxJarTaxService
 
-			TAX_RESULTS_FIELDS = %w( state_tax_collectable county_tax_collectable city_tax_collectable special_district_tax_collectable gst pst qst )
+			TAX_RESULTS_FIELDS = %w( state_amount county_amount city_amount special_district_amount state_tax_collectable county_tax_collectable city_tax_collectable special_district_tax_collectable gst pst qst )
 
 			def initialize( args = {} )
 				raise Exception.new('add "gem \'taxjar-ruby\'" to your Gemfile and "require \'taxjar\'" at the top of config/initializers/bazaar.rb') unless defined?( Taxjar )
@@ -162,7 +162,7 @@ module Bazaar
 				tax_order_item = order.order_items.new( subtotal: order.tax, title: "Tax", order_item_type: 'tax' )
 
 				TAX_RESULTS_FIELDS.each do |field|
-					field_key = field.gsub(/_tax_collectable/,'')
+					field_key = field.gsub(/_tax_collectable|_amount$/,'')
 					field_value = tax_breakdown.try(field)
 					if not( field_value.nil? ) && field_value.abs > 0.0
 						field_value = (field_value * 100).to_i # convet to cents
@@ -178,7 +178,7 @@ module Bazaar
 					if order_offer
 						order_offer.tax = (line_item.tax_collectable * 100).to_i
 						TAX_RESULTS_FIELDS.each do |field|
-							field_key = field.gsub(/_tax_collectable/,'')
+							field_key = field.gsub(/_tax_collectable|_amount$/,'')
 							field_value = line_item.try(field)
 							if not( field_value.nil? ) && field_value.abs > 0.0
 								field_value = (field_value * 100).to_i # convet to cents
