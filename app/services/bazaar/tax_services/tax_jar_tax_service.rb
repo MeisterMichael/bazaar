@@ -6,6 +6,8 @@ module Bazaar
 
 		class TaxJarTaxService
 
+			TAX_RESULTS_FIELDS = %w( state_tax_collectable county_tax_collectable city_tax_collectable special_district_tax_collectable gst pst qst )
+
 			def initialize( args = {} )
 				raise Exception.new('add "gem \'taxjar-ruby\'" to your Gemfile and "require \'taxjar\'" at the top of config/initializers/bazaar.rb') unless defined?( Taxjar )
 
@@ -153,52 +155,35 @@ module Bazaar
 					tax_geo = { country: order_info[:from_country], state: order_info[:from_state], city: order_info[:from_city] }
 				end
 
-				tax_order_item = order.order_items.new( subtotal: (tax_for_order.amount_to_collect * 100).to_i, title: "Tax", order_item_type: 'tax' )
 
+				order.tax = (tax_for_order.amount_to_collect * 100).to_i
+				order.tax_breakdown ||= {}
 
-				if not( tax_breakdown.country_tax_collectable.nil? ) && tax_breakdown.country_tax_collectable.abs > 0.0
-					tax_order_item.properties = tax_order_item.properties.merge( 'country_tax_collectable' => (tax_breakdown.country_tax_collectable * 100).to_i ) if tax_order_item.respond_to?( :properties )
-					# puts "Tax (#{tax_geo[:country]}) #{tax_breakdown.country_tax_collectable}"
+				tax_order_item = order.order_items.new( subtotal: order.tax, title: "Tax", order_item_type: 'tax' )
+
+				TAX_RESULTS_FIELDS.each do |field|
+					field_key = field.gsub(/_tax_collectable/,'')
+					field_value = tax_breakdown.try(field)
+					if not( field_value.nil? ) && field_value.abs > 0.0
+						field_value = (field_value * 100).to_i # convet to cents
+						order.tax_breakdown[field_key] = field_value
+						tax_order_item.properties[field] = field_value
+					end
 				end
 
-				if not( tax_breakdown.county_tax_collectable.nil? ) && tax_breakdown.county_tax_collectable.abs > 0.0
-					tax_order_item.properties = tax_order_item.properties.merge( 'county_tax_collectable' => (tax_breakdown.county_tax_collectable * 100).to_i ) if tax_order_item.respond_to?( :properties )
-					# puts "Tax (county) #{tax_breakdown.county_tax_collectable}"
-				end
-
-				if not( tax_breakdown.state_tax_collectable.nil? ) && tax_breakdown.state_tax_collectable.abs > 0.0
-					tax_order_item.properties = tax_order_item.properties.merge( 'state_tax_collectable' => (tax_breakdown.state_tax_collectable * 100).to_i ) if tax_order_item.respond_to?( :properties )
-					# puts "Tax (#{tax_geo[:state]}) #{tax_breakdown.state_tax_collectable}"
-				end
-
-				if not( tax_breakdown.city_tax_collectable.nil? ) && tax_breakdown.city_tax_collectable.abs > 0.0
-					tax_order_item.properties = tax_order_item.properties.merge( 'city_tax_collectable' => (tax_breakdown.city_tax_collectable * 100).to_i ) if tax_order_item.respond_to?( :properties )
-					# puts "Tax (#{tax_geo[:city]}) #{tax_breakdown.city_tax_collectable}"
-				end
-
-				if not( tax_breakdown.special_district_tax_collectable.nil? ) && tax_breakdown.special_district_tax_collectable.abs > 0.0
-					tax_order_item.properties = tax_order_item.properties.merge( 'special_district_tax_collectable' => (tax_breakdown.special_district_tax_collectable * 100).to_i ) if tax_order_item.respond_to?( :properties )
-					# puts "Taxes (district) #{tax_breakdown.special_district_tax_collectable}"
-				end
-
-				if tax_breakdown.gst.present? && tax_breakdown.gst != 0.0
-					tax_order_item.properties = tax_order_item.properties.merge( 'gst' => (tax_breakdown.gst * 100).to_i ) if tax_order_item.respond_to?( :properties )
-					# puts "Tax (GST) #{tax_breakdown.gst}"
-				end
-
-				if tax_breakdown.pst.present? && tax_breakdown.pst != 0.0
-					tax_order_item.properties = tax_order_item.properties.merge( 'pst' => (tax_breakdown.pst * 100).to_i ) if tax_order_item.respond_to?( :properties )
-					# puts "Tax (PST) #{tax_breakdown.pst}"
-				end
-
-				if tax_breakdown.qst.present? && tax_breakdown.qst != 0.0
-					tax_order_item.properties = tax_order_item.properties.merge( 'qst' => (tax_breakdown.qst * 100).to_i ) if tax_order_item.respond_to?( :properties )
-					# puts "Tax (QST) #{tax_breakdown.qst}"
-				end
-
-				# puts JSON.pretty_generate tax_order_item.properties if tax_order_item.respond_to?( :properties )
-				order.tax = tax_order_item.subtotal
-
+				# @todo Breakdown per order offers
+				# tax_breakdown.line_items.each_with_index do |line_item, index|
+				# 	order_offer = order.order_offers.to_a[index]
+				# 	order_offer.tax = (line_item.tax_collectable * 100).to_i
+				# 	TAX_RESULTS_FIELDS.each do |field|
+				# 		field_key = field.gsub(/_tax_collectable/,'')
+				# 		field_value = line_item.try(field)
+				# 		if not( field_value.nil? ) && field_value.abs > 0.0
+				# 			field_value = (field_value * 100).to_i # convet to cents
+				# 			order_offer.tax_breakdown[field_key] = field_value
+				# 		end
+				# 	end
+				# end
 
 				return order
 
