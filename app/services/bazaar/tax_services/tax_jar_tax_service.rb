@@ -51,7 +51,7 @@ module Bazaar
 				return true unless @environment == :production
 				order_info = get_order_info( order )
 
-				order_info[:sales_tax] = order.order_items.select{|order_item| order_item.tax? }.sum(&:subtotal).to_f / 100.0
+				order_info[:sales_tax] = order.tax
 				tax_for_order = @client.tax_for_order( order_info )
 
 				tax_breakdown = tax_for_order.breakdown
@@ -213,30 +213,28 @@ module Bazaar
 
 			def get_order_info( order )
 
-				shipping_amount = order.order_items.select{ |order_item| order_item.shipping? }.sum(&:subtotal) / 100.0
-				order_total = order.order_items.select{ |order_item| order_item.prod? }.sum(&:subtotal) / 100.0
-				discount_total = order.order_items.select{ |order_item| order_item.discount? }.sum(&:subtotal) / 100.0
+				shipping_amount = order.shipping_as_money
+				discount_total = order.discount_as_money
+				offer_total = order.subtotal_as_money
 
 				discount_remaining = discount_total
 				discount_applied = 0
 
 				line_items = []
-				order.order_items.each do |order_item|
-					if order_item.prod?
-						discount = [ discount_remaining, -order_item.subtotal_as_money ].max
+				order.order_offers.to_a.each do |order_offer|
+					discount = [ discount_remaining, -order_offer.subtotal_as_money ].max
 
-						line_items << {
-							:quantity => order_item.quantity,
-							:unit_price => (order_item.price / 100.0),
-							:product_tax_code => order_item.tax_code,
-							:product_identifier => order_item.sku,
-							:description => order_item.title,
-							:discount => -discount,
-						}
+					line_items << {
+						:quantity => order_offer.quantity,
+						:unit_price => order_offer.price_as_money,
+						:product_tax_code => order_offer.tax_code,
+						:product_identifier => order_offer.offer.code,
+						:description => order_offer.title,
+						:discount => -discount,
+					}
 
-						discount_applied = discount_applied + discount
-						discount_remaining = (discount_total - discount_applied).round(8)
-					end
+					discount_applied = discount_applied + discount
+					discount_remaining = (discount_total - discount_applied).round(8)
 				end
 
 
@@ -249,7 +247,7 @@ module Bazaar
 					:from_zip => @warehouse_address[:zip] || @origin_address[:zip],
 					:from_city => @warehouse_address[:city] || @origin_address[:city],
 					:from_state => @warehouse_address[:state] || @origin_address[:state],
-					:amount => order_total + shipping_amount + discount_total,
+					:amount => offer_total + shipping_amount + discount_total,
 					:shipping => shipping_amount + discount_remaining,
 					:nexus_addresses => @nexus_addresses,
 					:line_items => line_items,

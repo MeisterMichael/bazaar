@@ -21,7 +21,7 @@ module Bazaar
 
 		validate :validate_warehouse_skus
 
-		money_attributes :cost
+		money_attributes :cost, :price, :tax
 
 		def processable( args = {} )
 			time = args[:time] || Time.now
