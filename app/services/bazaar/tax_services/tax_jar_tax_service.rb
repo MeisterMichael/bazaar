@@ -214,7 +214,7 @@ module Bazaar
 			def get_order_info( order )
 
 				shipping_amount = order.shipping_as_money
-				discount_total = order.discount_as_money
+				discount_total = -order.discount_as_money
 				offer_total = order.subtotal_as_money
 
 				discount_remaining = discount_total

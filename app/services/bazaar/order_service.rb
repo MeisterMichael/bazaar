@@ -265,7 +265,7 @@ module Bazaar
 
 		def calculate_order_after( order, args = {} )
 
-			order.total = order.order_items.sum(&:subtotal)
+			order.total = order.tax + order.shipping + order.subtotal - order.discount
 
 		end
 
