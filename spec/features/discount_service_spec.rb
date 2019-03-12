@@ -26,12 +26,12 @@ describe "SubscriptionService" do
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
 
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -100
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -100
@@ -47,20 +47,20 @@ describe "SubscriptionService" do
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
 
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -300
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -300
 
 		product_order_item.quantity = 4
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -500
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -500
 
@@ -74,42 +74,42 @@ describe "SubscriptionService" do
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
 
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -99
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -99
 
 
 		#add shipping
 		shipping_order_item = new_order.order_items.new( subtotal: 495, order_item_type: 'shipping' )
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -594
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -594
 
 		#80 percent
 		discount_item.discount_amount = 80
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -475
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -475
 
 		#35 percent
 		discount_item.discount_amount = 35
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -208
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -208
 
@@ -126,31 +126,31 @@ describe "SubscriptionService" do
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
 
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -218
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -218
 
 
 		percent_discount_item.order_item_type = 'prod'
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -45
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -45
 
 
 		percent_discount_item.order_item_type = 'shipping'
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -183
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -183
 
@@ -167,22 +167,22 @@ describe "SubscriptionService" do
 
 
 		# a product
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -7450
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -7450
 
 
 		# a subscription
 		percent_discount_item.applies_to = new_order.order_items.first.item
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -50
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -50
 
@@ -194,17 +194,17 @@ describe "SubscriptionService" do
 		discount.discount_items.new( discount_amount: 100, discount_type: 'fixed' )
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq 0
 
 		tax_order_item = new_order.order_items.new( subtotal: 10, order_item_type: 'tax' )
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -100
 
 		tax_order_item.subtotal = 1
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '["Does not meet minimum tax requirement"]'
 		expect(discount_order_item.subtotal).to eq 0
 
@@ -216,16 +216,16 @@ describe "SubscriptionService" do
 		discount.discount_items.new( discount_amount: 100, discount_type: 'fixed' )
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -100
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -100
 
 		discount.minimum_prod_subtotal = 100
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '["Does not meet minimum purchase requirement"]'
 		expect(discount_order_item.subtotal).to eq 0
 
@@ -239,16 +239,16 @@ describe "SubscriptionService" do
 		shipping_order_item = new_order.order_items.new( subtotal: 495, order_item_type: 'shipping' )
 
 		discount_order_item = new_order.order_items.new( item: discount, order_item_type: 'discount' )
-		@discount_service.calculate( new_order, pre_tax: true )
+		@discount_service.calculate_pre_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -100
 
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '[]'
 		expect(discount_order_item.subtotal).to eq -100
 
 		shipping_order_item.subtotal = 99
-		@discount_service.calculate( new_order )
+		@discount_service.calculate_post_tax( new_order )
 		expect(new_order.errors.full_messages.to_s).to eq '["Does not meet minimum shipping requirement"]'
 		expect(discount_order_item.subtotal).to eq 0
 

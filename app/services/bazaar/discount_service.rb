@@ -8,10 +8,16 @@ module Bazaar
 		def initialize( args = {} )
 		end
 
-		def calculate( obj, args = {} )
+		def calculate_pre_tax( obj, args = {} )
 
-			return self.calculate_order( obj, args ) if obj.is_a? Order
-			return self.calculate_cart( obj, args ) if obj.is_a? Cart
+			return self.calculate_order_pre_tax( obj, args ) if obj.is_a? Order
+			return self.calculate_cart_pre_tax( obj, args ) if obj.is_a? Cart
+
+		end
+		def calculate_post_tax( obj, args = {} )
+
+			return self.calculate_order_post_tax( obj, args ) if obj.is_a? Order
+			return self.calculate_cart_post_tax( obj, args ) if obj.is_a? Cart
 
 		end
 
@@ -83,13 +89,39 @@ module Bazaar
 			amount
 		end
 
-		def calculate_cart( cart, args = {} )
+		def calculate_cart_pre_tax( cart, args = {} )
 			# @todo
 		end
 
-		def calculate_order( order, args = {} )
-			discount_order_items = order.order_items.select{ |order_item| order_item.discount? }
-			discount_order_items = discount_order_items.select{ |order_item| order_item.item.minimum_tax_subtotal == 0 } if args[:pre_tax]
+		def calculate_cart_post_tax( cart, args = {} )
+			# @todo
+		end
+
+		def calculate_order_discounts( order, args = {} )
+			discount = Discount.active.in_progress.where( 'lower(code) = ?', args[:code].downcase.strip ).first if args[:code].present?
+			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
+		end
+
+		def calculate_order_pre_tax( order, args = {} )
+
+			# calculate any discounts that need to be added
+			calculate_order_discounts( order, args )
+
+			# calculate the discount amount, pre tax so appropriate taxes can be applied net of discount
+			discount_order_items = order.order_items.to_a.select(&:discount?).select{ |order_item| order_item.item.minimum_tax_subtotal.to_i == 0 }
+			calculate_order( order, discount_order_items, args )
+
+		end
+
+		def calculate_order_post_tax( order, args = {} )
+			# re-calculate the discount amounts, post tax so that it can include taxes discounts
+			discount_order_items = order.order_items.to_a.select(&:discount?)
+			calculate_order( order, discount_order_items, args )
+		end
+
+		def calculate_order( order, discount_order_items, args = {} )
+
+			order.discount = 0
 
 			discount_order_items.each do |order_item|
 				order_item.subtotal = 0
@@ -102,7 +134,7 @@ module Bazaar
 				order_item.subtotal = -discount_amount
 			end
 
-			order.discount = -order.order_items.select(&:discount?).sum(&:subtotal)
+			order.discount = -discount_order_items.sum(&:subtotal)
 
 		end
 
