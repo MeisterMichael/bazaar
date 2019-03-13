@@ -1,3 +1,0 @@
-$('#new_order_item_modal button.close').click()
-= fields_for @order_item.order do |f|
-  $('#order_items_table table').append("#{j render(partial: 'bazaar/order_item_admin/edit_row.html', locals: { f: f, order_item: @order_item, args: {} }, layout: false)}")

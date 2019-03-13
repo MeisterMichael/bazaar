@@ -4,10 +4,9 @@
 
 		= form_for @order, as: :order, url: bazaar.checkout_index_path(), method: 'POST', html: { class: 'disable_submit_after_submit'} do |f|
 
-			- @order.order_items.each do |order_item|
-				- if order_item.prod?
-					= hidden_field_tag 'order[order_items][][code]', order_item.item.code
-					= hidden_field_tag 'order[order_items][][quantity]', order_item.quantity
+			- @order.order_offers.each do |order_offer|
+				= hidden_field_tag 'order[order_offers][][offer_id]', order_offer.offer_id
+				= hidden_field_tag 'order[order_offers][][quantity]', order_offer.quantity
 
 			= f.hidden_field :email, class: 'form-control'
 			= f.fields_for :billing_address do |billing_address_form|
@@ -79,17 +78,16 @@
 							%th.text-right{ style: 'width: 100px' } Quantity
 							%th.text-right{ style: 'width: 100px' } Subtotal
 					%tbody
-						- @order.order_items.each do |order_item|
-							- if order_item.prod?
-								%tr
-									-# %td avatar
-									%td
-										=order_item.title
-									%td= number_to_currency (order_item.price / 100.0)
-									%td.text-right
-										=order_item.quantity
-									%td.text-right
-										= number_to_currency order_item.subtotal.to_f / 100
+						- @order.order_offers.each do |order_offer|
+							%tr
+								-# %td avatar
+								%td
+									=order_offer.title
+								%td= number_to_currency order_offer.price_as_money
+								%td.text-right
+									=order_offer.quantity
+								%td.text-right
+									= number_to_currency order_offer.subtotal_as_money
 				- if @order.customer_notes.present?
 					%label Comment
 					.well.well-sm= @order.customer_notes
@@ -106,15 +104,27 @@
 
 				%div
 					.pull-right
-						#{number_to_currency @order.order_items.select{ |order_item| order_item.prod? }.sum(&:amount).to_f / 100}
-					Items (#{@order.order_items.select{ |order_item| order_item.prod? }.sum(&:quantity)}):
-				- @order.order_items.each do |order_item|
-					- unless order_item.prod?
-						%div
-							.pull-right
-								#{number_to_currency order_item.subtotal.to_f / 100}
-							#{order_item.title}:
+						#{number_to_currency @order.subtotal_as_money
+					Items (#{@order.order_offers.sum(&:quantity)}):
+
+				- unless @order.discount == 0
+					%div
+						.pull-right
+							#{number_to_currency @order.discount_as_money}
+						Discount:
+
+				- unless @order.shipping == 0
+					%div
+						.pull-right
+							#{number_to_currency @order.shipping_as_money}
+						Shipping:
+
+				- unless @order.tax == 0
+					%div
+						.pull-right
+							#{number_to_currency @order.tax_as_money}
+						Tax:
 				%div{ style: 'font-weight: bold;' }
 					.pull-right
-						= number_to_currency @order.total.to_f / 100
+						= number_to_currency @order.total_as_money
 					Total:

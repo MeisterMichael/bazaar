@@ -1,4 +1,4 @@
-= form_for @order, url: bazaar.order_admin_index_path(), as: :order, html: { class: 'form' } do |f|
+= form_for @order, url: bazaar.fulfillment_order_admin_index_path(), as: :order, html: { class: 'form' } do |f|
 
 	%h1 New Order
 
@@ -9,18 +9,15 @@
 			.help-block.with-errors
 
 	.well.white-well
-		%h5 Items
+		%h5 Item
 
 		.order-items
-			= f.fields_for :order_items, Bazaar::OrderItem.new( order_item_type: 'prod' ) do |order_item_form|
+			= f.fields_for :order_offers, Bazaar::OrderOffer.new do |order_offer_form|
 				.row.order-item
 					.col-xs-6.col-md-8
-						= order_item_form.select :item_polymorphic_id, grouped_options_for_select( { 'Products' => Bazaar::Product.active.order( title: :asc ).collect{|item| [item.title,item.polymorphic_id] }, 'Subscription Plans' => Bazaar::SubscriptionPlan.active.order( title: :asc ).collect{|item| ["#{item.title} (#{item.purchase_price_formatted})",item.polymorphic_id] } } ), {}, class: 'form-control select-2-basic'
+						= order_offer_form.collection_select :offer, Bazaar::Offer.active, :id, :title, {}, class: 'form-control select-2-basic'
 					.col-xs-6.col-md-4
-						= order_item_form.number_field :quantity, class: 'form-control', value: 1, min: 1, step: 1
-				.row
-					.col-xs-12.text-right
-						%button.btn.btn-default{ data: { clone_and_append_has_many: '.order-items .order-item:last' } } Add Item
+						= order_offer_form.number_field :quantity, class: 'form-control', value: 1, min: 1, step: 1
 
 	.well.white-well
 		.shipping-address-section
@@ -28,18 +25,7 @@
 				%h5 Shipping Information
 				= render 'bazaar/checkout/geo_address', f: shipping_address_form, address_attribute: :shipping_address, countries: get_shipping_countries, states: get_billing_states(	@order.shipping_address.geo_country_id	), args: {}
 
-				.form-group
-					%label
-						= check_box_tag 'order[same_as_shipping]', 1, true, class: 'same_as_shipping', style: 'width:1em;'
-						Billing address is the same
-
-	.billing-address-section.hide
-		.well.white-well
-			= f.fields_for :billing_address do |billing_address_form|
-				%h5 Billing Information
-				= render 'bazaar/checkout/geo_address', f: billing_address_form, address_attribute: :billing_address, countries: get_billing_countries, states: get_billing_states(	@order.billing_address.geo_country_id	), args: {}
-
 
 	.row
 		.col-xs-12.text-right
-			= f.submit "Next", class: 'btn btn-primary'
+			= f.submit "Process", class: 'btn btn-primary'

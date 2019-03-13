@@ -25,17 +25,17 @@
 						%h5{ style: 'margin-bottom: 0.2em;' } Order Summary
 						.row
 							.col-xs-8 Item(s) Subtotal
-							.col-xs-4.text-right= number_to_currency @order.order_items.prod.sum(:subtotal) / 100.0
+							.col-xs-4.text-right= number_to_currency @order.subtotal_as_money
 						.row
 							.col-xs-8 Shipping & Handling
-							.col-xs-4.text-right= number_to_currency @order.order_items.shipping.sum(:subtotal) / 100.0
+							.col-xs-4.text-right= number_to_currency @order.shipping_as_money
 
 						.row{ style: 'margin-top: 0.5em;' }
 							.col-xs-8 Total before tax
-							.col-xs-4.text-right= number_to_currency (@order.order_items.prod.sum(:subtotal) + @order.order_items.shipping.sum(:subtotal)) / 100.0
+							.col-xs-4.text-right= number_to_currency ( @order.subtotal_as_money + @order.shipping_as_money )
 						.row
 							.col-xs-8 Estimated tax to be collected
-							.col-xs-4.text-right= number_to_currency @order.order_items.tax.sum(:subtotal) / 100.0
+							.col-xs-4.text-right= number_to_currency @order.tax_as_money
 
 						.row{ style: 'margin-top: 0.5em;' }
 							.col-xs-8.bold Grand Total
@@ -79,7 +79,7 @@
 	.row
 		.col-xs-12.col-md-10
 			.well
-				%h5{ style: 'margin-bottom: 20px' } #{pluralize @order.order_items.prod.count, "Item"}
+				%h5{ style: 'margin-bottom: 20px' } #{pluralize @order.order_offers.sum(&:quantity), "Item"}
 				%div{ style: 'padding: 20px;margin: 1px -20px -20px -20px;background: #fff;' }
-					- @order.order_items.prod.each do |order_item|
-						= render 'bazaar/your_orders/order_item', order_item: order_item, args: {}
+					- @order.order_offers.each do |order_offer|
+						= render 'bazaar/your_orders/order_offers', order_offer: order_offer, args: {}

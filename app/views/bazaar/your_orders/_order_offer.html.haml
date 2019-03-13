@@ -1,0 +1,27 @@
+
+.row
+	.col-xs-12{ style: 'padding-bottom: 0.5em;' }
+		- if order_offer.order.payment_canceled?
+			%h5{ style: 'margin:0;' } Canceled
+			%div Your shipment was canceled.
+		- elsif order_offer.order.declined?
+			%h5{ style: 'margin:0;' } Declined
+			%div Your payment was declined.
+		- elsif order_offer.order.delivered?
+			%h5{ style: 'margin:0;' } Delivered
+			%div Your package was delivered.
+		- elsif order_offer.order.fulfilled?
+			%h5{ style: 'margin:0;' } Shipped #{current_user.to_local_tz(order_offer.order.fulfilled_at).to_s( :basic_shorter )}
+			%div Your package was shipped
+	.col-xs-3
+		- if order_offer.offer.respond_to? :avatar
+			%img.img.img-responsive.center-block{ src: order_offer.offer.avatar || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAQAAADa613fAAAAa0lEQVR42u3PMREAAAgEID+5KexrBHcPGpDpeiEiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIpcF+EhsNXJGzzsAAAAASUVORK5CYII=' }
+		- else
+			%img.img.img-responsive.center-block{ src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAQAAADa613fAAAAa0lEQVR42u3PMREAAAgEID+5KexrBHcPGpDpeiEiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIpcF+EhsNXJGzzsAAAAASUVORK5CYII=' }
+
+	.col-xs-9
+		= order_offer.title
+		- if order_offer.subscription
+			%div{ style: 'color: #aaa;' } SUBSCRIPTION # #{order_offer.subscription.code}
+			%div
+				%a{ href: bazaar.your_subscription_path( order_offer.subscription.code ) } Subscription Details

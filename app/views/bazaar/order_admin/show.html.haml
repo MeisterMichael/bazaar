@@ -88,25 +88,25 @@
 							%th.text-right{ style: 'width: 70px' } Quantity
 							%th.text-right{ style: 'width: 100px' } Subtotal
 					%tbody
-						- @order.order_items.prod.each do |order_item|
+						- @order.order_offers.each do |order_offer|
 							%tr
 								%td
-									- if ( subscription = order_item.subscription ).present? || ( subscription = order_item.item ).is_a?( Bazaar::Subscription )
-										- if authorized?(subscription, controller: Bazaar::SubscriptionAdminController, action: :edit)
-											%a{ href: edit_subscription_admin_path( subscription ) }
-												= order_item.title
-												(#{subscription.code})
+									- if order_offer.subscription
+										- if authorized?(order_offer.subscription, controller: Bazaar::SubscriptionAdminController, action: :edit)
+											%a{ href: edit_subscription_admin_path( order_offer.subscription ) }
+												= order_offer.title
+												(#{order_offer.subscription.code})
 										- else
-											= order_item.title
-											(#{subscription.code})
+											= order_offer.title
+											(#{order_offer.subscription.code})
 									- else
-										= order_item.title
+										= order_offer.title
 
 								%td
-									= number_to_currency (order_item.price.to_f / 100)
+									= number_to_currency (order_offer.price_as_money)
 								%td.text-right
-									=order_item.quantity
-								%td.text-right= number_to_currency order_item.subtotal.to_f / 100
+									=order_offer.quantity
+								%td.text-right= number_to_currency order_offer.subtotal_as_money
 
 						%tr
 							%td

@@ -2,10 +2,10 @@ json.success 						true
 json.message						'OK'
 json.errors							[]
 
-json.subtotal						@order.order_items.select(&:prod?).sum(&:subtotal)
-json.discounts						@order.order_items.select(&:discount?).sum(&:subtotal)
-json.taxes 							@order.order_items.select(&:tax?).sum(&:subtotal)
-json.shipping 						@order.order_items.select(&:shipping?).sum(&:subtotal)
+json.subtotal						@order.subtotal || 0
+json.discounts						@order.discount || 0
+json.taxes 							@order.tax || 0
+json.shipping 						@order.shipping || 0
 json.total							@order.total || 0
 
 json.shipping_options(@order.shipments.to_a.collect(&:rates).flatten) do |shipping_rate|
