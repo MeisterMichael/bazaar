@@ -53,6 +53,12 @@
 										.form-group
 											= item_form.object.item.title
 											%small=item_form.object.item.price_formatted
+											%div
+												SKU
+												=item_form.object.offer.offer_skus.active.collect(&:sku).collect(&:code)
+											%div
+												Offer
+												=item_form.object.offer.title
 									%td
 										.form-group
 											= item_form.number_field :min_quantity, class: 'form-control', min: 0, step: 1

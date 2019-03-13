@@ -4,11 +4,14 @@ module Bazaar
 		include Bazaar::SkuSearchable if (Bazaar::SkuSearchable rescue nil)
 
 		has_many	:offer_skus
-		has_many	:warehouse_skus
+		has_many	:offers, through: :offer_skus
 		has_many	:shipment_skus
 		has_many	:shipments, through: :shipment_skus
 		has_many	:sku_countries
-		has_many	:offer_skus
+		has_many	:warehouse_skus
+		has_many	:warehouses, through: :warehouse_skus
+		has_many	:wholesale_items
+		has_many	:wholesale_profiles, through: :wholesale_items
 
 		enum status: { 'trash' => -1, 'draft' => 0, 'active' => 100 }
 		enum country_restriction_type: { 'countries_blacklist' => -1, 'countries_unrestricted' => 0, 'countries_whitelist' => 1 }
