@@ -1,6 +1,6 @@
 # require 'taxjar'
 
-module Bazaar
+module Bazaar::TaxServices::TaxJarTaxService
 
 	module TaxServices
 
@@ -247,8 +247,8 @@ module Bazaar
 					:from_zip => @warehouse_address[:zip] || @origin_address[:zip],
 					:from_city => @warehouse_address[:city] || @origin_address[:city],
 					:from_state => @warehouse_address[:state] || @origin_address[:state],
-					:amount => offer_total + shipping_amount + discount_total,
-					:shipping => shipping_amount + discount_remaining,
+					:amount => (offer_total + shipping_amount + discount_total).round(8),
+					:shipping => (shipping_amount + discount_remaining).round(8),
 					:nexus_addresses => @nexus_addresses,
 					:line_items => line_items,
 				}
