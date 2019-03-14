@@ -80,7 +80,7 @@ module Bazaar
 
 					rescue Exception => e
 
-						NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+						NewRelic::Agent.notice_error(e, custom_params: { 'email' => order.email, 'order_code'	=> order.code } ) if defined?( NewRelic )
 						puts e
 
 						return false
