@@ -1,6 +1,6 @@
 # require 'taxjar'
 
-module Bazaar::TaxServices::TaxJarTaxService
+module Bazaar
 
 	module TaxServices
 
