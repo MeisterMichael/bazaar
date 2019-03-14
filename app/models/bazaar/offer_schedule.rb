@@ -22,6 +22,7 @@ module Bazaar
 		end
 
 		def validate_start_interval_uniq
+			return if self.trash?
 			self.errors.add( :start_interval, "start interval must not be unique") if self.class.base_class.where( parent_obj: self.parent_obj, start_interval: self.start_interval ).where.not( id: self.id ).active.present?
 		end
 
