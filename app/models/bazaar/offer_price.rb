@@ -21,7 +21,7 @@ module Bazaar
 		end
 
 		def self.for_interval( interval )
-			self.where( ":interval >= start_interval AND ( max_intervals IS NULL OR :interval <= ( start_interval + max_intervals ) )", interval: interval )
+			self.where( ":interval >= start_interval AND ( max_intervals IS NULL OR :interval < ( start_interval + max_intervals ) )", interval: interval )
 		end
 
 		def set_trashed_at

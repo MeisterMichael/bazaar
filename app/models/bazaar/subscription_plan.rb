@@ -206,7 +206,7 @@ module Bazaar
 			if self.trial_price == self.price
 				self.offer.offer_prices.create!( start_interval: 1, price: self.price, status: 'active' )
 			else
-				self.offer.offer_prices.create!( start_interval: 1, price: self.trial_price, status: 'active' ) if self.trial?
+				self.offer.offer_prices.create!( start_interval: 1, max_intervals: self.trial_max_intervals, price: self.trial_price, status: 'active' ) if self.trial?
 				self.offer.offer_prices.create!( start_interval: self.trial_max_intervals + 1, price: self.price, status: 'active' )
 			end
 		end

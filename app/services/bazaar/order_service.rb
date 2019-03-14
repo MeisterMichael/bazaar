@@ -244,7 +244,7 @@ module Bazaar
 
 				offer = order_item.item.offer
 
-				offer_price = offer.offer_prices.active.for_interval( 1 ).first.price
+				offer_price = offer.offer_prices.active.for_interval( order_item.subscription_interval ).first.price
 				new_order_offer = order_item.order.order_offers.new( offer: offer, tax_code: offer.tax_code, title: offer.title, quantity: order_item.quantity, price: offer_price, subtotal: offer_price * order_item.quantity )
 				new_order_offer.subscription = order_item.subscription
 				new_order_offer.subscription = order_item.item if order_item.item.is_a? Bazaar::Subscription
