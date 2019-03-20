@@ -14,10 +14,11 @@
 								$
 							= number_field_tag :amount, @transactions.approved.to_a.sum(&:signed_amount) / 100.0, min: 0.01, step: 0.01, class: 'form-control', placeholder: '0.00'
 
-					.form-group
-						%label
-							= check_box_tag :cancel_fullfillment, false
-							Cancel Fullfilment
+					- if not( @order.fulfilled? || @order.delivered? || @order.fulfillment_canceled? )
+						.form-group
+							%label
+								= check_box_tag :cancel_fullfillment, false
+								Cancel Fullfilment
 
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
