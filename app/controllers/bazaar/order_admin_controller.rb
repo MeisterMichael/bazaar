@@ -159,8 +159,7 @@ module Bazaar
 
 				@order.refunded!
 
-				# cancel fulfillment if a full refund and not already fulfilled/delivered
-				@order.fulfillment_canceled! if @order.transactions.approved.negative.sum(:amount) >= @order.transactions.approved.positive.sum(:amount) && not( @order.fulfilled? || @order.delivered? )
+				@order.fulfillment_canceled! if params[:cancel_fullfillment]
 
 				# OrderMailer.refund( @transaction ).deliver_now # send emails on a cron
 				set_flash "Refund successful", :success
