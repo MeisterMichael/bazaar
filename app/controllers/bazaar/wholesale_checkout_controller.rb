@@ -61,7 +61,7 @@ module Bazaar
 			@order.shipping_address.user	||= @order.user
 			@order.shipping_address.tags	= @order.shipping_address.tags + ['shipping_address']
 
-			@order.order_items = @order.order_items.select{|order_item| not(order_item.prod?) || order_item.quantity > 0 }
+			@order.order_offers = @order.order_offers.select{|order_offer| order_offer.quantity > 0 }
 
 			@order_service.process( @order,
 				transaction: transaction_options,
@@ -113,7 +113,7 @@ module Bazaar
 
 		def index
 
-			@order.subtotal = @order.order_items.select(&:prod?).sum(&:subtotal)
+			@order.subtotal = @order.order_offers.sum(&:subtotal)
 			@order.total = @order.subtotal
 
 			begin
@@ -177,10 +177,8 @@ module Bazaar
 						:shipping_address_attributes => [
 							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 						],
-						:order_items_attributes => [
-							:item_type,
-							:item_id,
-							:item_polymorphic_id,
+						:order_offers_attributes => [
+							:offer_id,
 							:quantity,
 						],
 					},
@@ -188,6 +186,8 @@ module Bazaar
 			).to_h
 
 			order_attributes = order_attributes[:order] || {}
+
+			order_offers_attributes = order_attributes.delete(:order_offers_attributes)
 
 			order_attributes.delete(:shipping_address_attributes) if order_attributes[:shipping_address_id]
 			order_attributes.delete(:billing_address_attributes) if order_attributes[:billing_address_id]
@@ -212,33 +212,29 @@ module Bazaar
 
 			@wholesale_profile = Bazaar::WholesaleProfile.find( current_user.wholesale_profile_id )
 
-			@order.order_items.each do |order_item|
+			@wholesale_items = @wholesale_profile.wholesale_items.order( min_quantity: :desc ).to_a
 
-				order_item.price			= @wholesale_profile.get_price( quantity: order_item.quantity, item: order_item.item )
-				order_item.price			||= order_item.item.price
-				order_item.subtotal			= order_item.price * order_item.quantity
-				order_item.tax_code			= order_item.item.tax_code
-				order_item.title			= order_item.item.title
-				order_item.order_item_type	= 'prod'
+			offer_quantities = Hash[*order_offers_attributes.values.collect(&:values).flatten.collect(&:to_i)] unless order_offers_attributes.blank?
+			offer_quantities ||= Hash[*@wholesale_profile.wholesale_items.where( min_quantity: 0 ).pluck(:offer_id, '0').flatten.collect(&:to_i)]
 
-			end
+			offer_quantities.each do |offer_id,quantity|
+				wholesale_item = @wholesale_items.find{|this_wholesale_item| this_wholesale_item.offer_id == offer_id }
+				wholesale_item = @wholesale_items.find{|this_wholesale_item| this_wholesale_item.item_id == wholesale_item.item_id && this_wholesale_item.item_type == wholesale_item.item_type && this_wholesale_item.min_quantity <= quantity.to_i }
 
-			@wholesale_profile.items.each do |item|
-				unless @order.order_items.select{|order_item| order_item.item == item }.present?
-					order_item = @order.order_items.new(
-						item: item,
-						title: item.title,
-						quantity: 0,
-						price: item.price,
-						subtotal: 0,
-						tax_code: item.tax_code,
-						order_item_type: 'prod',
-					)
+				offer = wholesale_item.offer
+				price = offer.offer_prices.active.for_interval( 1 ).first.try(:price)
+				subtotal = price * quantity
 
-					order_item.price			= @wholesale_profile.get_price( quantity: order_item.quantity, item: order_item.item )
-					order_item.price			||= order_item.item.price
-					order_item.subtotal			= order_item.price * order_item.quantity
-				end
+				order_offer = @order.order_offers.new(
+					offer: offer,
+					title: wholesale_item.item.title,
+					quantity: quantity,
+					price: price,
+					subtotal: subtotal,
+					tax_code: offer.tax_code,
+				)
+
+				# @TODO!!!!! append offer_skus
 			end
 
 		end
