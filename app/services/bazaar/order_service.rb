@@ -257,8 +257,8 @@ module Bazaar
 					tax_code: offer.tax_code,
 					title: offer.title,
 					quantity: order_item.quantity,
-					price: offer_price,
-					subtotal: offer_price * order_item.quantity,
+					price: order_item.price,
+					subtotal: order_item.subtotal,
 					subscription_interval: subscription_interval,
 					subscription: subscription
 				)
