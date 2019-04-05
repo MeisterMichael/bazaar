@@ -291,6 +291,7 @@ module Bazaar
 			# legacy fill shipping order_items
 			order.shipments.each do |shipment|
 
+				# @todo!!!!!
 				# shipping_order_item = order.order_items.collect(&:shipping).find{|order_item| order_item.item == shipment }
 				# shipping_order_item ||= order.order_items.new( order_item_type: 'shipping', item: shipment )
 				# shipping_order_item.subtotal = shipment.amount
