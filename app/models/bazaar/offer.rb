@@ -23,6 +23,10 @@ module Bazaar
 			data
 		end
 
+		def recurring?
+			offer_schedules.active.where.not( max_intervals: 1 ).or( offer_schedules.active.where.not( start_interval: 1 ) )
+		end
+
 		def set_default_code
 			self.code ||= self.title.parameterize
 		end
