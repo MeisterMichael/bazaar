@@ -196,6 +196,18 @@ module Bazaar
 			payment_profile_expires_at = Bazaar::TransactionService.parse_credit_card_expiry( transaction_options[:credit_card][:expiration] ) if transaction_options[:credit_card].present?
 			@subscription_service.subscribe_ordered_plans( order, payment_profile_expires_at: payment_profile_expires_at ) if @subscription_service.present? && order.active?
 
+
+			# Legacy fill prod order_items with subscriptions
+			@order.order_items.prod.each do |order_item|
+				unless order_item.subscription
+					offer = order_item.item.offer
+					order_offer = @order.order_offers.find( offer: offer )
+					order_item.subscription = order_offer.subscription
+					order_item.save!
+				end
+			end
+
+
 			order.shipments.each do |shipment|
 				@shipping_service.process_shipment( shipment )
 			end
@@ -239,46 +251,60 @@ module Bazaar
 		protected
 
 		def calculate_order_before( order, args = {} )
+			# clear out any non-product order items for re-calculation
+			order.order_items = order.order_items.to_a.select{|order_item| not( order_item.prod? ) }
 
-			order.order_items.to_a.select(&:prod?).each do |order_item|
+			order_offers = order.order_offers.to_a
 
-				offer = order_item.item.offer
+			# Legacy fill prod order_items
+			order_offers.each do |order_offer|
+				# Find the item corresponding to the order offer... product, plan or subscription
+				item = order_offer.subscription if order_offer.subscription && order_offer.subscription_interval > 1
+				item ||= Bazaar::Product.where( offer: order_offer.offer ).first
+				item ||= Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first
 
-				subscription = order_item.subscription
-				subscription = order_item.item if order_item.item.is_a? Bazaar::Subscription
+				# Only set subscription on the initial purchase
+				subscription = order_offer.subscription if order_offer.subscription && order_offer.subscription_interval == 1
 
-				subscription_interval = 1
-				subscription_interval = Bazaar::OrderOffer.joins(:order).merge(Bazaar::Order.positive_status).where( subscription: subscription ).maximum(:subscription_interval).to_i + 1 if subscription
-
-				offer_price = offer.offer_prices.active.for_interval( subscription_interval ).first.price
-
-				new_order_offer = order_item.order.order_offers.new(
-					offer: offer,
-					tax_code: offer.tax_code,
-					title: offer.title,
-					quantity: order_item.quantity,
-					price: offer_price,
-					subtotal: offer_price * order_item.quantity,
-					subscription_interval: subscription_interval,
-					subscription: subscription
+				new_order_item = order.order_items.new(
+					item: item,
+					subscription: subscription,
+					tax_code: order_offer.tax_code,
+					title: order_offer.title,
+					quantity: order_offer.quantity,
+					price: order_offer.price,
+					subtotal: order_offer.price * order_offer.quantity,
 				)
 
-				new_order_offer.offer.offer_skus.active.for_interval( new_order_offer.subscription_interval ).each do |offer_sku|
-					order_sku = order_item.order.order_skus.to_a.find{ |order_sku| order_sku.sku == offer_sku.sku }
-					order_sku ||= order_item.order.order_skus.new( sku: offer_sku.sku, quantity: 0 )
-					order_sku.quantity = order_sku.quantity + offer_sku.calculate_quantity( new_order_offer.quantity )
-				end
-
+				new_order_item
 			end
 
-			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
-			order.status = 'pre_order' if order.order_items.select{|order_item| order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order? }.present?
+			order.subtotal = order_offers.to_a.sum(&:subtotal)
+			order.status = 'pre_order' if order.order_offers.to_a.select{|order_offer| order_offer.offer.pre_order? }.present?
 
 		end
 
 		def calculate_order_after( order, args = {} )
-
 			order.total = order.tax + order.shipping + order.subtotal - order.discount
+			puts "calculate_order_after #{order.total} = #{order.tax} + #{order.shipping} + #{order.subtotal} - #{order.discount}"
+
+			# legacy fill shipping order_items
+			order.shipments.each do |shipment|
+
+				# shipping_order_item = order.order_items.collect(&:shipping).find{|order_item| order_item.item == shipment }
+				# shipping_order_item ||= order.order_items.new( order_item_type: 'shipping', item: shipment )
+				# shipping_order_item.subtotal = shipment.amount
+				# shipping_order_item.title = shipment.title
+
+			end
+
+			# legacy fill tax order_items
+			tax_order_item = order.order_items.collect(&:tax?).first
+			tax_order_item ||= order.order_items.new( title: "Tax", order_item_type: 'tax' )
+			tax_order_item.subtotal = order.tax
+			tax_order_item.properties = order.tax_breakdown
+
+			# legacy fill discount order_items
 
 		end
 
