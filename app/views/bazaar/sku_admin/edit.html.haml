@@ -145,6 +145,45 @@
 					%hr
 
 					.form-group
+						= f.label :shape
+						= f.collection_select :shape, Bazaar::Sku.shapes, :first, :first, {}, class: 'form-control'
+					.form-group
+						= f.label :weight
+						.input-group
+							= f.number_field :weight, class: 'form-control'
+							%span.input-group-addon grams
+					.form-group
+						= f.label :length
+						.input-group
+							= f.number_field :length, class: 'form-control'
+							%span.input-group-addon cm
+					.form-group
+						= f.label :width
+						.input-group
+							= f.number_field :width, class: 'form-control'
+							%span.input-group-addon cm
+					.form-group
+						= f.label :height
+						.input-group
+							= f.number_field :height, class: 'form-control'
+							%span.input-group-addon cm
+
+					%hr
+
+					.form-group
+						= f.label :sku_cost
+						.input-group
+							%span.input-group-addon $
+							= f.number_field :sku_cost, class: 'form-control'
+					.form-group
+						= f.label :sku_value
+						.input-group
+							%span.input-group-addon $
+							= f.number_field :sku_value, class: 'form-control'
+
+					%hr
+
+					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
 = render "bazaar/sku_country_admin/new_modal"
