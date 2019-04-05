@@ -198,10 +198,9 @@ module Bazaar
 
 
 			# Legacy fill prod order_items with subscriptions
-			@order.order_items.prod.each do |order_item|
+			order.order_items.prod.each do |order_item|
 				unless order_item.subscription
-					offer = order_item.item.offer
-					order_offer = @order.order_offers.find( offer: offer )
+					order_offer = order.order_offers.find_by( offer_id: order_item.properties['offer_id'] )
 					order_item.subscription = order_offer.subscription
 					order_item.save!
 				end
@@ -262,6 +261,7 @@ module Bazaar
 				item = order_offer.subscription if order_offer.subscription && order_offer.subscription_interval > 1
 				item ||= Bazaar::Product.where( offer: order_offer.offer ).first
 				item ||= Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first
+				item ||= Bazaar::WholesaleItem.where( offer: order_offer.offer ).first.try(:item)
 
 				# Only set subscription on the initial purchase
 				subscription = order_offer.subscription if order_offer.subscription && order_offer.subscription_interval == 1
@@ -274,6 +274,9 @@ module Bazaar
 					quantity: order_offer.quantity,
 					price: order_offer.price,
 					subtotal: order_offer.price * order_offer.quantity,
+					properties: {
+						'offer_id' => order_offer.offer_id,
+					}
 				)
 
 				new_order_item
@@ -286,7 +289,7 @@ module Bazaar
 
 		def calculate_order_after( order, args = {} )
 			order.total = order.tax + order.shipping + order.subtotal - order.discount
-			
+
 			# legacy fill shipping order_items
 			order.shipments.each do |shipment|
 
