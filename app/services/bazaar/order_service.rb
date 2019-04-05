@@ -286,8 +286,7 @@ module Bazaar
 
 		def calculate_order_after( order, args = {} )
 			order.total = order.tax + order.shipping + order.subtotal - order.discount
-			puts "calculate_order_after #{order.total} = #{order.tax} + #{order.shipping} + #{order.subtotal} - #{order.discount}"
-
+			
 			# legacy fill shipping order_items
 			order.shipments.each do |shipment|
 
