@@ -41,11 +41,11 @@ module Bazaar
 					@cart.last_name = @order.billing_address.last_name || @cart.last_name
 				end
 
-				order_items_attributes = @order.order_items.select(&:prod?).collect do |order_item|
-					order_item.attributes.to_h.select{ |key,val| not( ['id','updated_at','created_at','order_id'].include?( key.to_s ) ) }
+				order_offers_attributes = @order.order_offers.collect do |order_offer|
+					order_offer.attributes.to_h.select{ |key,val| not( ['id','updated_at','created_at','order_id'].include?( key.to_s ) ) }
 				end
 
-				order_attributes = get_order_attributes.merge( order_items_attributes: order_items_attributes )
+				order_attributes = get_order_attributes.merge( order_offers_attributes: order_offers_attributes )
 				order_attributes = order_attributes.to_h.select{ |key,val| not( ['id','updated_at','created_at','user_id', 'user'].include?( key.to_s ) ) }
 
 				@cart.checkout_cache[:order_attributes] = order_attributes
@@ -182,7 +182,7 @@ module Bazaar
 
 		def index
 
-			@order.subtotal = @order.order_items.select(&:prod?).sum(&:subtotal)
+			@order.subtotal = @order.order_offers.sum(&:subtotal)
 			@order.total = @order.subtotal
 
 			@cart.init_checkout!
@@ -234,7 +234,7 @@ module Bazaar
 		end
 
 		def get_order_attributes
-			super().merge( order_items_attributes: [], user: current_user )
+			super().merge( order_offers_attributes: [], user: current_user )
 		end
 
 		def get_order
@@ -243,7 +243,9 @@ module Bazaar
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			@cart.cart_items.each do |cart_item|
-				order_item = @order.order_items.new( item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code )
+				order_offer = @order.order_offers.new( offer: cart_item.item.offer, quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code )
+				order_offer.price = order_offer.offer.offer_prices.active.for_interval( 1 ).first.price
+				order_offer.subtotal = order_offer.price * order_offer.quantity
 			end
 
 		end
