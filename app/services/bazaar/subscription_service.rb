@@ -24,9 +24,11 @@ module Bazaar
 
 		end
 
-		def subscribe( user, plan, args = {} )
+		def subscribe( user, offer, args = {} )
 			start_at = args[:start_at] || Time.now
 			quantity = args[:quantity] || 1
+
+			plan = offer.subscription_plan
 
 			if (order = args[:order]).present?
 
@@ -78,7 +80,7 @@ module Bazaar
 			subscription.attributes = {
 				user: user,
 				subscription_plan: plan,
-				offer: plan.offer,
+				offer: offer,
 				billing_address: args[:billing_address],
 				shipping_address: args[:shipping_address],
 				quantity: quantity,
