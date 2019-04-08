@@ -127,6 +127,7 @@ module Bazaar
 
 			# create order
 			plan = subscription.subscription_plan
+			offer = subscription.offer
 
 			order = @order_class.constantize.new(
 				billing_address: subscription.billing_address,
@@ -141,17 +142,19 @@ module Bazaar
 				provider_customer_payment_profile_reference: subscription.provider_customer_payment_profile_reference,
 			)
 
-			interval = nil
 
-			if subscription.is_next_interval_a_trial?
-				interval = plan.trial_interval_value.try(plan.trial_interval_unit)
+			subscription_interval = Bazaar::OrderOffer.where( subscription: subscription ).joins(:order).merge(Bazaar::Order.positive_status).maximum(:subscription_interval) + 1
 
-				order.order_items.new item: subscription, subscription: subscription, price: subscription.trial_price, sku: plan.trial_sku, subtotal: subscription.trial_amount, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
-			else
-				interval = subscription.billing_interval_value.try(subscription.billing_interval_unit)
-
-				order.order_items.new item: subscription, subscription: subscription, price: subscription.price, sku: plan.product_sku, subtotal: subscription.amount, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
-			end
+			order_offer = order.order_offers.new(
+				offer: subscription.offer,
+				subscription: subscription,
+				tax_code: plan.tax_code,
+				quantity: subscription.quantity,
+				title: plan.title,
+				subscription_interval: subscription_interval,
+			)
+			order_offer.price			= order_offer.offer.offer_prices.active.for_interval( subscription_interval ).first.price
+			order_offer.subtotal	= order_offer.price * order_offer.quantity
 
 			# apply the subscription discount to new orders
 			discount = subscription.discount
