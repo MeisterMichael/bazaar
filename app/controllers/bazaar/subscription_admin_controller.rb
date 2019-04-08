@@ -67,7 +67,7 @@ module Bazaar
 			puts JSON.pretty_generate subscription_options[:billing_address].to_json
 
 			@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
-			@subscription = @subscription_service.subscribe( user, plan, subscription_options )
+			@subscription = @subscription_service.subscribe( user, plan.offer, subscription_options )
 
 			if @subscription.errors.present?
 				redirect_back fallback_location: '/admin'
