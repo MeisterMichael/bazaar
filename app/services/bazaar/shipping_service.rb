@@ -82,7 +82,12 @@ module Bazaar
 				rate = shipment.rates.find{ |rate| rate[:selected] }
 
 				if rate.present?
-					shipping_order_item = order.order_items.new( item: rate[:carrier_service], price: rate[:price], subtotal: rate[:price], title: (rate[:label] || rate[:name]), order_item_type: 'shipping', tax_code: '11000', properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] } )
+					shipment.properties['rate_carrier_service_id'] = rate[:carrier_service].try(:id)
+					shipment.properties['rate_price']		= rate[:price]
+					shipment.properties['rate_label']		= rate[:label]
+					shipment.properties['rate_name']		= rate[:name]
+					shipment.properties['rate_code']		= rate[:code]
+					shipment.properties['rate_carrier']	= rate[:carrier]
 					order.shipping += rate[:price]
 				end
 			end

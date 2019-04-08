@@ -292,13 +292,15 @@ module Bazaar
 
 			# legacy fill shipping order_items
 			order.shipments.each do |shipment|
-
-				# @todo!!!!!
-				# shipping_order_item = order.order_items.collect(&:shipping).find{|order_item| order_item.item == shipment }
-				# shipping_order_item ||= order.order_items.new( order_item_type: 'shipping', item: shipment )
-				# shipping_order_item.subtotal = shipment.amount
-				# shipping_order_item.title = shipment.title
-
+				shipping_order_item = order.order_items.select(&:shipping?).find{|order_item| order_item.item == shipment }
+				shipping_order_item ||= order.order_items.new( order_item_type: 'shipping', item: shipment, tax_code: '11000' )
+				shipping_order_item.price = shipping_order_item.subtotal = shipment.price
+				shipping_order_item.title = shipment.properties['rate_label'] || shipment.properties['rate_name']
+				shipping_order_item.properties = {
+					'name'		=> shipment.properties['rate_name'],
+					'code'		=> shipment.properties['rate_code'],
+					'carrier'	=> shipment.properties['rate_carrier'],
+				}
 			end
 
 			# legacy fill tax order_items
