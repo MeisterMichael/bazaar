@@ -173,7 +173,7 @@ module Bazaar
 			self.offer.cart_description	= self.cart_description
 		end
 
-		def update_offer
+		def save_offer
 			update_offer
 			self.offer.save
 		end
