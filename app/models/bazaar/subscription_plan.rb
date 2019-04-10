@@ -12,7 +12,7 @@ module Bazaar
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		belongs_to 	:item, polymorphic: true, required: false
-		belongs_to :offer
+		belongs_to :offer, required: false
 		has_many :offer_prices, through: :offer
 		has_many :offer_schedules, through: :offer
 		has_many :offer_skus, through: :offer
@@ -41,7 +41,7 @@ module Bazaar
 
 		before_save		:set_avatar
 		before_save	:set_publish_at
-		before_save :update_offer
+		before_save :save_offer
 		before_update :update_schedule_and_price_on_change
 		after_create :update_schedule!
 		after_create :update_prices!
@@ -171,6 +171,11 @@ module Bazaar
 			self.offer.tax_code					= self.tax_code
 			self.offer.description			= self.description
 			self.offer.cart_description	= self.cart_description
+		end
+
+		def update_offer
+			update_offer
+			self.offer.save
 		end
 
 		def update_offer!

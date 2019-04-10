@@ -17,7 +17,7 @@ module Bazaar
 		attr_accessor	:category_name
 		attr_accessor	:slug_pref
 
-		belongs_to :offer
+		belongs_to :offer, required: false
 		has_many :offer_prices, through: :offer
 		has_many :offer_schedules, through: :offer
 		has_many :offer_skus, through: :offer
@@ -33,7 +33,7 @@ module Bazaar
 
 		before_save		:set_avatar
 		before_save	:set_publish_at
-		before_save :update_offer
+		before_save :save_offer
 		after_create :update_schedule!
 		after_create :update_prices!
 		before_update :update_price_on_change
@@ -289,6 +289,11 @@ module Bazaar
 			self.offer.tax_code					= self.tax_code
 			self.offer.description			= self.description
 			self.offer.cart_description	= self.cart_description
+		end
+
+		def save_offer
+			update_offer
+			self.offer.save
 		end
 
 		def update_offer!
