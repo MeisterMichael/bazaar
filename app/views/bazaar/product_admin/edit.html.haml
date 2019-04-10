@@ -267,7 +267,7 @@
 
 
 
-= render 'bazaar/offer_sku_admin/new_modal', parent_obj: @product, args: { start_interval: 1, max_intervals: 1 }
+= render 'bazaar/offer_sku_admin/new_modal', parent_obj: @product.offer, args: { start_interval: 1, max_intervals: 1 }
 = render 'bazaar/product_variants/new_modal', product: @product
 
 = render 'new_gallery_attachment', args: {}
