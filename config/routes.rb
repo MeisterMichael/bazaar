@@ -1,5 +1,7 @@
 Bazaar::Engine.routes.draw do
 
+	resources :admin_checkout
+
 	resources :cart_admin
 	resources :carts, only: :update
 

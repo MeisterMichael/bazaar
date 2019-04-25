@@ -16,6 +16,10 @@ module Bazaar
 
 		money_attributes :price
 
+		def title
+			self.offer.title
+		end
+
 		def update_offer
 			self.offer ||= Bazaar::Offer.new
 			self.offer.status = self.wholesale_profile.status
