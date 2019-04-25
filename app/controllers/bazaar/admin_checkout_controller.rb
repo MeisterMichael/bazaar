@@ -3,23 +3,13 @@ module Bazaar
 	class AdminCheckoutController < AdminController
 
 		before_action :get_order, only: [ :create, :new ]
+		before_action :get_offer_parent_groups, only: [ :new ]
 		before_action :initialize_services, only: [ :create, :new ]
 
 		def create
 		end
 
 		def new
-
-			if @order.is_a? Bazaar::WholesaleOrder
-				@offer_parent_groups = {
-					'Wholesale' => Bazaar::WholesaleProfile.find( @order.user.wholesale_profile_id ).wholesale_items.where.not( offer: nil ).joins(:offer).order( 'bazaar_offers.title ASC' ),
-				}
-			else
-				@offer_parent_groups = {
-					'Products' => Bazaar::Product.active.published.where.not( offer: nil ).order( title: :asc ),
-					'Plans' => Bazaar::SubscriptionPlan.active.published.where.not( offer: nil ).order( title: :asc ),
-				}
-			end
 
 			if @order.user
 				@order.email	= @order.user.email if @order.email.blank?
@@ -36,6 +26,7 @@ module Bazaar
 					@order.shipping_address_id	||= @shipping_geo_addresses.where( hash_code: @order.user.preferred_shipping_address.hash_code ).first.try(:id) if @order.user.preferred_shipping_address
 					@order.shipping_address_id	||= @shipping_geo_addresses.first.try(:id)
 				end
+			end
 
 			begin
 
@@ -83,6 +74,19 @@ module Bazaar
 			# select order offers with quantity greater than 1
 			attributes[:order_offers_attributes] = (attributes[:order_offers_attributes] || []).select{ |index,order_offer_attributes| order_offer_attributes[:quantity].to_i > 0 }
 			attributes
+		end
+
+		def get_offer_parent_groups
+			if @order.is_a? Bazaar::WholesaleOrder
+				@offer_parent_groups = {
+					'Wholesale' => Bazaar::WholesaleProfile.find( @order.user.wholesale_profile_id ).wholesale_items.where.not( offer: nil ).joins(:offer).order( 'bazaar_offers.title ASC' ),
+				}
+			else
+				@offer_parent_groups = {
+					'Products' => Bazaar::Product.active.published.where.not( offer: nil ).order( title: :asc ),
+					'Plans' => Bazaar::SubscriptionPlan.active.published.where.not( offer: nil ).order( title: :asc ),
+				}
+			end
 		end
 
 		def get_order
