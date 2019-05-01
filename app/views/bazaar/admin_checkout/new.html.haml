@@ -4,167 +4,59 @@
 			%h1 New Order
 
 	-# = form_for @order, url: bazaar.order_admin_index_path(), as: :order, html: { class: 'form' } do |f|
-	= form_for @order, url: '', method: :get, as: :order, html: { class: 'form' } do |f|
-		= f.hidden_field :user_id
+	= form_for @order, url: bazaar.admin_checkout_index_path(), as: :order, html: { class: 'form' } do |f|
 		= f.hidden_field :type
+		= f.hidden_field :user_id
 		.row
-			.col-xs-12.col-md-8
-				- if @order.user.blank?
+			.col-xs-12
+				.form-group
+					%label Order Email
+					= f.text_field :email, class: 'form-control'
+					.help-block.with-errors
+
+		.row
+			- if @order.respond_to?( :billing_address )
+				.col-xs-12.col-md-6
 					.well.white-well
-						%h4 User
-						.row
-							.col-xs-12.col-sm-6
-								.form-group
-									%label Email
-									= text_field_tag :email, '', class: 'form-control'
-									.help-block.with-errors
-							.col-xs-12.col-sm-6
-								.form-group
-									%label Phone Number
-									= text_field_tag :phone, '', class: 'form-control'
-									.help-block.with-errors
-							.col-xs-12.col-sm-6
-								.form-group
-									%label First Name
-									= text_field_tag :first_name, '', class: 'form-control'
-									.help-block.with-errors
-							.col-xs-12.col-sm-6
-								.form-group
-									%label Last Name
-									= text_field_tag :last_name, '', class: 'form-control'
-									.help-block.with-errors
-				- else
+						%h4 Billing Address
+						- if @billing_geo_addresses.present?
+							- @billing_geo_addresses.each do |geo_address|
+								%div
+									%label
+										= f.radio_button :billing_address_id, geo_address.id, data: { 'address-toggle': { value: true, target: '.billing_address_fields' } }
+										= geo_address
+										- if geo_address.id == @order.user.try(:preferred_billing_address_id)
+											(preferred)
+							%div
+								%label
+									= f.radio_button :billing_address_id, nil, data: { 'address-toggle': { value: true, target: '.billing_address_fields' } }
+									New Address
+						.billing_address_fields.geo_address_fields{ class: ( @order.billing_address_id.present? ? 'hide' : '' ) }
+							= f.fields_for :billing_address, GeoAddress.new( user: @order.user ) do |billing_address_form|
+								= billing_address_form.hidden_field :user_id
+								= render 'bazaar/checkout/geo_address', f: billing_address_form, address_attribute: :billing_address, countries: get_billing_countries, states: get_billing_states(  @order.billing_address.geo_country_id  ), args: {}
+
+			- if @order.respond_to?( :shipping_address )
+				.col-xs-12.col-md-6
 					.well.white-well
-						%h4 User
-						.row
-							.col-xs-12.col-sm-6
-								.form-group
-									%label Email
-									%div= @order.user.email
-							.col-xs-12.col-sm-6
-								.form-group
-									%label Phone Number
-									%div= @order.user.phone || 'n/a'
-							.col-xs-12.col-sm-6
-								.form-group
-									%label First Name
-									%div= @order.user.first_name
-							.col-xs-12.col-sm-6
-								.form-group
-									%label Last Name
-									%div= @order.user.last_name
+						%h4 Shipping Address
+						- if @shipping_geo_addresses.present?
+							- @shipping_geo_addresses.each do |geo_address|
+								%div
+									%label
+										= f.radio_button :shipping_address_id, geo_address.id, data: { 'address-toggle': { target: '.shipping_address_fields' } }
+										= geo_address
+										- if geo_address.id == @order.user.try(:preferred_shipping_address_id)
+											(preferred)
+							%div
+								%label
+									= f.radio_button :shipping_address_id, nil, data: { 'address-toggle': { target: '.shipping_address_fields' } }
+									New Address
+						.shipping_address_fields.geo_address_fields{ class: ( @order.shipping_address_id.present? ? 'hide' : '' ) }
+							= f.fields_for :shipping_address, GeoAddress.new( user: @order.user ) do |shipping_address_form|
+								= shipping_address_form.hidden_field :user_id
+								= render 'bazaar/checkout/geo_address', f: shipping_address_form, address_attribute: :shipping_address, countries: get_shipping_countries, states: get_shipping_states(  @order.shipping_address.geo_country_id  ), args: {}
 
-
-				.row
-					.col-xs-12.col-md-4
-						.form-group
-							=f.label :status
-							= f.collection_select :status, Bazaar::Order.statuses, :first, :first, {}, class: 'form-control'
-					.col-xs-12.col-md-4
-						.form-group
-							=f.label :payment_status
-							= f.collection_select :payment_status, Bazaar::Order.payment_statuses, :first, :first, {}, class: 'form-control'
-					.col-xs-12.col-md-4
-						.form-group
-							=f.label :fulfillment_status
-							= f.collection_select :fulfillment_status, Bazaar::Order.fulfillment_statuses, :first, :first, {}, class: 'form-control'
-					- if @order.respond_to?( :billing_address )
-						.col-xs-12.col-md-6
-							.well.white-well
-								%h4 Billing Address
-								- @billing_geo_addresses.each do |geo_address|
-									%div
-										%label
-											= f.radio_button :billing_address_id, geo_address.id
-											= geo_address
-											- if geo_address.id == @order.user.try(:preferred_billing_address_id)
-												(default)
-					- if @order.respond_to?( :shipping_address )
-						.col-xs-12.col-md-6
-							.well.white-well
-								%h4 Shipping Address
-								- @shipping_geo_addresses.each do |geo_address|
-									%div
-										%label
-											= f.radio_button :shipping_address_id, geo_address.id
-											= geo_address
-											- if geo_address.id == @order.user.try(:preferred_shipping_address_id)
-												(default)
-				- # Step 1: User Search
-				.well.white-well
-					.form-group
-						%label Order Email
-						= f.text_field :email, class: 'form-control'
-						.help-block.with-errors
-
-				.well.white-well
-					%table.table
-						%thead
-							%tr
-								%th Offer
-								%th Quantity
-								%th Price
-								%th Subtotal
-						%tbody
-							- @offer_parent_groups.each do |group_title,offer_parents|
-								%tr
-									%th{ colspan: 4 }
-										= group_title
-								- offer_parents.each do |offer_parent|
-									= f.fields_for :order_offers, @order.order_offers.to_a.find{|order_offer| order_offer.offer == offer_parent.offer } || Bazaar::OrderOffer.new( offer: offer_parent.offer, quantity: 0, price: offer_parent.offer.offer_prices.for_interval(1).first.try(:price), subtotal: 0 ) do |order_offer_form|
-										= order_offer_form.hidden_field :offer_id
-										= order_offer_form.hidden_field :price
-										- if offer_parent.is_a? Bazaar::WholesaleItem
-											= order_offer_form.hidden_field :title, value: offer_parent.item.title
-										- else
-											= order_offer_form.hidden_field :title, value: offer_parent.title
-										%tr
-											%td{ style: 'padding-left: 2em' }
-												= offer_parent.title
-											%td.text-right
-												= order_offer_form.number_field :quantity, class: 'form-control text-right', min: 0, step: 1, style: 'width: 4em;'
-											%td.text-right
-												-# = order_offer_form.number_field :price, class: 'form-control text-right', min: 0, step: 0.01, style: 'width: 6em;'
-												= order_offer_form.object.price_formatted
-											%td.text-right
-												-# = order_offer_form.number_field :subtotal, class: 'form-control text-right', min: 0, step: 0.01, style: 'width: 6em;'
-												= order_offer_form.object.subtotal_formatted
-
-				.well.white-well
-					%h4 Shipments
-					- @order.shipments.each do |shipment|
-						.row
-							.col-xs-12
-								Warehouse:
-								= shipment.warehouse.name
-								-# ( #{shipment.shipment_skus.collect{|shipment_sku| "#{shipment_sku.sku.code} x #{shipment_sku.quantity}" }.join(', ')} )
-								- if ( shipping_rates = shipment.rates ).present?
-									- shipping_rates.each do |rate|
-										.clearfix
-											.pull-right.money= number_to_currency rate[:price].to_f / 100
-											%label
-												= radio_button_tag('shipping_options[shipping_carrier_service_id]', rate[:id], rate[:selected] )
-												= rate[:label]
-			.col-xs-12.col-md-4
-				- ['hidden-xs hidden-sm affix', 'hidden-md hidden-lg'].each do |css_classes|
-					%div{ class: css_classes, style: 'min-width: 10em;' }
-						%div
-							Subtotal:
-							.pull-right #{@order.subtotal_formatted}
-						%div
-							Shipping:
-							.pull-right #{@order.shipping_formatted}
-						%div
-							Discount:
-							.pull-right #{@order.discount_formatted}
-						%div
-							Tax:
-							.pull-right #{@order.tax_formatted}
-						%div
-							%strong
-								Total:
-								.pull-right #{@order.total_formatted}
-
-			.row
-				.col-xs-12.col-md-8.text-right
-					= f.submit "Save", class: 'btn btn-primary'
+		.row
+			.col-xs-12.text-right
+				= f.submit "Continue", class: 'btn btn-primary'

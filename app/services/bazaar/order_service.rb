@@ -252,16 +252,18 @@ module Bazaar
 
 				offer_price = offer.offer_prices.active.for_interval( subscription_interval ).first.price
 
-				new_order_offer = order_item.order.order_offers.new(
+				new_order_offer = order_item.order.order_offers.to_a.find{ |this_order_offer| this_order_offer.offer == offer }
+				new_order_offer ||= order_item.order.order_offers.new
+				new_order_offer.attributes = {
 					offer: offer,
 					tax_code: offer.tax_code,
-					title: offer.title,
+					title: order_item.title,
 					quantity: order_item.quantity,
 					price: order_item.price,
 					subtotal: order_item.subtotal,
 					subscription_interval: subscription_interval,
 					subscription: subscription
-				)
+				}
 
 				new_order_offer.offer.offer_skus.active.for_interval( new_order_offer.subscription_interval ).each do |offer_sku|
 					order_sku = order_item.order.order_skus.to_a.find{ |order_sku| order_sku.sku == offer_sku.sku }

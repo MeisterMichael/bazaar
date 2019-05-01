@@ -1,0 +1,45 @@
+#offers_modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					New Discount
+			= form_for @order, url: bazaar.admin_checkout_path(@order), as: :order, html: { class: 'form' } do |f|
+				.modal-body
+					%table.table
+						%thead
+							%tr
+								%th Offer
+								%th Quantity
+								%th Price
+								-# %th Subtotal
+						%tbody
+							- @offer_parent_groups.each do |group_title,offer_parents|
+								%tr
+									%th{ colspan: 3 }
+										= group_title
+								- offer_parents.each do |offer_parent|
+									= f.fields_for :order_offers, @order.order_offers.to_a.find{|order_offer| order_offer.offer == offer_parent.offer } || Bazaar::OrderOffer.new( offer: offer_parent.offer, quantity: 0, price: offer_parent.offer.offer_prices.for_interval(1).first.try(:price), subtotal: 0 ) do |order_offer_form|
+										= order_offer_form.hidden_field :offer_id
+										= order_offer_form.hidden_field :price
+										- if offer_parent.is_a? Bazaar::WholesaleItem
+											= order_offer_form.hidden_field :title, value: offer_parent.item.title
+										- else
+											= order_offer_form.hidden_field :title, value: offer_parent.title
+										%tr
+											%td{ style: 'padding-left: 2em' }
+												= offer_parent.title
+											%td.text-right
+												= order_offer_form.number_field :quantity, class: 'form-control text-right', min: 0, step: 1, style: 'width: 4em;'
+											%td.text-right
+												-# = order_offer_form.number_field :price, class: 'form-control text-right', min: 0, step: 0.01, style: 'width: 6em;'
+												= order_offer_form.object.price_formatted
+											-# %td.text-right
+												-# = order_offer_form.number_field :subtotal, class: 'form-control text-right', min: 0, step: 0.01, style: 'width: 6em;'
+												= order_offer_form.object.subtotal_formatted
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Update', class: 'btn btn-primary'

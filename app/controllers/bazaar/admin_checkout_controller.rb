@@ -1,32 +1,29 @@
 
 module Bazaar
-	class AdminCheckoutController < AdminController
+	class AdminCheckoutController < Bazaar::EcomAdminController
 
-		before_action :get_order, only: [ :create, :new ]
-		before_action :get_offer_parent_groups, only: [ :new ]
-		before_action :initialize_services, only: [ :create, :new ]
+		before_action :get_order, only: [ :edit, :update ]
+		before_action :get_offer_parent_groups, only: [ :edit ]
+		before_action :initialize_services, only: [ :edit, :update ]
 
 		def create
+			@order = Bazaar::Order.new( type: (params[:order] || {})[:type] )
+			order_attributes = get_order_attributes
+			order_attributes.delete(:billing_address_attributes) if order_attributes[:billing_address_id].to_i.to_s == order_attributes[:billing_address_id]
+			order_attributes.delete(:shipping_address_attributes) if order_attributes[:shipping_address_id].to_i.to_s == order_attributes[:shipping_address_id]
+			@order.attributes = order_attributes
+			@user = @order.user
+
+			if @order.save
+				redirect_to edit_admin_checkout_path(@order)
+			else
+				set_flash @order.errors.full_messages, :danger
+				redirect_back fallback_location: admin_checkout_index_path
+			end
+
 		end
 
-		def new
-
-			if @order.user
-				@order.email	= @order.user.email if @order.email.blank?
-
-				@billing_geo_addresses	= GeoAddress.where( id: GeoAddress.where( id: @order.user.orders.select(:billing_address_id)  ).where.not( hash_code: @order.user.try(:preferred_billing_address).try(:hash_code)  ).or( GeoAddress.where( id: @order.user.try(:preferred_billing_address_id)  ) ).group(:hash_code).select('MAX(id)') ).order( created_at: :desc )
-				@shipping_geo_addresses	= GeoAddress.where( id: GeoAddress.where( id: @order.user.orders.select(:shipping_address_id) ).where.not( hash_code: @order.user.try(:preferred_shipping_address).try(:hash_code) ).or( GeoAddress.where( id: @order.user.try(:preferred_shipping_address_id) ) ).group(:hash_code).select('MAX(id)') ).order( created_at: :desc )
-
-				if @order.respond_to? :billing_address
-					@order.billing_address_id	||= @order.user.preferred_billing_address_id
-					@order.billing_address_id	||= @billing_geo_addresses.first.try(:id)
-				end
-
-				if @order.respond_to? :shipping_address
-					@order.shipping_address_id	||= @shipping_geo_addresses.where( hash_code: @order.user.preferred_shipping_address.hash_code ).first.try(:id) if @order.user.preferred_shipping_address
-					@order.shipping_address_id	||= @shipping_geo_addresses.first.try(:id)
-				end
-			end
+		def edit
 
 			begin
 
@@ -45,6 +42,74 @@ module Bazaar
 
 		end
 
+		def update
+
+			order_attributes = get_order_attributes
+
+			billing_address_id = order_attributes[:billing_address_id]
+			if order_attributes[:billing_address_id].to_i.to_s == order_attributes[:billing_address_id]
+				order_attributes.delete(:billing_address_attributes)
+			else
+				order_attributes.delete(:billing_address_id)
+			end
+
+			shipping_address_id = order_attributes[:shipping_address_id]
+			if order_attributes[:shipping_address_id].to_i.to_s == order_attributes[:shipping_address_id]
+				order_attributes.delete(:shipping_address_attributes)
+			else
+				order_attributes.delete(:shipping_address_id)
+			end
+
+			if order_attributes[:order_offers_attributes].present?
+				@order.order_offers.delete_all
+				@order.order_items.delete_all
+			end
+
+			@order.attributes				= order_attributes
+			@order.shipping_address	= @order.billing_address if billing_address_id == 'same'
+			@order.billing_address	= @order.shipping_address if shipping_address_id == 'same'
+
+			@order.order_offers.to_a.each do |order_offer|
+				order_offer.subtotal = order_offer.price * order_offer.quantity
+				@order.order_items.new(
+					order_item_type: 'prod',
+					quantity: order_offer.quantity,
+					title: order_offer.title,
+					price: order_offer.price,
+					subtotal: order_offer.subtotal,
+					item: ( Bazaar::Product.where( offer: order_offer.offer ).first || Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first || Bazaar::WholesaleItem.where( offer: order_offer.offer ).first ),
+				)
+			end
+
+
+
+
+			if @order.save
+				redirect_to edit_admin_checkout_path( @order, shipping_options: shipping_options_params )
+			else
+				set_flash @order.errors.full_messages, :danger
+				redirect_back fallback_location: admin_checkout_index_path
+			end
+
+		end
+
+		def new
+
+			@order = Bazaar::Order.new( type: (params[:order] || {})[:type] )
+			order_attributes = get_order_attributes
+			@new_billing_address = GeoAddress.new
+			@new_shipping_address = GeoAddress.new
+
+			@order.attributes = order_attributes
+			@user = @order.user
+
+			if @user
+				@billing_geo_addresses	= GeoAddress.where( id: GeoAddress.where( id: @order.user.orders.select(:billing_address_id)  ).where.not( hash_code: @order.user.try(:preferred_billing_address).try(:hash_code)  ).or( GeoAddress.where( id: @order.user.try(:preferred_billing_address_id)  ) ).group(:hash_code).select('MAX(id)') ).order( created_at: :desc )
+				@shipping_geo_addresses	= GeoAddress.where( id: GeoAddress.where( id: @order.user.orders.select(:shipping_address_id) ).where.not( hash_code: @order.user.try(:preferred_shipping_address).try(:hash_code) ).or( GeoAddress.where( id: @order.user.try(:preferred_shipping_address_id) ) ).group(:hash_code).select('MAX(id)') ).order( created_at: :desc )
+			end
+
+		end
+
 		protected
 
 		def get_order_attributes
@@ -58,6 +123,8 @@ module Bazaar
 				:billing_address_id,
 				:shipping_address_id,
 				{
+					:billing_address_attributes => [ :user_id, :phone, :zip, :geo_country_id, :geo_state_id, :state, :city, :street2, :street, :last_name, :first_name ],
+					:shipping_address_attributes => [ :user_id, :phone, :zip, :geo_country_id, :geo_state_id, :state, :city, :street2, :street, :last_name, :first_name ],
 					:order_offers_attributes => [
 						:title,
 						:offer_id,
@@ -67,12 +134,13 @@ module Bazaar
 				},
 			)
 
-			attributes[:status] ||= 'active'
+			attributes[:status] ||= 'draft'
 			attributes[:payment_status] ||= 'paid'
 			attributes[:status] ||= 'unfulfilled'
 
 			# select order offers with quantity greater than 1
-			attributes[:order_offers_attributes] = (attributes[:order_offers_attributes] || []).select{ |index,order_offer_attributes| order_offer_attributes[:quantity].to_i > 0 }
+			attributes[:order_offers_attributes] = attributes[:order_offers_attributes].select{ |index,order_offer_attributes| order_offer_attributes[:quantity].to_i > 0 } if attributes[:order_offers_attributes]
+
 			attributes
 		end
 
@@ -87,23 +155,18 @@ module Bazaar
 					'Plans' => Bazaar::SubscriptionPlan.active.published.where.not( offer: nil ).order( title: :asc ),
 				}
 			end
+
+			if @user
+				offer_parents = Bazaar::UserOffer.where( user: @user ).joins(:offer).order( 'bazaar_offers.title ASC' )
+				@offer_parent_groups['User Offers'] = offer_parents if offer_parents.present?
+			end
+
+			@offer_parent_groups
 		end
 
 		def get_order
 
-			@order = Bazaar::Order.new( get_order_attributes ) if params[:order]
-			@order ||= Bazaar::Order.new
-
-			@order.order_offers.to_a.each do |order_offer|
-				order_offer.subtotal = order_offer.price * order_offer.quantity
-				@order.order_items.new(
-					order_item_type: 'prod',
-					title: order_offer.title,
-					price: order_offer.price,
-					subtotal: order_offer.subtotal,
-					item: ( Bazaar::Product.where( offer: order_offer.offer ).first || Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first || Bazaar::WholesaleItem.where( offer: order_offer.offer ).first ),
-				)
-			end
+			@order = Bazaar::Order.find( params[:id] )
 
 		end
 
