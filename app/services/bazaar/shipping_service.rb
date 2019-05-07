@@ -114,7 +114,7 @@ module Bazaar
 
 			rate ||= find_default_rate( sorted_rates )
 
-			rate[:selected] = true
+			rate[:selected] = true if rate
 
 			shipment.rates = rates
 

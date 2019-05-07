@@ -236,10 +236,23 @@ module Bazaar
 			return not( order.nested_errors.present? )
 		end
 
-		protected
+		def calculate_prod_order_items( order, args = {} )
 
-		def calculate_order_before( order, args = {} )
+			order.order_offers.to_a.each do |order_offer|
+				order_offer.subtotal = order_offer.price * order_offer.quantity
+				order.order_items.new(
+					order_item_type: 'prod',
+					quantity: order_offer.quantity,
+					title: order_offer.title,
+					price: order_offer.price,
+					subtotal: order_offer.subtotal,
+					item: ( Bazaar::Product.where( offer: order_offer.offer ).first || Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first || Bazaar::WholesaleItem.where( offer: order_offer.offer ).first ),
+				)
 
+			end
+		end
+
+		def calculate_order_offers( order, args = {} )
 			order.order_items.to_a.select(&:prod?).each do |order_item|
 
 				offer = order_item.item.offer
@@ -265,13 +278,27 @@ module Bazaar
 					subscription: subscription
 				}
 
-				new_order_offer.offer.offer_skus.active.for_interval( new_order_offer.subscription_interval ).each do |offer_sku|
-					order_sku = order_item.order.order_skus.to_a.find{ |order_sku| order_sku.sku == offer_sku.sku }
-					order_sku ||= order_item.order.order_skus.new( sku: offer_sku.sku, quantity: 0 )
-					order_sku.quantity = order_sku.quantity + offer_sku.calculate_quantity( new_order_offer.quantity )
-				end
-
 			end
+		end
+
+		def calculate_order_skus( order, args = {} )
+			order.order_skus = []
+			order.order_offers.each do |order_offer|
+
+				order_offer.offer.offer_skus.active.for_interval( order_offer.subscription_interval ).each do |offer_sku|
+					order_sku = order_offer.order.order_skus.to_a.find{ |order_sku| order_sku.sku == offer_sku.sku }
+					order_sku ||= order_offer.order.order_skus.new( sku: offer_sku.sku, quantity: 0 )
+					order_sku.quantity = order_sku.quantity + offer_sku.calculate_quantity( order_offer.quantity )
+				end
+			end
+		end
+
+		protected
+
+		def calculate_order_before( order, args = {} )
+
+			self.calculate_order_offers( order, args )
+			self.calculate_order_skus( order, args )
 
 			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
 			order.status = 'pre_order' if order.order_items.select{|order_item| order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order? }.present?
