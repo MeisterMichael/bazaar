@@ -2,9 +2,9 @@
 module Bazaar
 	class AdminCheckoutController < Bazaar::EcomAdminController
 
-		before_action :get_order, only: [ :edit, :update ]
+		before_action :get_order, only: [ :edit, :update, :complete ]
 		before_action :get_offer_parent_groups, only: [ :edit ]
-		before_action :initialize_services, only: [ :edit, :update ]
+		before_action :initialize_services, only: [ :edit, :update, :complete ]
 
 		def create
 			@order = Bazaar::Order.new( type: (params[:order] || {})[:type] )
@@ -27,11 +27,10 @@ module Bazaar
 
 			begin
 
-				@order_service.calculate( @order,
-					# transaction: transaction_options,
-					shipping: shipping_options_params,
-					# discount: discount_options,
-				)
+				@order.subtotal = @order.order_offers.sum(:subtotal)
+				@order.shipping = @order.shipments.sum(:price)
+				@order_service.tax_service.calculate( @order )
+				@order.total = @order.subtotal + @order.shipping + @order.tax
 
 			rescue Exception => e
 				puts e
@@ -60,25 +59,20 @@ module Bazaar
 				order_attributes.delete(:shipping_address_id)
 			end
 
-			if order_attributes[:order_offers_attributes].present?
+			order_offers_attributes = order_attributes[:order_offers_attributes]
+			if order_offers_attributes.present?
+				@order.order_skus.delete_all
 				@order.order_offers.delete_all
-				@order.order_items.delete_all
+				@order.order_items.prod.delete_all
 			end
 
 			@order.attributes				= order_attributes
 			@order.shipping_address	= @order.billing_address if billing_address_id == 'same'
 			@order.billing_address	= @order.shipping_address if shipping_address_id == 'same'
 
-			@order.order_offers.to_a.each do |order_offer|
-				order_offer.subtotal = order_offer.price * order_offer.quantity
-				@order.order_items.new(
-					order_item_type: 'prod',
-					quantity: order_offer.quantity,
-					title: order_offer.title,
-					price: order_offer.price,
-					subtotal: order_offer.subtotal,
-					item: ( Bazaar::Product.where( offer: order_offer.offer ).first || Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first || Bazaar::WholesaleItem.where( offer: order_offer.offer ).first ),
-				)
+			if order_offers_attributes.present?
+				@order_service.calculate_prod_order_items( @order )
+				@order_service.calculate_order_skus( @order )
 			end
 
 
@@ -91,6 +85,28 @@ module Bazaar
 				redirect_back fallback_location: admin_checkout_index_path
 			end
 
+		end
+
+		def complete
+
+			begin
+
+				@order.update( status: 'active' )
+				@order.shipments.update_all( status: 'pending' )
+
+				if @order.save
+					redirect_to order_admin_path( @order )
+				else
+					set_flash @order.errors.full_messages, :danger
+					redirect_back fallback_location: admin_checkout_index_path
+				end
+
+			rescue Exception => e
+				puts e
+				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				set_flash "An error occured during processing.", :danger
+				redirect_back fallback_location: admin_checkout_index_path
+			end
 		end
 
 		def new
@@ -173,9 +189,15 @@ module Bazaar
 		def initialize_services
 			@fraud_service = Bazaar.fraud_service_class.constantize.new( Bazaar.fraud_service_config.merge( params: params, session: session, cookies: cookies, request: request ) )
 			if @order.is_a? Bazaar::WholesaleOrder
-				@order_service = Bazaar::WholesaleOrderService.new( fraud_service: @fraud_service )
+				@order_service = Bazaar::WholesaleOrderService.new(
+					fraud_service: @fraud_service,
+					# shipping_service: Bazaar::ShippingService.new,
+				)
 			else
-				@order_service = Bazaar::OrderService.new( fraud_service: @fraud_service )
+				@order_service = Bazaar::OrderService.new(
+					fraud_service: @fraud_service,
+					# shipping_service: Bazaar::ShippingService.new,
+				)
 			end
 		end
 

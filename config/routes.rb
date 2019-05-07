@@ -1,6 +1,8 @@
 Bazaar::Engine.routes.draw do
 
-	resources :admin_checkout
+	resources :admin_checkout do
+		patch :complete, on: :member
+	end
 
 	resources :cart_admin
 	resources :carts, only: :update
@@ -87,6 +89,8 @@ Bazaar::Engine.routes.draw do
 	resources :subscription_plan_admin
 
 	resources :subscription_plans, path: 'subscriptions'
+
+	resources :transaction_admin
 
 	resources :warehouse_admin
 	resources :warehouse_country_admin

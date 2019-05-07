@@ -4,135 +4,225 @@
 			%h1
 				New Order
 				%small=@order.type.gsub(/Bazaar::/,'').underscore.humanize.downcase
-
-	-# = form_for @order, url: bazaar.order_admin_index_path(), as: :order, html: { class: 'form' } do |f|
-	= form_for @order, url: bazaar.admin_checkout_path(@order), as: :order, html: { class: 'form' } do |f|
-		= f.hidden_field :user_id
-		= f.hidden_field :type
-		.row
-			.col-xs-12.col-md-8
-				.row
-					.col-xs-12.col-md-6
-						.well.white-well
-							%h4 User
-							.row
-								.col-xs-12.col-sm-6
-									.form-group
-										%label Email
-										%div= @order.user.email
-								.col-xs-12.col-sm-6
-									.form-group
-										%label Phone Number
-										%div= @order.user.phone || 'n/a'
-								.col-xs-12.col-sm-6
-									.form-group
-										%label First Name
-										%div= @order.user.first_name
-								.col-xs-12.col-sm-6
-									.form-group
-										%label Last Name
-										%div= @order.user.last_name
-					.col-xs-12.col-md-6
-						.well.white-well
-							.form-group
-								%label Contact Email
-								%div=@order.email
-								-# = f.text_field :email, class: 'form-control'
-								-# .help-block.with-errors
-							.form-group
-								=f.label :status
-								%div=@order.status
-								-# = f.collection_select :status, Bazaar::Order.statuses, :first, :first, {}, class: 'form-control'
-							.row
-								.col-xs-12.col-md-6
-									.form-group
-										=f.label :payment_status
-										%div=@order.payment_status
-										-# = f.collection_select :payment_status, Bazaar::Order.payment_statuses, :first, :first, {}, class: 'form-control'
-								.col-xs-12.col-md-6
-									.form-group
-										=f.label :fulfillment_status
-										%div=@order.fulfillment_status
-										-# = f.collection_select :fulfillment_status, Bazaar::Order.fulfillment_statuses, :first, :first, {}, class: 'form-control'
-					- if @order.respond_to?( :billing_address )
-						.col-xs-12.col-md-6
-							.well.white-well
-								%h4 Billing Address
-								= raw @order.billing_address.to_html
-					- if @order.respond_to?( :shipping_address )
-						.col-xs-12.col-md-6
-							.well.white-well
-								%h4 Shipping Address
-								= raw @order.shipping_address.to_html
-				.well.white-well
-					%table.table
-						%thead
-							%tr
-								%th Offer
-								%th.text-right Quantity
-								%th.text-right Price
-								%th.text-right Subtotal
-						%tbody
-							- if @order.order_offers.present?
-								- @order.order_offers.each do |order_offer|
-									%tr
-										%td{ style: 'padding-left: 2em' }
-											= order_offer.title
-										%td.text-right
-											= order_offer.quantity
-										%td.text-right
-											= order_offer.price_formatted
-										%td.text-right
-											= order_offer.subtotal_formatted
-							- else
-								%tr
-									%td.text-center{ colspan: 4 }
-										No Offers
-					.text-right
-						%a.btn.btn-success{ data: { toggle: :modal, target: '#offers_modal' } }
-							- if @order.order_offers.present?
-								Edit Offers
-							- else
-								Add Offers
-
-				.well.white-well
-					%h4 Shipments
-					- @order.shipments.each do |shipment|
+	.row
+		.col-xs-12.col-md-8
+			.row
+				.col-xs-12.col-md-6
+					.well.white-well
+						%h4 User
 						.row
-							.col-xs-12
-								Warehouse:
-								= shipment.warehouse.name
-								-# ( #{shipment.shipment_skus.collect{|shipment_sku| "#{shipment_sku.sku.code} x #{shipment_sku.quantity}" }.join(', ')} )
-								- if ( shipping_rates = shipment.rates ).present?
-									- shipping_rates.each do |rate|
-										.clearfix
-											.pull-right.money= number_to_currency rate[:price].to_f / 100
-											%label
-												= radio_button_tag('shipping_options[shipping_carrier_service_id]', rate[:id], rate[:selected] )
-												= rate[:label]
-			.col-xs-12.col-md-4
-				- ['hidden-xs hidden-sm affix', 'hidden-md hidden-lg'].each do |css_classes|
-					%div{ class: css_classes, style: 'min-width: 10em;' }
-						%div
-							Subtotal:
-							.pull-right #{@order.subtotal_formatted}
-						%div
-							Shipping:
-							.pull-right #{@order.shipping_formatted}
-						%div
-							Discount:
-							.pull-right #{@order.discount_formatted}
-						%div
-							Tax:
-							.pull-right #{@order.tax_formatted}
+							.col-xs-12.col-sm-6
+								.form-group
+									%label Email
+									%div= @order.user.email
+							.col-xs-12.col-sm-6
+								.form-group
+									%label Phone Number
+									%div= @order.user.phone || 'n/a'
+							.col-xs-12.col-sm-6
+								.form-group
+									%label First Name
+									%div= @order.user.first_name
+							.col-xs-12.col-sm-6
+								.form-group
+									%label Last Name
+									%div= @order.user.last_name
+				.col-xs-12.col-md-6
+					.well.white-well
+						.form-group
+							%label Contact Email
+							%div=@order.email
+			.row
+				- if @order.respond_to?( :billing_address )
+					.col-xs-12.col-md-6
+						.well.white-well
+							%h4 Billing Address
+							= raw @order.billing_address.to_html
+				- if @order.respond_to?( :shipping_address )
+					.col-xs-12.col-md-6
+						.well.white-well
+							%h4 Shipping Address
+							= raw @order.shipping_address.to_html
+			.well.white-well
+				%h4 Step 1: Offers
+				%table.table
+					%thead
+						%tr
+							%th Offer
+							%th.text-right Quantity
+							%th.text-right Price
+							%th.text-right Subtotal
+					%tbody
+						- if @order.order_offers.present?
+							- @order.order_offers.each do |order_offer|
+								%tr
+									%td{ style: 'padding-left: 2em' }
+										= order_offer.title
+									%td.text-right
+										= order_offer.quantity
+									%td.text-right
+										= order_offer.price_formatted
+									%td.text-right
+										= order_offer.subtotal_formatted
+						- else
+							%tr
+								%td.text-center{ colspan: 4 }
+									No Offers
+				.text-right
+					%a.btn.btn-success{ data: { toggle: :modal, target: '#offers_modal' } }
+						- if @order.order_offers.present?
+							Edit Offers
+						- else
+							Add Offers
+
+			.well.white-well
+				%h4 Step 2: Shipments
+				%table.table
+					%thead
+						%tr
+							%th{ style: 'width: 8em' } Created At
+							%th{ style: 'width: 8em' } Status
+							%th{ style: 'width: 8em' } Carrier
+							%th{ style: 'width: 8em' } Warehouse
+							%th{ style: 'width: 15em' } Items
+							%th Tracking
+					%tbody
+						- unless @order.shipments.present?
+							%tr
+								%td{ colspan: 6 } - No Shipments -
+						- @order.shipments.each do |shipment|
+							%tr
+								%td
+									-# %a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
+									- if shipment.created_at
+										= current_user.to_local_tz(shipment.created_at).to_s( :short )
+									- else
+										N/A
+								%td
+									= shipment.status
+								%td
+									= shipment.carrier || '-'
+								%td
+									= shipment.warehouse.try(:name) || '-'
+								%td
+									= raw shipment.shipment_skus.collect{|shipment_sku| "#{shipment_sku.sku.code} x #{shipment_sku.quantity}" }.join('<br/>')
+								%td
+									- if shipment.tracking_url
+										%a{ href: shipment.tracking_url, _target: 'tracking' }
+											= shipment.tracking_code || '-'
+									- else
+										= shipment.tracking_code || '-'
+							- shipment.shipment_logs.each do |shipment_log|
+								%tr
+									%td{ colspan: 6, style: 'padding-left: 4em;' }
+										#{current_user.to_local_tz(shipment_log.created_at).to_s( :short )} |
+										#{shipment_log.subject} | #{shipment_log.details}
+										(#{shipment_log.carrier_status})
+				.text-right
+					%a.btn.btn-success{ href: bazaar.new_shipment_admin_path( shipment: { order_id: @order.id, user_id: @order.user_id, destination_address_id: @order.shipping_address_id, shipment_skus_attributes: @order.order_skus.collect{ |order_sku| { sku_id: order_sku.sku_id, quantity: order_sku.quantity } } }, success_redirect_path: bazaar.edit_admin_checkout_path( @order ) ) }
+						Add Shipment
+
+
+			.well.white-well
+				%h4 Step 3: Transactions
+				%table.table
+					%thead
+						%tr
+							%th Date
+							%th Transaction Type
+							%th Status
+							%th.text-right Amount
+							%th.text-right Currency
+					%tbody
+						- if @order.transactions.present?
+							- @order.transactions.order(created_at: :desc).each do |transaction|
+								%tr
+									%td=current_user.to_local_tz(transaction.created_at).to_s( :short )
+									%td=transaction.transaction_type
+									%td=transaction.status
+									%td.text-right=transaction.amount_formatted
+									%td.text-right=transaction.currency
+						- else
+							%tr
+								%td.text-center{ colspan: 5 }
+									No Transactions
+				.text-right
+					%a.btn.btn-success{ href: bazaar.new_transaction_admin_path( transaction: { parent_obj_id: @order.id, parent_obj_type: @order.class.base_class.name, billing_address_id: @order.billing_address_id, amount: @order.total, currency: @order.currency }, success_redirect_path: bazaar.edit_admin_checkout_path( @order ) ) }
+						Add Transaction
+
+
+		.col-xs-12.col-md-4
+			- ['hidden-xs hidden-sm affix', 'hidden-md hidden-lg'].each do |css_classes|
+				%div{ class: css_classes, style: 'min-width: 10em;' }
+					%div
+						Subtotal:
+						.pull-right #{@order.subtotal_formatted}
+					%div
+						Shipping:
+						.pull-right #{@order.shipping_formatted}
+					%div
+						Discount:
+						.pull-right #{@order.discount_formatted}
+					%div
+						Tax:
+						.pull-right #{@order.tax_formatted}
+					%div
+						%strong
+							Total:
+							.pull-right #{@order.total_formatted}
+					%hr
 						%div
 							%strong
-								Total:
-								.pull-right #{@order.total_formatted}
+								Paid:
+								.pull-right #{number_to_currency @order.transactions.charge.approved.sum(:amount) / 100.0}
+						%div
+							%strong
+								Due:
+								.pull-right #{number_to_currency (@order.total - @order.transactions.charge.approved.sum(:amount)) / 100.0}
+						%div
+							%strong
+								Refunded:
+								.pull-right #{number_to_currency (@order.transactions.refund.approved.sum(:amount)) / 100.0}
 
-			.row
-				.col-xs-12.col-md-8.text-right
-					= f.submit "Save", class: 'btn btn-primary'
+
+	-# = form_for @order, url: bazaar.order_admin_index_path(), as: :order, html: { class: 'form' } do |f|
+	= form_for @order, url: bazaar.complete_admin_checkout_path(@order), as: :order, html: { class: 'form' } do |f|
+		.row
+			.col-xs-12.col-md-8
+				-# %h4 State
+				-# %h4 Shipments
+				-# @order.shipments.each do |shipment|
+					.form-group
+						Warehouse:
+						= shipment.warehouse.name
+						-# ( #{shipment.shipment_skus.collect{|shipment_sku| "#{shipment_sku.sku.code} x #{shipment_sku.quantity}" }.join(', ')} )
+						- if ( shipping_rates = shipment.rates ).present?
+							- shipping_rates.each do |rate|
+								.clearfix
+									.pull-right.money= number_to_currency rate[:price].to_f / 100
+									%label
+										= radio_button_tag('shipping_options[shipping_carrier_service_id]', rate[:id], rate[:selected] )
+										= rate[:label]
 
 
+				.well.white-well
+					%h4 Step 4: Acitivation
+
+					-# .row
+						.col-xs-12.col-md-4
+							.form-group
+								=f.label :status
+								= f.collection_select :status, Bazaar::Order.statuses, :first, :first, {}, class: 'form-control'
+						.col-xs-12.col-md-4
+							.form-group
+								=f.label :payment_status
+								= f.collection_select :payment_status, Bazaar::Order.payment_statuses, :first, :first, {}, class: 'form-control'
+						.col-xs-12.col-md-4
+							.form-group
+								=f.label :fulfillment_status
+								= f.collection_select :fulfillment_status, Bazaar::Order.fulfillment_statuses, :first, :first, {}, class: 'form-control'
+
+
+					.text-center
+						= f.submit "Activate", class: 'btn btn-primary btn-lg'
 = render "offers_modal", args: {}

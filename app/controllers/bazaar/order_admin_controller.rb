@@ -184,10 +184,10 @@ module Bazaar
 		end
 
 		def show
-			if @order.draft?
-				redirect_to edit_order_admin_path( @order )
-				return
-			end
+			# if @order.draft?
+			# 	redirect_to edit_order_admin_path( @order )
+			# 	return
+			# end
 
 			authorize( @order )
 

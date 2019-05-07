@@ -1,19 +1,26 @@
 
 $ ->
 
-  $(document).on 'click', '[data-clone-and-append-has-many]', ->
-    selector = $(this).data('clone-and-append-has-many')
-    clone = $( selector ).clone()
 
-    $('input, select', clone).each ->
-      $(this).val('')
-      new_name = $(this).attr( 'name' ).replace(/\[(\d+)\]/i, (str,p1,offset,s)->
-        console.log( p1, parseInt( p1 ) + 1, p1 + 1 )
-        return "["+( parseInt( p1 ) + 1 )+"]"
-      )
-      $(this).attr( 'name', new_name )
-    # $('input[type=number]', clone).each ->
-    #  $(this).val( $(this).attr('min') )
 
-    $( selector ).after( clone )
-    return false
+	$(document).on 'click', '[data-address-toggle]', ->
+		$element = $(this)
+		options = $element.data('address-toggle')
+		$target = $(options.target)
+		open = ($element.val() == undefined) || ($element.val() == 'on')
+
+		if open
+			$target.removeClass('hide')
+		else
+			$target.addClass('hide')
+
+		$( "input,select", $target ).each ->
+			if open
+				$(this).attr( 'required', $(this).data('old-required') )
+			else
+				$(this).removeAttr( 'required' )
+
+	$('.geo_address_fields input, .geo_address_fields select').each ->
+		$(this).data('old-required',$(this).attr('required'))
+	$('.geo_address_fields.hide input, .geo_address_fields.hide select').each ->
+		$(this).removeAttr( 'required' )
