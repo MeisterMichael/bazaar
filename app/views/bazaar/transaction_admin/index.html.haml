@@ -1,0 +1,143 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					= link_to 'Admin', main_app.admin_index_path
+					= request.format
+				%li
+					%strong
+						Transaction Admin
+						= "(#{pluralize @transactions.total_count, 'Transaction'})"
+						= "(#{number_to_currency( @total_amount/100.to_f )})"
+
+		.col-xs-2
+			
+	.row
+		.col-xs-12
+			= raw paginate @transactions
+	
+	= form_tag bazaar.transaction_admin_index_path, method: :get, class: 'form-inline' do
+		.row
+			.col-xs-12
+				start:
+				= text_field_tag :start_date, params[:start_date], class: 'form-control datetimepicker'
+				end:
+				= text_field_tag :end_date, params[:end_date], class: 'form-control datetimepicker'
+				
+		.row{ style: 'margin-top:1em; '}
+			.col-xs-2
+				= label_tag :provider
+				%br
+				= select_tag :provider, options_from_collection_for_select( @providers, :to_s, :to_s, params[:provider] ), { prompt: "-- All --", class: 'form-control' }
+			.col-xs-2
+				= label_tag :status
+				%br
+				= select_tag :status, options_from_collection_for_select( Bazaar::Transaction.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+			.col-xs-2
+				= label_tag :transaction_type
+				%br
+				= select_tag :transaction_type, options_from_collection_for_select( Bazaar::Transaction.transaction_types, :first, :first, params[:transaction_type] ), { prompt: "-- All --", class: 'form-control' }
+			.col-xs-2
+				= label_tag :amount
+				= text_field_tag :amount, params[:amount], class: 'form-control'
+			.col-xs-2
+				= label_tag :reference_code
+				= text_field_tag :reference_code, params[:reference_code], class: 'form-control'
+
+
+		.row{ style: 'margin-top:1em; '}
+			.col-xs-6
+				= submit_tag 'Search', class: 'btn btn-primary'
+				= link_to 'Download CSV', { format: :csv, params: request.query_parameters }, class: 'btn btn-info'
+				&nbsp;&nbsp;
+				= link_to 'Clear', bazaar.transaction_admin_index_path, class: 'btn btn-default btn-xs'
+
+				
+
+	.row
+		.col-xs-12
+			%table.table
+				%thead
+
+					%th
+						Provider
+						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'provider', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'provider', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+
+					%th
+						Reference
+						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'reference_code', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'reference_code', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+
+					%th
+						Amount
+						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'amount', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'amount', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+
+					%th
+						Type
+					%th
+						Last 4
+
+					%th
+						Created
+						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+							%i.fa.fa-arrow-up
+						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
+							%i.fa.fa-arrow-down
+
+					
+
+					%th Status
+					%th
+						Parent
+					%th
+				%tbody
+					- @transactions.each do |transaction|
+						%tr
+							%td
+								.title{ style: 'font-size:120%;' }
+									= link_to transaction.provider, edit_transaction_admin_path( transaction )
+							%td
+								= link_to transaction.reference_code, edit_transaction_admin_path( transaction )
+							%td
+								= transaction.amount_formatted
+							%td
+								= transaction.transaction_type
+							%td
+								= transaction.properties['credit_card_ending_in']
+							%td
+								= transaction.created_at.to_s( :slashed_time )
+							
+							%td
+								.badge{ class: transaction.status }
+									= transaction.status
+							%td
+								- if transaction.parent_obj_type == 'Bazaar::Order'
+									%a{ href: bazaar.order_admin_path( transaction.parent_obj_id ) }
+										= "Order #{transaction.parent_obj.code}"
+								- else
+									= "#{transaction.parent_obj_type}_#{transaction.parent_obj_id}"
+						
+							%td
+								.btn-group
+									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+										%i.fa.fa-cog
+										%b.caret
+									%ul.dropdown-menu
+										%li
+											%a{ href: edit_transaction_admin_path( transaction ) }
+												%i.fa.fa-pencil
+												Edit
+										
+
+
