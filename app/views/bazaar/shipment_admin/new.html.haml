@@ -1,0 +1,149 @@
+.container-fluid
+	.row
+		.col-xs-12
+			%h1
+				New Shipment
+	= form_for @shipment, url: bazaar.shipment_admin_index_path(@shipment), as: :shipment, html: { class: 'form' } do |f|
+		= hidden_field_tag :success_redirect_path, params[:success_redirect_path]
+		= hidden_field_tag :failure_redirect_path, params[:failure_redirect_path]
+		= f.hidden_field :order_id
+		= f.hidden_field :user_id
+
+		.row
+			.col-xs-12.col-md-8
+				.row
+					.col-xs-12.col-md-6
+						- if @shipment.source_address
+							.form-group
+								%label Source
+								%div=@shipment.source_address.to_s
+						.form-group
+							=f.label :warehouse_id
+							= f.collection_select :warehouse_id, Bazaar::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
+						.form-group
+							=f.label :status
+							= f.collection_select :status, @shipment.class.statuses, :first, :first, {}, class: 'form-control'
+						.form-group
+							=f.label :email
+							= f.text_field :email, class: 'form-control'
+					.col-xs-12.col-md-6
+						- if @shipment.destination_address
+							= f.hidden_field :destination_address_id
+							.form-group
+								%label Destination
+								%div=raw @shipment.destination_address.to_html
+						- if @shipment.order
+							.form-group
+								%label Order
+								%div=@shipment.order.code
+						- if @shipment.user
+							.form-group
+								%label User
+								%div=@shipment.user.to_s
+				%hr
+				.form-group
+					%label Items
+					- @shipment.shipment_skus.each do |shipment_sku|
+						= f.fields_for :shipment_skus, shipment_sku do |shipment_sku_form|
+							= shipment_sku_form.hidden_field :sku_id
+							= shipment_sku_form.hidden_field :quantity
+						%div #{shipment_sku.sku} x #{shipment_sku.quantity}
+
+				.row
+					.col-xs-12.col-md-6
+						.form-group
+							=f.label :notes
+							= f.text_area :notes, class: 'form-control'
+					.col-xs-12.col-md-6
+						%table.table
+							%thead
+								%tr
+									%th &nbsp;
+									%th Service
+									%th Price
+									-# %th &nbsp;
+							%tbody
+								-# %tr
+									%td= radio_button_tag :shipping_rate, '', @shipment.rates.blank?
+									%td Manual
+									%td &nbsp;
+									%td &nbsp;
+								- @shipment.rates.each do |rate|
+									%tr
+										%td= radio_button_tag :shipping_rate, rate.to_json, rate[:selected]
+										%td= rate[:label]
+										%td= number_to_currency rate[:price].to_f / 100.0
+										-# %td
+											= rate.to_json
+
+				%hr
+
+				-# %h4 Manual Price Entry
+				-# .row
+					.col-xs-12.col-md-6
+						.form-group
+							=f.label :price_as_money, "Price"
+							= f.number_field :price_as_money, class: 'form-control', step: 0.01, min: 0.0
+					.col-xs-12.col-md-6
+						.form-group
+							=f.label :cost_as_money, "Cost"
+							= f.number_field :cost_as_money, class: 'form-control', step: 0.01, min: 0.0
+					.col-xs-12.col-md-6
+						.form-group
+							=f.label :tax_as_money, "Tax"
+							= f.number_field :tax_as_money, class: 'form-control', step: 0.01, min: 0.0
+
+				-# %hr
+
+				-# %h4 Manual Date Entry
+				-# .row
+					.col-xs-12.col-md-6
+						.form-group
+							=f.label :declared_value_as_money, "Declared Value"
+							= f.number_field :declared_value_as_money, class: 'form-control', step: 0.01, min: 0.0
+					.col-xs-12.col-md-6
+						.form-group
+							= f.label :estimated_delivered_at
+							= f.text_field :estimated_delivered_at, value: current_user.to_local_tz( @shipment.estimated_delivered_at ), class: 'form-control datetimepicker'
+					.col-xs-12.col-md-6
+						.form-group
+							= f.label :canceled_at
+							= f.text_field :canceled_at, value: current_user.to_local_tz( @shipment.canceled_at ), class: 'form-control datetimepicker'
+					.col-xs-12.col-md-6
+						.form-group
+							= f.label :packed_at
+							= f.text_field :packed_at, value: current_user.to_local_tz( @shipment.packed_at ), class: 'form-control datetimepicker'
+					.col-xs-12.col-md-6
+						.form-group
+							= f.label :shipped_at
+							= f.text_field :shipped_at, value: current_user.to_local_tz( @shipment.shipped_at ), class: 'form-control datetimepicker'
+					.col-xs-12.col-md-6
+						.form-group
+							= f.label :delivered_at
+							= f.text_field :delivered_at, value: current_user.to_local_tz( @shipment.delivered_at ), class: 'form-control datetimepicker'
+					.col-xs-12.col-md-6
+						.form-group
+							= f.label :returned_at
+							= f.text_field :returned_at, value: current_user.to_local_tz( @shipment.returned_at ), class: 'form-control datetimepicker'
+					.col-xs-12.col-md-6
+						.form-group
+							= f.label :processable_at
+							= f.text_field :processable_at, value: current_user.to_local_tz( @shipment.processable_at ), class: 'form-control datetimepicker'
+
+				-#
+					code
+					fulfilled_by
+					fulfillment_id
+					length
+					width
+					height
+					shape
+					weight
+					carrier
+					carrier_service_level
+					requested_service_level
+					shipping_carrier_service_id
+					tax_breakdown
+
+				.form-group.text-right
+					= f.submit "Create", class: 'btn btn-primary'

@@ -19,9 +19,16 @@ module Bazaar
 		enum status: { 'rejected' => -100, 'canceled' => -1, 'draft' => 0, 'pending' => 10, 'processing' => 50, 'picking' => 100, 'packed' => 200, 'shipped' => 300, 'delivered' => 400, 'returned' => 500, 'review' => 900, 'hold_review' => 950 }
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
+
+		accepts_nested_attributes_for :shipment_skus
+
 		validate :validate_warehouse_skus
 
-		money_attributes :cost, :price, :tax
+		money_attributes :cost, :price, :tax, :declared_value
+
+		def self.not_negative_status
+			where( status: 0..Float::INFINITY )
+		end
 
 		def processable( args = {} )
 			time = args[:time] || Time.now

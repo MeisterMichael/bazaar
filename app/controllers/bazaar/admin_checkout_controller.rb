@@ -6,6 +6,36 @@ module Bazaar
 		before_action :get_offer_parent_groups, only: [ :edit ]
 		before_action :initialize_services, only: [ :edit, :update, :complete ]
 
+		def complete
+
+			begin
+
+				@order.update( status: 'active' )
+				@order.shipments.where( status: 'draft' ).update_all( status: 'pending' )
+				@order.shipments.not_negative_status.where( processable_at: nil ).update_all( processable_at: Time.now )
+
+
+				@order.subtotal = @order.order_offers.sum(:subtotal)
+				@order.shipping = @order.shipments.not_negative_status.sum(:price)
+				@order_service.tax_service.calculate( @order )
+				@order.total = @order.subtotal + @order.shipping + @order.tax
+
+
+				if @order.save
+					redirect_to order_admin_path( @order )
+				else
+					set_flash @order.errors.full_messages, :danger
+					redirect_back fallback_location: admin_checkout_index_path
+				end
+
+			rescue Exception => e
+				puts e
+				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				set_flash "An error occured during processing.", :danger
+				redirect_back fallback_location: admin_checkout_index_path
+			end
+		end
+
 		def create
 			@order = Bazaar::Order.new( type: (params[:order] || {})[:type] )
 			order_attributes = get_order_attributes
@@ -28,7 +58,7 @@ module Bazaar
 			begin
 
 				@order.subtotal = @order.order_offers.sum(:subtotal)
-				@order.shipping = @order.shipments.sum(:price)
+				@order.shipping = @order.shipments.not_negative_status.sum(:price)
 				@order_service.tax_service.calculate( @order )
 				@order.total = @order.subtotal + @order.shipping + @order.tax
 
@@ -85,28 +115,6 @@ module Bazaar
 				redirect_back fallback_location: admin_checkout_index_path
 			end
 
-		end
-
-		def complete
-
-			begin
-
-				@order.update( status: 'active' )
-				@order.shipments.update_all( status: 'pending' )
-
-				if @order.save
-					redirect_to order_admin_path( @order )
-				else
-					set_flash @order.errors.full_messages, :danger
-					redirect_back fallback_location: admin_checkout_index_path
-				end
-
-			rescue Exception => e
-				puts e
-				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
-				set_flash "An error occured during processing.", :danger
-				redirect_back fallback_location: admin_checkout_index_path
-			end
 		end
 
 		def new

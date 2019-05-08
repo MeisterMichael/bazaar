@@ -56,8 +56,6 @@ module Bazaar
 			not( geo_address.errors.present? )
 		end
 
-		protected
-
 		def calculate_cart( cart, args = {} )
 			rates = find_cart_rates( cart, args )
 			rate = find_default_rate( rates )
@@ -142,6 +140,8 @@ module Bazaar
 
 			find_address_rates( address, cart.cart_items, args )
 		end
+
+		protected
 
 		def find_default_rate( rates )
 			rate = rates.sort_by{ |rate| rate[:cost] }.first

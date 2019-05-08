@@ -86,6 +86,7 @@
 							%th{ style: 'width: 8em' } Warehouse
 							%th{ style: 'width: 15em' } Items
 							%th Tracking
+							%th &nbsp;
 					%tbody
 						- unless @order.shipments.present?
 							%tr
@@ -112,6 +113,8 @@
 											= shipment.tracking_code || '-'
 									- else
 										= shipment.tracking_code || '-'
+								%td
+									%a{ href: bazaar.edit_shipment_admin_path( shipment ) } Edit
 							- shipment.shipment_logs.each do |shipment_log|
 								%tr
 									%td{ colspan: 6, style: 'padding-left: 4em;' }
@@ -119,7 +122,7 @@
 										#{shipment_log.subject} | #{shipment_log.details}
 										(#{shipment_log.carrier_status})
 				.text-right
-					%a.btn.btn-success{ href: bazaar.new_shipment_admin_path( shipment: { order_id: @order.id, user_id: @order.user_id, destination_address_id: @order.shipping_address_id, shipment_skus_attributes: @order.order_skus.collect{ |order_sku| { sku_id: order_sku.sku_id, quantity: order_sku.quantity } } }, success_redirect_path: bazaar.edit_admin_checkout_path( @order ) ) }
+					%a.btn.btn-success{ href: bazaar.new_shipment_admin_path( shipment: { email: @order.email, order_id: @order.id, user_id: @order.user_id, destination_address_id: @order.shipping_address_id, shipment_skus_attributes: @order.order_skus.collect{ |order_sku| { sku_id: order_sku.sku_id, quantity: order_sku.quantity } } }, success_redirect_path: bazaar.edit_admin_checkout_path( @order ) ) }
 						Add Shipment
 
 
