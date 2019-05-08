@@ -33,12 +33,12 @@
 							%label Contact Email
 							%div=@order.email
 			.row
-				- if @order.respond_to?( :billing_address )
+				- if @order.respond_to?( :billing_address ) && @order.billing_address.present?
 					.col-xs-12.col-md-6
 						.well.white-well
 							%h4 Billing Address
 							= raw @order.billing_address.to_html
-				- if @order.respond_to?( :shipping_address )
+				- if @order.respond_to?( :shipping_address ) && @order.shipping_address.present?
 					.col-xs-12.col-md-6
 						.well.white-well
 							%h4 Shipping Address
