@@ -44,6 +44,7 @@ module Bazaar
 
 		def new
 			@shipment = Bazaar::Shipment.new shipment_params
+			@shipment.warehouse_id ||= Bazaar.shipping_service_class.constantize.find_warehouse_by_shipment( @shipment ) if Bazaar.shipping_service_class.constantize.respond_to? :find_warehouse_by_shipment
 			authorize( @shipment )
 
 
