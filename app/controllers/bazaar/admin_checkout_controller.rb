@@ -176,7 +176,7 @@ module Bazaar
 			else
 				@offer_parent_groups = {
 					'Products' => Bazaar::Product.active.published.where.not( offer: nil ).order( title: :asc ),
-					'Plans' => Bazaar::SubscriptionPlan.active.published.where.not( offer: nil ).order( title: :asc ),
+					# 'Plans' => Bazaar::SubscriptionPlan.active.published.where.not( offer: nil ).order( title: :asc ),
 				}
 			end
 
