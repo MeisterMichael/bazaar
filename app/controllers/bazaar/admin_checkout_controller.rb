@@ -128,8 +128,14 @@ module Bazaar
 			@user = @order.user
 
 			if @user
-				@billing_geo_addresses	= GeoAddress.where( id: GeoAddress.where( id: @order.user.orders.select(:billing_address_id)  ).where.not( hash_code: @order.user.try(:preferred_billing_address).try(:hash_code)  ).or( GeoAddress.where( id: @order.user.try(:preferred_billing_address_id)  ) ).group(:hash_code).select('MAX(id)') ).order( created_at: :desc )
-				@shipping_geo_addresses	= GeoAddress.where( id: GeoAddress.where( id: @order.user.orders.select(:shipping_address_id) ).where.not( hash_code: @order.user.try(:preferred_shipping_address).try(:hash_code) ).or( GeoAddress.where( id: @order.user.try(:preferred_shipping_address_id) ) ).group(:hash_code).select('MAX(id)') ).order( created_at: :desc )
+				geo_addresses = @user.geo_addresses
+				de_duped_geo_addresses = geo_addresses.where( id: geo_addresses.group(:hash_code).select('MAX(id)') )
+
+				@billing_geo_addresses	= de_duped_geo_addresses.order( created_at: :desc )
+				@billing_geo_addresses	= @billing_geo_addresses.or( GeoAddress.where( id: @user.preferred_billing_address_id ) ) if @user.preferred_billing_address_id
+
+				@shipping_geo_addresses	= de_duped_geo_addresses.order( created_at: :desc )
+				@shipping_geo_addresses	= @shipping_geo_addresses.or( GeoAddress.where( id: @user.preferred_shipping_address_id ) ) if @user.preferred_shipping_address_id
 			end
 
 		end
