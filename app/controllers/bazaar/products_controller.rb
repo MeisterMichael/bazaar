@@ -61,7 +61,7 @@ module Bazaar
 				ecommerce: {
 					detail: {
 						actionField: {},
-						products: [ @product.page_event_data ]
+						products: [ @product.offer.page_event_data ]
 					}
 				}
 			);

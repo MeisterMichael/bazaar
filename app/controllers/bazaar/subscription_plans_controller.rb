@@ -19,7 +19,7 @@ module Bazaar
 				ecommerce: {
 					detail: {
 						actionField: {},
-						products: [ @plan.page_event_data ]
+						products: [ @plan.offer.page_event_data ]
 					}
 				}
 			);

@@ -19,7 +19,7 @@ module Bazaar
 				ecommerce: {
 					add: {
 						actionField: {},
-						products: @cart.cart_items.collect{|cart_item| cart_item.item.page_event_data.merge( quantity: cart_item.quantity ) }
+						products: @cart.cart_items.collect{|cart_item| cart_item.item.offer.page_event_data.merge( quantity: cart_item.quantity ) }
 					}
 				}
 			)
