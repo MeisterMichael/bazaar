@@ -51,6 +51,12 @@ module Bazaar
 			}
 		end
 
+		def calculate_order_status( order, args = {} )
+			order_status = order.status
+			order_status = 'pre_order' if order.order_offers.select{|order_offer| order_offer.offer.pre_order? || order_offer.offer.backorder? }.present? || order.order_items.select{|order_item| order_item.prod? && order_item.item.offer.pre_order? }.present?
+			order_status.to_s
+		end
+
 		def create_order_transaction( order, attributes = {} )
 			transaction = Bazaar::Transaction.create({
 				transaction_type: 'charge',
@@ -84,7 +90,7 @@ module Bazaar
 
 			# Save as a failed before processing... assuming failure (in case of
 			# unrecoverable error) and recognizing success.
-			order_status = order.status.to_s
+			order_status = calculate_order_status( order, args )
 			return nil unless order.update( status: 'failed', payment_status: 'payment_failed' )
 
 			self.calculate( order, args )
@@ -93,7 +99,7 @@ module Bazaar
 			end
 
 			if order_status == 'pre_order'
-				result = self.process_capture_payment_method( order, args )
+				result = self.process_capture_payment_method( order, args.merge( success_status: 'pre_order' ) )
 			elsif order_status == 'active'
 				result = self.process_purchase( order, args )
 			else
@@ -301,8 +307,6 @@ module Bazaar
 			self.calculate_order_skus( order, args )
 
 			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
-			order.status = 'pre_order' if order.order_items.select{|order_item| order_item.item.respond_to?( :pre_order? ) && order_item.item.pre_order? }.present?
-
 		end
 
 		def calculate_order_after( order, args = {} )
@@ -321,7 +325,7 @@ module Bazaar
 			if transaction.approved?
 
 				order.payment_status = 'payment_method_captured'
-				order.status = 'active'
+				order.status = args[:success_status] || 'active'
 				order.save
 
 				log_event( user: order.user, name: 'transaction_sxs', on: order, content: "transaction payment capture was approved for #{order.total_formatted} on Order #{order.code}" )
