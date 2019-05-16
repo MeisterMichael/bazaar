@@ -17,14 +17,23 @@ module Bazaar
 		def accept_review( order )
 			return false unless order.review?
 
-			order.active!
+			# if contains pre-order offers set the order status to pre_order
+			if order.order_offers.select{|order_offer| order_offer.offer.pre_order? }
 
-			order.order_offers.where.not( subscription: nil ).each do |order_offer|
-				order_offer.subscription.active! if order_offer.subscription.review?
-			end
+				order.pre_order!
 
-			order.shipments.each do |shipment|
-				shipment.pending! if shipment.review?
+			else
+
+				order.active!
+
+				order.order_offers.where.not( subscription: nil ).each do |order_offer|
+					order_offer.subscription.active! if order_offer.subscription.review?
+				end
+
+				order.shipments.each do |shipment|
+					shipment.pending! if shipment.review?
+				end
+
 			end
 
 
