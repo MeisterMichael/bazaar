@@ -105,7 +105,7 @@ module Bazaar
 			end
 
 
-			if @order.active? && @order.paid?
+			if ( @order.pre_order? && @order.payment_method_captured? ) || ( @order.active? && @order.paid? )
 
 				session[:cart_count] = 0
 				session[:cart_id] = nil
@@ -140,7 +140,8 @@ module Bazaar
 					@expiration = 30.minutes.from_now.to_i
 					@thank_you_url = bazaar.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
 
-					log_event( user: @order.user, name: 'purchase', value: @order.total, on: @order, content: "placed an order for $#{@order.total/100.to_f}." )
+					log_event( user: @order.user, name: 'purchase', value: @order.total, on: @order, content: "placed an order for $#{@order.total/100.to_f}." ) if @order.active?
+					log_event( user: @order.user, name: 'pre_order', value: @order.total, on: @order, content: "placed a pre-order for $#{@order.total/100.to_f}." ) if @order.pre_order?
 
 				rescue Exception => e
 					puts e if Rails.env.development?
