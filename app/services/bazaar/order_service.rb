@@ -131,12 +131,18 @@ module Bazaar
 					order.payment_status = 'paid'
 					order.status = 'active'
 					order.save
+
+					log_event( user: order.user, name: 'transaction_sxs', on: order, content: "transaction was approved for #{order.total_formatted} on Order #{order.code}. #{transaction.message}" )
+
+					self.process_purchase_success( order, args )
 				else
 					order.status = 'failed' unless order.trash?
 					order.payment_status = 'declined'
 					order.save
 
 					log_event( user: order.user, name: 'transaction_failed', on: order, content: "transaction was denied for #{order.total_formatted} on Order #{order.code}: #{transaction.message}." )
+
+					self.process_purchase_failure( order, args )
 				end
 
 			else
