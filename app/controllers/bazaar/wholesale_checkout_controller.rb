@@ -146,7 +146,7 @@ module Bazaar
 
 		def initialize_services
 			@fraud_service = Bazaar.fraud_service_class.constantize.new( Bazaar.fraud_service_config.merge( params: params, session: session, cookies: cookies, request: request ) )
-			@order_service = Bazaar::WholesaleOrderService.new( fraud_service: @fraud_service )
+			@order_service = Bazaar.wholesale_order_service_class.constantize.new( fraud_service: @fraud_service )
 		end
 
 

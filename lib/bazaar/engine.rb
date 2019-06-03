@@ -50,6 +50,9 @@ module Bazaar
 		mattr_accessor :wholesale_transaction_service_class
 		mattr_accessor :wholesale_transaction_service_config
 
+		mattr_accessor :order_service_class
+		mattr_accessor :wholesale_order_service_class
+
 		mattr_accessor :order_code_prefix
 		mattr_accessor :order_code_postfix
 
@@ -95,6 +98,9 @@ module Bazaar
 
 		self.wholesale_transaction_service_class = "Bazaar::TransactionServices::StripeTransactionService"
 		self.wholesale_transaction_service_config = {}
+
+		self.order_service_class = "Bazaar::OrderService"
+		self.wholesale_order_service_class = "Bazaar::WholesaleOrderService"
 
 		self.warehouse_address = {}
 		self.nexus_addresses = []

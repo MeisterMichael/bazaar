@@ -25,6 +25,14 @@ module Bazaar
 
 		end
 
+		def apply_discount?( obj )
+			true
+		end
+
+		def apply_tax?( obj )
+			true
+		end
+
 		def calculate( obj, args = {} )
 
 			args[:discount] ||= {}
@@ -35,9 +43,9 @@ module Bazaar
 			self.calculate_order_before( obj, args ) if obj.is_a? Bazaar::Order
 
 			shipping_response						= @shipping_service.calculate( obj, args[:shipping] )
-			discount_pre_tax_response		= @discount_service.calculate_pre_tax( obj, args[:discount] ) # calculate discounts pre-tax
-			tax_response								= @tax_service.calculate( obj, args[:tax] )
-			discount_post_tax_response	= @discount_service.calculate_post_tax( obj, args[:discount] ) # calucate again after taxes
+			discount_pre_tax_response		= @discount_service.calculate_pre_tax( obj, args[:discount] ) if apply_discount?( obj ) # calculate discounts pre-tax
+			tax_response								= @tax_service.calculate( obj, args[:tax] ) if apply_tax?( obj )
+			discount_post_tax_response	= @discount_service.calculate_post_tax( obj, args[:discount] ) if apply_discount?( obj ) # calucate again after taxes
 			transaction_response				= @transaction_service.calculate( obj, args[:transaction] )
 
 			self.calculate_order_after( obj, args ) if obj.is_a? Bazaar::Order
@@ -190,11 +198,13 @@ module Bazaar
 		def process_purchase_success( order, args = {} )
 			transaction_options = args[:transaction] || {}
 
-			begin
-				@tax_service.process( order ) if @tax_service.respond_to? :process
-			rescue Exception => e
-				puts e.message
-				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+			if apply_tax?( order )
+				begin
+					@tax_service.process( order ) if @tax_service.respond_to? :process
+				rescue Exception => e
+					puts e.message
+					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				end
 			end
 
 			if order.user.nil? && order.email.present? && Bazaar.create_user_on_checkout

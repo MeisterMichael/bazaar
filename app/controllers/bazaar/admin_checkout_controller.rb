@@ -203,12 +203,12 @@ module Bazaar
 		def initialize_services
 			@fraud_service = Bazaar.fraud_service_class.constantize.new( Bazaar.fraud_service_config.merge( params: params, session: session, cookies: cookies, request: request ) )
 			if @order.is_a? Bazaar::WholesaleOrder
-				@order_service = Bazaar::WholesaleOrderService.new(
+				@order_service = Bazaar.wholesale_order_service_class.constantize.new(
 					fraud_service: @fraud_service,
 					# shipping_service: Bazaar::ShippingService.new,
 				)
 			else
-				@order_service = Bazaar::OrderService.new(
+				@order_service = Bazaar.order_service_class.constantize.new(
 					fraud_service: @fraud_service,
 					# shipping_service: Bazaar::ShippingService.new,
 				)

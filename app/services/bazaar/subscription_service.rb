@@ -7,7 +7,7 @@ module Bazaar
 			@order_class			= args[:order_class] || Bazaar.checkout_order_class_name
 
 			@order_service			= args[:order_service]
-			@order_service			||= Bazaar::OrderService.new( subscription_service: self )
+			@order_service			||= Bazaar.order_service_class.constantize.new( subscription_service: self )
 
 		end
 
