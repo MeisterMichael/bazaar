@@ -118,44 +118,15 @@ module Bazaar
 
 				transaction.save
 
-				anet_order = nil
-
-				# create capture
-				anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
-				amount = order.total / 100.0 # convert cents to dollars
-
-
-				request = AuthorizeNet::API::CreateTransactionRequest.new
-				request.transactionRequest = AuthorizeNet::API::TransactionRequestType.new()
-				request.transactionRequest.amount = amount
-				request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::AuthCaptureTransaction
-				request.transactionRequest.order = AuthorizeNet::API::OrderType.new(order.code)
-				request.transactionRequest.profile = AuthorizeNet::API::CustomerProfilePaymentType.new
-				request.transactionRequest.profile.customerProfileId = profiles[:customer_profile_reference]
-				request.transactionRequest.profile.paymentProfile = AuthorizeNet::API::PaymentProfile.new(profiles[:customer_payment_profile_reference])
-
-				response = anet_transaction.create_transaction(request)
-
-				# response = anet_transaction.create_transaction_auth_capture( amount, profiles[:customer_profile_reference], profiles[:customer_payment_profile_reference], anet_order )
-				transaction_response = response.transactionResponse
-
-				transaction.reference_code = transaction_response.try(:transId)
-
-
-				# raise Exception.new("create auth capture error: #{get_frist_message_text( response )}") unless get_response_success?( response )
-
-				puts response.to_xml if @enable_debug
+				process_transaction( transaction )
 
 				# process response
-				if get_response_success?( response ) && ['1','Ok'].include?( transaction_response.responseCode.to_s )
+				if transaction.approved?
 
 					# if capture is successful, save order, and create transaction.
 					order.payment_status = 'paid'
 
 					if order.save
-
-						transaction.status = 'approved'
-						transaction.save
 
 						# sanity check
 						raise Exception.new( "Bazaar::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
@@ -172,13 +143,8 @@ module Bazaar
 					order.payment_status = 'declined'
 					order.save
 
-					transaction.status = 'declined'
-					transaction.message = get_frist_message_text( response )
-					transaction.message = "#{transaction.message} -> #{transaction_response.errors.errors[0].errorText}" if transaction_response.present? && transaction_response.errors.present?
-					transaction.save
-
-					if WHITELISTED_ERROR_MESSAGES.include? get_frist_message_text( response )
-						order.errors.add(:base, :processing_error, message: get_frist_message_text( response ) )
+					if WHITELISTED_ERROR_MESSAGES.include? transaction.message
+						order.errors.add(:base, :processing_error, message: transaction.message )
 					else
 						order.errors.add(:base, :processing_error, message: "Transaction declined.")
 					end
@@ -189,6 +155,46 @@ module Bazaar
 
 
 				return false
+			end
+
+			def process_transaction( transaction, args = {} )
+
+				anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
+
+				request = AuthorizeNet::API::CreateTransactionRequest.new
+				request.transactionRequest = AuthorizeNet::API::TransactionRequestType.new()
+				request.transactionRequest.amount = transaction.amount_as_money
+				request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::AuthCaptureTransaction
+				request.transactionRequest.order = AuthorizeNet::API::OrderType.new(transaction.parent_obj.code) if transaction.parent_obj.is_a? Bazaar::Order
+				request.transactionRequest.profile = AuthorizeNet::API::CustomerProfilePaymentType.new
+				request.transactionRequest.profile.customerProfileId = transaction.customer_profile_reference
+				request.transactionRequest.profile.paymentProfile = AuthorizeNet::API::PaymentProfile.new(transaction.customer_payment_profile_reference)
+
+				response = anet_transaction.create_transaction(request)
+
+				transaction_response = response.transactionResponse
+
+				transaction.reference_code = transaction_response.try(:transId)
+
+				puts response.to_xml if @enable_debug
+
+				# process response
+				if get_response_success?( response ) && ['1','Ok'].include?( transaction_response.responseCode.to_s )
+
+					transaction.status = 'approved'
+					transaction.save
+
+				else
+
+					transaction.status = 'declined'
+					transaction.message = get_frist_message_text( response )
+					transaction.properties['response_message'] = transaction.message
+					transaction.message = "#{transaction.message} -> #{transaction_response.errors.errors[0].errorText}" if transaction_response.present? && transaction_response.errors.present?
+					transaction.save
+
+				end
+
+				return transaction.approved?
 			end
 
 			def provider_name
