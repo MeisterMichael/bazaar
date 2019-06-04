@@ -42,6 +42,19 @@ module Bazaar
 			error_messages
 		end
 
+		def recalculate_pre_tax( obj, args = {} )
+
+			return self.calculate_order_pre_tax( obj, args.merge( recalculate: true ) ) if obj.is_a? Order
+			return self.calculate_cart_pre_tax( obj, args ) if obj.is_a? Cart
+
+		end
+		def recalculate_post_tax( obj, args = {} )
+
+			return self.calculate_order_post_tax( obj, args ) if obj.is_a? Order
+			return self.calculate_cart_post_tax( obj, args ) if obj.is_a? Cart
+
+		end
+
 		def validate( order, args = {} )
 			validate_order_discounts( order, order.order_items.select(&:discount?), args )
 		end
@@ -121,7 +134,7 @@ module Bazaar
 		def calculate_order_pre_tax( order, args = {} )
 
 			# calculate any discounts that need to be added
-			calculate_order_discounts( order, args )
+			calculate_order_discounts( order, args ) unless args[:recalculate]
 
 			# calculate the discount amount, pre tax so appropriate taxes can be applied net of discount
 			discount_order_items = order.order_items.to_a.select(&:discount?).select{ |order_item| order_item.item.minimum_tax_subtotal.to_i == 0 }

@@ -141,6 +141,11 @@ module Bazaar
 			find_address_rates( address, cart.cart_items, args )
 		end
 
+		def recalculate( obj, args = {} )
+			return self.calculate_order( obj, args ) if obj.is_a? Order
+			return self.calculate_cart( obj, args ) if obj.is_a? Cart
+		end
+
 		protected
 
 		def find_default_rate( rates )
@@ -205,16 +210,16 @@ module Bazaar
 
 		def initialize_order_shipments( order, args = {} )
 
-			shipment = order.shipments.new(
+			shipment = order.shipments.first
+			shipment ||= order.shipments.new(
 				destination_address: order.shipping_address,
 				status: 'draft',
 			)
 
 			order.order_skus.each do |order_sku|
-				shipment.shipment_skus.new(
-					sku: order_sku.sku,
-					quantity: order_sku.quantity,
-				)
+				shipment_sku = shipment.shipment_skus.to_a.select{|shipment_sku| shipment_sku.sku == order_sku.sku }
+				shipment_sku ||= shipment.shipment_skus.new( sku: order_sku.sku )
+				shipment_sku.quantity = order_sku.quantity
 			end
 
 		end

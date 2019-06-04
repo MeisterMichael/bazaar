@@ -16,6 +16,14 @@ module Bazaar
 
 		end
 
+		def recalculate( obj, args = {} )
+
+			return self.calculate_order( obj ) if obj.is_a? Order
+			return self.calculate_cart( obj ) if obj.is_a? Cart
+			return false
+
+		end
+
 		protected
 
 		def calculate_cart( cart )

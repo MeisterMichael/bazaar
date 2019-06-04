@@ -101,6 +101,14 @@ module Bazaar
 				tax_jar_order
 			end
 
+			def recalculate( obj, args = {} )
+
+				return self.calculate_order( obj ) if obj.is_a? Order
+				return self.calculate_cart( obj ) if obj.is_a? Cart
+				return false
+
+			end
+
 			protected
 
 			def calculate_cart( cart )
@@ -157,7 +165,7 @@ module Bazaar
 
 
 				order.tax = (tax_for_order.amount_to_collect * 100).to_i
-				order.tax_breakdown ||= {}
+				order.tax_breakdown = {}
 
 				tax_order_item = order.order_items.new( subtotal: order.tax, title: "Tax", order_item_type: 'tax' )
 
@@ -177,6 +185,8 @@ module Bazaar
 
 					if order_offer
 						order_offer.tax = (line_item.tax_collectable * 100).to_i
+						order_offer.tax_breakdown = {}
+
 						TAX_RESULTS_FIELDS.each do |field|
 							field_key = field.gsub(/_tax_collectable|_amount$/,'')
 							field_value = line_item.try(field)
@@ -191,6 +201,7 @@ module Bazaar
 				if tax_for_order.freight_taxable
 					order.shipments.each do |shipment|
 						shipment.tax = (tax_breakdown.shipping.tax_collectable * 100).to_i
+						shipment.tax_breakdown = {}
 
 						TAX_RESULTS_FIELDS.each do |field|
 							field_key = field.gsub(/_tax_collectable|_amount$/,'')

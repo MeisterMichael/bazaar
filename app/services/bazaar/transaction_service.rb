@@ -16,6 +16,13 @@ module Bazaar
 
 		end
 
+		def recalculate( obj, args = {} )
+
+			return self.calculate_order( obj, args ) if obj.is_a? Order
+			return self.calculate_cart( obj, args ) if obj.is_a? Cart
+
+		end
+
 		def refund( args = {} )
 
 			throw Exception.new('TransactionService#refund is an abstract method')

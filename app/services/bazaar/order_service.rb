@@ -225,6 +225,35 @@ module Bazaar
 			true
 		end
 
+		def recalculate( obj, args = {} )
+
+			args[:discount] ||= {}
+			args[:shipping] ||= {}
+			args[:tax] ||= {}
+			args[:transaction] ||= {}
+
+			if obj.is_a? Bazaar::Order
+				obj.order_skus.each { |order_sku| order_sku.quantity = 0 }
+				self.calculate_order_before( obj, args )
+			end
+
+			shipping_response						= @shipping_service.recalculate( obj, args[:shipping] )
+			discount_pre_tax_response		= @discount_service.recalculate_pre_tax( obj, args[:discount] ) if apply_discount?( obj ) # calculate discounts pre-tax
+			tax_response								= @tax_service.recalculate( obj, args[:tax] ) if apply_tax?( obj )
+			discount_post_tax_response	= @discount_service.recalculate_post_tax( obj, args[:discount] ) if apply_discount?( obj ) # calucate again after taxes
+			transaction_response				= @transaction_service.recalculate( obj, args[:transaction] )
+
+			self.calculate_order_after( obj, args ) if obj.is_a? Bazaar::Order
+
+			{
+				shipping: shipping_response,
+				discount_pre_tax: discount_pre_tax_response,
+				discount_post_tax: discount_post_tax_response,
+				tax: tax_response,
+				transaction: transaction_response,
+			}
+		end
+
 		def refund( args = {} )
 
 			@transaction_service.refund( args || {} )
