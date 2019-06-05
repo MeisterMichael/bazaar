@@ -106,6 +106,7 @@ module Bazaar
 
 
 			if ( @order.pre_order? && @order.payment_method_captured? ) || ( @order.active? && @order.paid? )
+				order_is_pre_order = @order.pre_order?
 
 				session[:cart_count] = 0
 				session[:cart_id] = nil
@@ -140,9 +141,11 @@ module Bazaar
 					@expiration = 30.minutes.from_now.to_i
 					@thank_you_url = bazaar.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
 
-					log_event( user: @order.user, name: 'purchase', value: @order.total, on: @order, content: "placed an order for $#{@order.total/100.to_f}." ) if @order.active?
-					log_event( user: @order.user, name: 'pre_order', value: @order.total, on: @order, content: "placed a pre-order for $#{@order.total/100.to_f}." ) if @order.pre_order?
-
+					if order_is_pre_order
+						log_event( user: @order.user, name: 'pre_order', value: @order.total, on: @order, content: "placed a pre-order for $#{@order.total/100.to_f}." )
+					else
+						log_event( user: @order.user, name: 'purchase', value: @order.total, on: @order, content: "placed an order for $#{@order.total/100.to_f}." )
+					end
 				rescue Exception => e
 					puts e if Rails.env.development?
 					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
