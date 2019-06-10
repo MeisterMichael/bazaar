@@ -139,7 +139,7 @@ module Bazaar
 
 				begin
 					@expiration = 30.minutes.from_now.to_i
-					@thank_you_url = bazaar.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ) )
+					@thank_you_url = bazaar.thank_you_order_path( @order.code, format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ), from: 'checkout' )
 
 					if order_is_pre_order
 						log_event( user: @order.user, name: 'pre_order', value: @order.total, on: @order, content: "placed a pre-order for $#{@order.total/100.to_f}." )
