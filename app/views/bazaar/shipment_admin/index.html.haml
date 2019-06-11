@@ -6,8 +6,8 @@
 		.col-xs-10
 			%h2 Shipments
 		.col-xs-2.text-right
-			-# if authorized?(Bazaar::Shipment, controller: Bazaar::ShipmentAdminController, action: :create )
-				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_shipment_modal' } }
+			- if authorized?(Bazaar::Shipment, controller: Bazaar::ShipmentAdminController, action: :create ) && Rails.env.development?
+				%a.btn.btn-success{ href: bazaar.new_shipment_admin_path() }
 					%i.fa.fa-plus-square
 					New
 	.row{ style: 'margin-top: 0' }
@@ -72,4 +72,4 @@
 												Delete!
 
 
--# = render 'new_modal'
+= render 'new_modal'

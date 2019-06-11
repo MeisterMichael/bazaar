@@ -11,7 +11,7 @@ module Bazaar
 				if params[:success_redirect_path]
 					redirect_to params[:success_redirect_path]
 				else
-					redirect_back fallback_location: '/admin'
+					redirect_to edit_shipment_admin_path( @shipment )
 				end
 			else
 				set_flash "Unable to create shipment", :danger, @shipment
@@ -28,6 +28,12 @@ module Bazaar
 			authorize( @shipment )
 
 			set_page_meta( title: "Shipment #{@shipment.created_at}" )
+
+			if @shipment.destination_address.blank?
+				render 'edit_destination'
+			elsif @shipment.shipment_skus.blank?
+				render 'edit_items'
+			end
 		end
 
 		def index
@@ -48,8 +54,8 @@ module Bazaar
 			authorize( @shipment )
 
 
-			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
-			@shipping_service.calculate_shipment( @shipment )
+			# @shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+			# @shipping_service.calculate_shipment( @shipment )
 
 		end
 
