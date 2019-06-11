@@ -145,15 +145,15 @@ module Bazaar
 
 			@order_service = Bazaar.order_service_class.constantize.new
 
-			@transaction = @order_service.refund( amount: refund_amount, order: @order )
+			@transactions = @order_service.refund( amount: refund_amount, order: @order )
 
-			if @transaction.errors.present?
+			if ( transaction_errors = @transactions.collect{|transaction| transaction.errors.full_messages }.select(&:present?).join('. ') ).present?
 
-				set_flash @transaction.errors.full_messages, :danger
+				set_flash transaction_errors, :danger
 
-			elsif @transaction.declined?
+			elsif ( declined_messages = @transactions.select(&:declined?).collect(&:message).select(&:present?).join('. ') ).present?
 
-				set_flash @transaction.message, :danger
+				set_flash declined_messages, :danger
 
 			else
 
@@ -164,7 +164,7 @@ module Bazaar
 				# OrderMailer.refund( @transaction ).deliver_now # send emails on a cron
 				set_flash "Refund successful", :success
 
-				log_system_event( user: @order.user, name: 'refund', value: -@transaction.amount, on: @order, content: "refunded #{@transaction.amount_formatted} on order #{@order.code}" )
+				log_system_event( user: @order.user, name: 'refund', value: -@transactions.sum(&:amount), on: @order, content: "refunded #{@transactions.sum(&:amount_as_money)} on order #{@order.code}" )
 
 			end
 
