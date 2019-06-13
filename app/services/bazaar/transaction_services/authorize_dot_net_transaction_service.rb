@@ -204,40 +204,84 @@ module Bazaar
 			def refund( args = {} )
 				# assumes :amount, and :charge_transaction
 				charge_transaction	= args.delete( :charge_transaction )
-				parent				= args.delete( :order ) || args.delete( :parent )
-				charge_transaction	||= Transaction.where( parent_obj: parent ).charge.first if parent.present?
-				anet_transaction_id = args.delete( :transaction_id )
+				parent							= args.delete( :order ) || args.delete( :parent )
+				anet_transaction_id	= args.delete( :transaction_id )
+				amount							= args.delete( :amount )
 
-				raise Exception.new( "charge_transaction must be an approved charge." ) unless charge_transaction.nil? || ( charge_transaction.charge? && charge_transaction.approved? )
+				new_transactions = []
+
+				if charge_transaction.present?
+
+					new_transactions << refund_transaction( charge_transaction, args.merge( amount: amount ) )
+
+				elsif anet_transaction_id.present?
+
+					charge_transaction	= Bazaar::Transaction.charge.approved.where( provider: @provider_name, reference_code: anet_transaction_id ).first
+					raise Exception.new( 'Unable to find transaction by reference code' ) if charge_transaction.nil?
+
+					new_transactions << refund_transaction( charge_transaction, args.merge( amount: amount ) )
+
+				elsif parent.present? && ( charge_transactions = Bazaar::Transaction.charge.approved.where(  provider: @provider_name, parent_obj: parent ) ).count >= 1
+
+					refund_transactions = Bazaar::Transaction.refund.approved.where( provider: @provider_name, parent_obj: parent )
+					refunded_amount = refund_transactions.sum(:amount)
+					charged_amount = charge_transactions.sum(:amount)
+
+					remaining_refund_amount = amount || ( charged_amount - refunded_amount )
+
+
+					raise Exception.new( "Refund amount is more than the sum of charges" ) if remaining_refund_amount > (charged_amount - refunded_amount)
+
+					# iterate over transactions to find those that have capacity to accept
+					# refunds, and apply the refund amount to them until none is left
+					running_charge_total = 0
+					charge_transactions.order( created_at: :asc ).each do |charge_transaction|
+
+						running_charge_total += charge_transaction.amount
+						transaction_max_refund_amount = running_charge_total - refunded_amount
+
+						# if the total charges at this point is more than the amount already
+						# refunded then this transaction has room for additional refunds.
+						if transaction_max_refund_amount > 0
+							# The amount that can be refunded on this charge.
+							transaction_refund_amount = [transaction_max_refund_amount,remaining_refund_amount].min
+
+							new_transactions << refund_transaction( charge_transaction, args.merge( amount: transaction_refund_amount ) )
+
+							refunded_amount += transaction_refund_amount
+							remaining_refund_amount -= transaction_refund_amount
+						end
+
+						break if remaining_refund_amount == 0
+
+					end
+
+				else
+					raise Exception.new( 'Unable to refund, unable to find transactions.' )
+				end
+
+				new_transactions
+
+			end
+
+			def refund_transaction( charge_transaction, args = {} )
+				raise Exception.new( "charge_transaction must be an approved charge." ) unless charge_transaction.charge? && charge_transaction.approved?
+
+				args[:amount] ||= charge_transaction.amount
 
 				transaction = Bazaar::Transaction.new( args )
 				transaction.transaction_type	= 'refund'
 				transaction.provider					= @provider_name
+				transaction.currency					||= charge_transaction.currency
+				transaction.parent_obj				||= charge_transaction.parent_obj
 
-				if charge_transaction.present?
+				transaction.customer_profile_reference ||= charge_transaction.customer_profile_reference
+				transaction.customer_payment_profile_reference ||= charge_transaction.customer_payment_profile_reference
 
-					transaction.currency			||= charge_transaction.currency
-					transaction.parent_obj			||= charge_transaction.parent_obj
-
-					transaction.customer_profile_reference ||= charge_transaction.customer_profile_reference
-					transaction.customer_payment_profile_reference ||= charge_transaction.customer_payment_profile_reference
-
-					transaction.amount = charge_transaction.amount unless args[:amount].present?
-
-					anet_transaction_id ||= charge_transaction.reference_code
-
-				elsif anet_transaction_id.present?
-
-					charge_transaction = Bazaar::Transaction.charge.approved.find_by( provider: @provider_name, reference_code: anet_transaction_id )
-
-				end
-
-				transaction.properties	= charge_transaction.properties.merge( transaction.properties ) if charge_transaction
-				transaction.credit_card_ending_in = charge_transaction.credit_card_ending_in if charge_transaction.respond_to?(:credit_card_ending_in)
-				transaction.credit_card_brand = charge_transaction.credit_card_brand if charge_transaction.respond_to?(:credit_card_brand)
-				transaction.billing_address = charge_transaction.billing_address if charge_transaction.respond_to?(:billing_address)
-
-				raise Exception.new('unable to find transaction') if anet_transaction_id.nil?
+				transaction.properties						= charge_transaction.properties.merge( transaction.properties ) if charge_transaction
+				transaction.credit_card_ending_in	= charge_transaction.credit_card_ending_in if charge_transaction.respond_to?(:credit_card_ending_in)
+				transaction.credit_card_brand			= charge_transaction.credit_card_brand if charge_transaction.respond_to?(:credit_card_brand)
+				transaction.billing_address				= charge_transaction.billing_address if charge_transaction.respond_to?(:billing_address)
 
 				if transaction.amount <= 0
 					transaction.status = 'declined'
@@ -258,18 +302,10 @@ module Bazaar
 				request.transactionRequest.profile.paymentProfile = AuthorizeNet::API::PaymentProfile.new(transaction.customer_payment_profile_reference)
 				# request.transactionRequest.payment = AuthorizeNet::API::PaymentType.new
 				# request.transactionRequest.payment.creditCard = CreditCardType.new('0015','XXXX')
-				request.transactionRequest.refTransId = anet_transaction_id
+				request.transactionRequest.refTransId = charge_transaction.reference_code
 				request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::RefundTransaction
 
 				response = anet_transaction.create_transaction( request )
-
-				# response = anet_transaction.create_transaction_refund(
-				# 	anet_transaction_id,
-				# 	refund_dollar_amount,
-				# 	transaction.customer_profile_reference,
-				# 	transaction.customer_payment_profile_reference
-				# )
-
 				puts response.to_xml if @enable_debug
 
 				if get_first_message_code( response ) == CANNOT_REFUND_CHARGE
@@ -284,7 +320,7 @@ module Bazaar
 
 						request = AuthorizeNet::API::CreateTransactionRequest.new
 						request.transactionRequest = AuthorizeNet::API::TransactionRequestType.new()
-						request.transactionRequest.refTransId = anet_transaction_id
+						request.transactionRequest.refTransId = charge_transaction.reference_code
 						request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::VoidTransaction
 
 						response = anet_transaction.create_transaction(request)
@@ -303,29 +339,10 @@ module Bazaar
 						request.transactionRequest.profile.paymentProfile = AuthorizeNet::API::PaymentProfile.new(transaction.customer_payment_profile_reference)
 						# request.transactionRequest.payment = AuthorizeNet::API::PaymentType.new
 						# request.transactionRequest.payment.creditCard = CreditCardType.new('0015','XXXX')
-						# request.transactionRequest.refTransId = anet_transaction_id
+						# request.transactionRequest.refTransId = charge_transaction.reference_code
 						request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::RefundTransaction
 
 						response = anet_transaction.create_transaction( request )
-
-
-
-						# anet_transaction.set_fields(:trans_id => nil)
-						# anet_transaction.create_transaction(
-						# 	:refund,
-						# 	refund_dollar_amount,
-						# 	transaction.customer_profile_reference,
-						# 	transaction.customer_payment_profile_reference,
-						# 	nil, #order
-						# 	{}, #options
-						# )
-
-						# response = anet_transaction.create_transaction_refund(
-						# 	nil,
-						# 	refund_dollar_amount,
-						# 	transaction.customer_profile_reference,
-						# 	transaction.customer_payment_profile_reference
-						# )
 
 					end
 				end
@@ -344,8 +361,6 @@ module Bazaar
 					# update corresponding order to a payment status of refunded
 					transaction.parent_obj.update payment_status: 'refunded'
 
-					# sanity check
-					# raise Exception.new( "Bazaar::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 				else
 					puts response.to_xml if @enable_debug
 
@@ -356,9 +371,6 @@ module Bazaar
 					transaction.message = "#{transaction.message} -> #{transaction_response.errors.errors[0].errorText}" if transaction_response.present? && transaction_response.errors.present?
 
 					transaction.save
-
-					# sanity check
-					# raise Exception.new( "Bazaar::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 
 				end
 
