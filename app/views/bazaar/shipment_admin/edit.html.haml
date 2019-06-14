@@ -28,8 +28,12 @@
 							= raw @shipment.source_address.try(:to_html)
 					.col-xs-6
 						.well.white-well
-							= raw @shipment.destination_address.try(:to_html) || 'N/A'
+							%div= raw @shipment.destination_address.try(:to_html) || 'N/A'
+							%a{ href: bazaar.edit_destination_shipment_admin_path( @shipment.id ) } edit
 				.well.white-well
+
+					.pull-right
+						%a{ href: bazaar.edit_items_shipment_admin_path( @shipment.id ) } edit
 					%h4 Skus
 
 					%table.table.table-light.table-bordered{ style: 'margin:0;' }
@@ -45,6 +49,16 @@
 								%tr
 									%td=shipment_sku.sku.code
 									%td=shipment_sku.quantity
+
+				.well.white-well
+					.form-group
+						%label Notes
+						%div
+							- if @shipment.notes.blank?
+								\-
+							- else
+								= @shipment.notes
+
 				.well.white-well
 					%h4 Logs
 
@@ -77,6 +91,33 @@
 					.form-group
 						= f.label :processable_at
 						= f.text_field :processable_at, value: current_user.to_local_tz( @shipment.processable_at ), class: 'form-control datetimepicker'
+
+					.pull-right
+						%a{ href: bazaar.edit_shape_shipment_admin_path( @shipment.id ) } edit
+					%h4
+						Shipment Description
+					.row
+						.col-xs-4
+							.form-group
+								%label Dimensions
+								%div #{@shipment.length} x #{@shipment.width} x #{@shipment.height}
+						.col-xs-4
+							.form-group
+								%label Weight
+								%div= @shipment.weight
+						.col-xs-4
+							.form-group
+								%label Shape
+								%div= @shipment.shape
+						.col-xs-4
+							.form-group
+								%label Cost
+								%div= @shipment.cost_formatted
+						.col-xs-4
+							.form-group
+								%label Price
+								%div= @shipment.price_formatted
+
 
 					%hr
 

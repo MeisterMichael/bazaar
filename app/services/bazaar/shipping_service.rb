@@ -23,6 +23,7 @@ module Bazaar
 		def calculate( obj, args = {} )
 			return self.calculate_order( obj, args ) if obj.is_a? Order
 			return self.calculate_cart( obj, args ) if obj.is_a? Cart
+			return self.calculate_shipment( obj, args ) if obj.is_a? Shipment
 		end
 
 		def fetch_delivery_status( order, args = {} )
@@ -39,6 +40,7 @@ module Bazaar
 			return self.find_order_rates( obj, args ) if obj.is_a? Order
 			return self.find_cart_rates( obj, args ) if obj.is_a? Cart
 			return self.find_subscription_rates( obj, args ) if obj.is_a? Subscription
+			return self.find_shipment_rates( obj, args ) if obj.is_a? Shipment
 		end
 
 		def process( order, args = {} )
@@ -144,6 +146,7 @@ module Bazaar
 		def recalculate( obj, args = {} )
 			return self.calculate_order( obj, args ) if obj.is_a? Order
 			return self.calculate_cart( obj, args ) if obj.is_a? Cart
+			return self.calculate_shipment( obj, args ) if obj.is_a? Shipment
 		end
 
 		protected
@@ -158,7 +161,8 @@ module Bazaar
 
 		def find_shipment_rates( shipment, args = {} )
 			# @todo update order rate calculation to shipments rather than order
-			find_order_rates( shipment.order, args )
+			# find_order_rates( shipment.order, args )
+			find_address_rates( shipment.destination_address, shipment.shipment_skus.collect{ |shipment_sku| OrderItem.new( item: shipment_sku.sku, quantity: shipment_sku.quantity ) }, args )
 		end
 
 		def find_subscription_rates( subscription, args = {} )

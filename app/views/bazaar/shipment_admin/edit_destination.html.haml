@@ -3,7 +3,8 @@
 		.col-xs-12
 			%h1
 				Shipment Destination
-	= form_for @shipment, url: bazaar.shipment_admin_index_path(@shipment), as: :shipment, html: { class: 'form' } do |f|
+	= form_for @shipment, url: bazaar.shipment_admin_path(@shipment), as: :shipment, html: { class: 'form' } do |f|
+		= hidden_field_tag :success_redirect_path, bazaar.edit_items_shipment_admin_path(@shipment.id)
 		.row
 			.col-xs-12.col-md-8
 				.row
@@ -15,4 +16,4 @@
 										= f.radio_button :destination_address_id, geo_address.id, checked: (index == 0)
 									%div{ style: 'margin: 0 0 1em 1.5em;' }
 										= raw geo_address.to_html
-				= f.submit "Create", class: 'btn btn-primary'
+				= f.submit "Next", class: 'btn btn-primary'

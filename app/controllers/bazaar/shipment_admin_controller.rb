@@ -11,7 +11,7 @@ module Bazaar
 				if params[:success_redirect_path]
 					redirect_to params[:success_redirect_path]
 				else
-					redirect_to edit_shipment_admin_path( @shipment )
+					redirect_to edit_destination_shipment_admin_path( @shipment )
 				end
 			else
 				set_flash "Unable to create shipment", :danger, @shipment
@@ -24,17 +24,34 @@ module Bazaar
 		end
 
 		def edit
+			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+
 			@shipment = Bazaar::Shipment.find( params[:id] )
 			authorize( @shipment )
 
 			set_page_meta( title: "Shipment #{@shipment.created_at}" )
 
-			if @shipment.destination_address.blank?
-				render 'edit_destination'
-			elsif @shipment.shipment_skus.blank?
-				render 'edit_items'
-			end
 		end
+
+		def edit_destination
+			edit
+		end
+
+		def edit_items
+			edit
+
+			@shipment.attributes = params[:shipment].permit({ shipment_skus_attributes: [:sku_id,:quantity] }) if params[:shipment]
+			@shipment.shipment_skus.new( sku_id: params[:sku_id], quantity: params[:quantity] ) if params[:sku_id]
+		end
+
+		def edit_shape
+			edit
+		end
+
+		def edit_service
+			edit
+		end
+
 
 		def index
 			authorize( Bazaar::Shipment )
@@ -64,10 +81,17 @@ module Bazaar
 			authorize( @shipment )
 
 			@shipment.attributes = shipment_params
+			@shipment.shipment_skus.each do |shipping_sku|
+				shipping_sku.shipping_code ||= shipping_sku.warehouse_sku.try(:code)
+			end
 
 			if @shipment.save
 				set_flash 'Shipment Updated'
-				redirect_to edit_shipment_admin_path( id: @shipment.id )
+				if params[:success_redirect_path]
+					redirect_to params[:success_redirect_path]
+				else
+					redirect_to edit_shipment_admin_path( id: @shipment.id )
+				end
 			else
 				set_flash 'Shipment could not be Updated', :error, @shipment
 				render :edit
@@ -77,7 +101,8 @@ module Bazaar
 
 		protected
 		def shipment_params
-			shipment_attributes = params.require( :shipment ).permit( :user_id, :warehouse_id, :notes, :status, :email, :estimated_delivered_at, :canceled_at, :packed_at, :shipped_at, :delivered_at, :returned_at, :processable_at, :order_id, :destination_address_id, :cost_as_money, :cost, :price_as_money, :price, :tax_as_money, :tax, :declared_value_as_money, :declared_value, { shipment_skus_attributes: [:sku_id,:quantity] } )
+			shipment_attributes = {}
+			shipment_attributes = params.require( :shipment ).permit( :user_id, :warehouse_id, :notes, :status, :email, :estimated_delivered_at, :canceled_at, :packed_at, :shipped_at, :delivered_at, :returned_at, :processable_at, :order_id, :destination_address_id, :cost_as_money, :cost, :price_as_money, :price, :tax_as_money, :tax, :declared_value_as_money, :declared_value, :length, :width, :height, :weight, :shape, :notes, { shipment_skus_attributes: [:sku_id,:quantity] } ) if params[:shipment].present?
 			if params[:shipping_rate].present?
 				shipping_rate = JSON.parse( params[:shipping_rate], symbolize_names: true )
 				shipment_attributes = shipment_attributes.merge(

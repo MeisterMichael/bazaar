@@ -74,7 +74,12 @@ Bazaar::Engine.routes.draw do
 	resources :shipping_carrier_service_admin, only: [:index,:edit,:update]
 	resources :shipping_option_admin, only: [:index,:edit,:update,:create]
 
-	resources :shipment_admin
+	resources :shipment_admin do
+		get :edit_destination, on: :member
+		get :edit_items, on: :member
+		get :edit_shape, on: :member
+		get :edit_service, on: :member
+	end
 	resources :shipment_sku_admin
 
 	resources :sku_admin
