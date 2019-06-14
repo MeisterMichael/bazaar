@@ -56,6 +56,9 @@ module Bazaar
 		mattr_accessor :order_code_prefix
 		mattr_accessor :order_code_postfix
 
+		mattr_accessor :shipment_code_prefix
+		mattr_accessor :shipment_code_postfix
+
 		mattr_accessor :subscription_code_prefix
 		mattr_accessor :subscription_code_postfix
 

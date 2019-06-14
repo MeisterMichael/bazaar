@@ -42,6 +42,7 @@ Bazaar.configure do |config|
 	# config.discount_service_config = {}
 
 	# config.order_code_prefix = 'swell-o'
+	# config.shipment_code_prefix = 'swell-ship-'
 	# config.subscription_code_prefix = 'swell-s'
 
 	# config.automated_fulfillment = true
