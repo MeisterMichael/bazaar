@@ -146,6 +146,7 @@ module Bazaar
 			@order_service = Bazaar.order_service_class.constantize.new
 
 			@transactions = @order_service.refund( amount: refund_amount, order: @order )
+			@transactions = [@transactions] if @transactions.is_a? Bazaar::Transaction
 
 			if ( transaction_errors = @transactions.collect{|transaction| transaction.errors.full_messages }.select(&:present?).join('. ') ).present?
 
