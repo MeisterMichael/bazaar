@@ -40,7 +40,7 @@ module Bazaar
 				order.payment_status = 'declined'
 				order.save
 
-				log_event( user: user, on: order, name: 'error', content: "AmazonPay Payment Profile Error: Unable to process this payment method" )
+				log_event( user: order.user, on: order, name: 'error', content: "AmazonPay Payment Profile Error: Unable to process this payment method" )
 
 				order.errors.add(:base, "Unable to process this payment method")
 				return false
