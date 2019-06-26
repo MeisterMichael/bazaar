@@ -45,9 +45,11 @@ module Bazaar
 		protected
 
 		def generate_code
-			self.code = SecureRandom.uuid
-			self.code = "#{Bazaar.shipment_code_prefix}#{self.code}" if Bazaar.shipment_code_prefix.present?
-			self.code = "#{self.code}#{Bazaar.shipment_code_postfix}" if Bazaar.shipment_code_postfix.present?
+			if self.code.blank?
+				self.code = SecureRandom.uuid
+				self.code = "#{Bazaar.shipment_code_prefix}#{self.code}" if Bazaar.shipment_code_prefix.present?
+				self.code = "#{self.code}#{Bazaar.shipment_code_postfix}" if Bazaar.shipment_code_postfix.present?
+			end
 		end
 
 		def validate_warehouse_skus
