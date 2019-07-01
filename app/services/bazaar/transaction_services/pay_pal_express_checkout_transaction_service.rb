@@ -119,8 +119,6 @@ module Bazaar
 			end
 
 			def refund( args = {} )
-				charge_transaction	= args.delete( :charge_transaction )
-				charge_transaction	||= Transaction.where( parent_obj: parent ).charge.first if parent.present?
 
 				# assumes :amount, and :charge_transaction
 				charge_transaction	= args.delete( :charge_transaction )
