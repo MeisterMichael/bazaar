@@ -119,10 +119,14 @@ module Bazaar
 			end
 
 			def refund( args = {} )
+				charge_transaction	= args.delete( :charge_transaction )
+				charge_transaction	||= Transaction.where( parent_obj: parent ).charge.first if parent.present?
 
 				# assumes :amount, and :charge_transaction
 				charge_transaction	= args.delete( :charge_transaction )
-				parent_obj			= charge_transaction.parent_obj
+				parent_obj					= args.delete( :order ) || args.delete( :parent )
+				charge_transaction	||= Transaction.where( parent_obj: parent_obj ).charge.approved.first if parent_obj.present?
+				parent_obj					= charge_transaction.parent_obj
 
 				raise Exception.new('unable to find transaction') if charge_transaction.nil?
 
