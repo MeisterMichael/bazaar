@@ -16,7 +16,7 @@ module Bazaar
 		has_many :shipment_skus
 		has_many :skus, through: :shipment_skus
 
-		enum status: { 'rejected' => -100, 'canceled' => -1, 'draft' => 0, 'pending' => 10, 'processing' => 50, 'picking' => 100, 'packed' => 200, 'shipped' => 300, 'delivered' => 400, 'returned' => 500, 'review' => 900, 'hold_review' => 950 }
+		enum status: { 'rejected' => -100, 'canceled' => -1, 'draft' => 0, 'pending' => 10, 'error' => 40, 'processing' => 50, 'picking' => 100, 'packed' => 200, 'shipped' => 300, 'delivered' => 400, 'returned' => 500, 'review' => 900, 'hold_review' => 950 }
 		enum shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 
