@@ -91,7 +91,7 @@ module Bazaar
 
 			def initialize_services
 				@fraud_service = Bazaar.fraud_service_class.constantize.new( Bazaar.fraud_service_config.merge( params: params, session: session, cookies: cookies, request: request ) )
-				@order_service = Bazaar.order_service_class.constantize.new( fraud_service: @fraud_service )
+				@order_service = Bazaar.checkout_order_service_class.constantize.new( fraud_service: @fraud_service )
 			end
 
 			def discount_options_params

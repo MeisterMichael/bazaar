@@ -6,7 +6,7 @@ namespace :bazaar do
 		orders = Bazaar.checkout_order_class_name.constantize.active.payment_method_captured
 		orders = orders.where( 'updated_at < ?', 10.minutes.ago )
 
-		order_service = Bazaar.order_service_class.constantize.new
+		order_service = Bazaar.checkout_order_service_class.constantize.new
 
 		orders.find_each do |order|
 

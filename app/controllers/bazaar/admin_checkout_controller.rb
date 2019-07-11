@@ -208,7 +208,7 @@ module Bazaar
 					# shipping_service: Bazaar::ShippingService.new,
 				)
 			else
-				@order_service = Bazaar.order_service_class.constantize.new(
+				@order_service = Bazaar.checkout_order_service_class.constantize.new(
 					fraud_service: @fraud_service,
 					# shipping_service: Bazaar::ShippingService.new,
 				)

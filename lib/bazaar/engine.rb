@@ -99,7 +99,7 @@ module Bazaar
 		self.wholesale_transaction_service_class = "Bazaar::TransactionServices::StripeTransactionService"
 		self.wholesale_transaction_service_config = {}
 
-		self.order_service_class = "Bazaar::OrderService"
+		self.checkout_order_service_class = "Bazaar::CheckoutOrderService"
 		self.wholesale_order_service_class = "Bazaar::WholesaleOrderService"
 
 		self.warehouse_address = {}
