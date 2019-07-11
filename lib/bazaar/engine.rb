@@ -50,7 +50,7 @@ module Bazaar
 		mattr_accessor :wholesale_transaction_service_class
 		mattr_accessor :wholesale_transaction_service_config
 
-		mattr_accessor :order_service_class
+		mattr_accessor :checkout_order_service_class
 		mattr_accessor :wholesale_order_service_class
 
 		mattr_accessor :order_code_prefix
