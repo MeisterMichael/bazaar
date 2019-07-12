@@ -28,6 +28,10 @@ module Bazaar
 
 		money_attributes :cost, :price, :tax, :declared_value
 
+		def not_negative_status?
+			not( rejected? || canceled? )
+		end
+
 		def self.not_negative_status
 			where( status: 0..Float::INFINITY )
 		end

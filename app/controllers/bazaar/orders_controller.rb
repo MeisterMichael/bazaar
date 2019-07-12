@@ -33,6 +33,7 @@ module Bazaar
 
 			if @first_purchase_event && @order.is_a?( Bazaar::CheckoutOrder ) && not( @order.subscription_renewal? )
 				add_page_event_data(
+					email: @order.email,
 					ecommerce: {
 						currencyCode: @order.currency.try(:upcase),
 						purchase: {
