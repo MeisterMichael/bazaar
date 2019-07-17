@@ -71,7 +71,32 @@ module Bazaar
 
 		protected
 		def shipment_params
-			shipment_attributes = params.require( :shipment ).permit( :user_id, :warehouse_id, :notes, :status, :email, :estimated_delivered_at, :canceled_at, :packed_at, :shipped_at, :delivered_at, :returned_at, :processable_at, :order_id, :destination_address_id, :cost_as_money, :cost, :price_as_money, :price, :tax_as_money, :tax, :declared_value_as_money, :declared_value, { shipment_skus_attributes: [:sku_id,:quantity] } )
+			shipment_attributes = params.require( :shipment ).permit(
+				:user_id,
+				:warehouse_id,
+				:notes,
+				:status,
+				:email,
+				:estimated_delivered_at,
+				:canceled_at,
+				:packed_at,
+				:shipped_at,
+				:delivered_at,
+				:returned_at,
+				:processable_at,
+				:order_id,
+				:destination_address_id,
+				:cost_as_money,
+				:cost,
+				:price_as_money,
+				:price,
+				:tax_as_money,
+				:tax,
+				:declared_value_as_money,
+				:declared_value,
+				{ shipment_skus_attributes: [:sku_id,:quantity] }
+			)
+
 			if params[:shipping_rate].present?
 				shipping_rate = JSON.parse( params[:shipping_rate], symbolize_names: true )
 				shipment_attributes = shipment_attributes.merge(
