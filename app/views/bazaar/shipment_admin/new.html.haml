@@ -43,7 +43,7 @@
 							= f.text_area :notes, class: 'form-control'
 					.col-xs-12.col-md-6
 						%label Destination Address
-						- @geo_addresses.each do |geo_address|
+						- @destination_addresses.each do |geo_address|
 							%div
 								%label{ style: 'font-weight: normal;' }
 									.pull-left= f.radio_button :destination_address_id, geo_address.id

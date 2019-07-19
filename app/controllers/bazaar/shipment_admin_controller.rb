@@ -32,7 +32,11 @@ module Bazaar
 
 			set_page_meta( title: "Shipment #{@shipment.created_at}" )
 
-			render( 'edit_pending' ) if @shipment.draft?
+			if @shipment.draft?
+				render( 'bazaar/shipment_admin/edit_pending' )
+			else
+				render( 'bazaar/shipment_admin/edit' )
+			end
 		end
 
 		def index
@@ -45,20 +49,21 @@ module Bazaar
 			@shipments = @shipments.page( params[:page] ).per( params[:per] || 20 )
 
 			set_page_meta( title: "Shipments" )
+			render( 'bazaar/shipment_admin/index' )
 		end
 
 		def new
 			@shipment = Bazaar::Shipment.new shipment_params
 			@shipment.warehouse_id ||= Bazaar.shipping_service_class.constantize.find_warehouse_by_shipment( @shipment ) if Bazaar.shipping_service_class.constantize.respond_to? :find_warehouse_by_shipment
 
-			@geo_addresses = GeoAddress.none
-			@geo_addresses = @shipment.user.geo_addresses.de_dup( priority: [ @shipment.user.preferred_shipping_address, @shipment.user.preferred_billing_address ] ) if @shipment.user
+			get_destination_addresses
 
 			@shipment.destination_address ||= @shipment.user.preferred_shipping_address if @shipment.user
-			@shipment.destination_address ||= @geo_addresses.first
+			@shipment.destination_address ||= @destination_addresses.first
 
 			authorize( @shipment )
 
+			render( 'bazaar/shipment_admin/new' )
 		end
 
 		def update
@@ -98,6 +103,11 @@ module Bazaar
 		protected
 		def get_services
 			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+		end
+
+		def get_destination_addresses
+			@destination_addresses = GeoAddress.none
+			@destination_addresses = @shipment.user.geo_addresses.de_dup( priority: [ @shipment.user.preferred_shipping_address, @shipment.user.preferred_billing_address ] ) if @shipment.user
 		end
 
 		def shipment_params

@@ -22,10 +22,17 @@
 					.col-xs-6
 						.well.white-well
 							- if @shipment.warehouse
-								%div
-									%a{ href: bazaar.warehouse_admin_path( @shipment.warehouse.id ) }
+								.form-group
+									%label Warehouse
+									%a.pull-right{ href: bazaar.edit_warehouse_admin_path( @shipment.warehouse.id ) }
 										=@shipment.warehouse.name
 							= raw @shipment.source_address.try(:to_html)
+							- if @shipment.user
+								.form-group
+									%label User
+									%a.pull-right{ href: main_app.edit_user_admin_path( @shipment.user.id ) }
+										= @shipment.user.to_s
+
 					.col-xs-6
 						.well.white-well
 							= raw @shipment.destination_address.try(:to_html) || 'N/A'
