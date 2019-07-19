@@ -4,8 +4,8 @@
 			%h1
 				New Shipment
 	= form_for @shipment, url: bazaar.shipment_admin_index_path(@shipment), as: :shipment, html: { class: 'form' } do |f|
-		= hidden_field_tag :success_redirect_path, params[:success_redirect_path]
-		= hidden_field_tag :failure_redirect_path, params[:failure_redirect_path]
+		-# = hidden_field_tag :success_redirect_path, params[:success_redirect_path]
+		-# = hidden_field_tag :failure_redirect_path, params[:failure_redirect_path]
 		= f.hidden_field :order_id
 		= f.hidden_field :user_id
 
@@ -17,31 +17,46 @@
 							.form-group
 								%label Source
 								%div=@shipment.source_address.to_s
+
+						- if @shipment.order
+							.form-group
+								%label Order
+								%div=@shipment.order.code
+
+						- if @shipment.user
+							.form-group
+								%label User
+								%div=@shipment.user.to_s
+
 						.form-group
 							=f.label :warehouse_id
 							= f.collection_select :warehouse_id, Bazaar::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
-						.form-group
+						-# .form-group
 							=f.label :status
 							= f.collection_select :status, @shipment.class.statuses, :first, :first, {}, class: 'form-control'
 						.form-group
 							=f.label :email
 							= f.text_field :email, class: 'form-control'
+
+						.form-group
+							=f.label :notes
+							= f.text_area :notes, class: 'form-control'
 					.col-xs-12.col-md-6
-						- if @shipment.destination_address
-							= f.hidden_field :destination_address_id
-							.form-group
-								%label Destination
-								%div=raw @shipment.destination_address.to_html
-						- if @shipment.order
-							.form-group
-								%label Order
-								%div=@shipment.order.code
-						- if @shipment.user
-							.form-group
-								%label User
-								%div=@shipment.user.to_s
-				%hr
-				.form-group
+						%label Destination Address
+						- @geo_addresses.each do |geo_address|
+							%div
+								%label{ style: 'font-weight: normal;' }
+									.pull-left= f.radio_button :destination_address_id, geo_address.id
+									%div{ style: 'margin-left: 1.5em;' }
+										=raw geo_address.to_html
+						-# %div
+							%label{ style: 'font-weight: normal;' }
+								.pull-left= f.radio_button :destination_address_id, nil
+								%div{ style: 'margin-left: 1.5em;' }
+									New Address
+
+				-# %hr
+				-# .form-group
 					%label Items
 					- @shipment.shipment_skus.each do |shipment_sku|
 						= f.fields_for :shipment_skus, shipment_sku do |shipment_sku_form|
@@ -49,11 +64,8 @@
 							= shipment_sku_form.hidden_field :quantity
 						%div #{shipment_sku.sku} x #{shipment_sku.quantity}
 
-				.row
+				-# .row
 					.col-xs-12.col-md-6
-						.form-group
-							=f.label :notes
-							= f.text_area :notes, class: 'form-control'
 					.col-xs-12.col-md-6
 						%table.table
 							%thead
@@ -62,19 +74,27 @@
 									%th Service
 									%th Price
 									-# %th &nbsp;
-							%tbody
-								-# %tr
-									%td= radio_button_tag :shipping_rate, '', @shipment.rates.blank?
-									%td Manual
-									%td &nbsp;
-									%td &nbsp;
-								- @shipment.rates.each do |rate|
+							- if @shipment.rates
+								%tbody
+									-# %tr
+										%td= radio_button_tag :shipping_rate, '', @shipment.rates.blank?
+										%td Manual
+										%td &nbsp;
+										%td &nbsp;
+									- @shipment.rates.each do |rate|
+										%tr
+											%td= radio_button_tag :shipping_rate, rate.to_json, rate[:selected]
+											%td= rate[:label]
+											%td= number_to_currency rate[:price].to_f / 100.0
+											-# %td
+												= rate.to_json
+							- else
+								%tbody
 									%tr
-										%td= radio_button_tag :shipping_rate, rate.to_json, rate[:selected]
-										%td= rate[:label]
-										%td= number_to_currency rate[:price].to_f / 100.0
-										-# %td
-											= rate.to_json
+										%td.text-center{ colspan: 3 }
+											\-
+
+
 
 				%hr
 

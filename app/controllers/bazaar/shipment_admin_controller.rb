@@ -1,17 +1,18 @@
 module Bazaar
 	class ShipmentAdminController < Bazaar::EcomAdminController
 
+		before_action :get_services
+
 		def create
 			@shipment = Bazaar::Shipment.new shipment_params
 			authorize( @shipment )
-
 
 			if @shipment.save
 				set_flash "Shipment created"
 				if params[:success_redirect_path]
 					redirect_to params[:success_redirect_path]
 				else
-					redirect_back fallback_location: '/admin'
+					redirect_to edit_shipment_admin_path( @shipment )
 				end
 			else
 				set_flash "Unable to create shipment", :danger, @shipment
@@ -27,7 +28,11 @@ module Bazaar
 			@shipment = Bazaar::Shipment.find( params[:id] )
 			authorize( @shipment )
 
+			@shipping_service.calculate_shipment( @shipment ) if params[:calculate_shipping] && @shipment.destination_address.present?
+
 			set_page_meta( title: "Shipment #{@shipment.created_at}" )
+
+			render( 'edit_pending' ) if @shipment.draft?
 		end
 
 		def index
@@ -45,11 +50,14 @@ module Bazaar
 		def new
 			@shipment = Bazaar::Shipment.new shipment_params
 			@shipment.warehouse_id ||= Bazaar.shipping_service_class.constantize.find_warehouse_by_shipment( @shipment ) if Bazaar.shipping_service_class.constantize.respond_to? :find_warehouse_by_shipment
+
+			@geo_addresses = GeoAddress.none
+			@geo_addresses = @shipment.user.geo_addresses.de_dup( priority: [ @shipment.user.preferred_shipping_address, @shipment.user.preferred_billing_address ] ) if @shipment.user
+
+			@shipment.destination_address ||= @shipment.user.preferred_shipping_address if @shipment.user
+			@shipment.destination_address ||= @geo_addresses.first
+
 			authorize( @shipment )
-
-
-			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
-			@shipping_service.calculate_shipment( @shipment )
 
 		end
 
@@ -59,17 +67,39 @@ module Bazaar
 
 			@shipment.attributes = shipment_params
 
+			if @shipment.shipping_carrier_service_id_changed? && @shipment.shipping_carrier_service
+
+				rates = @shipping_service.calculate_shipment( @shipment, shipping_carrier_service_id: @shipment.shipping_carrier_service.id )
+				rate = rates[:rates].find{|rate| rate[:selected] }
+
+				@shipment.cost										= rate[:cost]
+				@shipment.carrier									= rate[:carrier]
+				@shipment.carrier_service_level		= rate[:carrier_service_level]
+				@shipment.requested_service_level	= rate[:requested_service_level]
+
+			elsif @shipment.shipping_carrier_service_id_changed? && @shipment.shipping_carrier_service.nil?
+
+				@shipment.clear_shipping_carrier_service
+
+			end
+
+
+
 			if @shipment.save
 				set_flash 'Shipment Updated'
-				redirect_to edit_shipment_admin_path( id: @shipment.id )
+				redirect_to edit_shipment_admin_path( id: @shipment.id, calculate_shipping: params[:calculate_shipping] )
 			else
 				set_flash 'Shipment could not be Updated', :error, @shipment
-				render :edit
+				redirect_back fallback_location: '/admin'
 			end
 
 		end
 
 		protected
+		def get_services
+			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+		end
+
 		def shipment_params
 			shipment_attributes = params.require( :shipment ).permit(
 				:user_id,
@@ -94,6 +124,10 @@ module Bazaar
 				:tax,
 				:declared_value_as_money,
 				:declared_value,
+				:shipping_carrier_service_id,
+				:carrier,
+				:carrier_service_level,
+				:requested_service_level,
 				{ shipment_skus_attributes: [:sku_id,:quantity] }
 			)
 
