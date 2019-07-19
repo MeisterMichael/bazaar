@@ -1,0 +1,18 @@
+.well.white-well
+	%h4 Logs
+
+	%table.table.table-light.table-bordered{ style: 'margin:0;' }
+		%thead
+			%th Date
+			%th Subject
+			%th Description
+		%tbody
+			- if @shipment.shipment_logs.blank?
+				%tr
+					%td{ colspan: 3 }
+						\- No Logs -
+			- @shipment.shipment_logs.each do |shipment_log|
+				%tr
+					%td=current_user.to_local_tz(shipment_log.created_at).to_s( :short )
+					%td=shipment_log.subject
+					%td=shipment_log.description

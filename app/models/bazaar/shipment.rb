@@ -28,6 +28,19 @@ module Bazaar
 
 		money_attributes :cost, :price, :tax, :declared_value
 
+		def clear_shipping_carrier_service
+			self.shipping_carrier_service_id = nil
+			self.cost = nil
+			self.carrier = nil
+			self.carrier_service_level = nil
+			self.requested_service_level = nil
+		end
+		
+		def clear_shipping_carrier_service!
+			clear_shipping_carrier_service
+			self.save
+		end
+
 		def not_negative_status?
 			not( rejected? || canceled? )
 		end

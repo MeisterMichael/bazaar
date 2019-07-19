@@ -1,0 +1,21 @@
+#new_shipment_sku_modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					New Shipment Sku
+			= form_for Bazaar::ShipmentSku.new( shipment: shipment ), url: bazaar.shipment_sku_admin_index_path do |f|
+				= f.hidden_field :shipment_id
+				.modal-body
+					.form-group
+						= f.label :sku
+						= f.collection_select :sku_id, Bazaar::Sku.active.where.not( id: shipment.skus.select(:id) ).order(code: :asc), :id, :name, {}, class: 'form-control'
+					.form-group
+						= f.label :quantity
+						= f.number_field :quantity, class: 'form-control', min: 1, step: 1
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Create', class: 'btn btn-primary'

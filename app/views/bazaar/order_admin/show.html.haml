@@ -45,6 +45,10 @@
 								%i.fa.fa-send
 								Re-post Fulfillment
 						- else
+							- if @order.fulfillment_error?
+								%a.btn.btn-default{ href: order_admin_path( @order, order: { fulfillment_status: 'unfulfilled' } ), data: { method: 'PUT' } }
+									%i.fa.fa-redo
+									Retry Fulfillment
 							%a.btn.btn-default{ href: fulfillment_admin_path( @order ), data: { method: 'DELETE', confirm: 'Are you sure you want to cancel fulfillment of this order?' } }
 								%i.fa.fa-times
 								Cancel Fulfillment

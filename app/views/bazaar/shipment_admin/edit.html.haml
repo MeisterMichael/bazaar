@@ -14,112 +14,55 @@
 
 		.col-xs-2
 
+	.row
+		.col-xs-8
+			= render 'bazaar/shipment_admin/details'
+			.well.white-well
+				%h4 Skus
 
-	= form_for @shipment, url: bazaar.shipment_admin_path( @shipment ) do |f|
-		.row
-			.col-xs-8
-				.row
-					.col-xs-6
-						.well.white-well
-							- if @shipment.warehouse
-								%div
-									%a{ href: bazaar.warehouse_admin_path( @shipment.warehouse.id ) }
-										=@shipment.warehouse.name
-							= raw @shipment.source_address.try(:to_html)
-					.col-xs-6
-						.well.white-well
-							%div= raw @shipment.destination_address.try(:to_html) || 'N/A'
-							%a{ href: bazaar.edit_destination_shipment_admin_path( @shipment.id ) } edit
-				.well.white-well
-
-					.pull-right
-						%a{ href: bazaar.edit_items_shipment_admin_path( @shipment.id ) } edit
-					%h4 Skus
-
-					%table.table.table-light.table-bordered{ style: 'margin:0;' }
-						%thead
-							%th Name
-							%th Quantity
-						%tbody
-							- if @shipment.shipment_skus.blank?
-								%tr
-									%td{ colspan: 2 }
-										\- No Skus -
-							- @shipment.shipment_skus.each do |shipment_sku|
-								%tr
-									%td=shipment_sku.sku.code
-									%td=shipment_sku.quantity
-
-				.well.white-well
-					.form-group
-						%label Notes
-						%div
-							- if @shipment.notes.blank?
-								\-
-							- else
-								= @shipment.notes
-
-				.well.white-well
-					%h4 Logs
-
-					%table.table.table-light.table-bordered{ style: 'margin:0;' }
-						%thead
-							%th Date
-							%th Subject
-							%th Description
-						%tbody
-							- if @shipment.shipment_logs.blank?
-								%tr
-									%td{ colspan: 3 }
-										\- No Logs -
-							- @shipment.shipment_logs.each do |shipment_log|
-								%tr
-									%td=current_user.to_local_tz(shipment_log.created_at).to_s( :short )
-									%td=shipment_log.subject
-									%td=shipment_log.description
+				%table.table.table-light.table-bordered{ style: 'margin:0;' }
+					%thead
+						%th Name
+						%th Quantity
+					%tbody
+						- if @shipment.shipment_skus.blank?
+							%tr
+								%td{ colspan: 2 }
+									\- No Skus -
+						- @shipment.shipment_skus.each do |shipment_sku|
+							%tr
+								%td=shipment_sku.sku.code
+								%td=shipment_sku.quantity
+			= render 'bazaar/shipment_admin/logs_table'
 
 
-			.col-xs-4
-				.well.white-well
-					%h4
-						Shipment Settings
+		.col-xs-4
+			.well.white-well
+				%h4
+					Shipment Settings
+				.form-group
+					%label Status
+					%div= @shipment.status
+				.form-group.text-right
+					- if @shipment.rejected?
+						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'pending' } ), data: { method: 'PUT' } }
+							Approve
+					- elsif @shipment.canceled?
+						-# %a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'draft' } ), data: { method: 'PUT' } }
+							Activate
+					- elsif @shipment.pending?
+						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'canceled' } ), data: { method: 'PUT' } }
+							Cancel
+						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'rejected' } ), data: { method: 'PUT' } }
+							Reject
 
-					.form-group
-						= f.label :status
-						= f.collection_select :status, Bazaar::Shipment.statuses, :first, :first, {}, class: 'form-control'
+				%div.text-right
+					%a{ href: '#', data: { toggle: :modal, target: '#status_modal' } } manual updates
 
-					.form-group
-						= f.label :processable_at
-						= f.text_field :processable_at, value: current_user.to_local_tz( @shipment.processable_at ), class: 'form-control datetimepicker'
+					-# %hr
 
-					.pull-right
-						%a{ href: bazaar.edit_shape_shipment_admin_path( @shipment.id ) } edit
-					%h4
-						Shipment Description
-					.row
-						.col-xs-4
-							.form-group
-								%label Dimensions
-								%div #{@shipment.length} x #{@shipment.width} x #{@shipment.height}
-						.col-xs-4
-							.form-group
-								%label Weight
-								%div= @shipment.weight
-						.col-xs-4
-							.form-group
-								%label Shape
-								%div= @shipment.shape
-						.col-xs-4
-							.form-group
-								%label Cost
-								%div= @shipment.cost_formatted
-						.col-xs-4
-							.form-group
-								%label Price
-								%div= @shipment.price_formatted
-
-
-					%hr
-
-					.form-group
+					-# .form-group
 						= f.submit 'Update', class: 'btn btn-primary'
+
+= render 'bazaar/shipment_admin/publish_modal', shipment: @shipment, args: {}
+= render 'bazaar/shipment_admin/status_modal', shipment: @shipment, args: {}
