@@ -1,0 +1,27 @@
+.row
+	.col-xs-6
+		.well.white-well
+			- if @shipment.warehouse
+				.form-group
+					%label Warehouse
+					%div
+						%a{ href: bazaar.edit_warehouse_admin_path( @shipment.warehouse.id ) }
+							=@shipment.warehouse.name
+			= raw @shipment.source_address.try(:to_html)
+			- if @shipment.user
+				.form-group
+					%label User
+					%div
+						%a{ href: main_app.edit_user_admin_path( @shipment.user.id ) }
+							= @shipment.user.to_s
+			- if @shipment.order
+				.form-group
+					%label Order
+					%div
+						%a{ href: bazaar.order_admin_path( @shipment.order.id ) }
+							= @shipment.order.code
+	.col-xs-6
+		.well.white-well
+			.form-group
+				%label Destination Address
+				%div= raw @shipment.destination_address.try(:to_html) || 'N/A'

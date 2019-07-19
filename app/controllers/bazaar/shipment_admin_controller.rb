@@ -33,7 +33,7 @@ module Bazaar
 			set_page_meta( title: "Shipment #{@shipment.created_at}" )
 
 			if @shipment.draft?
-				render( 'bazaar/shipment_admin/edit_pending' )
+				render( 'bazaar/shipment_admin/edit_draft' )
 			else
 				render( 'bazaar/shipment_admin/edit' )
 			end
