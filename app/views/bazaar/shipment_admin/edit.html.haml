@@ -34,6 +34,13 @@
 								%td=shipment_sku.sku.code
 								%td=shipment_sku.quantity
 			= render 'bazaar/shipment_admin/logs_table'
+			.well.white-well
+				%h4 Notes
+				- if @shipment.notes.present?
+					= @shipment.notes
+				- else
+					%strong none
+
 
 
 		.col-xs-4
@@ -43,6 +50,20 @@
 				.form-group
 					%label Status
 					%div= @shipment.status
+
+
+				.form-group
+					%label Shipping Method
+					- if @shipment.shipping_carrier_service
+						%div
+							.pull-right
+								= @shipment.cost_formatted
+							= @shipment.shipping_carrier_service.name
+					- else
+						%div none
+
+				%hr
+
 				.form-group.text-right
 					- if @shipment.rejected?
 						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'pending' } ), data: { method: 'PUT' } }

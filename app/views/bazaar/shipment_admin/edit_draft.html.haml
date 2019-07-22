@@ -45,6 +45,12 @@
 						%a.btn.btn-default{ href: '#', data: { target: '#new_shipment_sku_modal', toggle: :modal } }
 							Add SKU
 
+				.well.white-well
+					%h4 Notes
+					- if @shipment.notes.present?
+						= @shipment.notes
+					- else
+						%strong none
 			.col-xs-4
 				.well.white-well
 					%h4
@@ -79,23 +85,27 @@
 									.pull-right
 										= @shipment.cost_formatted
 									= @shipment.shipping_carrier_service.name
-
-							%a{ href: '#', data: { target: '#calculate_modal', toggle: :modal } } calculate
-
-
+							- else
+								%div none
 					%hr
 
 					.form-group
 						- if params[:calculate_shipping].blank? && @shipment.draft?
 							- if @shipment.shipping_carrier_service.present?
 								%a.btn.btn-primary{ href: '#', data: { target: '#process_modal', toggle: :modal } }
-									Publish
-							- else
-								%a.btn.btn-primary.disabled{ href: '#', disabled: :disabled }
-									Publish
+									Next: Publish
 
+								- if @shipment.shipment_skus.present?
+									%a.btn.btn-default{ href: '#', data: { target: '#calculate_modal', toggle: :modal } } Calculate Shipping
+							- elsif @shipment.rates.blank?
+								- if @shipment.shipment_skus.present?
+									%a.btn.btn-primary{ href: '#', data: { target: '#calculate_modal', toggle: :modal } } Next: Calculate Shipping
+								- else
+									%button.btn.btn-primary.disabled{ href: '#', disabled: true } Calculate Shipping
+									%ul{ style: 'color: red;font-size: 0.8em;padding-left: 2em;' }
+										%li add skus to continue
 						- else
-							= f.submit 'Update', class: 'btn btn-primary'
+							= f.submit 'Next: Save Shipping Method', class: 'btn btn-primary'
 
 
 = render 'bazaar/shipment_sku_admin/new_modal', shipment: @shipment, args: {}

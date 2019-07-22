@@ -26,7 +26,7 @@
 								%label User
 								%div=@shipment.user.to_s
 
-						.form-group
+						-# .form-group
 							=f.label :warehouse_id
 							= f.collection_select :warehouse_id, Bazaar::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
 
