@@ -5,7 +5,7 @@ module Bazaar
 
 		# Disable cross origin security for adding items to cart
 		if Bazaar.disable_add_to_cart_authenticity_token_verification
-			skip_before_filter :verify_authenticity_token, :only => [:create,:destroy]
+			skip_before_action :verify_authenticity_token, :only => [:create,:destroy]
 		end
 
 		def create
