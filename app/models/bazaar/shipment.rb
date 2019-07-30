@@ -16,9 +16,10 @@ module Bazaar
 		has_many :shipment_skus
 		has_many :skus, through: :shipment_skus
 
-		enum status: { 'rejected' => -100, 'canceled' => -1, 'draft' => 0, 'pending' => 10, 'processing' => 50, 'picking' => 100, 'packed' => 200, 'shipped' => 300, 'delivered' => 400, 'returned' => 500, 'review' => 900, 'hold_review' => 950 }
+		enum status: { 'processing_error' => -900, 'rejected' => -100, 'canceled' => -1, 'draft' => 0, 'pending' => 10, 'processing' => 50, 'picking' => 100, 'packed' => 200, 'shipped' => 300, 'delivered' => 400, 'returned' => 500, 'review' => 900, 'hold_review' => 950 }
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
+		before_create :generate_shipment_code
 
 		accepts_nested_attributes_for :shipment_skus
 
@@ -33,7 +34,7 @@ module Bazaar
 			self.carrier_service_level = nil
 			self.requested_service_level = nil
 		end
-		
+
 		def clear_shipping_carrier_service!
 			clear_shipping_carrier_service
 			self.save
@@ -58,6 +59,15 @@ module Bazaar
 		end
 
 		protected
+		def generate_shipment_code
+			self.code = loop do
+				token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
+				token = "#{Bazaar.shipment_code_prefix}#{token}"if Bazaar.shipment_code_prefix.present?
+				token = "#{token}#{Bazaar.shipment_code_postfix}"if Bazaar.shipment_code_postfix.present?
+				break token unless Shipment.exists?( code: token )
+			end
+		end
+
 		def validate_warehouse_skus
 			if self.warehouse.present?
 				self.shipment_skus.each do |shipment_sku|
