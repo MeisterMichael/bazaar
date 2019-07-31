@@ -8,32 +8,6 @@
 						%div
 							=@shipment.code
 
-				- if @shipment.warehouse
-					.form-group.col-12.col-md-6
-						%label Warehouse
-						%div
-							%a{ href: bazaar.edit_warehouse_admin_path( @shipment.warehouse.id ) }
-								=@shipment.warehouse.name
-
-				.form-group.col-12.col-md-6
-					%label Carrier
-					%div
-						- if @shipment.carrier.present?
-							= @shipment.carrier
-						- else
-							N/A
-
-				.form-group.col-12.col-md-6
-					%label Warehouse Id
-					%div
-						- if @shipment.fulfillment_id.present?
-							= @shipment.fulfillment_id
-						- else
-							N/A
-
-				- if @shipment.source_address
-					.form-group.col-12.col-md-6
-						= raw @shipment.source_address.try(:to_html)
 				- if @shipment.user
 					.form-group.col-12.col-md-6
 						%label User
@@ -46,14 +20,51 @@
 						%div
 							%a{ href: bazaar.order_admin_path( @shipment.order.id ) }
 								= @shipment.order.code
+
+				- if @shipment.warehouse
+					.form-group.col-12.col-md-6
+						%label Warehouse
+						%div
+							%a{ href: bazaar.edit_warehouse_admin_path( @shipment.warehouse.id ) }
+								=@shipment.warehouse.name
+
+		.well.white-well
+			.row
+
+				.form-group.col-12.col-md-6
+					%label Fulfillment Id
+					%div
+						- if @shipment.fulfillment_id.present?
+
+							- if @shipment.fulfillment_url
+								%a{ href: @shipment.fulfillment_url, _target: 'fulfillment' }
+									= @shipment.fulfillment_id
+							- else
+								= @shipment.fulfillment_id
+						- else
+							N/A
+
+
+				.form-group.col-12.col-md-6
+					%label Carrier
+					%div
+						- if @shipment.carrier.present?
+							= @shipment.carrier
+						- else
+							N/A
 			.form-group
-				%label Tracking URL
+				%label Tracking
 				%div
-					- if @shipment.tracking_url
+					- if @shipment.tracking_url.present? && @shipment.tracking_code.present?
 						%a{ href: @shipment.tracking_url, _target: 'tracking' }
-							= @shipment.tracking_code || '-'
+							= @shipment.tracking_code
+					- elsif @shipment.tracking_url.present?
+						%a{ href: @shipment.tracking_url, _target: 'tracking' }
+							= @shipment.tracking_url
+					- elsif @shipment.tracking_code.present?
+						= @shipment.tracking_code
 					- else
-						= @shipment.tracking_code || '-'
+						N/A
 	.col-xs-6
 		- if @shipment.source_address
 			.well.white-well

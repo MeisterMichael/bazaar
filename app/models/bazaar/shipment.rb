@@ -69,7 +69,7 @@ module Bazaar
 		end
 
 		def validate_warehouse_skus
-			if self.warehouse.present?
+			if self.warehouse.present? && Bazaar::Shipment.statuses[self.status] <= Bazaar::Shipment.statuses['pending']
 				self.shipment_skus.each do |shipment_sku|
 					warehouse_sku = shipment_sku.warehouse_sku
 
