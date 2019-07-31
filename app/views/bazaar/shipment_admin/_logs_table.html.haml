@@ -5,7 +5,7 @@
 		%thead
 			%th Date
 			%th Subject
-			%th Description
+			%th Details
 		%tbody
 			- if @shipment.shipment_logs.blank?
 				%tr
@@ -15,4 +15,4 @@
 				%tr
 					%td=current_user.to_local_tz(shipment_log.created_at).to_s( :short )
 					%td=shipment_log.subject
-					%td=shipment_log.description
+					%td=shipment_log.details

@@ -258,7 +258,7 @@
 				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
 					%thead
 						%tr
-							%th{ style: 'width: 8em' } Created At
+							%th{ style: 'width: 9em' } Code
 							%th{ style: 'width: 8em' } Status
 							%th{ style: 'width: 8em' } Carrier
 							%th{ style: 'width: 8em' } Warehouse
@@ -271,8 +271,9 @@
 						- @shipments.each do |shipment|
 							%tr
 								%td
-									%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
-										=current_user.to_local_tz(shipment.created_at).to_s( :short )
+									%a{ href: bazaar.edit_shipment_admin_path( shipment.id ), style: 'display: block;font-weight: bold;' }
+										=shipment.code
+									%small=current_user.to_local_tz(shipment.created_at).to_s( :short )
 								%td
 									= shipment.status
 								%td
