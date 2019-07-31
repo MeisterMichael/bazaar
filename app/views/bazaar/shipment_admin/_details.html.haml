@@ -22,6 +22,15 @@
 							= @shipment.carrier
 						- else
 							N/A
+
+				.form-group.col-12.col-md-6
+					%label Warehouse Id
+					%div
+						- if @shipment.fulfillment_id.present?
+							= @shipment.fulfillment_id
+						- else
+							N/A
+
 				- if @shipment.source_address
 					.form-group.col-12.col-md-6
 						= raw @shipment.source_address.try(:to_html)
