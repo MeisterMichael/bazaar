@@ -35,7 +35,7 @@
 					%label Fulfillment Id
 					%div
 						- if @shipment.fulfillment_id.present? && @shipment.fulfillment_url
-							%a{ href: @shipment.fulfillment_url, _target: 'fulfillment' }
+							%a{ href: @shipment.fulfillment_url, target: '_fulfillment' }
 								= @shipment.fulfillment_id
 						- elsif @shipment.fulfillment_id.present?
 							= @shipment.fulfillment_id
@@ -54,10 +54,10 @@
 				%label Tracking
 				%div
 					- if @shipment.tracking_url.present? && @shipment.tracking_code.present?
-						%a{ href: @shipment.tracking_url, _target: 'tracking' }
+						%a{ href: @shipment.tracking_url, target: '_tracking' }
 							= @shipment.tracking_code
 					- elsif @shipment.tracking_url.present?
-						%a{ href: @shipment.tracking_url, _target: 'tracking' }
+						%a{ href: @shipment.tracking_url, target: '_tracking' }
 							= @shipment.tracking_url
 					- elsif @shipment.tracking_code.present?
 						= @shipment.tracking_code
