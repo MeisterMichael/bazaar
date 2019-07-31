@@ -3,6 +3,11 @@ module Bazaar
 		layout 'bazaar/application'
 		# for adding, removing, updating quantity, etc. of items in the cart
 
+		# Disable cross origin security for adding items to cart
+		if Bazaar.disable_add_to_cart_authenticity_token_verification
+			skip_before_action :verify_authenticity_token, :only => [:create,:destroy]
+		end
+
 		def create
 			@item = params[:item_type].constantize.find_by( id: params[:item_id] )
 

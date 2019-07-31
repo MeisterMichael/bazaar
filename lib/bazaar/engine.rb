@@ -13,6 +13,8 @@ module Bazaar
 
 		mattr_accessor :checkout_order_class_name
 
+		mattr_accessor :disable_add_to_cart_authenticity_token_verification
+
 		mattr_accessor :discount_service_class
 		mattr_accessor :discount_service_config
 
@@ -67,6 +69,8 @@ module Bazaar
 		mattr_accessor :store_path
 
 		mattr_accessor :create_user_on_checkout
+
+		self.disable_add_to_cart_authenticity_token_verification = false
 
 		self.discount_service_class = "Bazaar::DiscountService"
 		self.discount_service_config = {}
