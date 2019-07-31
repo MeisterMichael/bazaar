@@ -2,6 +2,12 @@
 	.col-xs-6
 		.well.white-well
 			.row
+				- if @shipment.code
+					.form-group.col-12.col-md-6
+						%label Shipment Code
+						%div
+							=@shipment.code
+
 				- if @shipment.warehouse
 					.form-group.col-12.col-md-6
 						%label Warehouse
@@ -11,7 +17,11 @@
 
 				.form-group.col-12.col-md-6
 					%label Carrier
-					%div= @shipment.carrier || 'N/A'
+					%div
+						- if @shipment.carrier.present?
+							= @shipment.carrier
+						- else
+							N/A
 				- if @shipment.source_address
 					.form-group.col-12.col-md-6
 						= raw @shipment.source_address.try(:to_html)
@@ -36,6 +46,16 @@
 					- else
 						= @shipment.tracking_code || '-'
 	.col-xs-6
+		- if @shipment.source_address
+			.well.white-well
+				.form-group
+					%label Source Address
+					%div= raw @shipment.source_address.try(:to_html)
+		- elsif @shipment.warehouse && @shipment.warehouse.geo_address
+			.well.white-well
+				.form-group
+					%label Warehouse Address
+					%div= raw @shipment.warehouse.geo_address.try(:to_html) || 'N/A'
 		.well.white-well
 			.form-group
 				%label Destination Address

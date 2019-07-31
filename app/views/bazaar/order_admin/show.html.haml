@@ -272,7 +272,7 @@
 							%tr
 								%td
 									%a{ href: bazaar.edit_shipment_admin_path( shipment.id ), style: 'display: block;font-weight: bold;' }
-										=shipment.code
+										=shipment.code || 'N/A'
 									%small=current_user.to_local_tz(shipment.created_at).to_s( :short )
 								%td
 									= shipment.status

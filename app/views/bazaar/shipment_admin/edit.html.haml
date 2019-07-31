@@ -9,8 +9,13 @@
 						%i.fa.fa-angle-left
 						shipments
 			%h2
-				%strong= @shipment.destination_address.to_s
-				%small= current_user.to_local_tz(@shipment.created_at).to_s( :short )
+				- if @shipment.code
+					%strong= @shipment.code
+					%small= current_user.to_local_tz(@shipment.created_at).to_s( :short )
+				- else
+					%strong
+						\##{@shipment.id}
+					%small= current_user.to_local_tz(@shipment.created_at).to_s( :short )
 
 		.col-xs-2
 
