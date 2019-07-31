@@ -34,13 +34,11 @@
 				.form-group.col-12.col-md-6
 					%label Fulfillment Id
 					%div
-						- if @shipment.fulfillment_id.present?
-
-							- if @shipment.fulfillment_url
-								%a{ href: @shipment.fulfillment_url, _target: 'fulfillment' }
-									= @shipment.fulfillment_id
-							- else
+						- if @shipment.fulfillment_id.present? && @shipment.fulfillment_url
+							%a{ href: @shipment.fulfillment_url, _target: 'fulfillment' }
 								= @shipment.fulfillment_id
+						- elsif @shipment.fulfillment_id.present?
+							= @shipment.fulfillment_id
 						- else
 							N/A
 
