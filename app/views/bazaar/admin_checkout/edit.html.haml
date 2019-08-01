@@ -220,10 +220,6 @@
 							.form-group
 								=f.label :payment_status
 								= f.collection_select :payment_status, Bazaar::Order.payment_statuses, :first, :first, {}, class: 'form-control'
-						.col-xs-12.col-md-4
-							.form-group
-								=f.label :fulfillment_status
-								= f.collection_select :fulfillment_status, Bazaar::Order.fulfillment_statuses, :first, :first, {}, class: 'form-control'
 
 
 					.text-center

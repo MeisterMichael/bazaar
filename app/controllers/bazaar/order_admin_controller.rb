@@ -117,7 +117,6 @@ module Bazaar
 			filters[:not_archived] = true if params[:q].blank? # don't show archived, unless searching
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
 			filters[ params[:payment_status] ] = true if params[:payment_status].present? && params[:payment_status] != 'all'
-			filters[ params[:fulfillment_status] ] = true if params[:fulfillment_status].present? && params[:fulfillment_status] != 'all'
 			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Orders" )
@@ -215,10 +214,6 @@ module Bazaar
 			authorize( @order )
 			@order.attributes = order_params
 
-			if @order.fulfillment_status_changed? && @order.fulfillment_status == 'fulfilled' && ( @order.fulfillment_status == 'unfulfilled' || @order.fulfilled_at.blank? )
-				@order.fulfilled_at = Time.zone.now
-			end
-
 			@order.save
 
 			@order.order_items.prod.where( quantity: 0 ).destroy_all
@@ -244,7 +239,6 @@ module Bazaar
 					:ip,
 					:currency,
 					:status,
-					:fulfillment_status,
 					:payment_status,
 					:support_notes,
 					:customer_notes,

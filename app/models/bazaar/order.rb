@@ -55,6 +55,14 @@ module Bazaar
 			where.not( status: Bazaar::Order.statuses['trash'] )
 		end
 
+		def shipments_status_least
+			( self.shipments.not_negative_status.order( status: :asc ).limit(1).first || self.shipments.order( status: :asc ).limit(1).first ).try(:status) || 'none'
+		end
+
+		def shipments_status_most
+			( self.shipments.not_negative_status.order( status: :desc ).limit(1).first || self.shipments.order( status: :desc ).limit(1).first ).try(:status) || 'none'
+		end
+
 		def subscription_renewal?
 			self.parent.is_a?( Bazaar::Subscription )
 		end

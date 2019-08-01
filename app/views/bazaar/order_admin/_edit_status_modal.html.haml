@@ -20,12 +20,6 @@
 							= f.collection_select :payment_status, Bazaar::Order.payment_statuses, :first, :first, {}, class: 'form-control'
 						- else
 							=@order.payment_status.gsub(/_/,' ')
-					.form-group
-						=f.label :fulfillment_status
-						- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update )
-							= f.collection_select :fulfillment_status, Bazaar::Order.fulfillment_statuses, :first, :first, {}, class: 'form-control'
-						- else
-							=@order.fulfillment_status.gsub(/_/,' ')
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

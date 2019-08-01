@@ -41,10 +41,6 @@
 								- if @order.invoice? || @order.payment_method_captured?
 									%i.fa.fa-circle-o
 								=@order.payment_status.gsub(/_/,' ')
-							.badge.order_fulfillment_status{ class: @order.fulfillment_status }
-								- if @order.unfulfilled?
-									%i.fa.fa-circle-o
-								=@order.fulfillment_status.gsub(/_/,' ')
 
 					#order_items_table
 						= render 'bazaar/order_admin/order_items_table', f: f, order: @order, args: {}
