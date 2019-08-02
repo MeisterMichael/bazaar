@@ -99,6 +99,23 @@ module Bazaar
 			return self.apply_options_and_filters( products, filters, options )
 		end
 
+		def shipment_search( term, filters = {}, options = {} )
+
+			shipments = Bazaar::Shipment.all
+
+			if term.present?
+				query = "%#{term.gsub('%','\\\\%')}%".downcase
+
+				orders = options[:orders] || self.order_search( term )
+				addresses = options[:addresses] || self.address_search( term )
+				users = options[:customers] || self.customer_search( term, {}, addresses: addresses )
+
+				shipments = shipments.where( "email ILIKE :q OR code ILIKE :q OR destination_address_id IN (:address_ids) OR user_id IN (:user_ids) OR order_id IN (:order_ids)", q: query, address_ids: addresses.select(:id), user_ids: users.select(:id), order_ids: orders.select(:id) )
+			end
+
+			return self.apply_options_and_filters( shipments, filters, options )
+		end
+
 		def subscription_plan_search( term, filters = {}, options = {} )
 			plans = Bazaar::SubscriptionPlan.all
 

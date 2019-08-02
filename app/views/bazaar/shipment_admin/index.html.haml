@@ -15,8 +15,13 @@
 			= raw paginate @shipments
 			= "(#{pluralize @shipments.total_count, 'Shipment'})"
 		.col-xs-6
-			= form_tag shipment_admin_index_path, method: :get, class: 'pull-right form-inline' do
+			-# = form_tag shipment_admin_index_path, method: :get, class: 'pull-right form-inline' do
 				= select_tag :status, options_from_collection_for_select( Bazaar::Shipment.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+				= text_field_tag :q, params[:q], class: 'form-control'
+				= submit_tag 'Search', class: 'btn btn-primary'
+				= link_to 'Clear', shipment_admin_index_path, class: 'btn btn-default'
+			= form_tag shipment_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= select_tag :status, options_from_collection_for_select( Bazaar::Shipment.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
 				= link_to 'Clear', shipment_admin_index_path, class: 'btn btn-default'
@@ -25,7 +30,9 @@
 		.col-xs-12
 			%table.table.table-light.table-bordered
 				%thead
-					%th
+					%th{ style: 'width: 9em' }
+						Code
+					%th{ style: 'width: 14em' }
 						Name
 					%th
 						Address
@@ -35,14 +42,18 @@
 				%tbody
 					- if @shipments.blank?
 						%tr
-							%td{ colspan: 5 } - No Shipments Found -
+							%td{ colspan: 6 } - No Shipments Found -
 					- @shipments.each do |shipment|
 						%tr
 							%td
-								- if shipment.destination_address
-									= shipment.destination_address.full_name
-								- else
-									N/A
+								%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
+									= shipment.code
+							%td
+								%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
+									- if shipment.destination_address
+										= shipment.destination_address.full_name
+									- else
+										N/A
 							%td
 								%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
 									- if shipment.destination_address

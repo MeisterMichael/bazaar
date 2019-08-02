@@ -2,6 +2,7 @@ module Bazaar
 	class ShipmentAdminController < Bazaar::EcomAdminController
 
 		before_action :get_services
+		before_action :initialize_search_service, only: [:index]
 
 		def create
 			@shipment = Bazaar::Shipment.new shipment_params
@@ -47,9 +48,9 @@ module Bazaar
 			@sort_by = params[:sort_by] || 'created_at'
 			@sort_dir = params[:sort_dir] || 'desc'
 
-			@shipments = Bazaar::Shipment.all
-			@shipments = @shipments.order( @sort_by => @sort_dir )
-			@shipments = @shipments.page( params[:page] ).per( params[:per] || 20 )
+			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
+			@shipments = @search_service.shipment_search( params[:q], filters, page: params[:page], order: { @sort_by => @sort_dir } )
 
 			set_page_meta( title: "Shipments" )
 			render( 'bazaar/shipment_admin/index' )
@@ -160,6 +161,10 @@ module Bazaar
 			end
 
 			shipment_attributes
+		end
+
+		def initialize_search_service
+			@search_service = EcomSearchService.new
 		end
 
 	end
