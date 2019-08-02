@@ -74,8 +74,7 @@
 						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'pending' } ), data: { method: 'PUT' } }
 							Approve
 					- elsif @shipment.canceled?
-						-# %a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'draft' } ), data: { method: 'PUT' } }
-							Activate
+						%a.btn.btn-primary{ href: '#', data: { toggle: :modal, target: '#copy_modal' } } Copy
 					- elsif @shipment.pending?
 						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'canceled' } ), data: { method: 'PUT' } }
 							Cancel
@@ -90,5 +89,6 @@
 					-# .form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
+= render 'bazaar/shipment_admin/copy_modal', shipment: @shipment, args: {}
 = render 'bazaar/shipment_admin/publish_modal', shipment: @shipment, args: {}
 = render 'bazaar/shipment_admin/status_modal', shipment: @shipment, args: {}

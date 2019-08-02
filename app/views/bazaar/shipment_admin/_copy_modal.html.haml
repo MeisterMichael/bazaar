@@ -1,0 +1,26 @@
+#copy_modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Calculate Shipment
+			= form_for Bazaar::Shipment.new( warehouse_id: @shipment.warehouse_id, status: 'draft' ), url: bazaar.shipment_admin_index_path() do |f|
+				= hidden_field_tag :shipment_id, @shipment.id
+				= f.hidden_field :status
+				= f.hidden_field :shipping_carrier_service_id, value: nil
+				= f.hidden_field :cost, value: nil
+				= f.hidden_field :carrier, value: nil
+				= f.hidden_field :carrier_service_level, value: nil
+				= f.hidden_field :requested_service_level, value: nil
+				= hidden_field_tag :calculate_shipping, 1
+
+				.modal-body
+					.form-group
+						= f.label :warehouse_id
+						= f.collection_select :warehouse_id, Bazaar::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Calculate', class: 'btn btn-primary'

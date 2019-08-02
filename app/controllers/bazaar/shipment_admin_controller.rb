@@ -5,7 +5,24 @@ module Bazaar
 		before_action :initialize_search_service, only: [:index]
 
 		def create
-			@shipment = Bazaar::Shipment.new shipment_params
+
+			if params[:shipment_id]
+				old_shipment = Bazaar::Shipment.find(params[:shipment_id])
+				@shipment = old_shipment.dup
+				@shipment.code = nil
+				@shipment.status = 'pending'
+				@shipment.attributes = shipment_params if params[:shipment]
+				old_shipment.shipment_skus.each do |shipment_sku|
+					@shipment.shipment_skus.new(
+						sku_id: shipment_sku.sku_id,
+						quantity: shipment_sku.quantity,
+						shipping_code: shipment_sku.shipping_code
+					)
+				end
+			else
+				@shipment = Bazaar::Shipment.new shipment_params
+			end
+
 			authorize( @shipment )
 
 			if @shipment.save
@@ -13,7 +30,7 @@ module Bazaar
 				if params[:success_redirect_path]
 					redirect_to params[:success_redirect_path]
 				else
-					redirect_to edit_shipment_admin_path( @shipment )
+					redirect_to edit_shipment_admin_path( @shipment, calculate_shipping: params[:calculate_shipping] )
 				end
 			else
 				set_flash "Unable to create shipment", :danger, @shipment
