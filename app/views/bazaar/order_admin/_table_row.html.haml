@@ -23,6 +23,10 @@
 			- if order.invoice?
 				%span.fa.fa-circle-o
 			= order.payment_status.gsub(/_/,' ')
+		- order.shipments.each do |shipment|
+			.badge.order_fulfillment_status{ class: shipment.status, style: 'margin-bottom: 5px;' }
+				= shipment.status.gsub(/_/,' ')
+
 	%td
 		= number_to_currency ( order.total || 0 ) / 100.to_f
 	- if args[:controls]

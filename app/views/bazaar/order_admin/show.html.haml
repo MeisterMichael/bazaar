@@ -49,6 +49,10 @@
 							- if @order.invoice? || @order.payment_method_captured?
 								%i.fa.fa-circle-o
 							=@order.payment_status.gsub(/_/,' ')
+						- @order.shipments.each do |shipment|
+							.badge.order_fulfillment_status{ class: shipment.status }
+								shipment
+								= shipment.status.gsub(/_/,' ')
 
 				%table.table.table-light.table-bordered{ style: 'margin: 0' }
 					%thead
@@ -254,7 +258,7 @@
 											= shipment.tracking_code || '-'
 									- else
 										= shipment.tracking_code || '-'
-							- shipment.shipment_logs.each do |shipment_log|
+							- shipment.shipment_logs.order( created_at: :desc ).each do |shipment_log|
 								%tr
 									%td{ colspan: 6, style: 'padding-left: 4em;' }
 										#{current_user.to_local_tz(shipment_log.created_at).to_s( :short )} |
