@@ -162,7 +162,10 @@ module Bazaar
 				:carrier,
 				:carrier_service_level,
 				:requested_service_level,
-				{ shipment_skus_attributes: [:sku_id,:quantity] }
+				{
+					shipment_skus_attributes: [:sku_id,:quantity],
+					destination_address_attributes: [ :user_id, :phone, :zip, :geo_country_id, :geo_state_id, :state, :city, :street2, :street, :last_name, :first_name ]
+				}
 			)
 
 			if params[:shipping_rate].present?
@@ -175,6 +178,12 @@ module Bazaar
 					requested_service_level: shipping_rate[:label],
 					carrier: shipping_rate[:carrier_service][:carrier],
 				)
+			end
+
+			if shipment_attributes[:destination_address_id].present? && shipment_attributes[:destination_address_id] != 'on'
+				shipment_attributes.delete(:destination_address_attributes)
+			else
+				shipment_attributes.delete(:destination_address_id)
 			end
 
 			shipment_attributes

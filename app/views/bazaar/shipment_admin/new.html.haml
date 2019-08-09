@@ -8,44 +8,61 @@
 		= f.hidden_field :user_id
 		= f.hidden_field :email
 		.row
+			.col-xs-12.col-md-4
+				- if @shipment.source_address
+					.form-group
+						%label Source
+						%div=@shipment.source_address.to_s
+
+				- if @shipment.order
+					.form-group
+						%label Order
+						%div=@shipment.order.code
+
+				- if @shipment.user
+					.form-group
+						%label User
+						%div=@shipment.user.to_s
+
+				-# .form-group
+					=f.label :warehouse_id
+					= f.collection_select :warehouse_id, Bazaar::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
+
+				.form-group
+					=f.label :email
+					= f.text_field :email, class: 'form-control'
+
+				.form-group
+					=f.label :notes
+					= f.text_area :notes, class: 'form-control'
+
+
+				%hr
+
+				.form-group.text-right
+					= f.submit "Create", class: 'btn btn-primary'
+
 			.col-xs-12.col-md-8
-				.row
-					.col-xs-12.col-md-6
-						- if @shipment.source_address
-							.form-group
-								%label Source
-								%div=@shipment.source_address.to_s
+				%label Destination Address
+				- @destination_addresses.each do |geo_address|
+					%div
+						%label{ style: 'font-weight: normal;' }
+							.pull-left= f.radio_button :destination_address_id, geo_address.id
+							%div{ style: 'margin-left: 1.5em;' }
+								=raw geo_address.to_html
 
-						- if @shipment.order
-							.form-group
-								%label Order
-								%div=@shipment.order.code
+				%div
+					%label{ style: 'font-weight: normal;' }
+						.pull-left= f.radio_button :destination_address_id, nil, data: { expand: '#destination_address_well' }
+						%div{ style: 'margin-left: 1.5em;' }
+							New Address
+					.well.collapse#destination_address_well{ style: 'margin-left: 1.5em;' }
+						= f.fields_for :destination_address, GeoAddress.new( first_name: @shipment.user.try(:first_name), last_name: @shipment.user.try(:last_name), user: @shipment.user ) do |destination_addresses_form|
+							= destination_addresses_form.hidden_field :user_id
+							= render 'bazaar/geo_address/form', f: destination_addresses_form, countries: get_shipping_countries, states: get_shipping_states( nil ), address_attribute: :destination_address
 
-						- if @shipment.user
-							.form-group
-								%label User
-								%div=@shipment.user.to_s
-
-						-# .form-group
-							=f.label :warehouse_id
-							= f.collection_select :warehouse_id, Bazaar::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
-
-						.form-group
-							=f.label :email
-							= f.text_field :email, class: 'form-control'
-
-						.form-group
-							=f.label :notes
-							= f.text_area :notes, class: 'form-control'
-					.col-xs-12.col-md-6
-						%label Destination Address
-						- @destination_addresses.each do |geo_address|
-							%div
-								%label{ style: 'font-weight: normal;' }
-									.pull-left= f.radio_button :destination_address_id, geo_address.id
-									%div{ style: 'margin-left: 1.5em;' }
-										=raw geo_address.to_html
-
+		.row
+			.col-xs-12.col-md-8
 				%hr
 
 				.form-group.text-right

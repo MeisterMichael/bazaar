@@ -20,6 +20,19 @@ $ ->
 			else
 				$(this).removeAttr( 'required' )
 
+
+	$('input[data-expand][type="radio"]').each ->
+		name = $(this).attr('name')
+		$(document).on 'change', 'input[name="' + name + '"]', ->
+			$('input[name="' + name + '"]').not($(this)).trigger('deselect');
+
+	$(document).on 'change deselect', '[data-expand]', ->
+		$target = $($(this).data('expand'))
+		if $(this).is(':checked')
+			$target.collapse('show')
+		else
+			$target.collapse('hide')
+
 	$('.geo_address_fields input, .geo_address_fields select').each ->
 		$(this).data('old-required',$(this).attr('required'))
 	$('.geo_address_fields.hide input, .geo_address_fields.hide select').each ->

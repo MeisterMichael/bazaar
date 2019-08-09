@@ -21,7 +21,7 @@ module Bazaar
 
 		before_create :generate_shipment_code
 
-		accepts_nested_attributes_for :shipment_skus
+		accepts_nested_attributes_for :shipment_skus, :destination_address
 
 		validate :validate_warehouse_skus
 
