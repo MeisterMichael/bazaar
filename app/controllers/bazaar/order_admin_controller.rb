@@ -159,7 +159,7 @@ module Bazaar
 
 				@order.refunded!
 
-				@order.fulfillment_canceled! if params[:cancel_fullfillment]
+				@order.shipments.update_all( status: 'canceled' ) if params[:cancel_fullfillment]
 
 				# OrderMailer.refund( @transaction ).deliver_now # send emails on a cron
 				set_flash "Refund successful", :success
