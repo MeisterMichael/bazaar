@@ -48,6 +48,10 @@ module Bazaar
 			where( status: 0..Float::INFINITY )
 		end
 
+		def not_shipped?
+			Bazaar::Shipment.statuses[self.status] < Bazaar::Shipment.statuses['shipped']
+		end
+
 		def processable( args = {} )
 			time = args[:time] || Time.now
 			pending.where( processable_at: Time.at(0)..time )

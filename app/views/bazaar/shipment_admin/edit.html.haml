@@ -75,7 +75,7 @@
 							Approve
 					- elsif @shipment.canceled?
 						%a.btn.btn-primary{ href: '#', data: { toggle: :modal, target: '#copy_modal' } } Copy
-					- elsif @shipment.pending?
+					- elsif @shipment.not_shipped?
 						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'canceled' } ), data: { method: 'PUT' } }
 							Cancel
 						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'rejected' } ), data: { method: 'PUT' } }
