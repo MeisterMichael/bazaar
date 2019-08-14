@@ -23,7 +23,7 @@ module Bazaar
 
 		accepts_nested_attributes_for :shipment_skus, :destination_address
 
-		validate :validate_warehouse_skus
+		validate :validate_warehouse_skus, if: :validate_warehouse_skus?
 
 		money_attributes :cost, :price, :tax, :declared_value
 
@@ -41,7 +41,7 @@ module Bazaar
 		end
 
 		def not_negative_status?
-			not( rejected? || canceled? )
+			Bazaar::Shipment.statuses[self.status] >= 0
 		end
 
 		def self.not_negative_status
@@ -58,6 +58,10 @@ module Bazaar
 			pending? && processable_at <= time
 		end
 
+		def validate_warehouse_skus?
+			self.warehouse.present? && self.fulfillment_id.blank? && (self.pending? || self.draft?)
+		end
+
 		protected
 		def generate_shipment_code
 			self.code = loop do
@@ -69,13 +73,11 @@ module Bazaar
 		end
 
 		def validate_warehouse_skus
-			if self.warehouse.present? && Bazaar::Shipment.statuses[self.status] <= Bazaar::Shipment.statuses['pending']
-				self.shipment_skus.each do |shipment_sku|
-					warehouse_sku = shipment_sku.warehouse_sku
+			self.shipment_skus.each do |shipment_sku|
+				warehouse_sku = shipment_sku.warehouse_sku
 
-					unless warehouse_sku.present? && warehouse_sku.code.present?
-						self.errors.add( :base, "Warehouse '#{self.try(:warehouse).try(:name)}' does not support the sku #{shipment_sku.sku.code}")
-					end
+				unless warehouse_sku.present? && warehouse_sku.code.present?
+					self.errors.add( :base, "Warehouse '#{self.try(:warehouse).try(:name)}' does not support the sku #{shipment_sku.sku.code}")
 				end
 			end
 		end
