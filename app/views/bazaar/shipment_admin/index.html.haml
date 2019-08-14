@@ -32,6 +32,8 @@
 				%thead
 					%th{ style: 'width: 9em' }
 						Code
+					%th{ style: 'width: 10em' }
+						Created
 					%th{ style: 'width: 14em' }
 						Name
 					%th
@@ -42,12 +44,14 @@
 				%tbody
 					- if @shipments.blank?
 						%tr
-							%td{ colspan: 6 } - No Shipments Found -
+							%td{ colspan: 7 } - No Shipments Found -
 					- @shipments.each do |shipment|
 						%tr
 							%td
 								%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
 									= shipment.code
+							%td
+								= shipment.created_at.to_s( :short )
 							%td
 								%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
 									- if shipment.destination_address
