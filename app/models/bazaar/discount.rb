@@ -20,7 +20,7 @@ module Bazaar
 		validates :minimum_shipping_subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
 		validates :limit_per_customer, numericality: { greater_than_or_equal_to: 1 }, allow_blank: true
 		validates :limit_global, numericality: { greater_than_or_equal_to: 1 }, allow_blank: true
-		validates :code, uniqueness: true, if: :code_present?
+		validates :code, uniqueness: { case_sensitive: false }, if: :code_present?
 
 		def self.in_progress( args = {} )
 
