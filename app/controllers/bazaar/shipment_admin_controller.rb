@@ -8,10 +8,31 @@ module Bazaar
 
 			if params[:shipment_id]
 				old_shipment = Bazaar::Shipment.find(params[:shipment_id])
-				@shipment = old_shipment.dup
-				@shipment.code = nil
-				@shipment.status = 'pending'
+				@shipment = Bazaar::Shipment.new({
+					code: 								nil,
+					status:								'draft',
+					notes:								old_shipment.notes,
+					email:								old_shipment.email,
+					length:								old_shipment.length,
+					width:								old_shipment.width,
+					height:								old_shipment.height,
+					shape:								old_shipment.shape,
+					weight:								old_shipment.weight,
+					cost:									old_shipment.cost,
+					destination_address:	old_shipment.destination_address,
+					source_address:				old_shipment.source_address,
+					order:								old_shipment.order,
+					warehouse:						old_shipment.warehouse,
+					user:									old_shipment.user,
+					price:								old_shipment.price,
+					processable_at:				old_shipment.processable_at,
+					declared_value:				old_shipment.declared_value,
+					tax:									old_shipment.tax,
+					tax_breakdown:				old_shipment.tax_breakdown,
+					currency:							old_shipment.currency,
+				} )
 				@shipment.attributes = shipment_params if params[:shipment]
+
 				old_shipment.shipment_skus.each do |shipment_sku|
 					@shipment.shipment_skus.new(
 						sku_id: shipment_sku.sku_id,
