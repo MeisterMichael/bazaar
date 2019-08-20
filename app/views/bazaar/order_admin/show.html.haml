@@ -270,7 +270,7 @@
 				.well.white-well
 					%h4 Timeline
 
-					- if ( events = Bunyan::Event.where( target_obj: @order ).or( Bunyan::Event.where.not( user_id: nil ).where( user_id: @order.user_id, created_at: Time.at(0)..(@order.created_at + 10.minutes) ) ).or( Bunyan::Event.where( target_obj: @transactions ) ).where( category: [ 'account', 'ecom' ] ) ).present?
+					- if ( events = Bunyan::Event.where( parent_obj: @order ).or( Bunyan::Event.where.not( user_id: nil ).where( user_id: @order.user_id, created_at: Time.at(0)..(@order.created_at + 10.minutes) ) ).or( Bunyan::Event.where( parent_obj: @transactions ) ).where( category: [ 'account', 'ecom' ] ) ).present?
 						.row
 							.col-sm-12
 								%table.table
