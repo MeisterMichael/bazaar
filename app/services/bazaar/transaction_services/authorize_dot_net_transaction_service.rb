@@ -137,8 +137,6 @@ module Bazaar
 
 				else
 
-					puts response.to_xml if @enable_debug
-
 					order.status = 'failed'
 					order.payment_status = 'declined'
 					order.save
