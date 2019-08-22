@@ -1,7 +1,11 @@
 
 $ ->
 
-
+	$('.required-if-visible input:not(:visible), .required-if-visible select:not(:visible)').each ->
+		$(this).removeAttr('required')
+	$('.required-if-visible input:visible, .required-if-visible input:visible').each ->
+		$(this).data()
+		$(this).attr('required','true')
 
 	$(document).on 'click', '[data-address-toggle]', ->
 		$element = $(this)
@@ -32,6 +36,16 @@ $ ->
 			$target.collapse('show')
 		else
 			$target.collapse('hide')
+
+	$(document).on 'hide.bs.collapse', '[data-if-hidden-disable-require=true]', ->
+		console.log('w00t hide')
+		$('input[required], select[required]', this).data('require-if-visible','required')
+		$('input, select', this).removeAttr('required')
+	$(document).on 'show.bs.collapse', '[data-if-hidden-disable-require=true]', ->
+		console.log('w00t show')
+		$('input, select', this).each ->
+			$(this).attr('required','required') if $(this).data('require-if-visible')
+	$('[data-if-hidden-disable-require=true]:hidden').trigger('hide.bs.collapse')
 
 	$('.geo_address_fields input, .geo_address_fields select').each ->
 		$(this).data('old-required',$(this).attr('required'))
