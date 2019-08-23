@@ -224,6 +224,9 @@
 										= transaction.message
 
 			.well.white-well
+				.pull-right
+					%a{ href: bazaar.shipment_admin_index_path( shipment: { user_id: @order.user_id, status: 'draft', email: @order.email, order_id: @order.id, destination_address_id: @order.shipping_address_id } ), data: { method: 'POST' } }
+						New Shipment
 				%h4 Shipments
 				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
 					%thead
