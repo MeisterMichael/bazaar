@@ -162,6 +162,8 @@ module Bazaar
 				:notes,
 				:status,
 				:email,
+				:fulfillment_id,
+				:fulfilled_by,
 				:estimated_delivered_at,
 				:canceled_at,
 				:packed_at,
