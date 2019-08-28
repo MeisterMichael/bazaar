@@ -27,7 +27,7 @@
 						= f.number_field :interval_value, class: 'form-control', min: 0, step: 1
 					.form-group
 						= f.label :interval_unit
-						= f.text_field :interval_unit, class: 'form-control'
+						= f.select :interval_unit, ['months', 'weeks', 'days'], {}, class: 'form-control'
 					.form-group
 						= f.label :status
 						= f.collection_select :status, Bazaar::OfferSku.statuses, :first, :first, {}, class: 'form-control'
