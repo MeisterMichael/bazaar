@@ -9,12 +9,15 @@ module Bazaar
 
 		has_many :wholesale_items
 
+		has_one_attached :avatar_attachment
+
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
 
 
 		accepts_nested_attributes_for :offer_prices, :offer_schedules, :offer_skus
 
+		before_save		:set_avatar
 
 		def page_event_data
 			data = {
@@ -34,6 +37,11 @@ module Bazaar
 		def set_trashed_at
 			self.trashed_at ||= Time.now if self.trash?
 		end
+
+		protected
+			def set_avatar
+				self.avatar = self.avatar_attachment.service_url if self.avatar_attachment.attached?
+			end
 
 	end
 end

@@ -36,6 +36,8 @@ Bazaar::Engine.routes.draw do
 	resources :geo_states, only: [:index]
 
 	resources :offer_admin
+	resources :offer_price_admin
+	resources :offer_schedule_admin
 	resources :offer_sku_admin
 
 	resources :order_admin do

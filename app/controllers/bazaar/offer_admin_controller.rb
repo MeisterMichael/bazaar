@@ -65,7 +65,7 @@ module Bazaar
 		end
 
 		def offer_params
-			params.require(:offer).permit( :status, :availability, :title, :avatar, :code, :tax_code, :description, :cart_description )
+			params.require(:offer).permit( :status, :availability, :title, :avatar, :avatar_attachment, :code, :tax_code, :description, :cart_description )
 		end
 
 		def init_search_service

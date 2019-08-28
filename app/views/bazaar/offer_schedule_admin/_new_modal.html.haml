@@ -1,4 +1,4 @@
-#new_offer_sku_modal.modal.fade
+#new_offer_schedule_modal.modal.fade
 	.modal-dialog
 		.modal-content
 			.modal-header
@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add Sku to #{parent_obj.title}
-			= form_for Bazaar::OfferSku.new( parent_obj: parent_obj ), url: bazaar.offer_sku_admin_index_path do |f|
+			= form_for Bazaar::OfferSchedule.new( parent_obj: parent_obj, interval_unit: 'weeks' ), url: bazaar.offer_schedule_admin_index_path do |f|
 				= f.hidden_field :parent_obj_type
 				= f.hidden_field :parent_obj_id
 				- if args[:start_interval]
@@ -14,9 +14,6 @@
 				- if args[:max_intervals]
 					= f.hidden_field :max_intervals, value: args[:max_intervals]
 				.modal-body
-					.form-group
-						= f.label :sku_id, 'SKU'
-						= f.collection_select :sku_id, Bazaar::Sku.active.order(code: :asc), :id, :to_s, {}, class: 'form-control'
 					- unless args[:start_interval]
 						.form-group
 							= f.label :start_interval
@@ -26,11 +23,14 @@
 							= f.label :max_intervals
 							= f.number_field :max_intervals, value: nil, class: 'form-control', min: 1, step: 1, placeholder: 'unlimited'
 					.form-group
-						= f.label :quantity
-						= f.number_field :quantity, value: 1, class: 'form-control', min: 1, step: 1
+						= f.label :interval_value
+						= f.number_field :interval_value, class: 'form-control', min: 0, step: 1
 					.form-group
-						= f.label :apply
-						= f.collection_select :apply, Bazaar::OfferSku.applies, :first, :first, {}, class: 'form-control'
+						= f.label :interval_unit
+						= f.text_field :interval_unit, class: 'form-control'
+					.form-group
+						= f.label :status
+						= f.collection_select :status, Bazaar::OfferSku.statuses, :first, :first, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close
