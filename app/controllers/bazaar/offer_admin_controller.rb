@@ -45,6 +45,7 @@ module Bazaar
 			sort_dir = params[:sort_dir] || 'asc'
 
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			params[:status] ||= 'active'
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
 			@offers = @search_service.offer_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
