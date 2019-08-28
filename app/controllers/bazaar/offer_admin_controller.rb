@@ -35,6 +35,7 @@ module Bazaar
 
 		def edit
 			authorize( @offer )
+			set_page_meta( title: "#{@offer.title} - Offers" )
 
 		end
 
@@ -49,7 +50,7 @@ module Bazaar
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
 			@offers = @search_service.offer_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
-			set_page_meta( title: "Discounts" )
+			set_page_meta( title: "Offers" )
 		end
 
 		def update
