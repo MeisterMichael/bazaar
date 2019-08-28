@@ -203,7 +203,7 @@ module Bazaar
 					ecommerce: {
 						add: {
 							actionField: {},
-							products: @cart.cart_items.collect{|cart_item| cart_item.item.offer.page_event_data.merge( quantity: cart_item.quantity ) }
+							products: @cart.cart_offers.collect{|cart_offer| cart_offer.offer.page_event_data.merge( quantity: cart_offer.quantity ) }
 						}
 					}
 				);
@@ -213,8 +213,8 @@ module Bazaar
 				ecommerce: {
 					currencyCode: 'USD',
 					checkout: {
-						actionField: { step: 1, option: 'Initiate', revenue: @cart.cart_items.to_a.sum(&:subtotal_as_money) },
-						products: @cart.cart_items.collect{|cart_item| cart_item.item.offer.page_event_data.merge( quantity: cart_item.quantity ) }
+						actionField: { step: 1, option: 'Initiate', revenue: @cart.cart_offers.to_a.sum(&:subtotal_as_money) },
+						products: @cart.cart_offers.collect{|cart_offer| cart_offer.offer.page_event_data.merge( quantity: cart_offer.quantity ) }
 					}
 				}
 			);
@@ -246,8 +246,8 @@ module Bazaar
 			@order = Bazaar.checkout_order_class_name.constantize.new( get_order_attributes )
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
-			@cart.cart_items.each do |cart_item|
-				order_item = @order.order_items.new( item: cart_item.item, price: cart_item.price, subtotal: cart_item.subtotal, order_item_type: 'prod', quantity: cart_item.quantity, title: cart_item.item.title, tax_code: cart_item.item.tax_code )
+			@cart.cart_offers.each do |cart_offer|
+				order_item = @order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: cart_offer.quantity, title: cart_offer.item.title, tax_code: cart_offer.item.tax_code )
 			end
 
 		end

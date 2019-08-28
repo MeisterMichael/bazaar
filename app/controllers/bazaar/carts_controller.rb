@@ -19,7 +19,7 @@ module Bazaar
 				ecommerce: {
 					add: {
 						actionField: {},
-						products: @cart.cart_items.collect{|cart_item| cart_item.item.offer.page_event_data.merge( quantity: cart_item.quantity ) }
+						products: @cart.cart_offers.collect{|cart_offer| cart_offer.offer.page_event_data.merge( quantity: cart_offer.quantity ) }
 					}
 				}
 			)
@@ -30,16 +30,16 @@ module Bazaar
 
 		def update
 			params[:item_quantity].each do |k, v|
-				line_item = @cart.cart_items.find( k )
+				cart_offer = @cart.cart_offers.find( k )
 				if v.to_i < 1
-					@cart.update subtotal: @cart.subtotal - ( line_item.item.price * line_item.quantity )
-					session[:cart_count] = session[:cart_count] - line_item.quantity
-					line_item.destroy
+					@cart.update subtotal: @cart.subtotal - ( cart_offer.price * cart_offer.quantity )
+					session[:cart_count] = session[:cart_count] - cart_offer.quantity
+					cart_offer.destroy
 				else
-					delta = line_item.quantity - v.to_i
-					line_item.update( quantity: v, subtotal: line_item.price * v.to_i )
+					delta = cart_offer.quantity - v.to_i
+					cart_offer.update( quantity: v, subtotal: cart_offer.price * v.to_i )
 					session[:cart_count] = session[:cart_count] - delta
-					@cart.update subtotal: @cart.subtotal - ( line_item.item.price * delta )
+					@cart.update subtotal: @cart.subtotal - ( cart_offer.price * delta )
 				end
 
 			end

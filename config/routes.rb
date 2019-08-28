@@ -9,7 +9,10 @@ Bazaar::Engine.routes.draw do
 
 	get '/cart' => 'carts#show'
 
-	resources :cart_items, except: [ :index, :new, :edit, :update, :show ] do
+	resources :cart_offers, :path => "cart_offers", except: [ :index, :new, :edit, :update, :show ] do
+		get :create, on: :collection
+	end
+	resources :cart_offers, :path => "cart_items", except: [ :index, :new, :edit, :update, :show ] do
 		get :create, on: :collection
 	end
 
