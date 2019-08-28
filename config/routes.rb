@@ -56,20 +56,9 @@ Bazaar::Engine.routes.draw do
 		get :thank_you, on: :member, path: 'thank-you'
 	end
 
-	resources :products, path: Bazaar.store_path do
-		# for single-item quick buy
-		get :buy, on: :member
-	end
-
 	resources :product_admin do
 		get :preview, on: :member
 		delete :empty_trash, on: :collection
-	end
-
-	resources :product_options
-
-	resources :product_variants do
-		post :generate, on: :member
 	end
 
 	resources :shipment_admin
@@ -95,8 +84,6 @@ Bazaar::Engine.routes.draw do
 		get :edit_shipping_carrier_service, on: :member
 	end
 	resources :subscription_plan_admin
-
-	resources :subscription_plans, path: 'subscriptions'
 
 	resources :transaction_admin
 
