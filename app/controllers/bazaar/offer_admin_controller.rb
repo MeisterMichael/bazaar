@@ -9,9 +9,13 @@ module Bazaar
 
 			@offer = Bazaar::Offer.new( offer_params )
 
+			@offer.offer_prices.new( price_as_money_string: params[:price_as_money], status: 'active', start_interval: 1, max_intervals: nil ) if params[:price_as_money]
+			@offer.offer_schedules.new( status: 'active', start_interval: 1, max_intervals: 1, interval_value: 0, interval_unit: 'weeks' )
+			@offer.offer_skus.new( sku_id: params[:sku_id], status: 'active', start_interval: 1, max_intervals: nil ) if params[:sku_id]
+
 			if @offer.save
 				set_flash 'Offer created'
-				redirect_back fallback_location: offer_admin_index_path()
+				redirect_to edit_offer_admin_path( @offer.id )
 			else
 				set_flash 'Offer could not be created', :error, @offer
 				redirect_back fallback_location: offer_admin_index_path()
