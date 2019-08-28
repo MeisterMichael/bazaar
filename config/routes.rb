@@ -35,6 +35,7 @@ Bazaar::Engine.routes.draw do
 	# resources :geo_countries, only: [:index]
 	resources :geo_states, only: [:index]
 
+	resources :offer_admin
 	resources :offer_sku_admin
 
 	resources :order_admin do

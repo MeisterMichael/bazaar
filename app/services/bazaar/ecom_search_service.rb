@@ -58,6 +58,18 @@ module Bazaar
 			return self.apply_options_and_filters( addresses, filters, options )
 		end
 
+		def offer_search( term, filters = {}, options = {} )
+			offers = Bazaar::Offer.all
+
+			if term.present?
+				query = "%#{term.gsub('%','\\\\%')}%".downcase
+
+				offers = offers.where( "title ILIKE :q OR description ILIKE :q OR cart_description ILIKE :q", q: query )
+			end
+
+			return self.apply_options_and_filters( offers, filters, options )
+		end
+
 		def order_search( term, filters = {}, options = {} )
 
 			filters[:type] = Bazaar.checkout_order_class_name unless filters.has_key? :type
