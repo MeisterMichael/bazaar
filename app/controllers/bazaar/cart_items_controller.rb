@@ -11,10 +11,6 @@ module Bazaar
 		def create
 			@item = params[:item_type].constantize.find_by( id: params[:item_id] )
 
-			if params[:variant_id].present?
-				@item = @item.product_variants.find_by( id: params[:variant_id] )
-			end
-
 			if @cart.nil?
 				@cart = Cart.create( ip: client_ip )
 				session[:cart_id] = @cart.id
