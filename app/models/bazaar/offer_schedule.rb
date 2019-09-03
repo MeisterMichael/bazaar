@@ -12,6 +12,10 @@ module Bazaar
 			interval_value.try(:interval_unit)
 		end
 
+		def self.for_interval( interval )
+			self.where( ":interval >= start_interval AND ( max_intervals IS NULL OR :interval < ( start_interval + max_intervals ) )", interval: interval )
+		end
+
 		def end_interval
 			n = self.class.base_class.where( parent_obj: self.parent_obj ).where('start_interval > ?',self.start_interval).active.order( start_interval: :asc ).first
 			if n.present?
