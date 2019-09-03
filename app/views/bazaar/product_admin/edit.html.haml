@@ -27,144 +27,20 @@
 					.form-group
 						= f.label :title
 						= f.text_field :title, class: 'form-control input-lg'
-					.form-group
-						= f.label :slug_pref, 'URL for this product:'
-						.input-group
-							%span.input-group-addon
-								= "#{Pulitzer.app_host}/store/"
-							= f.text_field :slug_pref, class: 'form-control', placeholder: @product.slug
-
-
-					.form-group
-						= f.label :description
-						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
-
-					.form-group
-						= f.label :notes, "Designer's Notes"
-						= f.text_area :notes, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
-
-					.form-group
-						= f.label :content, 'Full Description'
-						= f.text_area :content, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 200, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
-
-					.form-group
-						= f.label :cart_description, 'Cart Description'
-						= f.text_area :cart_description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
-
-				.well.white-well
-					.pull-right
-						%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachment_modal' } } Add Gallery Image
-					.form-group
-						%h4 Gallery
-					.row
-						.col-xs-6.col-sm-3
-							.well
-								.text-center{ style: 'margin-top: -16px;line-height: 16px;' } Default Image
-								- if @product.avatar
-									%a{ href: @product.avatar, target: '_preview_image' }
-										%img.img.img-responsive.center-block#product_avatar_img{:src => @product.avatar }
-								- else
-									%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
-								.text-center{ style: 'margin-bottom: -14px;' }
-									= f.file_field :avatar_attachment
-
-						- @product.gallery_attachments.each do |image|
-							.col-xs-6.col-sm-3
-								.well
-									%a{ href: image.service_url, target: '_preview_image' }
-										%img.img.img-responsive.center-block{:src => image.service_url }
-									.text-center{ style: 'margin-bottom: -14px;' }
-										%a{ href: pulitzer.attachment_path( image.id, object_class: @product.class.base_class.name, object_id: @product.id, attribute: :gallery_attachments ), data: { method: :delete } }
-											%i.fa.fa-trash
-											delete
 
 			.col-xs-4
 				.well.white-well
 					%h4
-						Product Settings
-					.form-group
-						= f.label :price
-						.input-group
-							%span.input-group-addon
-								$
-							= f.text_field :price, value: number_with_precision( (@product.price.to_f / 100), :precision => 2 ), class: 'form-control'
-					.form-group
-						= f.label :suggested_price
-						.input-group
-							%span.input-group-addon
-								$
-							= f.text_field :suggested_price, value: number_with_precision( (@product.suggested_price.to_f / 100), :precision => 2 ), class: 'form-control'
-
-					.form-group
-						= f.label :shipping_price
-						.input-group
-							%span.input-group-addon
-								$
-							= f.text_field :shipping_price, value: number_with_precision( (@product.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
-
-					.form-group
-						= f.label :tax_code
-						= f.text_field :tax_code, class: 'form-control'
-
-					-# .form-group
-						= f.label :size_info
-						= f.text_field :size_info, class: 'form-control'
-
-					- if f.object.respond_to? :sku
-						.form-group
-							= f.label :sku, 'SKU'
-							= f.text_field :sku, class: 'form-control'
-
-					.form-group
-						= f.label :package_shape
-						= f.collection_select :package_shape, Bazaar::Product.package_shapes, :first, :first, {}, class: 'form-control'
-
-					.row
-						.col-xs-12.col-lg-6
-							.form-group
-								= f.label :package_weight
-								.input-group
-									= f.number_field :package_weight, class: 'form-control'
-									%span.input-group-addon grams
-						.col-xs-12.col-lg-6
-							.form-group
-								= f.label :package_length
-								.input-group
-									= f.number_field :package_length, class: 'form-control'
-									%span.input-group-addon cm
-						.col-xs-12.col-lg-6
-							.form-group
-								= f.label :package_width
-								.input-group
-									= f.number_field :package_width, class: 'form-control'
-									%span.input-group-addon cm
-						.col-xs-12.col-lg-6
-							.form-group
-								= f.label :package_height
-								.input-group
-									= f.number_field :package_height, class: 'form-control'
-									%span.input-group-addon cm
-
-					%hr
-
-
-					%h4
 						Publishing Settings
-
-					.form-group
-						= f.label :seq
-						.input-group
-							= f.number_field :seq, class: 'form-control'
-
-					.form-group
-						= f.label :publish_at
-						= f.text_field :publish_at, value: current_user.to_local_tz( @product.publish_at ), class: 'form-control datetimepicker'
 					.form-group
 						= f.label :status
 						= f.collection_select :status, Bazaar::Product.statuses, :first, :first, {}, class: 'form-control'
 					.form-group
-						= f.label :availability
-						= f.collection_select :availability, Bazaar::Product.availabilities, :first, :first, {}, class: 'form-control'
+						= f.label :offer_id
+						= f.collection_select :offer_id, Bazaar::Offer.active.order( :title ), :id, :title, { include_blank: '-- None -- ' }, class: 'form-control'
+						- if @product.offer
+							%a{ href: bazaar.edit_offer_admin_path( id: @product.offer.id ) }
+								= @product.offer.title
 					.form-group
 						= f.label :category_id
 						= f.collection_select :category_id, Bazaar::ProductCategory.active.order( :name ), :id, :name, { include_blank: '-- None -- ' }, class: 'form-control'
@@ -180,94 +56,7 @@
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
-	-# .row#schedule
-		.col-xs-12
-			.well.white-well
-				-# %a.pull-right{ href: '#new_offer_schedule_modal', data: { toggle: :modal, target: '#new_offer_schedule_modal' } }
-					%i.fa.fa-plus
-					Add Schedule Item
-				%h4
-					Schedule
-
-				= render 'bazaar/subscription_plan_admin/schedule_table', offer_schedules: @product.offer_schedules, args: {}
-
-	-# .row#price
-		.col-xs-12
-			.well.white-well
-				-# %a.pull-right{ href: '#new_offer_price_modal', data: { toggle: :modal, target: '#new_offer_price_modal' } }
-					%i.fa.fa-plus
-					Add Price
-				%h4
-					Prices
-
-				= render 'bazaar/subscription_plan_admin/price_table', offer_prices: @product.offer_prices, args: {}
-	.row#skus
-		.col-xs-12
-			.well.white-well
-				%a.pull-right{ href: '#new_offer_sku_modal', data: { toggle: :modal, target: '#new_offer_sku_modal' } }
-					%i.fa.fa-plus
-					Add Sku
-				%h4
-					SKUs
-				= render 'bazaar/offer_admin/sku_table', offer_skus: @product.offer_skus, args: {}
-
-
-	.row#variants
-		.col-xs-12
-			.well.white-well
-				%a.pull-right{ href: '#new_variant', data: { toggle: :modal, target: '#new_variant' } }
-					%i.fa.fa-plus
-					Batch Add
-				%h4
-					Variants
-
-				-# if @product.product_variants.empty?
-					%a.btn{ href: generate_product_variant_path( id: @product.id ), data: { method: :post } }
-						Generate Variants
-
-				%table.table.table-light.table-bordered{ style: 'margin:0;' }
-					%thead
-						%th{ style: 'width: 6em' } Seq
-						%th Title
-						%th{ style: 'width: 8em' } Price
-						%th{ style: 'width: 8em' } Shipping Price
-						%th{ style: 'width: 6em' } Inventory
-						%th{ style: 'width: 10em' }
-					- if @product.product_variants.count == 0
-						%tr
-							%td{ colspan: 7 }
-								\- No Variants Found -
-					- @product.product_variants.order( seq: :asc ).each do |variant|
-						= form_for variant do |f|
-							%tr
-								%td
-									= f.number_field :seq, class: 'form-control'
-								%td{ style: 'width: 33%;' }
-									= f.text_field :title, class: 'form-control'
-								%td
-									.input-group
-										%span.input-group-addon
-											$
-										= f.text_field :price, value: number_with_precision( (variant.price.to_f / 100), :precision => 2 ), class: 'form-control'
-								%td
-									.input-group
-										%span.input-group-addon
-											$
-										= f.text_field :shipping_price, value: number_with_precision( (variant.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
-								%td
-									= f.number_field :inventory, class: 'form-control'
-
-								%td.text-center
-									%button.btn.btn-primary.btn-xs
-										Save
-									-# %a.btn.btn-info.btn-xs{ href: edit_product_variant_path( variant.id ) }
-										Edit
-									%a.btn.btn-danger.btn-xs{ href: product_variant_path( variant.id ), data: { method: :delete, confirm: 'Are you sure?' } }
-										Trash
-
 
 
 = render 'bazaar/offer_sku_admin/new_modal', parent_obj: @product.offer, args: { start_interval: 1, max_intervals: 1 }
-= render 'bazaar/product_variants/new_modal', product: @product
-
-= render 'new_gallery_attachment', args: {}
+-# = render 'new_gallery_attachment', args: {}
