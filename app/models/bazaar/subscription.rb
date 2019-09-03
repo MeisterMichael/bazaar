@@ -17,6 +17,7 @@ module Bazaar
 		belongs_to 	:shipping_address, class_name: 'GeoAddress'
 
 		has_many		:subscription_schedules, as: :parent_obj
+		has_many		:order_offers
 
 		before_create :generate_order_code
 		before_create :initialize_timestamps
@@ -49,6 +50,10 @@ module Bazaar
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now
 			active.where( 'next_charged_at < :now', now: time_now )
+		end
+
+		def current_interval
+			order_offers.joins(:order).merge(Bazaar::Order.positive_status).max(:interval)
 		end
 
 		def is_next_interval_a_trial?
