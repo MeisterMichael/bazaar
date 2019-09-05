@@ -43,7 +43,7 @@ module Bazaar
 				args[:provider]			||= order.provider
 				args[:provider_customer_profile_reference] ||= order.provider_customer_profile_reference
 				args[:provider_customer_payment_profile_reference] ||= order.provider_customer_payment_profile_reference
-				args[:shipping_carrier_service_id] = order.order_items.shipping.first.item_id
+				args[:shipping_carrier_service_id] = order.order_items.shipping.first.try(:item_id)
 
 				args[:discount] = order.order_items.discount.first.try(:item)
 
