@@ -209,65 +209,9 @@
 					Add Sku
 				%h4
 					SKUs
-				= render 'bazaar/subscription_plan_admin/sku_table', offer_skus: @product.offer_skus, args: {}
-
-
-	.row#variants
-		.col-xs-12
-			.well.white-well
-				%a.pull-right{ href: '#new_variant', data: { toggle: :modal, target: '#new_variant' } }
-					%i.fa.fa-plus
-					Batch Add
-				%h4
-					Variants
-
-				-# if @product.product_variants.empty?
-					%a.btn{ href: generate_product_variant_path( id: @product.id ), data: { method: :post } }
-						Generate Variants
-
-				%table.table.table-light.table-bordered{ style: 'margin:0;' }
-					%thead
-						%th{ style: 'width: 6em' } Seq
-						%th Title
-						%th{ style: 'width: 8em' } Price
-						%th{ style: 'width: 8em' } Shipping Price
-						%th{ style: 'width: 6em' } Inventory
-						%th{ style: 'width: 10em' }
-					- if @product.product_variants.count == 0
-						%tr
-							%td{ colspan: 7 }
-								\- No Variants Found -
-					- @product.product_variants.order( seq: :asc ).each do |variant|
-						= form_for variant do |f|
-							%tr
-								%td
-									= f.number_field :seq, class: 'form-control'
-								%td{ style: 'width: 33%;' }
-									= f.text_field :title, class: 'form-control'
-								%td
-									.input-group
-										%span.input-group-addon
-											$
-										= f.text_field :price, value: number_with_precision( (variant.price.to_f / 100), :precision => 2 ), class: 'form-control'
-								%td
-									.input-group
-										%span.input-group-addon
-											$
-										= f.text_field :shipping_price, value: number_with_precision( (variant.shipping_price.to_f / 100), :precision => 2 ), class: 'form-control'
-								%td
-									= f.number_field :inventory, class: 'form-control'
-
-								%td.text-center
-									%button.btn.btn-primary.btn-xs
-										Save
-									-# %a.btn.btn-info.btn-xs{ href: edit_product_variant_path( variant.id ) }
-										Edit
-									%a.btn.btn-danger.btn-xs{ href: product_variant_path( variant.id ), data: { method: :delete, confirm: 'Are you sure?' } }
-										Trash
-
+				= render 'bazaar/offer_admin/sku_table', offer_skus: @product.offer_skus, args: {}
 
 
 = render 'bazaar/offer_sku_admin/new_modal', parent_obj: @product.offer, args: { start_interval: 1, max_intervals: 1 }
-= render 'bazaar/product_variants/new_modal', product: @product
 
 = render 'new_gallery_attachment', args: {}

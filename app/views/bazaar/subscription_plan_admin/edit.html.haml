@@ -197,7 +197,7 @@
 				%h4
 					Schedule
 
-				= render 'schedule_table', offer_schedules: @plan.offer_schedules, args: {}
+				= render 'bazaar/offer_admin/schedule_table', offer_schedules: @plan.offer_schedules, args: {}
 	.row#price
 		.col-xs-12
 			.well.white-well
@@ -207,7 +207,7 @@
 				%h4
 					Prices
 
-				= render 'price_table', offer_prices: @plan.offer_prices, args: {}
+				= render 'bazaar/offer_admin/price_table', offer_prices: @plan.offer_prices, args: {}
 	.row#skus
 		.col-xs-12
 			.well.white-well
@@ -217,7 +217,7 @@
 				%h4
 					SKUs
 
-				= render 'sku_table', offer_skus: @plan.offer_skus, args: {}
+				= render 'bazaar/offer_admin/sku_table', offer_skus: @plan.offer_skus, args: {}
 
 
 

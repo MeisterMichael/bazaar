@@ -1,0 +1,28 @@
+%table.table.table-light.table-bordered{ style: 'margin:0;' }
+	%thead
+		%th{ style: 'width: 6em' } Intervals
+		%th Interval Duration
+		%th{ style: 'width: 10em' } Created At
+		%th{ style: 'width: 6em' }
+	- if offer_schedules.active.count == 0
+		%tr
+			%td{ colspan: 4 }
+				\- No Schedule Found -
+	- offer_schedules.active.order( start_interval: :asc, id: :asc ).each do |offer_schedule|
+		%tr
+			%td
+				- if offer_schedule.end_interval.nil?
+					#{offer_schedule.start_interval}+
+				- elsif offer_schedule.end_interval > offer_schedule.start_interval
+					= offer_schedule.start_interval
+					to
+					= offer_schedule.end_interval
+				- else
+					= offer_schedule.start_interval
+			%td
+				= pluralize offer_schedule.interval_value, offer_schedule.interval_unit
+			%td
+				= current_user.to_local_tz(offer_schedule.created_at).to_s( :short )
+			%td.text-right
+				%a.btn.btn-danger.btn-xs{ href: offer_schedule_admin_path( offer_schedule ), data: { method: :delete, confirm: 'Are you sure?' } }
+					%i.fa.fa-trash

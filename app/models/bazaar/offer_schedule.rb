@@ -8,6 +8,10 @@ module Bazaar
 
 		validate :validate_start_interval_uniq
 
+		def interval_time
+			interval_value.try(:interval_unit)
+		end
+
 		def end_interval
 			n = self.class.base_class.where( parent_obj: self.parent_obj ).where('start_interval > ?',self.start_interval).active.order( start_interval: :asc ).first
 			if n.present?

@@ -10,8 +10,13 @@ if @user.present?
 	  json.code order.code
 	  json.created_at order.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
 	  json.fulfilled_at order.fulfilled_at.try( :strftime, '%Y-%m-%dT%H:%M:%SZ' )
-	  json.fulfillment_status order.fulfillment_status
-	  json.fulfillment_status_name order.fulfillment_status.gsub(/_/,' ')
+		if ( shipment = order.shipments.last ).present?
+		  json.fulfillment_status shipment.try(:status)
+		  json.fulfillment_status_name shipment.status.gsub(/_/,' ')
+		else
+		  json.fulfillment_status 'no_shipment'
+		  json.fulfillment_status_name 'No Shipment'
+		end
 	  json.url bazaar.order_admin_url( order )
 	  json.total order.total / 100.0
 	end

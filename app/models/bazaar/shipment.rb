@@ -63,7 +63,7 @@ module Bazaar
 		end
 
 		def validate_warehouse_skus?
-			self.warehouse.present? && self.fulfillment_id.blank? && (self.pending? || self.draft?)
+			self.warehouse.present? && self.warehouse_id_changed? && self.fulfillment_id.blank? && (self.pending? || self.draft?)
 		end
 
 		protected
