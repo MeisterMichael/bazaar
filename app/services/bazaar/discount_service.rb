@@ -23,7 +23,7 @@ module Bazaar
 
 		def get_order_discount_errors( order, discount, args = {} )
 
-			prod_order_items		= order.order_items.select{ |order_item| order_item.prod? }
+			prod_order_offers		= order.order_offers.to_a
 			shipping_order_items	= order.order_items.select{ |order_item| order_item.shipping? }
 			tax_order_items			= order.order_items.select{ |order_item| order_item.tax? }
 
@@ -33,7 +33,7 @@ module Bazaar
 			error_messages = []
 			error_messages << 'Invalid discount' if not( discount.active? ) || not( discount.in_progress? )
 			error_messages << 'Unsupported discount type' if discount.selected_users?
-			error_messages << 'The discount does not meet the minimum purchase requirement' if discount.minimum_prod_subtotal != 0 && discount.minimum_prod_subtotal > prod_order_items.sum{ |order_item| order_item.subtotal }
+			error_messages << 'The discount does not meet the minimum purchase requirement' if discount.minimum_prod_subtotal != 0 && discount.minimum_prod_subtotal > prod_order_offers.sum(&:subtotal)
 			error_messages << 'The discount does not meet the minimum shipping requirement' if discount.minimum_shipping_subtotal != 0 && discount.minimum_shipping_subtotal > shipping_order_items.sum{ |order_item| order_item.subtotal }
 			error_messages << 'The discount does not meet the minimum tax requirement' if discount.minimum_tax_subtotal != 0 && discount.minimum_tax_subtotal > tax_order_items.sum{ |order_item| order_item.subtotal }
 			error_messages << 'You have exceeded the limit of uses for the selected discount' if discount.limit_per_customer.present? && order.user.present? && all_discount_order_items.merge( all_not_self_positive_status_orders.where( user: order.user ) ).count >= discount.limit_per_customer
@@ -70,18 +70,22 @@ module Bazaar
 			discount_items.each do |discount_item|
 				order_items = order.order_items.to_a
 
+				order_offers = []
+				order_offers = order.order_offers.to_a if discount_item.all_order_item_types? || discount_item.prod?
+
 				order_items = order_items.select{ |order_item| not( order_item.discount? ) }
 				order_items = order_items.select{ |order_item| order_item.order_item_type == discount_item.order_item_type } unless discount_item.all_order_item_types?
-				order_items = order_items.select do |order_item|
+
+				order_offers = order_offers.select do |order_offer|
 					keep = true
 
-					if ( subscription = order_item.item ).is_a?( Subscription )
+					if ( subscription = order_offer.subscription ).is_a?( Subscription )
 						this_discount_order_items = OrderItem.discount.joins(:order).merge( subscription.orders.not_declined.where.not( id: order.id ) ).where( item: discount_item.discount )
 
 						keep = false if discount_item.minimum_orders.to_i > 0 || discount_item.maximum_orders.to_i > 1
 						keep = keep || (this_discount_order_items.count >= discount_item.minimum_orders) if discount_item.minimum_orders.to_i > 0
 						keep = keep || (this_discount_order_items.count < discount_item.maximum_orders) if discount_item.maximum_orders.to_i > 1
-					elsif ( plan = order_item.item ).is_a?( SubscriptionPlan ) && discount_item.minimum_orders.to_i > 0
+					elsif order_offer.subscription_interval == 1 && discount_item.minimum_orders.to_i > 0
 						keep = false
 					end
 
@@ -90,24 +94,28 @@ module Bazaar
 
 				if discount_item.applies_to.is_a?( Bazaar::Collection )
 
-					items = discount_item.applies_to.items
-					order_items = order_items.select{ |order_item| items.include?( order_item.item ) }
+					offers = discount_item.applies_to.items.collect(&:offer)
+					order_offers = order_offers.select{ |order_offer| offers.include?( order_offer.offer ) }
 
-				elsif discount_item.applies_to.is_a?( Product ) || discount_item.applies_to.is_a?( SubscriptionPlan )
+				elsif discount_item.applies_to.is_a? Bazaar::Offer
 
-					order_items = order_items.select{ |order_item| order_item.item == discount_item.applies_to }
+					order_offers = order_offers.select{ |order_offer| order_offer.offer == discount_item.applies_to }
+
+				elsif discount_item.applies_to.respond_to?( :offer )
+
+					order_offers = order_offers.select{ |order_offer| order_offer.offer == discount_item.applies_to.offer }
 
 				elsif discount_item.applies_to.present?
 					raise Exception.new('Unsupported discount_item.applies_to')
 				end
 
 				if discount_item.percent?
-					subtotal = order_items.sum{ |order_item| order_item.subtotal }
+					subtotal = order_items.to_a.sum(&:subtotal) + order_offers.to_a.sum(&:subtotal)
 					amount = amount + ( subtotal * discount_item.discount_amount / 100.0 ).round
 				elsif discount_item.fixed?
-					amount = amount + discount_item.discount_amount if order_items.present?
+					amount = amount + discount_item.discount_amount if order_items.present? || order_offers.present?
 				elsif discount_item.fixed_each?
-					amount = amount + discount_item.discount_amount * order_items.sum{|order_item| order_item.quantity }
+					amount = amount + discount_item.discount_amount * order_offers.sum{|order_item| order_item.quantity }
 				else
 					raise Exception.new('Unsupported discount_item.discount_type')
 				end

@@ -48,8 +48,8 @@ module Bazaar
 
 			cart.estimated_total = cart.estimated_tax + cart.estimated_shipping
 
-			cart.cart_items.each do |cart_item|
-				cart.estimated_total = cart.estimated_total + cart_item.subtotal
+			cart.cart_offers.each do |cart_offer|
+				cart.estimated_total = cart.estimated_total + cart_offer.subtotal
 			end
 
 		end

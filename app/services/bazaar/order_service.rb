@@ -285,49 +285,7 @@ module Bazaar
 			return not( order.nested_errors.present? )
 		end
 
-		def calculate_prod_order_items( order, args = {} )
-
-			order.order_offers.to_a.each do |order_offer|
-				order_offer.subtotal = order_offer.price * order_offer.quantity
-				order.order_items.new(
-					order_item_type: 'prod',
-					quantity: order_offer.quantity,
-					title: order_offer.title,
-					price: order_offer.price,
-					subtotal: order_offer.subtotal,
-					item: ( Bazaar::Product.where( offer: order_offer.offer ).first || Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first || Bazaar::WholesaleItem.where( offer: order_offer.offer ).first ),
-				)
-
-			end
-		end
-
 		def calculate_order_offers( order, args = {} )
-			order.order_items.to_a.select(&:prod?).each do |order_item|
-
-				offer = order_item.item.offer
-
-				subscription = order_item.subscription
-				subscription = order_item.item if order_item.item.is_a? Bazaar::Subscription
-
-				subscription_interval = 1
-				subscription_interval = Bazaar::OrderOffer.joins(:order).merge(Bazaar::Order.positive_status).where( subscription: subscription ).maximum(:subscription_interval).to_i + 1 if subscription
-
-				offer_price = offer.offer_prices.active.for_interval( subscription_interval ).first.price
-
-				new_order_offer = order_item.order.order_offers.to_a.find{ |this_order_offer| this_order_offer.offer == offer }
-				new_order_offer ||= order_item.order.order_offers.new
-				new_order_offer.attributes = {
-					offer: offer,
-					tax_code: offer.tax_code,
-					title: order_item.title,
-					quantity: order_item.quantity,
-					price: order_item.price,
-					subtotal: order_item.subtotal,
-					subscription_interval: subscription_interval,
-					subscription: subscription
-				}
-
-			end
 		end
 
 		def calculate_order_skus( order, args = {} )
@@ -349,7 +307,7 @@ module Bazaar
 			self.calculate_order_offers( order, args )
 			self.calculate_order_skus( order, args )
 
-			order.subtotal = order.order_items.select(&:prod?).sum(&:subtotal)
+			order.subtotal = order.order_offers.to_a.sum(&:subtotal)
 		end
 
 		def calculate_order_after( order, args = {} )

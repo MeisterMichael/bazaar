@@ -12,28 +12,24 @@ module Bazaar
 		end
 
 		def subscribe_ordered_plans( order, args = {} )
-			# will only create plans for active orders
+			# will only create subscriptions for active orders
 			raise Exception.new('Can only create subscriptions for active orders') unless order.active?
 
-			order.order_items.each do |order_item|
-				if order_item.item.is_a?( Bazaar::SubscriptionPlan ) && ( order_item.subscription.nil? || order_item.subscription.trash? )
+			order.order_offers.each do |order_offer|
+				if order_offer.offer.is_recurring? && ( order_offer.subscription.nil? || order_offer.subscription.trash? )
 
-					order_item.subscription = self.subscribe( order.user, order_item.item, args.merge( quantity: order_item.quantity, order: order, subscription: order_item.subscription ) )
-					order_item.save
-
-					# also save the subscription into the OrderOffer
-					order_offer = order_item.order_offer
-					order_offer.subscription = order_item.subscription
-					order_offer.save!
+					order_offer.subscription = self.subscribe( order.user, order_offer.offer, args.merge( quantity: order_offer.quantity, order: order, subscription: order_offer.subscription, interval: order_offer.subscription_interval ) )
+					order_offer.save
 
 				end
 			end
 
 		end
 
-		def subscribe( user, plan, args = {} )
+		def subscribe( user, offer, args = {} )
 			start_at = args[:start_at] || Time.now
 			quantity = args[:quantity] || 1
+			interval = args[:interval] || 1
 
 			if (order = args[:order]).present?
 
@@ -60,53 +56,37 @@ module Bazaar
 			discount ||= args[:discount]
 			discount = nil unless discount.try(:for_subscriptions?)
 
-			args[:trial_price]	||= args[:trial_amount] / quantity if args[:trial_amount]
 			args[:price]		||= args[:amount] / quantity if args[:amount]
-			args[:trial_price]	||= plan.trial_price
-			args[:price]		||= plan.price
+			args[:price]		||= offer.price_for_interval( interval )
 
-			args[:trial_amount]	||= args[:trial_price] * quantity
 			args[:amount]		||= args[:price] * quantity
 
 			args[:currency]		||= 'USD'
 
-			trial_interval = plan.trial_interval_value.try( plan.trial_interval_unit )
-			billing_interval = plan.billing_interval_value.try( plan.billing_interval_unit )
-
+			billing_interval = offer.interval_period_for_interval( interval )
 			current_period_end_at = start_at + billing_interval
-
-			if plan.trial?
-				trial_start_at = start_at
-				trial_end_at = trial_start_at + trial_interval * plan.trial_max_intervals
-				current_period_end_at = start_at + trial_interval
-			end
 
 			subscription = args[:subscription] || Subscription.new()
 			subscription.attributes = {
 				user: user,
-				subscription_plan: plan,
-				offer: plan.offer,
+				offer: offer,
 				billing_address: args[:billing_address],
 				shipping_address: args[:shipping_address],
 				quantity: quantity,
 				status: 'active',
 				start_at: start_at,
-				trial_start_at: trial_start_at,
-				trial_end_at: trial_end_at,
 				current_period_start_at: start_at,
 				current_period_end_at: current_period_end_at,
 				next_charged_at: current_period_end_at,
-				billing_interval_value: plan.billing_interval_value,
-				billing_interval_unit: plan.billing_interval_unit,
+				billing_interval_value: offer_schedule.interval_value,
+				billing_interval_unit: offer_schedule.interval_unit,
 				currency: args[:currency],
 				discount: discount,
 				provider: args[:provider],
 				provider_customer_profile_reference: args[:provider_customer_profile_reference],
 				provider_customer_payment_profile_reference: args[:provider_customer_payment_profile_reference],
 				payment_profile_expires_at: args[:payment_profile_expires_at],
-				trial_amount: args[:trial_amount],
 				amount: args[:amount],
-				trial_price: args[:trial_price],
 				price: args[:price],
 				shipping_carrier_service_id: args[:shipping_carrier_service_id],
 				shipping: args[:shipping],
@@ -122,7 +102,7 @@ module Bazaar
 
 			subscription.save!
 
-			log_event( user: user, name: 'subscribed', category: 'ecom', on: subscription, content: "started a subscription #{subscription.code} to #{plan.title}" )
+			log_event( user: user, name: 'subscribed', category: 'ecom', on: subscription, content: "started a subscription #{subscription.code} to #{offer.title}" )
 
 			subscription
 		end
@@ -131,7 +111,7 @@ module Bazaar
 			time_now = args[:now] || Time.now
 
 			# create order
-			plan = subscription.subscription_plan
+			offer = subscription.offer
 
 			order = @order_class.constantize.new(
 				billing_address: subscription.billing_address,
@@ -146,17 +126,10 @@ module Bazaar
 				provider_customer_payment_profile_reference: subscription.provider_customer_payment_profile_reference,
 			)
 
-			interval = nil
 
-			if subscription.is_next_interval_a_trial?
-				interval = plan.trial_interval_value.try(plan.trial_interval_unit)
-
-				order.order_items.new item: subscription, subscription: subscription, price: subscription.trial_price, sku: plan.trial_sku, subtotal: subscription.trial_amount, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
-			else
-				interval = subscription.billing_interval_value.try(subscription.billing_interval_unit)
-
-				order.order_items.new item: subscription, subscription: subscription, price: subscription.price, sku: plan.product_sku, subtotal: subscription.amount, order_item_type: 'prod', quantity: subscription.quantity, title: plan.title, tax_code: plan.tax_code
-			end
+			interval = subscription.next_subscription_interval
+			price = offer.price_for_interval( interval )
+			order.order_offers.new offer: offer, subscription: subscription, price: price, subtotal: price * subscription.quantity, quantity: subscription.quantity, title: offer.title, tax_code: offer.tax_code, subscription_interval: interval
 
 			# apply the subscription discount to new orders
 			discount = subscription.discount
@@ -269,12 +242,8 @@ module Bazaar
 		end
 
 		def update_next_charged_at( subscription )
-			interval = nil
-			if subscription.is_next_interval_a_trial?
-				interval = plan.trial_interval_value.try(plan.trial_interval_unit)
-			else
-				interval = subscription.billing_interval_value.try(subscription.billing_interval_unit)
-			end
+			last_subscription_interval = subscription.next_subscription_interval - 1
+			interval_period = subscription.offer.interval_period_for_interval( last_subscription_interval )
 
 			subscription.current_period_start_at = Time.now
 			subscription.current_period_end_at = subscription.current_period_start_at + interval

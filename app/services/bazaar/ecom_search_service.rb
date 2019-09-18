@@ -128,18 +128,6 @@ module Bazaar
 			return self.apply_options_and_filters( shipments, filters, options )
 		end
 
-		def subscription_plan_search( term, filters = {}, options = {} )
-			plans = Bazaar::SubscriptionPlan.all
-
-			if term.present?
-				query = "%#{term.gsub('%','\\\\%')}%".downcase
-
-				plans = plans.where( "title ILIKE :q OR description ILIKE :q", q: query )
-			end
-
-			return self.apply_options_and_filters( plans, filters, options )
-		end
-
 		def subscription_search( term, filters = {}, options = {} )
 			subscriptions = Subscription.all
 

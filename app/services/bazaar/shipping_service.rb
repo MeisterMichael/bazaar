@@ -140,7 +140,7 @@ module Bazaar
 
 			address = GeoAddress.new( geo_country: country )
 
-			find_address_rates( address, cart.cart_items, args )
+			find_address_rates( address, cart.cart_offers, args )
 		end
 
 		def recalculate( obj, args = {} )
@@ -156,7 +156,7 @@ module Bazaar
 		end
 
 		def find_order_rates( order, args = {} )
-			find_address_rates( order.shipping_address, order.order_items.select{ |order_item| order_item.prod? && order_item.quantity > 0 }, args )
+			find_address_rates( order.shipping_address, order.order_offers.select{ |order_offer| order_offer.quantity > 0 }, args )
 		end
 
 		def find_shipment_rates( shipment, args = {} )
@@ -166,7 +166,6 @@ module Bazaar
 		end
 
 		def find_subscription_rates( subscription, args = {} )
-			plan = subscription.subscription_plan
 			find_address_rates( subscription.shipping_address, [OrderItem.new( item: subscription, quantity: subscription.quantity )], args )
 		end
 
