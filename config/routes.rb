@@ -31,8 +31,6 @@ Bazaar::Engine.routes.draw do
 
 	resources :discount_admin
 
-	resources :fulfillment_order_admin, only: [:create, :new]
-
 	resources :fulfillment_admin, only: [:create, :destroy]
 
 	# resources :geo_countries, only: [:index]
@@ -54,6 +52,7 @@ Bazaar::Engine.routes.draw do
 	end
 
 	resources :order_item_admin, only: [:update,:create,:destroy]
+	resources :order_offer_admin, only: [:update,:create,:destroy]
 
 	resources :orders do
 		get :thank_you, on: :member, path: 'thank-you'
