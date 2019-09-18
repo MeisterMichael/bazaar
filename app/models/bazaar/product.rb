@@ -23,7 +23,6 @@ module Bazaar
 		has_many :offer_skus, through: :offer
 		belongs_to 	:product_category, foreign_key: :category_id, required: false
 		has_many 	:product_options
-		has_many	:subscription_plans, as: :item
 
 		has_one_attached :avatar_attachment
 		has_many_attached :embedded_attachments

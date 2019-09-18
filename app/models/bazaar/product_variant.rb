@@ -1,6 +1,6 @@
 module Bazaar
 	class ProductVariant < ApplicationRecord
-		
+
 
 		include FriendlyId
 		include Bazaar::Concerns::MoneyAttributesConcern
@@ -12,7 +12,6 @@ module Bazaar
 		before_save :set_defaults
 
 		belongs_to	:product
-		has_many	:subscription_plans, as: :item
 
 		money_attributes :price, :shipping_price, :purchase_price
 		friendly_id :title, use: [ :slugged, :history ]
