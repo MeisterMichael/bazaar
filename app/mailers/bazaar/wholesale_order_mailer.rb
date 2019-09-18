@@ -3,14 +3,14 @@ module Bazaar
 
 		def notify_admin( order )
 			@order = order
-			subject = "#{SwellMedia.app_name} order of #{@order.order_items.first.title}".truncate(255)
+			subject = "#{SwellMedia.app_name} order of #{@order.order_offers.first.title}".truncate(255)
 			mail to: "gk@amraplife.com", from: Bazaar.order_email_from, subject: subject
 		end
 
 		def receipt( order, args = {} )
 			@order = order
 
-			subject = "#{Pulitzer.app_name} order of #{@order.order_items.first.title}".truncate(255)
+			subject = "#{Pulitzer.app_name} order of #{@order.order_offers.first.title}".truncate(255)
 
 			mail to: @order.email, from: Bazaar.order_email_from, subject: subject
 		end
