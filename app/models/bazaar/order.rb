@@ -35,6 +35,10 @@ module Bazaar
 		# 	super( Email.email_sanitize( value ) )
 		# end
 
+		def with_subscription?
+			self.order_offers.with_subscription.present?
+		end
+
 		def self.positive_status
 			where('bazaar_orders.status > 0')
 		end
@@ -65,10 +69,6 @@ module Bazaar
 
 		def subscription_renewal?
 			self.parent.is_a?( Bazaar::Subscription )
-		end
-
-		def has_subscription_plan?
-			self.order_items.select{ |order_item| order_item.item.is_a?( Bazaar::SubscriptionPlan ) }.present?
 		end
 
 		def nested_errors
