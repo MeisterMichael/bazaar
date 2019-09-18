@@ -5,7 +5,7 @@ module Bazaar
 
 		belongs_to 	:cart
 		belongs_to 	:item, polymorphic: true, required: false
-		belongs_to 	:offer, polymorphic: true, required: false
+		belongs_to 	:offer, required: false
 
 		money_attributes :subtotal, :price
 
