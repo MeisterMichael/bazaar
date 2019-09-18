@@ -31,10 +31,10 @@ module Bazaar
 			if cart_offer.present?
 				cart_offer.increment!( :quantity, params[:quantity].to_i )
 			else
-				cart_offer = @cart.cart_offers.create( offer: @offer )
+				cart_offer = @cart.cart_offers.create( offer: @offer, quantity: params[:quantity].to_i )
 			end
 
-			cart_offer_price = @offer.offer_prices.for_interval(1).first.try(:price)
+			cart_offer_price = @offer.initial_price
 			cart_offer.update( price: cart_offer_price, subtotal: cart_offer_price * cart_offer.quantity )
 
 			@cart.update subtotal: @cart.cart_offers.sum( :subtotal )

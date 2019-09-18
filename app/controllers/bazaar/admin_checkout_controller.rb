@@ -93,7 +93,6 @@ module Bazaar
 			if order_offers_attributes.present?
 				@order.order_skus.delete_all
 				@order.order_offers.delete_all
-				@order.order_items.prod.delete_all
 			end
 
 			@order.attributes				= order_attributes
@@ -101,7 +100,7 @@ module Bazaar
 			@order.billing_address	= @order.shipping_address if shipping_address_id == 'same'
 
 			if order_offers_attributes.present?
-				@order_service.calculate_prod_order_items( @order )
+				@order_service.calculate_order_offers( @order )
 				@order_service.calculate_order_skus( @order )
 			end
 
