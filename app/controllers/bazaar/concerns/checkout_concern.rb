@@ -37,9 +37,8 @@ module Bazaar
 							:shipping_address => [
 								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 							],
-							:order_items => [
-								:item_type,
-								:item_id,
+							:order_offers => [
+								:offer_id,
 								:quantity,
 							],
 							:billing_address_attributes => [
@@ -48,9 +47,8 @@ module Bazaar
 							:shipping_address_attributes => [
 								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 							],
-							:order_items_attributes => [
-								:item_type,
-								:item_id,
+							:order_offers_attributes => [
+								:offer_id,
 								:quantity,
 							],
 						},
@@ -61,23 +59,21 @@ module Bazaar
 
 				order_attributes[:billing_address_attributes]	||= order_attributes.delete(:billing_address) || {}
 				order_attributes[:shipping_address_attributes]	||= order_attributes.delete(:shipping_address) || {}
-				order_attributes[:order_items_attributes]		||= order_attributes.delete(:order_items) || []
+				order_attributes[:order_offers_attributes]		||= order_attributes.delete(:order_offers) || []
 
 				order_attributes[:shipping_address_attributes]	= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
 				order_attributes[:billing_address_attributes]	= order_attributes[:shipping_address_attributes] if order_attributes.delete(:same_as_shipping)
 
-				if order_attributes[:order_items_attributes].present?
-					order_item_attributes = order_attributes[:order_items_attributes]
-					order_item_attributes = order_item_attributes.values if order_item_attributes.is_a? Hash
+				if order_attributes[:order_offers_attributes].present?
+					order_offer_attributes = order_attributes[:order_offers_attributes]
+					order_offer_attributes = order_offer_attributes.values if order_offer_attributes.is_a? Hash
 
-					order_item_attributes.each do |order_item|
-						order_item[:order_item_type] 	= 'prod'
-						order_item[:item]				= order_item[:item_type].constantize.find_by( id: order_item[:item_id] )
-						order_item[:title]				= order_item[:item].title
-						order_item[:price]				= order_item[:item].price
-						order_item[:price]				= order_item[:item].trial_price if order_item[:item].is_a?( SubscriptionPlan ) && order_item[:item].trial?
-						order_item[:subtotal]			= order_item[:price].to_i * order_item[:quantity].to_i
-						order_item[:tax_code]			= order_item[:item].tax_code
+					order_offer_attributes.each do |order_offer|
+						order_offer[:offer]				= Bazaar::Offer.find_by( id: order_offer[:offer_id] )
+						order_offer[:title]				= order_offer[:offer].title
+						order_offer[:price]				= order_offer[:offer].initial_price
+						order_offer[:subtotal]		= order_offer[:price].to_i * order_offer[:quantity].to_i
+						order_offer[:tax_code]		= order_offer[:item].tax_code
 					end
 				end
 

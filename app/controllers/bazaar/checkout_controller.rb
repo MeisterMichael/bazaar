@@ -41,11 +41,11 @@ module Bazaar
 					@cart.last_name = @order.billing_address.last_name || @cart.last_name
 				end
 
-				order_items_attributes = @order.order_items.select(&:prod?).collect do |order_item|
-					order_item.attributes.to_h.select{ |key,val| not( ['id','updated_at','created_at','order_id'].include?( key.to_s ) ) }
+				order_offers_attributes = @order.order_offers.collect do |order_offer|
+					order_offer.attributes.to_h.select{ |key,val| not( ['id','updated_at','created_at','order_id'].include?( key.to_s ) ) }
 				end
 
-				order_attributes = get_order_attributes.merge( order_items_attributes: order_items_attributes )
+				order_attributes = get_order_attributes.merge( order_offers_attributes: order_offers_attributes )
 				order_attributes = order_attributes.to_h.select{ |key,val| not( ['id','updated_at','created_at','user_id', 'user'].include?( key.to_s ) ) }
 
 				@cart.checkout_cache[:order_attributes] = order_attributes
@@ -186,7 +186,7 @@ module Bazaar
 
 		def index
 
-			@order.subtotal = @order.order_items.select(&:prod?).sum(&:subtotal)
+			@order.subtotal = @order.order_offers.to_a.sum(&:subtotal)
 			@order.total = @order.subtotal
 
 			@cart.init_checkout!
@@ -238,7 +238,7 @@ module Bazaar
 		end
 
 		def get_order_attributes
-			super().merge( order_items_attributes: [], user: current_user )
+			super().merge( order_offer_attributes: [], user: current_user )
 		end
 
 		def get_order
@@ -247,7 +247,7 @@ module Bazaar
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			@cart.cart_offers.each do |cart_offer|
-				order_item = @order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: cart_offer.quantity, title: cart_offer.item.title, tax_code: cart_offer.item.tax_code )
+				@order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: cart_offer.quantity, title: cart_offer.offer.title, tax_code: cart_offer.offer.tax_code )
 			end
 
 		end

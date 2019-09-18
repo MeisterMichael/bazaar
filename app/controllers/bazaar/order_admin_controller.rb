@@ -53,11 +53,11 @@ module Bazaar
 			@order.total = 0 if @order.total.nil?
 			@order.status = 'draft'
 
-			@order.order_items.select(&:prod?).each do |order_item|
-				order_item.title		= order_item.item.title if order_item.title.blank?
-				order_item.price		= order_item.item.purchase_price
-				order_item.subtotal	= order_item.price * order_item.quantity
-				order_item.tax_code	= order_item.item.tax_code
+			@order.order_offers.each do |order_offer|
+				order_offer.title		= order_offer.offer.title if order_offer.title.blank?
+				order_offer.price		= order_offer.offer.initial_price
+				order_offer.subtotal	= order_offer.price * order_offer.quantity
+				order_offer.tax_code	= order_offer.offer.tax_code
 			end
 
 			if @order.save && @order.nested_errors.blank?
@@ -216,7 +216,7 @@ module Bazaar
 
 			@order.save
 
-			@order.order_items.prod.where( quantity: 0 ).destroy_all
+			@order.order_offers.where( quantity: 0 ).destroy_all
 
 			respond_to do |format|
 				format.js {
@@ -251,10 +251,8 @@ module Bazaar
 						:shipping_address_attributes => [
 							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 						],
-						:order_items_attributes => [
-							:item_polymorphic_id,
-							:item_type,
-							:item_id,
+						:order_offers_attributes => [
+							:offer_id,
 							:quantity,
 							:price,
 							:price_as_money,
@@ -262,18 +260,14 @@ module Bazaar
 							:subtotal,
 							:subtotal_as_money,
 							:subtotal_as_money_string,
-							:order_item_type,
 							:title,
 							:tax_code,
 						],
 					}
 				).to_h
 
-				if order_attributes[:order_items_attributes]
-					order_attributes[:order_items_attributes] = order_attributes[:order_items_attributes].select{|index, order_item_attributes| order_item_attributes[:quantity].present? }
-					order_attributes[:order_items_attributes].each do |index, order_item_attributes|
-						order_item_attributes[:order_item_type] = 'prod'
-					end
+				if order_attributes[:order_offers_attributes]
+					order_attributes[:order_offers_attributes] = order_attributes[:order_offers_attributes].select{|index, order_offer_attributes| order_offer_attributes[:quantity].present? }
 				end
 
 				if order_attributes[:same_as_shipping] == '1' && order_attributes[:shipping_address_attributes].present?

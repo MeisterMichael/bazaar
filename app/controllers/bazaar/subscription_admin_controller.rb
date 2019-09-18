@@ -35,7 +35,7 @@ module Bazaar
 				:trial_price,
 				:price,
 				:quantity,
-				:subscription_plan,
+				:offer_id,
 				{
 					:shipping_address_attributes => [
 						:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
@@ -60,14 +60,14 @@ module Bazaar
 			subscription_options[:shipping]					||= 0
 			subscription_options[:tax]							||= 0
 
-			plan = Bazaar::SubscriptionPlan.find( subscription_options.delete( :subscription_plan ) )
+			offer = Bazaar::Offer.find( subscription_options.delete( :offer_id ) )
 
 			puts JSON.pretty_generate subscription_options
 			puts JSON.pretty_generate subscription_options[:shipping_address].to_json
 			puts JSON.pretty_generate subscription_options[:billing_address].to_json
 
 			@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
-			@subscription = @subscription_service.subscribe( user, plan, subscription_options )
+			@subscription = @subscription_service.subscribe( user, offer, subscription_options )
 
 			if @subscription.errors.present?
 				redirect_back fallback_location: '/admin'
@@ -81,7 +81,7 @@ module Bazaar
 
 		def edit
 			authorize( @subscription )
-			@orders = Order.where( parent: @subscription ).order( created_at: :desc )
+			@orders = @subscription.orders.order( created_at: :desc )
 
 			@transactions = Bazaar::Transaction.where( parent_obj: ( @subscription.orders.to_a + [ @subscription ] ) ).order( created_at: :desc )
 
