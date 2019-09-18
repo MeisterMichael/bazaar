@@ -1,7 +1,7 @@
 .container
 	.row
 		.col-xs-12
-			- if @cart.nil? || @cart.cart_items.empty?
+			- if @cart.nil? || @cart.cart_offers.empty?
 				.jumbotron
 					%h1.text-center
 						Nothing in Your Cart
@@ -21,29 +21,29 @@
 									%th
 										Subtotal
 							%tbody
-								- @cart.cart_items.each do |line_item|
+								- @cart.cart_offers.each do |line_item|
 									%tr
 										%td.col-xs-2
-											%img.img.img-responsive{ src: line_item.item.avatar }
+											%img.img.img-responsive{ src: line_item.offer.avatar }
 										%td.col-xs-4
-											= line_item.item.title
+											= line_item.offer.title
 										%td.col-xs-2
 											= number_to_currency( line_item.price / 100.to_f )
 										%td.col.xs-2
 											= text_field_tag :quantity, line_item.quantity, class: 'form-control'
 										%td.col-xs-2
 											= number_to_currency( line_item.subtotal / 100.to_f )
-											%a{ href: bazaar.cart_item_path( line_item ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
+											%a{ href: bazaar.cart_offer_path( line_item ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
 												%i.fa.fa-trash
 												Remove
-								
+
 					.updateArea
 						.input-group
 							= text_field_tag :coupon, '', placeholder: 'I have a coupon', class: 'form-control'
-							= submit_tag 'Apply', class: 'btn input-group-addon' 
+							= submit_tag 'Apply', class: 'btn input-group-addon'
 
 						= submit_tag 'Update Cart', class: 'btn'
-							
+
 
 					.row.totalAmountArea
 						.col-sm-4.col-sm-offset-8.col-xs-12
@@ -54,7 +54,7 @@
 										$29.99
 								%li
 									Tax
-									%span 
+									%span
 										$3.00
 								%li
 									Total
@@ -64,11 +64,3 @@
 						%a.btn.btn-primary.btn-block{ href: bazaar.new_checkout_path, style: 'color:#fff;' }
 							Checkout
 							%i.fa.fa-arrow-circle-right
-
-
-
-
-
-
-
-

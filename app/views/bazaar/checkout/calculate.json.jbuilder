@@ -2,7 +2,7 @@ json.success 						true
 json.message						'OK'
 json.errors							[]
 
-json.subtotal						@order.order_items.select(&:prod?).sum(&:subtotal)
+json.subtotal						@order.order_offers.to_a.sum(&:subtotal)
 json.discounts						@order.order_items.select(&:discount?).sum(&:subtotal)
 json.taxes 							@order.order_items.select(&:tax?).sum(&:subtotal)
 json.shipping 						@order.order_items.select(&:shipping?).sum(&:subtotal)

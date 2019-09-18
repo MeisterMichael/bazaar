@@ -12,12 +12,12 @@
 		%h5 Items
 
 		.order-items
-			= f.fields_for :order_items, Bazaar::OrderItem.new( order_item_type: 'prod' ) do |order_item_form|
+			= f.fields_for :order_offers, Bazaar::OrderOffer.new() do |order_offer_form|
 				.row.order-item
 					.col-xs-6.col-md-8
-						= order_item_form.select :item_polymorphic_id, grouped_options_for_select( { 'Products' => Bazaar::Product.active.order( title: :asc ).collect{|item| [item.title,item.polymorphic_id] }, 'Subscription Plans' => Bazaar::SubscriptionPlan.active.order( title: :asc ).collect{|item| ["#{item.title} (#{item.purchase_price_formatted})",item.polymorphic_id] } } ), {}, class: 'form-control select-2-basic'
+						= order_offer_form.collection_select :offer_id, Bazaar::Offer.active, :id, :title, {}, class: 'form-control select-2-basic'
 					.col-xs-6.col-md-4
-						= order_item_form.number_field :quantity, class: 'form-control', value: 1, min: 1, step: 1
+						= order_offer_form.number_field :quantity, class: 'form-control', value: 1, min: 1, step: 1
 				.row
 					.col-xs-12.text-right
 						%button.btn.btn-default{ data: { clone_and_append_has_many: '.order-items .order-item:last' } } Add Item

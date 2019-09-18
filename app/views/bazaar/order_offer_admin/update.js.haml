@@ -1,0 +1,5 @@
+- @order_offer.order.order_offers.each do |order_offer|
+  $('#order_offers_table tr#order_offer_#{order_offer.id}_edit_row [data-for="order_offer.subtotal_formatted"]').html('#{j order_offer.subtotal_formatted}')
+
+- %w(subtotal_formatted discount_formatted tax_formatted shipping_formatted total_formatted).each |order_attr|
+  $('#order_offers_table [data-for="order.#{order_attr}"]').html('#{j @order_offer.order.try(order_attr)}')

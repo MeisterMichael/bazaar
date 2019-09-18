@@ -67,7 +67,7 @@
 								- else
 									= (subscription.user.try(:email) || 'N/A')
 							%td
-								= subscription.subscription_plan.title.truncate(40)
+								= subscription.offer.title.truncate(40)
 							%td
 								= current_user.to_local_tz(subscription.created_at).to_s(:short)
 							%td

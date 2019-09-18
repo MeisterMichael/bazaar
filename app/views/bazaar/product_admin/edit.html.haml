@@ -180,27 +180,6 @@
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
-	-# .row#schedule
-		.col-xs-12
-			.well.white-well
-				-# %a.pull-right{ href: '#new_offer_schedule_modal', data: { toggle: :modal, target: '#new_offer_schedule_modal' } }
-					%i.fa.fa-plus
-					Add Schedule Item
-				%h4
-					Schedule
-
-				= render 'bazaar/subscription_plan_admin/schedule_table', offer_schedules: @product.offer_schedules, args: {}
-
-	-# .row#price
-		.col-xs-12
-			.well.white-well
-				-# %a.pull-right{ href: '#new_offer_price_modal', data: { toggle: :modal, target: '#new_offer_price_modal' } }
-					%i.fa.fa-plus
-					Add Price
-				%h4
-					Prices
-
-				= render 'bazaar/subscription_plan_admin/price_table', offer_prices: @product.offer_prices, args: {}
 	.row#skus
 		.col-xs-12
 			.well.white-well

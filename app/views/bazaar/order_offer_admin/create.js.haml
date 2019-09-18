@@ -1,0 +1,3 @@
+$('#new_order_offer_modal button.close').click()
+= fields_for @order_offer.order do |f|
+  $('#order_offers_table table').append("#{j render(partial: 'bazaar/order_offer_admin/edit_row.html', locals: { f: f, order_offer: @order_offer, args: {} }, layout: false)}")

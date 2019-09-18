@@ -31,15 +31,15 @@
 								%th.text-right{ style: 'width: 70px' } Quantity
 								%th.text-right{ style: 'width: 100px' } Subtotal
 						%tbody
-							- @cart.cart_items.each do |cart_item|
+							- @cart.cart_offers.each do |cart_offer|
 								%tr
 									%td
-										= cart_item.item.title
+										= cart_offer.offer.title
 									%td
-										= number_to_currency (cart_item.price.to_f / 100)
+										= number_to_currency (cart_offer.price.to_f / 100)
 									%td.text-right
-										= cart_item.quantity
-									%td.text-right= number_to_currency cart_item.subtotal.to_f / 100
+										= cart_offer.quantity
+									%td.text-right= number_to_currency cart_offer.subtotal.to_f / 100
 
 							%tr
 								%td

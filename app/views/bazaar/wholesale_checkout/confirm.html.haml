@@ -10,11 +10,11 @@
 
 			= hidden_field_tag :from, 'confirm'
 
-			= f.fields_for :order_items do |order_item_form|
-				- if order_item_form.object.prod?
-					= order_item_form.hidden_field :item_type
-					= order_item_form.hidden_field :item_id
-					= order_item_form.hidden_field :quantity
+			= f.fields_for :order_offers do |order_offer_form|
+				- if order_offer_form.object.prod?
+					= order_offer_form.hidden_field :item_type
+					= order_offer_form.hidden_field :item_id
+					= order_offer_form.hidden_field :quantity
 			= f.hidden_field :email
 			= f.fields_for :billing_address do |billing_address_form|
 				= billing_address_form.hidden_field :first_name, value: @order.billing_address.first_name
@@ -80,17 +80,16 @@
 							%th.text-right{ style: 'width: 100px' } Quantity
 							%th.text-right{ style: 'width: 100px' } Subtotal
 					%tbody
-						- @order.order_items.each do |order_item|
-							- if order_item.prod?
-								%tr
-									-# %td avatar
-									%td
-										=order_item.title
-									%td= order_item.price_formatted
-									%td.text-right
-										=order_item.quantity
-									%td.text-right
-										= order_item.subtotal_formatted
+						- @order.order_offers.each do |order_offer|
+							%tr
+								-# %td avatar
+								%td
+									=order_offer.title
+								%td= order_offer.price_formatted
+								%td.text-right
+									=order_offer.quantity
+								%td.text-right
+									= order_offer.subtotal_formatted
 				- if @order.customer_notes.present?
 					%label Comment
 					.well.well-sm= @order.customer_notes
@@ -103,13 +102,12 @@
 				%div
 					.pull-right
 						#{@order.subtotal_formatted}
-					Items (#{@order.order_items.select(&:prod?).sum(&:quantity)}):
+					Items (#{@order.order_offers.to_a.sum(&:quantity)}):
 				- @order.order_items.each do |order_item|
-					- unless order_item.prod?
-						%div
-							.pull-right
-								#{number_to_currency order_item.subtotal.to_f / 100}
-							#{order_item.title}:
+					%div
+						.pull-right
+							#{number_to_currency order_item.subtotal.to_f / 100}
+						#{order_item.title}:
 				%div{ style: 'font-weight: bold;' }
 					.pull-right
 						= number_to_currency @order.total.to_f / 100

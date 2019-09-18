@@ -21,7 +21,7 @@
 									%th{ colspan: 3 }
 										= group_title
 								- offer_parents.each do |offer_parent|
-									= f.fields_for :order_offers, @order.order_offers.to_a.find{|order_offer| order_offer.offer == offer_parent.offer } || Bazaar::OrderOffer.new( offer: offer_parent.offer, quantity: 0, price: offer_parent.offer.offer_prices.for_interval(1).first.try(:price), subtotal: 0 ) do |order_offer_form|
+									= f.fields_for :order_offers, @order.order_offers.to_a.find{|order_offer| order_offer.offer == offer_parent.offer } || Bazaar::OrderOffer.new( offer: offer_parent.offer, quantity: 0, price: offer_parent.offer.initial_price, subtotal: 0 ) do |order_offer_form|
 										= order_offer_form.hidden_field :offer_id
 										= order_offer_form.hidden_field :price
 										- if offer_parent.is_a? Bazaar::WholesaleItem

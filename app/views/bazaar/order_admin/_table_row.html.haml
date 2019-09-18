@@ -13,7 +13,7 @@
 				%br
 				= (order.email || order.user.try(:email) || 'N/A')
 	%td
-		= order.order_items.prod.collect{|order_item| "#{order_item.title} x #{order_item.quantity}"}.join(',')
+		= order.order_offers.collect{|order_offer| "#{order_offer.title} x #{order_offer.quantity}"}.join(',')
 	%td
 		.badge.order_status{ class: order.status, style: 'margin-bottom: 5px;' }
 			- if order.pre_order? || order.draft?

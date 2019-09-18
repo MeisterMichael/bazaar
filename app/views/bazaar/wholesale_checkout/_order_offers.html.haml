@@ -1,0 +1,9 @@
+= f.fields_for :order_offers do |order_offer_form|
+	.row.order_offer{ id: order_offer_form.object.offer.id }
+		= order_offer_form.hidden_field :offer_id
+		.col-xs-4.col-lg-6
+			.form-group
+				%label=order_offer_form.object.title
+		.col-xs-2.col-lg-2
+			.form-group
+				= order_offer_form.number_field :quantity, class: 'form-control', min: 5, step: 1

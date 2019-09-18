@@ -1,0 +1,22 @@
+= f.fields_for :order_offers, order_offer do |order_offer_form|
+  %tr{ id: "order_offer_#{order_offer.id}_edit_row", data: { url: bazaar.order_offer_admin_path( order_offer ), update: 'order_offer', on: 'change' } }
+    %td
+      - if ( subscription = order_offer.subscription ).present?
+        - if authorized?(subscription, controller: Bazaar::SubscriptionAdminController, action: :edit )
+          %a{ href: edit_subscription_admin_path( subscription ) }
+            = order_offer.title
+            (#{subscription.code})
+        - else
+          = order_offer.title
+          (#{subscription.code})
+      - else
+        = order_offer.title
+
+      %a{ href: bazaar.order_offer_admin_path( order_offer ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?', remote: true } }
+        %i.fa.fa-trash
+
+    %td
+      = order_offer_form.number_field :price_as_money_string, class: 'form-control'
+    %td.text-right
+      = order_offer_form.number_field :quantity, class: 'form-control'
+    %td.text-right{ data: { for: 'order_offer.subtotal_formatted' } }=order_offer.subtotal_formatted

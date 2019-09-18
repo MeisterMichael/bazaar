@@ -5,13 +5,13 @@
       %th{ style: 'width: 80px' } Price
       %th.text-right{ style: 'width: 70px' } Quantity
       %th.text-right{ style: 'width: 100px' } Subtotal
-  %tbody#prod_order_items
-    - order.order_items.prod.each do |order_item|
-      = render 'bazaar/order_item_admin/edit_row', f: f, order_item: order_item, args: {}
+  %tbody#prod_order_offers
+    - order.order_offers.each do |order_offer|
+      = render 'bazaar/order_offer_admin/edit_row', f: f, order_offer: order_offer, args: {}
   %tbody
     %tr
       %td{ colspan: 4 }
-        %a{ href: '#', data: { toggle: :modal, target: '#new_order_item_modal' } } add item
+        %a{ href: '#', data: { toggle: :modal, target: '#new_order_offer_modal' } } add offer
 
     %tr
       %td

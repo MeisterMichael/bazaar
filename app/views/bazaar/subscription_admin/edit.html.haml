@@ -12,7 +12,7 @@
 				%strong= @subscription.code
 				%small= @subscription.created_at.to_s( :short )
 			Plan:
-			%a{ href: bazaar.edit_subscription_plan_admin_path( @subscription.subscription_plan ) }= @subscription.subscription_plan.title
+			%a{ href: bazaar.edit_offer_admin_path( @subscription.offer ) }= @subscription.offer.title
 		.col-xs-2
 
 
@@ -32,15 +32,12 @@
 						%th
 							Total
 					%tbody
-						- if @orders.blank? && @subscription.order.blank?
+						- if @orders.blank?
 							%tr
 								%td{ colspan: 5 }
 									\- No Orders Found -
 						- @orders.each do |order|
 							= render 'bazaar/order_admin/table_row', order: order, args: { controls: false, customer: false }
-						- if ( order = @subscription.order ).present? && not( @orders.include?( order ) )
-							= render 'bazaar/order_admin/table_row', order: order, args: { controls: false, customer: false }
-
 
 			.well.white-well
 				%h4 Transactions
@@ -131,15 +128,6 @@
 								.input-group
 									%span.input-group-addon $
 									= f.number_field :price_as_money, class: 'form-control text-right', min: 0.00, step: 0.01
-						- if @subscription.subscription_plan.trial?
-							.col-md-6.col-md-offset-6
-								.form-group
-									= f.label :trial_price, 'Trial Price'
-
-									.input-group
-										%span.input-group-addon $
-										= f.number_field :trial_price_as_money, class: 'form-control text-right', min: 0.00, step: 0.01
-
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'

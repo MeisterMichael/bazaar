@@ -69,7 +69,7 @@ module Bazaar
 				store_name = self.store_name( order, args )
 				seller_note = nil #@todo
 				seller_capture_note = nil #@todo
-				custom_information = order.order_items.select(&:prod?).collect{ |order_item| "#{order_item.title} x #{order_item.quantity}" }.join(', ')
+				custom_information = order.order_offers.collect{ |order_offer| "#{order_offer.title} x #{order_offer.quantity}" }.join(', ')
 				authorization_note = nil #@todo
 
 				# These values are grabbed from the Amazon Pay
@@ -161,15 +161,15 @@ module Bazaar
 
 				elsif args[:billing_agreement_id].present?
 
-					plan_order_item = order.order_items.select{ |order_item| order_item.item.is_a?( Bazaar::SubscriptionPlan ) }.first
+					recurring_order_offer = order.order_offers.select{ |order_offer| order_offer.offer.is_recurring? }.first
 
-					unless plan_order_item.present?
+					unless recurring_order_offer.present?
 						log_event( user: user, on: order, name: 'error', content: "AmazonPay Payment Error: Invalid payment method: Amazon Pay billing agreements are only available for subscriptions purchases." )
 						order.errors.add(:base, :processing_error, message: "Invalid payment method: Amazon Pay billing agreements are only available for subscriptions purchases.")
 						return false
 					end
 
-					subscription = plan_order_item.subscription ||= Bazaar::Subscription.create( status: 'trash', user: order.user, subscription_plan: plan_order_item.item, shipping_address: order.shipping_address, billing_address: order.billing_address )
+					subscription = recurring_order_offer.subscription ||= Bazaar::Subscription.create( status: 'trash', user: order.user, offer: recurring_order_offer.offer, shipping_address: order.shipping_address, billing_address: order.billing_address )
 
 					# To get the buyers full address if shipping/tax
 					# calculations are needed you can use the following
