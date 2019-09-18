@@ -460,7 +460,8 @@ module Bazaar
 					return false
 				end
 
-				formatted_expiration = credit_card[:expiration].gsub(/\s*\/\s*/,'')
+				formatted_expiration = credit_card[:expiration].gsub(/\s*\/\s*/,'').gsub( /\/\d\d(\d\d)/, '/\\1' )
+
 				formatted_number = credit_card[:card_number].gsub(/\s/,'')
 
 				anet_credit_card = AuthorizeNet::API::PaymentType.new(AuthorizeNet::API::CreditCardType.new)
