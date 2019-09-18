@@ -8,5 +8,21 @@ module Bazaar
 
 		money_attributes :subtotal, :price, :tax
 
+		def product
+			offer.product
+		end
+
+		def self.with_subscription
+			where.not( subscription: nil )
+		end
+
+		def self.with_subscription_interval_one
+			with_subscription.where( subscription_interval: 1 )
+		end
+
+		def self.with_subscription_interval_greater_than_one
+			with_subscription.where( subscription_interval: 1..Float::INFINITY )
+		end
+
 	end
 end
