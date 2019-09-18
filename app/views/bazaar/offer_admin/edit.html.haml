@@ -50,12 +50,20 @@
 					%h4
 						Offer Settings
 					.form-group
+						= f.label :code
+						= f.text_field :code, class: 'form-control'
+
+					.form-group
 						= f.label :status
 						= f.collection_select :status, Bazaar::Offer.statuses, :first, :first, {}, class: 'form-control'
 
 					.form-group
 						= f.label :availability
 						= f.collection_select :availability, Bazaar::Offer.availabilities, :first, :first, {}, class: 'form-control'
+
+					.form-group
+						= f.label :product_id
+						= f.collection_select :product_id, Bazaar::Product.active.order(title: :asc), :id, :title, { include_blank: "-- Select Product --" }, { class: 'form-control' }
 
 					%hr
 
