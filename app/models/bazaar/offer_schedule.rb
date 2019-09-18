@@ -8,7 +8,11 @@ module Bazaar
 
 		validate :validate_start_interval_uniq
 
-		def interval_time
+		def self.for_interval( interval )
+			self.where( ":interval >= start_interval AND ( max_intervals IS NULL OR :interval < ( start_interval + max_intervals ) )", interval: interval )
+		end
+
+		def interval_period
 			interval_value.try(:interval_unit)
 		end
 
