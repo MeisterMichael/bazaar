@@ -63,7 +63,7 @@
 
 					.form-group
 						= f.label :product_id, "Product"
-						= f.collection_select :product_id, Bazaar::Product.active.order(title: :asc), :id, :title, { include_blank: "-- Select Product --" }, { class: 'form-control' }
+						= f.collection_select :product_id, Bazaar::Product.active.order(title: :asc), :id, :title, { include_blank: "-- Select Product --" }, { class: 'form-control', required: true }
 
 					%hr
 
