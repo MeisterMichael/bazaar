@@ -171,6 +171,7 @@ module Bazaar
 			self.offer.tax_code					= self.tax_code
 			self.offer.description			= self.description
 			self.offer.cart_description	= self.cart_description
+			self.offer.product					= self.item if self.item.is_a? Bazaar::Product
 		end
 
 		def save_offer

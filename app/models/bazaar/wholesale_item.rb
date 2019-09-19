@@ -7,6 +7,7 @@ module Bazaar
 		before_save :update_offer
 		after_create :update_schedule!
 		after_create :update_prices!
+		after_create :update_skus!
 		before_update :update_price_on_change
 
 		belongs_to :wholesale_profile
@@ -32,6 +33,7 @@ module Bazaar
 				self.offer.tax_code					= self.item.tax_code
 				self.offer.description			= self.item.description
 				self.offer.cart_description	= self.item.cart_description
+				self.offer.product					= self.item if self.item.is_a? Bazaar::Product
 
 			end
 		end

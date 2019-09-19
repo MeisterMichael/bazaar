@@ -41,7 +41,7 @@ module Bazaar
 
 		private
 			def wholesale_item_params
-				params.require( :wholesale_item ).permit( :wholesale_profile_id, :item_type, :item_id, :item_polymorphic_id, :price, :min_quantity, :price_as_money )
+				params.require( :wholesale_item ).permit( :wholesale_profile_id, :item_type, :item_id, :item_polymorphic_id, :price, :min_quantity, :price_as_money, :sku_id )
 			end
 
 			def get_wholesale_item
