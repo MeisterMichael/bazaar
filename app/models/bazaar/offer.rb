@@ -3,6 +3,8 @@ module Bazaar
 		before_save :set_trashed_at
 		before_save :set_default_code
 
+		belongs_to	:product
+
 		has_many :offer_prices, as: :parent_obj
 		has_many :offer_schedules, as: :parent_obj
 		has_many :offer_skus, as: :parent_obj
