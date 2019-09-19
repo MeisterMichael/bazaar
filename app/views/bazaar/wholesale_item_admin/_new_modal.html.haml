@@ -10,8 +10,11 @@
 				.modal-body
 					= f.hidden_field :wholesale_profile_id
 					.form-group
-						= f.label :item_polymorphic_id, 'Item'
-						= f.grouped_collection_select :item_polymorphic_id, [ Bazaar::Product.active ], :all, :name, :polymorphic_id, Proc.new{ |item| "#{item.title} (#{item.price_formatted})" }, {}, class: 'form-control'
+						= f.label :item_polymorphic_id, 'Product'
+						= f.collection_select :item_polymorphic_id, Bazaar::Product.active.order(title: :asc), :polymorphic_id, Proc.new{ |item| "#{item.title} (#{item.price_formatted})" }, { prompt: false }, class: 'form-control', required: true
+					.form-group
+						= f.label :sku_id, 'SKU'
+						= f.collection_select :sku_id, Bazaar::Sku.active.order(code: :asc), :id, :code, { prompt: false }, class: 'form-control', required: true
 					.form-group
 						= f.label :min_quantity
 						= f.number_field :min_quantity, class: 'form-control', min: 0, step: 1

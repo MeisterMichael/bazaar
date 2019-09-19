@@ -7,6 +7,7 @@ module Bazaar
 		before_save :update_offer
 		after_create :update_schedule!
 		after_create :update_prices!
+		after_create :update_skus!
 		before_update :update_price_on_change
 
 		belongs_to :wholesale_profile
