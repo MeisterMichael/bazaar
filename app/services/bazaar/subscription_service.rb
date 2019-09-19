@@ -16,7 +16,7 @@ module Bazaar
 			raise Exception.new('Can only create subscriptions for active orders') unless order.active?
 
 			order.order_offers.each do |order_offer|
-				if order_offer.offer.is_recurring? && ( order_offer.subscription.nil? || order_offer.subscription.trash? )
+				if order_offer.offer.recurring? && ( order_offer.subscription.nil? || order_offer.subscription.trash? )
 
 					order_offer.subscription = self.subscribe( order.user, order_offer.offer, args.merge( quantity: order_offer.quantity, order: order, subscription: order_offer.subscription, interval: order_offer.subscription_interval ) )
 					order_offer.save

@@ -161,7 +161,7 @@ module Bazaar
 
 				elsif args[:billing_agreement_id].present?
 
-					recurring_order_offer = order.order_offers.select{ |order_offer| order_offer.offer.is_recurring? }.first
+					recurring_order_offer = order.order_offers.select{ |order_offer| order_offer.offer.recurring? }.first
 
 					unless recurring_order_offer.present?
 						log_event( user: user, on: order, name: 'error', content: "AmazonPay Payment Error: Invalid payment method: Amazon Pay billing agreements are only available for subscriptions purchases." )

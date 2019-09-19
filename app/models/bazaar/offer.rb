@@ -1,6 +1,7 @@
 module Bazaar
 	class Offer < ApplicationRecord
 		include Bazaar::Concerns::MoneyAttributesConcern
+		include Bazaar::OfferSearchable if (Bazaar::OfferSearchable rescue nil)
 
 		before_save :set_trashed_at
 		before_save :set_default_code
@@ -71,8 +72,20 @@ module Bazaar
 			product.url
 		end
 
-		def is_recurring?
-			self.offer_schedules.active.count > 1 || self.offer_schedules.active.sum('COALESCE(max_intervals,99)') > 0
+		def self.not_recurring
+			self.where( id: Bazaar::OfferSchedule.active.where( parent_obj: Bazaar::Offer.all ).group(:parent_obj_type,:parent_obj_id).having("SUM(COALESCE(max_intervals,99)) <= 1").select(:parent_obj_id) )
+		end
+
+		def not_recurring?
+			not( self.recurring? )
+		end
+
+		def self.recurring
+			self.where( id: Bazaar::OfferSchedule.active.where( parent_obj: Bazaar::Offer.all ).group(:parent_obj_type,:parent_obj_id).having("SUM(COALESCE(max_intervals,99)) > 1").select(:parent_obj_id) )
+		end
+
+		def recurring?
+			self.offer_schedules.active.sum('COALESCE(max_intervals,99)') > 1
 		end
 
 		def set_default_code

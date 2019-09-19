@@ -17,6 +17,8 @@ module Bazaar
 		attr_accessor	:category_name
 		attr_accessor	:slug_pref
 
+		has_many :offers
+
 		belongs_to :offer, required: false
 		has_many :offer_prices, through: :offer
 		has_many :offer_schedules, through: :offer
