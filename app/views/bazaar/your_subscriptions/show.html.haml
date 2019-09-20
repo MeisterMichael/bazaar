@@ -55,21 +55,22 @@
 					.col-xs-12.col-md-5
 						%h5{ style: 'margin-bottom: 0.2em;' } Subscription Summary
 						%p
-							- if ( plan = @subscription.subscription_plan ).trial_interval_value > 0
-								- if plan.trial_max_intervals > 1
-									#{plan.trial_max_intervals} X
-								- else
-									ONE
-								= number_to_human plan.trial_interval_value
-								= plan.trial_interval_unit.singularize
-								- if plan.trial_max_intervals > 1
-									trial periods
-								- else
-									trial period
-								then, once
-
-							every
-							= pluralize @subscription.billing_interval_value, @subscription.billing_interval_unit.singularize
+							- if ( offer = @subscription.offer ).offer_prices.active.count > 1
+								- offer.offer_schedules.active.order( start_interval: :asc ).each_with_index do |offer_schedule,index|
+									- if offer_schedule.max_intervals.nil?
+										once every
+										= pluralize offer_schedule.interval_value, offer_schedule.interval_unit.singularize
+									- else
+										= number_to_human offer_schedule.max_intervals
+										= offer_schedule.interval_value
+										= offer_schedule.interval_unit.singularize
+										= offer_schedule.period_type
+										- if (offer_schedule.max_intervals || Float::INFINITY) > 1
+											periods
+										- else
+											period
+									- if index + 1 < offer.offer_schedules.active.count
+										then,
 
 							%a{ href: '#', data: { toggle: :modal, target: '#update_billing_interval_modal' } }
 								Edit
