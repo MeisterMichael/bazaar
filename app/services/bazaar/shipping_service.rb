@@ -166,7 +166,7 @@ module Bazaar
 		end
 
 		def find_subscription_rates( subscription, args = {} )
-			find_address_rates( subscription.shipping_address, [OrderItem.new( item: subscription, quantity: subscription.quantity )], args )
+			find_address_rates( subscription.shipping_address, [OrderOffer.new( subscription: subscription, offer: subscription.offer, subscription_interval: subscription.next_subscription_interval, quantity: subscription.quantity )], args )
 		end
 
 		def find_address_rates( geo_address, line_items, args = {} )
