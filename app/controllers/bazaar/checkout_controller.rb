@@ -90,6 +90,11 @@ module Bazaar
 					discount: discount_options,
 				)
 			rescue Exception => e
+				if Rails.env.development?
+					puts e.message
+					puts e.backtrace
+				end
+
 				@order.errors.add( :base, :processing_error, message: 'An error occured during transaction processing.  Please contact support for assistance.' ) if @order.failed?
 				log_event( user: @order.user, on: @order, name: 'error', message: "#{e.class.name} - #{e.message}" )
 				raise e
@@ -125,7 +130,10 @@ module Bazaar
 					# 	transaction.update( parent_obj: @order )
 					# end
 				rescue Exception => e
-					puts e if Rails.env.development?
+					if Rails.env.development?
+						puts ex.message
+						puts ex.backtrace
+					end
 					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 				end
 
@@ -133,7 +141,10 @@ module Bazaar
 					OrderMailer.receipt( @order ).deliver_now if Bazaar.enable_checkout_order_mailer
 					#OrderMailer.notify_admin( @order ).deliver_now
 				rescue Exception => e
-					puts e if Rails.env.development?
+					if Rails.env.development?
+						puts e.message
+						puts e.backtrace
+					end
 					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 				end
 
@@ -147,7 +158,10 @@ module Bazaar
 						log_event( user: @order.user, name: 'purchase', value: @order.total, on: @order, content: "placed an order for $#{@order.total/100.to_f}." )
 					end
 				rescue Exception => e
-					puts e if Rails.env.development?
+					if Rails.env.development?
+						puts e.message
+						puts e.backtrace
+					end
 					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 				end
 
@@ -238,7 +252,7 @@ module Bazaar
 		end
 
 		def get_order_attributes
-			super().merge( order_offer_attributes: [], user: current_user )
+			super().merge( order_offers_attributes: [], user: current_user )
 		end
 
 		def get_order
