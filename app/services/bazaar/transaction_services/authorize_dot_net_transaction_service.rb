@@ -13,6 +13,8 @@ module Bazaar
 			ERROR_INVALID_PAYMENT_PROFILE = 'E00003'
 			CANNOT_REFUND_CHARGE = 'E00027'
 
+			SUCCESS_RESPONSE_CODES = ['1','ok','Ok']
+
 			WHITELISTED_ERROR_MESSAGES = [ 'The credit card has expired' ]
 
 			def initialize( args = {} )
@@ -177,7 +179,7 @@ module Bazaar
 				puts response.to_xml if @enable_debug
 
 				# process response
-				if get_response_success?( response ) && ['1','Ok'].include?( transaction_response.responseCode.to_s )
+				if get_response_success?( response ) && SUCCESS_RESPONSE_CODES.include?( transaction_response.responseCode.to_s.downcase )
 
 					transaction.status = 'approved'
 					transaction.save
