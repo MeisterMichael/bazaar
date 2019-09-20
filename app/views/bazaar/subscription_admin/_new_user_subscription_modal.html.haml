@@ -9,7 +9,6 @@
 			= form_for Bazaar::Subscription.new( attributes.merge( shipping_address: ( attributes[:shipping_address] || GeoAddress.new ), billing_address: ( attributes[:billing_address] || GeoAddress.new ) ) ), url: bazaar.subscription_admin_index_path(), html: {} do |f|
 				= hidden_field_tag :user_id, user.id
 				.modal-body
-					= f.hidden_field :trial_price, value: (attributes[:trial_price] || 0)
 					= f.hidden_field :price, value: (attributes[:price] || 0)
 					.row
 						.col-xs-4.col-md-3
@@ -18,8 +17,8 @@
 								= f.number_field :quantity, value: 1, min: 1, step: 1, required: true, class: 'form-control'
 						.col-xs-12.col-md-9
 							.form-group
-								= f.label :subscription_plan, 'Plan'
-								= f.collection_select :subscription_plan, Bazaar::SubscriptionPlan.published, :id, :title, {}, class: 'form-control'
+								= f.label :offer_id, 'Offer'
+								= f.collection_select :offer_id, Bazaar::Offer.recurring.active, :id, :title, {}, class: 'form-control'
 
 					= f.fields_for :shipping_address do |shipping_address_form|
 
