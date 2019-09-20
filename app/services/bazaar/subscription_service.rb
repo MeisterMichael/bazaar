@@ -63,8 +63,9 @@ module Bazaar
 
 			args[:currency]		||= 'USD'
 
-			billing_interval = offer.interval_period_for_interval( interval )
-			current_period_end_at = start_at + billing_interval
+			offer_schedule = offer.offer_schedules.active.for_interval( interval ).first
+			puts "current_period_end_at = #{start_at} + #{offer_schedule.interval_period} (#{offer.id}, #{interval})"
+			current_period_end_at = start_at + offer_schedule.interval_period
 
 			subscription = args[:subscription] || Subscription.new()
 			subscription.attributes = {
