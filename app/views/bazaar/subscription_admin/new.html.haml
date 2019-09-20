@@ -16,7 +16,6 @@
     .col-xs-12.col-md-6.col-md-offset-1
       = form_for @subscription, url: bazaar.subscription_admin_index_path(), html: {} do |f|
         = hidden_field_tag :user_id, @user.id
-        = f.hidden_field :trial_price, value: 0
         = f.hidden_field :price, value: 0
         .row
           .col-xs-4.col-md-3

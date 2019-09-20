@@ -32,7 +32,6 @@ module Bazaar
 			subscription_options = params.require(:subscription).permit(
 				:shipping,
 				:tax,
-				:trial_price,
 				:price,
 				:quantity,
 				:offer_id,
@@ -54,7 +53,6 @@ module Bazaar
 			subscription_options[:billing_address].user		= user
 			subscription_options[:shipping_address].user	= user
 
-			subscription_options[:trial_price]			= subscription_options[:trial_price].to_i if subscription_options[:trial_price]
 			subscription_options[:price]						= subscription_options[:price].to_i if subscription_options[:price]
 			subscription_options[:quantity]					= subscription_options[:quantity].to_i if subscription_options[:quantity]
 			subscription_options[:shipping]					||= 0
@@ -161,7 +159,6 @@ module Bazaar
 			authorize( @subscription )
 			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first
 			@subscription.attributes = subscription_params
-			@subscription.trial_amount = @subscription.trial_price * @subscription.quantity
 			@subscription.amount = @subscription.price * @subscription.quantity
 
 			if @subscription.save
@@ -183,7 +180,7 @@ module Bazaar
 
 		private
 			def subscription_params
-				params.require( :subscription ).permit( :next_charged_at, :shipping_carrier_service_id, :quantity, :price_as_money, :trial_price_as_money, :billing_interval_value, :billing_interval_unit, :status, :discount_id, user_attributes: [ :first_name, :last_name, :email ] )
+				params.require( :subscription ).permit( :next_charged_at, :shipping_carrier_service_id, :quantity, :price_as_money, :billing_interval_value, :billing_interval_unit, :status, :discount_id, user_attributes: [ :first_name, :last_name, :email ] )
 			end
 
 			def get_subscription

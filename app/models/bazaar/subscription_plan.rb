@@ -34,7 +34,7 @@ module Bazaar
 		validates	:trial_interval_unit, presence: true, allow_blank: false
 		validates_inclusion_of :trial_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.'
 
-		money_attributes :trial_price, :price, :shipping_price, :purchase_price
+		money_attributes :price, :shipping_price, :purchase_price
 
 		mounted_at '/subscriptions'
 
@@ -118,11 +118,7 @@ module Bazaar
 		end
 
 		def purchase_price
-			if self.trial?
-				self.trial_price
-			else
-				self.price
-			end
+			self.offer.initial_price
 		end
 
 		def sanitized_content
@@ -159,64 +155,8 @@ module Bazaar
 		end
 
 		def trial?
-			self.trial_max_intervals > 0
+			self.offer.offer_prices.active.count > 1
 		end
-
-		def update_offer
-			self.offer ||= Bazaar::Offer.new
-			self.offer.title						= self.title
-			self.offer.status						= self.status
-			self.offer.availability			= self.availability
-			self.offer.avatar						= self.avatar
-			self.offer.tax_code					= self.tax_code
-			self.offer.description			= self.description
-			self.offer.cart_description	= self.cart_description
-			self.offer.product					= self.item if self.item.is_a? Bazaar::Product
-		end
-
-		def save_offer
-			update_offer
-			self.offer.save
-		end
-
-		def update_offer!
-			update_offer
-			self.save
-			self.offer.save
-		end
-
-		def update_schedule_and_price_on_change
-			update_schedule! if self.trial_max_intervals_changed? || self.trial_interval_value_changed? || self.trial_interval_unit_changed? || self.billing_interval_value_changed? || self.billing_interval_unit_changed?
-			update_prices! if self.trial_price_changed? || self.price_changed?
-		end
-
-		def update_schedule!
-			self.offer.offer_schedules.each do |offer_schedule|
-				offer_schedule.trash!
-			end
-
-			if "#{self.trial_interval_value} #{self.trial_interval_unit.strip}".downcase == "#{self.billing_interval_value} #{self.billing_interval_unit.strip}".downcase
-				self.offer.offer_schedules.create!( start_interval: 1, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
-			else
-				self.offer.offer_schedules.create!( start_interval: 1, interval_unit: self.trial_interval_unit, interval_value: self.trial_interval_value, status: 'active' ) if self.trial?
-				self.offer.offer_schedules.create!( start_interval: self.trial_max_intervals + 1, interval_unit: self.billing_interval_unit, interval_value: self.billing_interval_value, status: 'active' )
-			end
-
-		end
-
-		def update_prices!
-			self.offer.offer_prices.each do |offer_price|
-				offer_price.trash!
-			end
-
-			if self.trial_price == self.price
-				self.offer.offer_prices.create!( start_interval: 1, price: self.price, status: 'active' )
-			else
-				self.offer.offer_prices.create!( start_interval: 1, max_intervals: self.trial_max_intervals, price: self.trial_price, status: 'active' ) if self.trial?
-				self.offer.offer_prices.create!( start_interval: self.trial_max_intervals + 1, price: self.price, status: 'active' )
-			end
-		end
-
 
 		protected
 

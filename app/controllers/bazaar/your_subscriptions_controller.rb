@@ -97,7 +97,6 @@ module Bazaar
 
 				# recalculate amounts on change
 				@subscription.amount				= @subscription.price * @subscription.quantity
-				@subscription.trial_amount	= @subscription.trial_price * @subscription.quantity
 
 				if @subscription.status_changed?
 					if @subscription.active?
