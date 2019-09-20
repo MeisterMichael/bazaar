@@ -29,6 +29,10 @@
 						= f.label :interval_unit
 						= f.select :interval_unit, ['months', 'weeks', 'days'], {}, class: 'form-control'
 					.form-group
+						= f.label :period_type
+						= f.select :period_type, [['none',nil],['trial','trial']], {}, class: 'form-control'
+
+					.form-group
 						= f.label :status
 						= f.collection_select :status, Bazaar::OfferSku.statuses, :first, :first, {}, class: 'form-control'
 				.modal-footer

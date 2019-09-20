@@ -45,7 +45,7 @@ module Bazaar
 		end
 
 		def offer_schedule_params
-			params.require(:offer_schedule).permit( :parent_obj_type, :parent_obj_id, :start_interval, :max_intervals, :interval_unit, :interval_value, :status, :trashed_at )
+			params.require(:offer_schedule).permit( :parent_obj_type, :parent_obj_id, :start_interval, :max_intervals, :interval_unit, :interval_value, :status, :trashed_at, :period_type )
 		end
 
 	end
