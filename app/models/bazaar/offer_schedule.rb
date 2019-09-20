@@ -13,7 +13,7 @@ module Bazaar
 		end
 
 		def interval_period
-			interval_value.try(:interval_unit)
+			interval_value.try(interval_unit)
 		end
 
 		def end_interval
