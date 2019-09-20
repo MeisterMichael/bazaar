@@ -1,9 +1,5 @@
 Bazaar::Engine.routes.draw do
 
-	resources :admin_checkout do
-		patch :complete, on: :member
-	end
-
 	resources :cart_admin
 	resources :carts, only: :update
 
@@ -14,12 +10,6 @@ Bazaar::Engine.routes.draw do
 	end
 	resources :cart_offers, :path => "cart_items", except: [ :index, :new, :edit, :update, :show ] do
 		get :create, on: :collection
-	end
-
-	resources :checkout_admin, only: [:create, :index, :update] do
-		post :confirm, on: :collection
-		get :confirm, on: :collection
-		get :state_input, on: :collection
 	end
 
 	resources :checkout, only: [:new, :create, :index] do
