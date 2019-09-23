@@ -13,9 +13,6 @@ module Bazaar
 
 		belongs_to 	:item, polymorphic: true, required: false
 		belongs_to :offer, required: false
-		has_many :offer_prices, through: :offer
-		has_many :offer_schedules, through: :offer
-		has_many :offer_skus, through: :offer
 		has_one_attached :avatar_attachment
 		has_many_attached :embedded_attachments
 		has_many_attached :gallery_attachments
@@ -29,11 +26,6 @@ module Bazaar
 		validates_inclusion_of :billing_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.'
 
 
-		validates	:trial_interval_value, presence: true, allow_blank: false
-		validates_numericality_of :trial_interval_value, greater_than_or_equal_to: 1
-		validates	:trial_interval_unit, presence: true, allow_blank: false
-		validates_inclusion_of :trial_interval_unit, :in => %w(month months day days week weeks year years), :allow_nil => false, message: '%{value} is not a valid unit of time.'
-
 		money_attributes :price, :shipping_price, :purchase_price
 
 		mounted_at '/subscriptions'
@@ -41,10 +33,6 @@ module Bazaar
 
 		before_save		:set_avatar
 		before_save	:set_publish_at
-		before_save :save_offer
-		before_update :update_schedule_and_price_on_change
-		after_create :update_schedule!
-		after_create :update_prices!
 
 		attr_accessor	:slug_pref
 

@@ -36,9 +36,9 @@
 						%thead
 							%th
 								Item
-							%th{ style: 'width: 10em' }
-								Min Quantity
-							%th{ style: 'width: 10em' }
+							%th{ style: 'width: 5em' }
+								Min Qty
+							%th{ style: 'width: 5em' }
 								Price
 							%th{ style: 'width: 5em' }
 								&nbsp;
@@ -47,24 +47,19 @@
 								%tr
 									%td{ colspan: 3 }
 										\- No Wholesale Items Found -
-							= f.fields_for :wholesale_items, @wholesale_profile.wholesale_items.order( item_type: :asc, item_id: :asc, min_quantity: :asc ) do |item_form|
+							= f.fields_for :wholesale_items, @wholesale_profile.wholesale_items.joins(:offer).order( item_type: :asc, item_id: :asc ).order('bazaar_offers.min_quantity asc') do |item_form|
 								%tr
 									%td
 										.form-group
-											= item_form.object.item.title
-											%small=item_form.object.item.price_formatted
+											%a{ href: bazaar.edit_offer_admin_path( item_form.object.offer.id ) }
+												= item_form.object.offer.title
 											%div
-												SKU
-												=item_form.object.offer.offer_skus.active.collect(&:sku).collect(&:code)
-											%div
-												Offer
-												=item_form.object.offer.title
+												SKUs:
+												= item_form.object.offer.offer_skus.active.collect(&:sku).collect(&:code).join(',')
 									%td
-										.form-group
-											= item_form.number_field :min_quantity, class: 'form-control', min: 0, step: 1
+										= item_form.object.offer.min_quantity
 									%td
-										.form-group
-											= item_form.number_field :price_as_money, class: 'form-control', min: 0.00, step: 0.01
+										= item_form.object.offer.initial_price_formatted
 									%td
 										.form-group
 											%a{ href: wholesale_item_admin_path( item_form.object ), data: { method: 'delete', confirm: 'Are you sure?' } }

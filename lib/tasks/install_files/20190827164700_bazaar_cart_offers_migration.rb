@@ -8,6 +8,7 @@ class BazaarCartOffersMigration < ActiveRecord::Migration[5.1]
 
 		add_column :bazaar_offer_schedules, :period_type, :string, default: nil
 
+		add_column :bazaar_offers, :min_quantity, :int, default: 0
 
 	end
 end
