@@ -215,8 +215,8 @@ module Bazaar
 				order_offer.price			= @wholesale_profile.get_price( quantity: order_offer.quantity, offer: order_offer.offer )
 				order_offer.price			||= order_offer.offer.initial_price
 				order_offer.subtotal	= order_offer.price * order_offer.quantity
-				order_offer.tax_code	= order_offer.item.tax_code
-				order_offer.title			= order_offer.item.title
+				order_offer.tax_code	= order_offer.offer.tax_code
+				order_offer.title			= order_offer.offer.title
 
 			end
 
