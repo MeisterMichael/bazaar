@@ -101,8 +101,21 @@
 
 				= render 'sku_table', offer_skus: @offer.offer_skus, args: {}
 
+	.row#upsell_offers
+		.col-xs-12
+			.well.white-well
+				%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
+					%i.fa.fa-plus
+					Add Upsell Offer
+				%h4
+					Upsell Offers
+
+				= render 'upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.for_source( offer: @offer ), args: {}
+
+
 
 
 = render 'bazaar/offer_sku_admin/new_modal', parent_obj: @offer, args: {}
 = render 'bazaar/offer_price_admin/new_modal', parent_obj: @offer, args: {}
 = render 'bazaar/offer_schedule_admin/new_modal', parent_obj: @offer, args: {}
+= render 'bazaar/upsell_offer_admin/new_modal', args: { src_offer: @offer }
