@@ -30,6 +30,10 @@
 						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @offer.class.base_class.name, object_id: @offer.id }.to_json }
 
 					.form-group
+						= f.label :cart_title
+						= f.text_field :cart_title, class: 'form-control'
+
+					.form-group
 						= f.label :cart_description, 'Cart Description'
 						= f.text_area :cart_description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @offer.class.base_class.name, object_id: @offer.id }.to_json }
 

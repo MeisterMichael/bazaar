@@ -8,5 +8,7 @@ class BazaarUpsellOfferMigration < ActiveRecord::Migration[5.1]
 			t.timestamps
 		end
 
+		add_column :bazaar_offers, :cart_title, :string, default: nil
+
 	end
 end
