@@ -212,20 +212,22 @@ module Bazaar
 
 			@order.order_offers.each do |order_offer|
 
-				order_offer.price			= @wholesale_profile.get_price( quantity: order_offer.quantity, offer: order_offer.offer )
-				order_offer.price			||= order_offer.offer.initial_price
+				offer									= @wholesale_profile.offers.where( cart_title: order_offer.offer.cart_title, min_quantity: 0..order_offer.quantity ).order( min_quantity: :desc ).first
+				order_offer.offer			= offer if offer
+				order_offer.quantity	= [order_offer.quantity,order_offer.offer.min_quantity].max
+				order_offer.price			= order_offer.offer.initial_price
 				order_offer.subtotal	= order_offer.price * order_offer.quantity
 				order_offer.tax_code	= order_offer.offer.tax_code
 				order_offer.title			= order_offer.offer.title
 
 			end
 
-			@wholesale_profile.offers.each do |offer|
-				unless @order.order_offers.select{|order_offer| order_offer.offer == offer }.present?
+			@wholesale_profile.offers.order(min_quantity: :asc).each do |offer|
+				unless @order.order_offers.select{|order_offer| order_offer.offer.cart_title.parameterize == offer.cart_title.parameterize }.present?
 					order_offer = @order.order_offers.new(
 						offer: offer,
 						title: offer.title,
-						quantity: 0,
+						quantity: offer.min_quantity,
 						price: offer.initial_price,
 						subtotal: 0,
 						tax_code: offer.tax_code,
