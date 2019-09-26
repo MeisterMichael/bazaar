@@ -58,6 +58,10 @@
 						= f.text_field :code, class: 'form-control'
 
 					.form-group
+						= f.label :min_quantity, 'Minimum Quantity'
+						= f.text_field :min_quantity, class: 'form-control'
+
+					.form-group
 						= f.label :status
 						= f.collection_select :status, Bazaar::Offer.statuses, :first, :first, {}, class: 'form-control'
 
