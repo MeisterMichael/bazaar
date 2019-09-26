@@ -226,7 +226,7 @@ module Bazaar
 				unless @order.order_offers.select{|order_offer| order_offer.offer.cart_title.parameterize == offer.cart_title.parameterize }.present?
 					order_offer = @order.order_offers.new(
 						offer: offer,
-						title: offer.title,
+						title: offer.cart_title,
 						quantity: offer.min_quantity,
 						price: offer.initial_price,
 						subtotal: 0,

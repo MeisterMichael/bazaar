@@ -261,7 +261,7 @@ module Bazaar
 			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			@cart.cart_offers.each do |cart_offer|
-				@order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: cart_offer.quantity, title: cart_offer.offer.title, tax_code: cart_offer.offer.tax_code )
+				@order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: cart_offer.quantity, title: cart_offer.offer.cart_title, tax_code: cart_offer.offer.tax_code )
 			end
 
 		end
