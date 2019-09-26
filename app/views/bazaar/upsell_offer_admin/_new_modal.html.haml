@@ -1,0 +1,28 @@
+#new_upsell_offer_modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					New Upsell Offer
+			= form_for Bazaar::UpsellOffer.new( args ), url: bazaar.upsell_offer_admin_index_path do |f|
+				= f.hidden_field :src_offer_id
+				= f.hidden_field :src_product_id
+				.modal-body
+
+					- if f.object.src_offer
+						.form-group
+							%label Source Offer
+							%div=f.object.src_offer.title
+					- if f.object.src_product
+						.form-group
+							%label Source Product
+							%div=f.object.src_product.title
+					.form-group
+						= f.label :offer_id, "Offer"
+						= f.collection_select :offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Create', class: 'btn btn-primary'

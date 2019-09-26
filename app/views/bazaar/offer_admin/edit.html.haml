@@ -30,6 +30,10 @@
 						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @offer.class.base_class.name, object_id: @offer.id }.to_json }
 
 					.form-group
+						= f.label :cart_title
+						= f.text_field :cart_title, class: 'form-control'
+
+					.form-group
 						= f.label :cart_description, 'Cart Description'
 						= f.text_area :cart_description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @offer.class.base_class.name, object_id: @offer.id }.to_json }
 
@@ -101,8 +105,21 @@
 
 				= render 'sku_table', offer_skus: @offer.offer_skus, args: {}
 
+	.row#upsell_offers
+		.col-xs-12
+			.well.white-well
+				%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
+					%i.fa.fa-plus
+					Add Upsell Offer
+				%h4
+					Upsell Offers
+
+				= render 'upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.for_source( offer: @offer ), args: {}
+
+
 
 
 = render 'bazaar/offer_sku_admin/new_modal', parent_obj: @offer, args: {}
 = render 'bazaar/offer_price_admin/new_modal', parent_obj: @offer, args: {}
 = render 'bazaar/offer_schedule_admin/new_modal', parent_obj: @offer, args: {}
+= render 'bazaar/upsell_offer_admin/new_modal', args: { src_offer: @offer }

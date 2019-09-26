@@ -8,6 +8,7 @@ module Bazaar
 			authorize( Bazaar::Offer )
 
 			@offer = Bazaar::Offer.new( offer_params )
+			@offer.cart_title ||= @offer.title
 
 			@offer.offer_prices.new( price_as_money_string: params[:price_as_money], status: 'active', start_interval: 1, max_intervals: nil ) if params[:price_as_money]
 			@offer.offer_schedules.new( status: 'active', start_interval: 1, max_intervals: 1, interval_value: 0, interval_unit: 'weeks' )
@@ -71,7 +72,7 @@ module Bazaar
 		end
 
 		def offer_params
-			params.require(:offer).permit( :status, :availability, :title, :avatar, :avatar_attachment, :code, :tax_code, :description, :cart_description, :product_id )
+			params.require(:offer).permit( :status, :availability, :title, :avatar, :avatar_attachment, :code, :tax_code, :description, :cart_title, :cart_description, :product_id )
 		end
 
 		def init_search_service

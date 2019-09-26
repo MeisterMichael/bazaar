@@ -1,0 +1,17 @@
+
+%table.table.table-light.table-bordered{ style: 'margin:0;' }
+	%thead
+		%th Offer
+		%th{ style: 'width: 6em' }
+	- if upsell_offers.count == 0
+		%tr
+			%td{ colspan: 2 }
+				\- No Offers Found -
+	- upsell_offers.joins(:offer).order( 'bazaar_offers.title asc' ).each do |upsell_offer|
+		%tr
+			%td
+				%a{ href: bazaar.edit_offer_admin_path( upsell_offer.offer.id ) }
+					= upsell_offer.offer.title
+			%td.text-right
+				%a.btn.btn-danger.btn-xs{ href: upsell_offer_admin_path( upsell_offer ), data: { method: :delete, confirm: 'Are you sure?' } }
+					%i.fa.fa-trash
