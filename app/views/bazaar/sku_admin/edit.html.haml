@@ -150,22 +150,22 @@
 					.form-group
 						= f.label :weight
 						.input-group
-							= f.number_field :weight, class: 'form-control'
+							= f.number_field :weight, class: 'form-control', step: 0.001
 							%span.input-group-addon grams
 					.form-group
 						= f.label :length
 						.input-group
-							= f.number_field :length, class: 'form-control'
+							= f.number_field :length, class: 'form-control', step: 0.001
 							%span.input-group-addon cm
 					.form-group
 						= f.label :width
 						.input-group
-							= f.number_field :width, class: 'form-control'
+							= f.number_field :width, class: 'form-control', step: 0.001
 							%span.input-group-addon cm
 					.form-group
 						= f.label :height
 						.input-group
-							= f.number_field :height, class: 'form-control'
+							= f.number_field :height, class: 'form-control', step: 0.001
 							%span.input-group-addon cm
 
 					%hr
@@ -174,12 +174,12 @@
 						= f.label :sku_cost
 						.input-group
 							%span.input-group-addon $
-							= f.number_field :sku_cost, class: 'form-control'
+							= f.number_field :sku_cost, class: 'form-control', step: 0.01
 					.form-group
 						= f.label :sku_value
 						.input-group
 							%span.input-group-addon $
-							= f.number_field :sku_value, class: 'form-control'
+							= f.number_field :sku_value, class: 'form-control', step: 0.01
 
 					%hr
 
