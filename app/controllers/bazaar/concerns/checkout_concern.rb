@@ -99,7 +99,7 @@ module Bazaar
 			end
 
 			def transaction_options_params
-				(params.permit( :transaction_options => [ :service, :stripeToken, :credit_card => [ :card_number, :expiration, :card_code ], :pay_pal => [ :payment_id, :payer_id ] ] )[:transaction_options] || {}).to_h
+				(params.permit( :transaction_options => [ :options, :service, :stripeToken, :credit_card => [ :card_number, :expiration, :card_code ], :pay_pal => [ :payment_id, :payer_id ] ] )[:transaction_options] || {}).to_h
 			end
 
 			def discount_options
