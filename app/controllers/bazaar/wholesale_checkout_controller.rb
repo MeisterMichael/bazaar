@@ -218,7 +218,7 @@ module Bazaar
 				order_offer.price			= order_offer.offer.initial_price
 				order_offer.subtotal	= order_offer.price * order_offer.quantity
 				order_offer.tax_code	= order_offer.offer.tax_code
-				order_offer.title			= order_offer.offer.title
+				order_offer.title			= order_offer.offer.cart_title
 
 			end
 
