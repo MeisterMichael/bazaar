@@ -247,7 +247,7 @@ module Bazaar
 			interval_period = subscription.offer.interval_period_for_interval( last_subscription_interval )
 
 			subscription.current_period_start_at = Time.now
-			subscription.current_period_end_at = subscription.current_period_start_at + interval
+			subscription.current_period_end_at = subscription.current_period_start_at + interval_period
 			subscription.next_charged_at = subscription.current_period_end_at
 		end
 
