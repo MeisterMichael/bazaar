@@ -285,6 +285,25 @@ module Bazaar
 			return not( order.nested_errors.present? )
 		end
 
+
+		def calculate_order_items( order, args = {} )
+			order.order_offers.to_a.each do |order_offer|
+				item = order_offer.offer.product
+				item = Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first if order_offer.offer.recurring?
+				item = order_offer.subscription if order_offer.subscription_interval > 1
+
+				order_item = order.order_items.to_a.find{ |order_item| order_item.item == item }
+				order_item ||= order.order_items.new( order_item_type: 'prod', item: item )
+				order_item.attributes = {
+					quantity: order_offer.quantity,
+					title: order_offer.title,
+					price: order_offer.price,
+					subtotal: order_offer.subtotal,
+				}
+
+			end
+		end
+
 		def calculate_order_offers( order, args = {} )
 		end
 
@@ -306,6 +325,7 @@ module Bazaar
 
 			self.calculate_order_offers( order, args )
 			self.calculate_order_skus( order, args )
+			self.calculate_order_items( order, args )
 
 			order.subtotal = order.order_offers.to_a.sum(&:subtotal)
 		end
