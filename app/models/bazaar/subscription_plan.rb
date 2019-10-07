@@ -43,6 +43,7 @@ module Bazaar
 		before_save	:set_publish_at
 		before_save :save_offer
 		before_update :update_schedule_and_price_on_change
+		before_update :update_price_on_change
 		after_create :update_schedule!
 		after_create :update_prices!
 
@@ -177,12 +178,17 @@ module Bazaar
 		def save_offer
 			update_offer
 			self.offer.save
+			self.offer_id = self.offer.id
 		end
 
 		def update_offer!
 			update_offer
 			self.save
 			self.offer.save
+		end
+
+		def update_price_on_change
+			update_prices! if self.price_changed?
 		end
 
 		def update_schedule_and_price_on_change

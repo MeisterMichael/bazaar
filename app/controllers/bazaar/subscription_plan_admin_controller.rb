@@ -67,7 +67,7 @@ module Bazaar
 			end
 
 			def plan_params
-				params.require( :subscription_plan ).permit( :title, :billing_interval_unit, :billing_interval_value, :billing_statement_descriptor, :price_as_money, :trial_price_as_money, :trial_interval_unit, :trial_interval_value, :trial_max_intervals, :subscription_plan_type, :seq, :avatar, :avatar_attachment, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :description, :content, :cart_description, :publish_at, :shipping_price_as_money, :trial_sku, :product_sku, :trial_offer_sku_id, :renewal_offer_sku_id )
+				params.require( :subscription_plan ).permit( :title, :billing_interval_unit, :billing_interval_value, :billing_statement_descriptor, :price_as_money, :trial_price_as_money, :trial_interval_unit, :trial_interval_value, :trial_max_intervals, :subscription_plan_type, :seq, :avatar, :avatar_attachment, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :description, :content, :cart_description, :publish_at, :shipping_price_as_money, :trial_sku, :product_sku, :trial_offer_sku_id, :renewal_offer_sku_id, :item_id, :item_type )
 			end
 
 			def get_plan

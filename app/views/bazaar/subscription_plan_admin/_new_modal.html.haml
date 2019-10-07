@@ -8,11 +8,16 @@
 					New Plan
 			= form_for Bazaar::SubscriptionPlan.new, url: bazaar.subscription_plan_admin_index_path do |f|
 				.modal-body
-					= f.label :title
-					= f.text_field :title, class: 'form-control'
-
-					= f.label :description
-					= f.text_area :description, class: 'form-control'
+					.form-group
+						= f.label :title
+						= f.text_field :title, class: 'form-control'
+					.form-group
+						= f.hidden_field :item_type, value: 'Bazaar::Product'
+						= f.label :item_id, "Product"
+						= f.collection_select :item_id, Bazaar::Product.active.order(title: :asc), :id, :title, {}, { class: 'form-control' }
+					.form-group
+						= f.label :description
+						= f.text_area :description, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close
