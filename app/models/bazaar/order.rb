@@ -36,7 +36,15 @@ module Bazaar
 		# end
 
 		def with_subscription?
-			self.order_offers.with_subscription.present?
+			if self.persisted?
+				self.order_offers.with_subscription.present?
+			else
+				self.order_offers.to_a.select(&:subscription).present?
+			end
+		end
+
+		def with_recurring_offers?
+			self.order_offers.to_a.collect(&:offer).select(&:recurring?).present?
 		end
 
 		def self.positive_status
