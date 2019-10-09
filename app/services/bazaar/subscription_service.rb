@@ -130,7 +130,7 @@ module Bazaar
 
 			interval = subscription.next_subscription_interval
 			price = offer.price_for_interval( interval )
-			order.order_offers.new offer: offer, subscription: subscription, price: price, subtotal: price * subscription.quantity, quantity: subscription.quantity, title: offer.title, tax_code: offer.tax_code, subscription_interval: interval
+			order.order_offers.new offer: offer, subscription: subscription, price: price, subtotal: price * subscription.quantity, quantity: subscription.quantity, title: offer.cart_title, tax_code: offer.tax_code, subscription_interval: interval
 
 			# apply the subscription discount to new orders
 			discount = subscription.discount
