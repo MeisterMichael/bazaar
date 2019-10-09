@@ -96,6 +96,10 @@ module Bazaar
 			self.trashed_at ||= Time.now if self.trash?
 		end
 
+		def to_s
+			title
+		end
+
 		protected
 			def set_avatar
 				self.avatar = self.avatar_attachment.service_url if self.avatar_attachment.attached?
