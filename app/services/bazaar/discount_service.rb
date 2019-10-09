@@ -73,6 +73,7 @@ module Bazaar
 				order_offers = []
 				order_offers = order.order_offers.to_a if discount_item.all_order_item_types? || discount_item.prod?
 
+				order_items = order_items.select{ |order_item| not( order_item.prod? ) }
 				order_items = order_items.select{ |order_item| not( order_item.discount? ) }
 				order_items = order_items.select{ |order_item| order_item.order_item_type == discount_item.order_item_type } unless discount_item.all_order_item_types?
 
