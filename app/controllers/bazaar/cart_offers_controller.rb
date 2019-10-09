@@ -60,8 +60,8 @@ module Bazaar
 		def destroy
 			@cart_offer = @cart.cart_offers.find_by( id: params[:id] )
 			@cart_offer.destroy
-			@cart.update subtotal: @cart.subtotal - ( @cart_offer.item.price * @cart_offer.quantity )
-			session[:cart_count] -= @cart_offer.quantity
+			@cart.update subtotal: @cart.cart_offers.sum(:price)
+			session[:cart_count] = @cart.cart_offers.sum(:quantity)
 
 			log_event( { name:'remove_cart', on: @item, content: "removed #{@item} from their cart." } )
 
