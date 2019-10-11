@@ -29,6 +29,10 @@
 						= f.text_field :title, class: 'form-control input-lg'
 
 					.form-group
+						= f.label :slug_pref, 'Slug'
+						= f.text_field :slug_pref, class: 'form-control', placeholder: @product.slug
+
+					.form-group
 						= f.label :description
 						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
 
