@@ -18,10 +18,6 @@
 							Hold for Review
 						%a.btn.btn-default{ href: reject_order_admin_path( @order ), data: { method: 'POST' } }
 							Reject
-					- if @order.pre_order? || @order.draft?
-						%a.btn.btn-primary{ href: checkout_admin_path( @order, order: { status: 'active' } ), data: { method: 'PUT' } }
-							%i.fa.fa-send
-							Process
 
 
 			%h2

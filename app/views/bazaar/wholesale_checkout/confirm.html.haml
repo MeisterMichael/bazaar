@@ -3,10 +3,6 @@
 	.row
 
 		= form_for @order, as: :order, url: bazaar.wholesale_checkout_index_path(), method: 'POST', html: { class: 'disable_submit_after_submit'} do |f|
-			= render 'bazaar/checkout_admin/hidden_fields', fields: shipping_options, args: {}
-			= render 'bazaar/checkout_admin/hidden_fields', fields: transaction_options, args: {}
-			= render 'bazaar/checkout_admin/hidden_fields', fields: discount_options, args: {}
-			= render 'bazaar/checkout_admin/hidden_fields', fields: tax_options, args: {}
 
 			= hidden_field_tag :from, 'confirm'
 

@@ -9,11 +9,6 @@
 							%i.fa.fa-angle-left
 							Orders
 
-				.pull-right
-					%a.btn.btn-primary{ href: checkout_admin_path( @order, order: { status: 'active' } ), data: { method: 'PUT' } }
-						%i.fa.fa-send
-						Process
-
 					= f.submit "Save", class: 'btn btn-primary'
 
 				%h2
