@@ -21,7 +21,7 @@ module Bazaar
 
 				validates		:title, presence: true, unless: :allow_blank_title?
 
-				attr_accessor	:slug_pref, :category_name
+				attr_accessor	:category_name
 
 				has_one_attached :avatar_attachment
 				has_one_attached :cover_attachment
@@ -160,6 +160,15 @@ module Bazaar
 				else
 					return self.title
 				end
+			end
+
+			def slug_pref
+				@slug_pref
+			end
+
+			def slug_pref=(val)
+				self.slug = nil if val.present?
+				@slug_pref = val
 			end
 
 			def tags_csv

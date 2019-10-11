@@ -49,10 +49,7 @@ module Bazaar
 
 			def change_media( media )
 
-				media_params = params.require(:bazaar_media).permit(media_param_names)
-
-				media.slug = nil if media_params[:slug_pref]
-				media.attributes = media_params
+				media.attributes = params.require(:bazaar_media).permit(media_param_names)
 
 			end
 
