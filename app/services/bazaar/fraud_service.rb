@@ -18,7 +18,7 @@ module Bazaar
 			return false unless order.review?
 
 			# if contains pre-order offers set the order status to pre_order
-			if order.order_offers.select{|order_offer| order_offer.offer.pre_order? }.present?
+			if order.has_pre_order_offers? || order.has_backorder_offers?
 
 				order.pre_order!
 

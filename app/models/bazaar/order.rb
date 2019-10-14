@@ -34,6 +34,13 @@ module Bazaar
 		# def email=(value)
 		# 	super( Email.email_sanitize( value ) )
 		# end
+		def has_backorder_offers?
+			self.order_offers.to_a.select{|order_offer| order_offer.offer.backorder? }.present?
+		end
+
+		def has_pre_order_offers?
+			self.order_offers.to_a.select{|order_offer| order_offer.offer.pre_order? }.present?
+		end
 
 		def with_subscription?
 			if self.persisted?
