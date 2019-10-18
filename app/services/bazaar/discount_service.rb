@@ -95,7 +95,18 @@ module Bazaar
 
 				if discount_item.applies_to.is_a?( Bazaar::Collection )
 
-					offers = discount_item.applies_to.items.collect(&:offer)
+					offers = []
+					discount_item.applies_to.items.each do |item|
+						if item.is_a? Bazaar::Offer
+							offers << item
+						elsif item.respond_to? :offer
+							offers << item.offer
+						else
+							raise Exception.new("Unable to find offer for #{item.class.name}\##{item.id}")
+						end
+					end
+					offers = offers.uniq
+
 					order_offers = order_offers.select{ |order_offer| offers.include?( order_offer.offer ) }
 
 				elsif discount_item.applies_to.is_a? Bazaar::Offer
