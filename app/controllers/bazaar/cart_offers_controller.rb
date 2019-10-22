@@ -42,7 +42,7 @@ module Bazaar
 			session[:cart_count] ||= 0
 			session[:cart_count] += params[:quantity].to_i
 
-			log_event( { name:'add_cart', on: @item, content: "added #{@item} to their cart." } )
+			log_event( { name:'add_cart', on: @offer, content: "added #{@offer} to their cart." } )
 
 			respond_to do |format|
 				format.json {
@@ -63,7 +63,7 @@ module Bazaar
 			@cart.update subtotal: @cart.cart_offers.sum(:price)
 			session[:cart_count] = @cart.cart_offers.sum(:quantity)
 
-			log_event( { name:'remove_cart', on: @item, content: "removed #{@item} from their cart." } )
+			log_event( { name:'remove_cart', on: @cart_offer.offer, content: "removed #{@cart_offer.offer} from their cart." } )
 
 			redirect_back fallback_location: '/admin'
 		end
