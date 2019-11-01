@@ -48,8 +48,11 @@ module Bazaar
 			active.where( 'next_charged_at < :now', now: time_now )
 		end
 
-		def next_subscription_interval
-			( Bazaar::OrderOffer.where( subscription: self ).joins(:order).merge( Bazaar::Order.active ).maximum(:subscription_interval) || 0 ) + 1
+		def next_subscription_interval( args = {} )
+			orders = Bazaar::Order.where( status: args[:statuses] ) if args[:statuses]
+			orders ||= Bazaar::Order.positive_status
+
+			( Bazaar::OrderOffer.where( subscription: self ).joins(:order).merge( orders ).maximum(:subscription_interval) || 0 ) + 1
 		end
 
 		def order

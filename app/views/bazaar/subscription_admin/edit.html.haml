@@ -124,10 +124,9 @@
 								= f.number_field :quantity, class: 'form-control', min: 1
 						.col-md-6
 							.form-group
-								= f.label :price, 'Price'
-								.input-group
-									%span.input-group-addon $
-									= f.number_field :price_as_money, class: 'form-control text-right', min: 0.00, step: 0.01
+								= label_tag :next_renewal_price, "Next Renewal Price (#{@subscription.next_subscription_interval})"
+								.form-control
+									#{number_to_currency( @subscription.offer.offer_prices.active.for_interval( @subscription.next_subscription_interval ).first.price_as_money * @subscription.quantity )}
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
