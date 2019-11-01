@@ -124,7 +124,12 @@
 								= f.number_field :quantity, class: 'form-control', min: 1
 						.col-md-6
 							.form-group
-								= label_tag :next_renewal_price, "Next Renewal Price (#{@subscription.next_subscription_interval})"
+								= label_tag :next_renewal_price, "Next Renewal Price"
+								.form-control
+									#{number_to_currency( @subscription.offer.offer_prices.active.for_interval( @subscription.next_subscription_interval ).first.price_as_money )}
+						.col-md-6
+							.form-group
+								= label_tag :next_renewal_price, "Next Renewal Subtotal"
 								.form-control
 									#{number_to_currency( @subscription.offer.offer_prices.active.for_interval( @subscription.next_subscription_interval ).first.price_as_money * @subscription.quantity )}
 
