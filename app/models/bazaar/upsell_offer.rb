@@ -2,6 +2,7 @@ module Bazaar
 	class UpsellOffer < ApplicationRecord
 
 		belongs_to :src_product, class_name: 'Bazaar::Product', required: false
+		belongs_to :full_price_offer, class_name: 'Bazaar::Offer', required: false
 		belongs_to :src_offer, class_name: 'Bazaar::Offer', required: false
 		belongs_to :offer
 

@@ -20,7 +20,10 @@
 							%label Source Product
 							%div=f.object.src_product.title
 					.form-group
-						= f.label :offer_id, "Offer"
+						= f.label :full_price_offer_id, "Full Price Offer"
+						= f.collection_select :full_price_offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
+					.form-group
+						= f.label :offer_id, "Upsell Offer"
 						= f.collection_select :offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
