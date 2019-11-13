@@ -76,7 +76,7 @@ module Bazaar
 			return false if order.shipping_address.nil?
 			return false if not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
 
-			order.shipments.to_a.each do |shipment|
+			order.shipments.to_a.select(&:not_negative_status?).each do |shipment|
 				calculate_shipment( shipment, args )
 
 				rate = shipment.rates.find{ |rate| rate[:selected] }

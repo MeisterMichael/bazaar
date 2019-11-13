@@ -1,3 +1,6 @@
+== 4.4.0
+* only sum not_negative_status shipments during order calculation
+
 
 == 0.7.0 Bazaar
 * Updating authorize.net to use the more recent version of their api.
