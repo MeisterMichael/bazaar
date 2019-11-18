@@ -12,7 +12,7 @@
 						.input-group
 							.input-group-addon
 								$
-							= number_field_tag :amount, @transactions.approved.to_a.sum(&:signed_amount) / 100.0, min: 0.01, step: 0.01, class: 'form-control', placeholder: '0.00'
+							= number_field_tag :amount, @transactions.approved.where.not( transaction_type: 'preauth' ).to_a.sum(&:signed_amount) / 100.0, min: 0.01, step: 0.01, class: 'form-control', placeholder: '0.00'
 
 					- if not( @order.fulfilled? || @order.delivered? || @order.fulfillment_canceled? )
 						.form-group
