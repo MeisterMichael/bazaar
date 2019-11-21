@@ -154,6 +154,8 @@ module Bazaar
 			raise Exception.new("Subscription #{subscription.id } isn't ready to renew yet.  Currently it's #{time_now}, but subscription doesn't renew until #{subscription.next_charged_at}") unless subscription.next_charged_at < time_now
 			raise Exception.new("Subscription #{subscription.id } isn't active, so can't be charged.") unless subscription.active?
 
+			subscription_interval = subscription.next_subscription_interval
+
 			order = generate_subscription_order( subscription, args.merge( now: time_now ) )
 
 
@@ -231,6 +233,12 @@ module Bazaar
 
 				subscription.failed_attempts = 0 if subscription.respond_to? :failed_attempts
 
+				# @todo don't change billing interval if customer has updated it
+				if ( new_offer_schedule = subscription.offer.offer_schedules.active.where( start_interval: subscription_interval ).first ).present?
+					subscription.billing_interval_value	= new_offer_schedule.interval_value
+					subscription.billing_interval_unit	= new_offer_schedule.interval_unit
+				end
+
 				# update the subscriptions next date
 				update_next_charged_at( subscription )
 
@@ -243,11 +251,8 @@ module Bazaar
 		end
 
 		def update_next_charged_at( subscription )
-			last_subscription_interval = subscription.next_subscription_interval - 1
-			interval_period = subscription.offer.interval_period_for_interval( last_subscription_interval )
-
 			subscription.current_period_start_at = Time.now
-			subscription.current_period_end_at = subscription.current_period_start_at + interval_period
+			subscription.current_period_end_at = subscription.current_period_start_at + subscription.billing_interval
 			subscription.next_charged_at = subscription.current_period_end_at
 		end
 
