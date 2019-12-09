@@ -218,7 +218,8 @@ module Bazaar
 			@events = @events.or( Bunyan::Event.where.not( user_id: nil ).where( user_id: @order.user_id, created_at: Time.at(0)..(@order.created_at + 10.minutes) ) )
 			@events = @events.or( Bunyan::Event.where( target_obj: @transactions ) )
 			@events = @events.where( category: [ 'account', 'ecom' ] )
-			
+			@events = @events.order( created_at: :desc ).page( params[:page] )
+
 			set_page_meta( title: "Order Timeline" )
 
 		end
