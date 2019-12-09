@@ -1,0 +1,34 @@
+.container-fluid
+	.row
+		.col-xs-12
+			%ul.breadcrumb
+				%li
+					%a{ href: order_admin_index_path }
+						%i.fa.fa-angle-left
+						Orders
+				%li
+					%a{ href: order_admin_path( @order ) }
+						Order
+						%strong= @order.code
+
+			%h2
+				Timeline
+
+	.row
+		.col-xs-12
+			.well.white-well
+				- if @events.present?
+					.row
+						.col-sm-12
+							%table.table
+								- @events.order( created_at: :desc ).limit( 20 ).each do |event|
+									%tr
+										%td
+											= event.to_s
+										%td
+											= time_ago_in_words( event.created_at )
+											ago
+				- else
+					.row
+						.col-xs-12
+							No Timeline Entries Found

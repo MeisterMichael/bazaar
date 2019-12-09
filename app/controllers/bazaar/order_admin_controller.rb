@@ -209,6 +209,20 @@ module Bazaar
 			render 'bazaar/orders/thank_you'
 		end
 
+		def timeline
+			authorize( @order )
+
+			@transactions = Transaction.where( parent_obj: @order )
+
+			@events = Bunyan::Event.where( target_obj: @order )
+			@events = @events.or( Bunyan::Event.where.not( user_id: nil ).where( user_id: @order.user_id, created_at: Time.at(0)..(@order.created_at + 10.minutes) ) )
+			@events = @events.or( Bunyan::Event.where( target_obj: @transactions ) )
+			@events = @events.where( category: [ 'account', 'ecom' ] )
+			
+			set_page_meta( title: "Order Timeline" )
+
+		end
+
 
 		def update
 			authorize( @order )

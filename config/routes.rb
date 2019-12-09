@@ -38,6 +38,7 @@ Bazaar::Engine.routes.draw do
 		post :refund, on: :member
 		post :reject, on: :member
 		get :thank_you, on: :member
+		get :timeline, on: :member
 		put :update_discount, on: :member
 	end
 
@@ -74,6 +75,7 @@ Bazaar::Engine.routes.draw do
 		post :address, on: :member
 		post :payment_profile, on: :member
 		get :edit_shipping_carrier_service, on: :member
+		get :timeline, on: :member
 	end
 
 	resources :transaction_admin
