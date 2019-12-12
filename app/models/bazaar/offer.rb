@@ -72,6 +72,14 @@ module Bazaar
 			product.url
 		end
 
+		def self.zero_price_sum
+			self.where( id: Bazaar::OfferPrice.active.where( parent_obj: Bazaar::Offer.all ).group(:parent_obj_type,:parent_obj_id).having("SUM(price) = 0").select(:parent_obj_id) )
+		end
+
+		def zero_price_sum?
+			self.offer_prices.active.sum(:price) == 0
+		end
+
 		def self.not_recurring
 			self.where( id: Bazaar::OfferSchedule.active.where( parent_obj: Bazaar::Offer.all ).group(:parent_obj_type,:parent_obj_id).having("SUM(COALESCE(max_intervals,99)) <= 1").select(:parent_obj_id) )
 		end
