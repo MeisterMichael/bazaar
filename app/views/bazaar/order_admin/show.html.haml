@@ -19,13 +19,14 @@
 						%a.btn.btn-default{ href: reject_order_admin_path( @order ), data: { method: 'POST' } }
 							Reject
 
+					- if defined?(Bunyan)
+						%a.btn.btn-default{ href: bazaar.timeline_order_admin_path( @order ) }
+							View Timeline
+
 
 			%h2
 				%strong= @order.code
 				%small=current_user.to_local_tz(@order.created_at).to_s( :short )
-
-		.col-xs-2
-
 
 	.row
 		.col-xs-12.col-sm-8
@@ -264,26 +265,6 @@
 										#{shipment_log.subject} | #{shipment_log.details}
 										(#{shipment_log.carrier_status})
 
-
-			- if defined?(Bunyan)
-				.well.white-well
-					%h4 Timeline
-
-					- if ( events = Bunyan::Event.where( target_obj: @order ).or( Bunyan::Event.where.not( user_id: nil ).where( user_id: @order.user_id, created_at: Time.at(0)..(@order.created_at + 10.minutes) ) ).or( Bunyan::Event.where( target_obj: @transactions ) ).where( category: [ 'account', 'ecom' ] ) ).present?
-						.row
-							.col-sm-12
-								%table.table
-									- events.order( created_at: :desc ).limit( 20 ).each do |event|
-										%tr
-											%td
-												= event.to_s
-											%td
-												= time_ago_in_words( event.created_at )
-												ago
-					- else
-						.row
-							.col-xs-12
-								No Timeline Entries Found
 		.col-xs-12.col-sm-4
 			- if @order.user.present?
 				.well.white-well

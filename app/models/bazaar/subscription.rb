@@ -43,6 +43,10 @@ module Bazaar
 			self.offer.avatar
 		end
 
+		def billing_interval
+			self.billing_interval_value.try(self.billing_interval_unit)
+		end
+
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now
 			active.where( 'next_charged_at < :now', now: time_now )

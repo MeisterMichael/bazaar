@@ -2,18 +2,23 @@
 
 .container-fluid
 	.row
-		.col-xs-10
+		.col-xs-12
 			%ul.breadcrumb
 				%li
 					%a{ href: subscription_admin_index_path }
 						%i.fa.fa-angle-left
 						Subscriptions
+
+			.pull-right
+				- if defined?(Bunyan)
+					%a.btn.btn-default{ href: bazaar.timeline_subscription_admin_path( @subscription ) }
+						View Timeline
+
 			%h2
 				%strong= @subscription.code
 				%small= @subscription.created_at.to_s( :short )
 			Plan:
 			%a{ href: bazaar.edit_offer_admin_path( @subscription.offer ) }= @subscription.offer.title
-		.col-xs-2
 
 
 	.row
@@ -78,27 +83,6 @@
 								%tr
 									%td{ colspan: 6 }
 										= transaction.message
-			- if defined?(Bunyan)
-				.well.white-well
-					%h4 Timeline
-
-					- if ( events = Bunyan::Event.where( target_obj: @subscription ).or( Bunyan::Event.where( target_obj: @subscription.orders ) ).or( Bunyan::Event.where( user_id: @subscription.user_id, created_at: Time.at(0)..(@subscription.created_at + 10.minutes) ) ).where( category: [ 'account', 'ecom' ] ) ).present?
-						.row
-							.col-sm-12
-								%table.table
-									- events.order( created_at: :desc ).limit( 20 ).each do |event|
-										%tr
-											%td
-												= event.to_s
-											%td
-												= time_ago_in_words( event.created_at )
-												ago
-					- else
-					.row
-						.col-xs-12
-							No Timeline Entries Found
-
-
 		.col-xs-4
 			.well.white-well
 
