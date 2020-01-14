@@ -25,11 +25,17 @@ module Bazaar
 				session[:cart_count] = 0
 			end
 
+
 			params[:quantity] ||= 1
 
 			cart_offer = @cart.cart_offers.where( offer: @offer ).last
 			if cart_offer.present?
-				cart_offer.increment!( :quantity, params[:quantity].to_i )
+
+				if params[:replace_offer].present?
+					cart_offer.update( quantity: params[:quantity] )
+				else
+					cart_offer.increment!( :quantity, params[:quantity].to_i )
+				end
 			else
 				cart_offer = @cart.cart_offers.create( offer: @offer, quantity: params[:quantity].to_i )
 			end
