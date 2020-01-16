@@ -15,6 +15,8 @@ module Bazaar
 
 		money_attributes :minimum_prod_subtotal, :minimum_tax_subtotal, :minimum_shipping_subtotal
 
+		accepts_nested_attributes_for :discount_items, allow_destroy: true
+
 		validates :minimum_prod_subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
 		validates :minimum_tax_subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
 		validates :minimum_shipping_subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
