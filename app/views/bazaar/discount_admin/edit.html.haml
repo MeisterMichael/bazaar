@@ -41,12 +41,12 @@
 								%h4 Order Requirements
 
 							.form-group
-								= f.label :minimum_prod_subtotal, "Minimum Purchase"
-								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The minimum subtotal amount required for this discount to be applied to an order.' }
+								= f.label :minimum_prod_subtotal, "Minimum Subtotal Amount"
+								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The minimum subtotal amount (sum of quantity x price) required for this discount to be applied to an order.' }
 								= f.number_field :minimum_prod_subtotal_as_money, class: 'form-control', min: 0.00, step: 0.01
 
 							.form-group
-								= f.label :minimum_shipping_subtotal, "Minimum Shipping"
+								= f.label :minimum_shipping_subtotal, "Minimum Shipping Amount"
 								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The minimum shipping amount required for this discount to be applied to an order.' }
 								= f.number_field :minimum_shipping_subtotal_as_money, class: 'form-control', min: 0.00, step: 0.01
 
