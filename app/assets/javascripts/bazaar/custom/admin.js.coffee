@@ -7,6 +7,8 @@ $ ->
 		$(this).data()
 		$(this).attr('required','true')
 
+	$('[data-toggle="tooltip"]').tooltip( html: true )
+
 	$(document).on 'click', '[data-address-toggle]', ->
 		$element = $(this)
 		options = $element.data('address-toggle')
