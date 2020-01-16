@@ -1,3 +1,7 @@
+== 4.8.0
+* Discount admin tool tips
+
+
 == 4.4.0
 * only sum not_negative_status shipments during order calculation
 
