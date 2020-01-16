@@ -75,7 +75,7 @@
 
 								.form-group
 									= di_form.label :order_item_type, "Applies To"
-									= di_form.collection_select :order_item_type, Bazaar::DiscountItem.order_item_types.keys.select{|key| key.to_sym != :discount}.collect{|key| [({ prod: "Products", all_order_item_types: "Everything" }[key.to_sym] || key).humanize.titleize,key] }, :last, :first, {}, class: 'form-control'
+									= di_form.collection_select :order_item_type, Bazaar::DiscountItem.order_item_types.keys.select{|key| key.to_sym != :discount}.collect{|key| [({ prod: "Products", all_order_item_types: "Order Total" }[key.to_sym] || key).humanize.titleize,key] }, :last, :first, {}, class: 'form-control'
 
 								.form-group
 									= di_form.label :discount_amount, "Discount Amount"
