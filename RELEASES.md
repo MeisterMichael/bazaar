@@ -1,3 +1,6 @@
+== 4.8.1
+* Allow multiple discount items to be editable from discount admin
+
 == 4.8.0
 * Discount admin tool tips
 
