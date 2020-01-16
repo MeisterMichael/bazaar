@@ -24,15 +24,18 @@
 
 					.form-group
 						= f.label :title
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A descriptive title for internal use.' }
 						= f.text_field :title, class: 'form-control input-lg'
 
 					.form-group
 						= f.label :code
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The value customers enter into the coupon field at checkout to have this discount applied to their order.  Codes are case insensitive, meaning that capitalization of characters does not make it distinct in the eyes of the system.' }
 						= f.text_field :code, class: 'form-control', style: 'text-transform: lowercase;'
 
 
 					.form-group
 						= f.label :description
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'Notes and details regarding the nature of this discount, who uses it and why it was created.  For internal use.' }
 						= f.text_area :description, class: 'form-control'
 				.row
 					.col-xs-12.col-md-6
@@ -101,14 +104,17 @@
 						Publishing Settings
 					.form-group
 						= f.label :start_at
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'If the discount status is set to active, the "Start At" value indicates the time after which this discount will be avaible.' }
 						= f.text_field :start_at, value: current_user.to_local_tz( @discount.start_at ), class: 'form-control datetimepicker'
 
 					.form-group
 						= f.label :end_at
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'If the discount status is set to active, the "End At" value indicates the time at which point the discount will no longer be avaible.  A blank value indicates that there is no end point.' }
 						= f.text_field :end_at, value: current_user.to_local_tz( @discount.end_at ), class: 'form-control datetimepicker'
 
 					.form-group
 						= f.label :status
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'An <strong>active</strong> status means the discount is now available for use, as long as the current date is between the start and end dates.<br/><strong>Draft</strong> indicates that the discount is not yet ready for use.<br/><strong>Archived</strong> indicates the discount is not for use and will not be discoverable by default.' }
 						= f.collection_select :status, Bazaar::Discount.statuses, :first, :first, {}, class: 'form-control'
 
 					- if @discount.user.present?
