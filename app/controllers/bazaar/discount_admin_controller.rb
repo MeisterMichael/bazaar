@@ -52,7 +52,9 @@ module Bazaar
 			authorize( @discount )
 
 			@discount.attributes = discount_params
-			@discount.first_discount_item.discount_amount = @discount.first_discount_item.discount_amount / 100 if @discount.first_discount_item.percent?
+			@discount.discount_items.each do |discount_item|
+				discount_item.discount_amount = discount_item.discount_amount / 100.0 if discount_item.percent?
+			end
 
 
 			if @discount.save && @discount.first_discount_item.save

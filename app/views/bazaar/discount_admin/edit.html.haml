@@ -70,7 +70,7 @@
 								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The maximum number of times anyone can use this discount.' }
 								= f.number_field :limit_global, class: 'form-control', min: 0, step: 1
 				.row
-					= f.fields_for :discount_items, @discount.first_discount_item do |di_form|
+					= f.fields_for :discount_items, @discount.discount_items do |di_form|
 						.col-xs-12.col-md-6
 							.well.white-well
 								.form-group
