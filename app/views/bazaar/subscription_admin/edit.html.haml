@@ -89,12 +89,15 @@
 				= form_for @subscription, url: subscription_admin_path( @subscription ) do |f|
 					.form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::Subscription.statuses, :first, :first, {}, class: 'form-control'
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: "Determines if the subscription is renewing, and if not why it's not renewing." }
+						= f.collection_select :status, Bazaar::Subscription.statuses, :first, humanize_first, {}, class: 'form-control'
 					.form-group
 						= f.label :next_charged_at, 'Next Charge'
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The date and time that this subscription will next be charged.' }
 						= f.text_field :next_charged_at, value: current_user.to_local_tz( @subscription.next_charged_at ), class: 'datetimepicker form-control'
 					.form-group
 						= f.label :billing_interval_value, 'Subscription Interval'
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The amount of time, after the <strong>next</strong> subscription has been charged, that it will be charged again.' }
 						.row{ style: 'margin-top: 0' }
 							.col-md-6
 								= f.number_field :billing_interval_value, class: 'form-control', min: 1
@@ -105,15 +108,19 @@
 						.col-md-6
 							.form-group
 								= f.label :quantity, 'Quantity'
+								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The number of units of the subscribed offer that will be added to the next subscription renewal order.' }
 								= f.number_field :quantity, class: 'form-control', min: 1
-						.col-md-6
+
+						.col-md-12
 							.form-group
 								= label_tag :next_renewal_price, "Next Renewal Price"
+								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The per unit price that will be used to on the next subscription renewal order.' }
 								.form-control
 									#{number_to_currency( @subscription.offer.offer_prices.active.for_interval( @subscription.next_subscription_interval ).first.price_as_money )}
-						.col-md-6
+						.col-md-12
 							.form-group
 								= label_tag :next_renewal_price, "Next Renewal Subtotal"
+								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The total (before taxes, shipping and discounts) to be charged on the next subscription renewal order.' }
 								.form-control
 									#{number_to_currency( @subscription.offer.offer_prices.active.for_interval( @subscription.next_subscription_interval ).first.price_as_money * @subscription.quantity )}
 
