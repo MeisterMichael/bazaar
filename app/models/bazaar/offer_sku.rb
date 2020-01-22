@@ -16,6 +16,10 @@ module Bazaar
 			end
 		end
 
+		def end_interval
+			start_interval + max_intervals - 1
+		end
+
 		def self.for_interval( interval )
 			self.where( ":interval >= start_interval AND ( max_intervals IS NULL OR :interval < ( start_interval + max_intervals ) )", interval: interval )
 		end
