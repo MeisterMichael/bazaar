@@ -13,24 +13,35 @@
 					= f.hidden_field :start_interval, value: args[:start_interval]
 				- if args[:max_intervals]
 					= f.hidden_field :max_intervals, value: args[:max_intervals]
+				- if args[:apply]
+					= f.hidden_field :apply, value: args[:apply]
 				.modal-body
-					.form-group
-						= f.label :sku_id, 'SKU'
-						= f.collection_select :sku_id, Bazaar::Sku.active.order(code: :asc), :id, :to_s, {}, class: 'form-control'
-					- unless args[:start_interval]
+					.row
+						.col-xs-12.col-md-6
+							.form-group
+								= f.label :quantity, "Quantity"
+								= f.number_field :quantity, value: 1, class: 'form-control', min: 1, step: 1
+						.col-xs-12.col-md-6
+							.form-group
+								= f.label :sku_id, 'SKU'
+								= f.collection_select :sku_id, Bazaar::Sku.active.order(code: :asc), :id, :to_s, {}, class: 'form-control'
+				.modal-body
+					.row
+						- unless args[:start_interval]
+							.col-xs-12.col-md-6
+								.form-group
+									= f.label :start_interval, "Starts At Order"
+									= f.number_field :start_interval, class: 'form-control', min: 1, step: 1
+						- unless args[:max_intervals]
+							.col-xs-12.col-md-6
+								.form-group
+									= f.label :max_intervals, "Number of Orders"
+									= f.number_field :max_intervals, value: nil, class: 'form-control', min: 1, step: 1, placeholder: 'unlimited'
+				- unless args[:apply]
+					.modal-body
 						.form-group
-							= f.label :start_interval
-							= f.number_field :start_interval, class: 'form-control', min: 1, step: 1
-					- unless args[:max_intervals]
-						.form-group
-							= f.label :max_intervals
-							= f.number_field :max_intervals, value: nil, class: 'form-control', min: 1, step: 1, placeholder: 'unlimited'
-					.form-group
-						= f.label :quantity
-						= f.number_field :quantity, value: 1, class: 'form-control', min: 1, step: 1
-					.form-group
-						= f.label :apply
-						= f.collection_select :apply, Bazaar::OfferSku.applies, :first, :first, {}, class: 'form-control'
+							= f.label :apply, "Apply"
+							= f.collection_select :apply, Bazaar::OfferSku.applies, :first, humanize_first, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

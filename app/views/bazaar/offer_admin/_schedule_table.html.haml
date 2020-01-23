@@ -1,8 +1,7 @@
 %table.table.table-light.table-bordered{ style: 'margin:0;' }
 	%thead
-		%th{ style: 'width: 6em' } Intervals
-		%th Interval Duration
-		%th{ style: 'width: 10em' } Created At
+		%th{ style: 'width: 6em' } Orders
+		%th Renewal Frequency
 		%th{ style: 'width: 6em' }
 	- if offer_schedules.active.count == 0
 		%tr
@@ -21,8 +20,6 @@
 					= offer_schedule.start_interval
 			%td
 				= pluralize offer_schedule.interval_value, offer_schedule.interval_unit
-			%td
-				= current_user.to_local_tz(offer_schedule.created_at).to_s( :short )
 			%td.text-right
 				%a.btn.btn-danger.btn-xs{ href: offer_schedule_admin_path( offer_schedule ), data: { method: :delete, confirm: 'Are you sure?' } }
 					%i.fa.fa-trash

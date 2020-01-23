@@ -17,7 +17,19 @@ module Bazaar
 		end
 
 		def end_interval
-			start_interval + max_intervals - 1
+			if max_intervals.present?
+				start_interval + max_intervals - 1
+			else
+				nil
+			end
+		end
+
+		def end_interval_with_infinity
+			end_interval || Float::INFINITY
+		end
+
+		def max_intervals_with_infinity
+			max_intervals || Float::INFINITY
 		end
 
 		def self.for_interval( interval )

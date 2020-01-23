@@ -21,9 +21,11 @@
 							%div=f.object.src_product.title
 					.form-group
 						= f.label :full_price_offer_id, "Full Price Offer"
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The full price equivalent offer, which can be used to calculate the amount of saving the upsell offer provides.' }
 						= f.collection_select :full_price_offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
 					.form-group
 						= f.label :offer_id, "Upsell Offer"
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The offer you want to be made as an upsell.' }
 						= f.collection_select :offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }

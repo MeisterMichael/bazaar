@@ -1,8 +1,7 @@
 %table.table.table-light.table-bordered{ style: 'margin:0;' }
 	%thead
-		%th{ style: 'width: 6em' } Intervals
+		%th{ style: 'width: 6em' } Orders
 		%th Price
-		%th{ style: 'width: 10em' } Created At
 		%th{ style: 'width: 6em' }
 	- if offer_prices.active.count == 0
 		%tr
@@ -21,8 +20,6 @@
 					= offer_price.start_interval
 			%td
 				= offer_price.price_formatted
-			%td
-				= current_user.to_local_tz(offer_price.created_at).to_s( :short )
 			%td.text-right
 				%a.btn.btn-danger.btn-xs{ href: offer_price_admin_path( offer_price ), data: { method: :delete, confirm: 'Are you sure?' } }
 					%i.fa.fa-trash

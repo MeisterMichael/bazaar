@@ -1,0 +1,81 @@
+
+- skus = @offer.offer_skus.active.order( start_interval: :asc ).collect(&:sku).uniq
+- all_items = @offer.offer_schedules.active.to_a + @offer.offer_prices.active.to_a + @offer.offer_skus.active.to_a
+- max_start_interval = all_items.collect{ |item| item.start_interval + ( item.max_intervals || 0 ) }.sort.last
+- max_end_interval = all_items.sort_by(&:end_interval_with_infinity).last.end_interval_with_infinity
+- last_item = all_items.select{|item| item.end_interval_with_infinity == max_end_interval }.sort_by(&:start_interval).last
+- last_interval = last_item.start_interval + ( last_item.end_interval_with_infinity == Float::INFINITY ? 1 : 0 )
+:css
+	.offer-item-header, .offer-item-sku-header  {
+		padding: 8px;
+		border: 1px solid #ddd;
+		font-weight: bold;
+		background: #fff;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.offer-item-sku-header {
+		float: left;
+	}
+	.offer-item-column {
+		height: #{(max_start_interval) * 3}em;
+		position:relative;
+	}
+	.offer-item-sku-column-cell {
+		background: #fff;
+		padding: 8px;
+		border: 1px solid #ddd;
+		position: absolute;
+		width: 100%;
+		left: 0;
+	}
+
+.row{ style: 'margin: 0;border: 1px solid #ccc;' }
+	.col-xs-12
+		.row
+			.col-xs-4
+				.row
+					.col-xs-12.offer-item-sku-header
+						&nbsp;
+				.row
+					.col-xs-4.offer-item-header
+						Orders
+					.col-xs-4.offer-item-header
+						Frequency
+					.col-xs-4.text-right.offer-item-header
+						Price
+			.col-xs-8
+				.row
+					.col-xs-12.offer-item-sku-header
+						Products
+				.row
+					- skus.each do |sku|
+						%div.text-right.offer-item-sku-header{ style: "width: #{(100.0 / skus.count.to_f)}%;", data: { toggle: 'tooltip' }, title: sku.to_s }
+							= sku.name
+		.row
+			.col-xs-4
+				.row
+					.col-xs-4.offer-item-column
+						- (1..(max_start_interval-1)).each do |start_interval|
+							.offer-item-sku-column-cell{ style: "top: #{(start_interval-1) * 3}em;height: 3em" }
+								= start_interval.ordinalize
+						- if max_end_interval == Float::INFINITY
+							.offer-item-sku-column-cell{ style: "top: #{(max_start_interval-1) * 3}em;height: 3em" }
+								#{max_start_interval.ordinalize}+
+					.col-xs-4.offer-item-column
+						- @offer.offer_schedules.active.each do |offer_schedule|
+							.offer-item-sku-column-cell{ style: "top: #{(offer_schedule.start_interval-1) * 3}em;height: #{offer_schedule.end_interval_with_infinity == Float::INFINITY ? (max_start_interval - offer_schedule.start_interval + 1) * 3 : offer_schedule.end_interval_with_infinity * 3}em" }
+								= pluralize offer_schedule.interval_value, offer_schedule.interval_unit
+					.col-xs-4.offer-item-column
+						- @offer.offer_prices.active.each do |offer_price|
+							.offer-item-sku-column-cell.text-right{ style: "top: #{(offer_price.start_interval-1) * 3}em;height: #{offer_price.end_interval_with_infinity == Float::INFINITY ? (max_start_interval - offer_price.start_interval + 1) * 3 : offer_price.end_interval_with_infinity * 3}em" }
+								= offer_price.price_formatted
+
+			.col-xs-8.offer-item-column{ style: 'background-color: #ddd;' }
+				- left = 0
+				- skus.each_with_index do |sku,index|
+					- @offer.offer_skus.active.where( sku: sku ).each do |offer_sku|
+						.offer-item-sku-column-cell.text-right{ style: "width: #{(100.0 / skus.count.to_f)}%;left:#{left}%;top: #{(offer_sku.start_interval-1) * 3}em;height: #{( offer_sku.max_intervals_with_infinity == Float::INFINITY ? (max_start_interval - offer_sku.start_interval + 1) : offer_sku.max_intervals ) * 3 }em;" }
+							= offer_sku.quantity
+					- left += (100.0 / skus.count.to_f)

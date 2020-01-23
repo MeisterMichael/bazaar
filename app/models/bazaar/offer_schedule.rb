@@ -20,9 +20,19 @@ module Bazaar
 			n = self.class.base_class.where( parent_obj: self.parent_obj ).where('start_interval > ?',self.start_interval).active.order( start_interval: :asc ).first
 			if n.present?
 				n.start_interval - 1
+			elsif self.max_intervals.present?
+				self.start_interval + self.max_intervals - 1
 			else
-				self.max_intervals
+				nil
 			end
+		end
+
+		def end_interval_with_infinity
+			end_interval || Float::INFINITY
+		end
+
+		def max_intervals_with_infinity
+			max_intervals || Float::INFINITY
 		end
 
 		def set_trashed_at

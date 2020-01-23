@@ -32,7 +32,7 @@
 						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @offer.class.base_class.name, object_id: @offer.id }.to_json }
 
 					.form-group
-						= f.label :cart_title
+						= f.label :cart_title, 'Cart Title'
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The title displayed publically to customers, in the cart, order and at checkout.' }
 						= f.text_field :cart_title, class: 'form-control'
 
@@ -87,52 +87,57 @@
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
-	.row#schedule
-		.col-xs-12
-			.well.white-well
-				%a.pull-right{ href: '#new_offer_schedule_modal', data: { toggle: :modal, target: '#new_offer_schedule_modal' } }
-					%i.fa.fa-plus
-					Add Schedule Item
-				%h4
-					Schedule
-
-				= render 'schedule_table', offer_schedules: @offer.offer_schedules, args: {}
-	.row#price
-		.col-xs-12
-			.well.white-well
-				%a.pull-right{ href: '#new_offer_price_modal', data: { toggle: :modal, target: '#new_offer_price_modal' } }
-					%i.fa.fa-plus
-					Add Price
-				%h4
-					Prices
-
-				= render 'price_table', offer_prices: @offer.offer_prices, args: {}
-	.row#skus
-		.col-xs-12
-			.well.white-well
-				%a.pull-right{ href: '#new_offer_sku_modal', data: { toggle: :modal, target: '#new_offer_sku_modal' } }
-					%i.fa.fa-plus
-					Add Sku
-				%h4
-					SKUs
-
-				= render 'sku_table', offer_skus: @offer.offer_skus, args: {}
-
-	.row#upsell_offers
-		.col-xs-12
+	.row
+		.col-xs-12#upsell_offers
 			.well.white-well
 				%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
 					%i.fa.fa-plus
-					Add Upsell Offer
+					Add
 				%h4
 					Upsell Offers
 
 				= render 'upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.for_source( offer: @offer ), args: {}
 
+	.row
+		.col-xs-12
+			.well.white-well#offer_items
+				%h4
+					Recurring Schedule
+				= render 'offer_items_table'
+	.row
+		.col-xs-12#schedule
+			.well.white-well
+				%a.pull-right{ href: '#new_offer_schedule_modal', data: { toggle: :modal, target: '#new_offer_schedule_modal' } }
+					%i.fa.fa-plus
+					Add
+				%h4
+					Renewal Frequency Schedule
+
+				= render 'schedule_table', offer_schedules: @offer.offer_schedules, args: {}
+
+		.col-xs-12#price
+			.well.white-well
+				%a.pull-right{ href: '#new_offer_price_modal', data: { toggle: :modal, target: '#new_offer_price_modal' } }
+					%i.fa.fa-plus
+					Add
+				%h4
+					Prices Schedule
+
+				= render 'price_table', offer_prices: @offer.offer_prices, args: {}
+
+		.col-xs-12#skus
+			.well.white-well
+				%a.pull-right{ href: '#new_offer_sku_modal', data: { toggle: :modal, target: '#new_offer_sku_modal' } }
+					%i.fa.fa-plus
+					Add
+				%h4
+					SKU Schedule
+
+				= render 'sku_table', offer_skus: @offer.offer_skus, args: {}
 
 
 
-= render 'bazaar/offer_sku_admin/new_modal', parent_obj: @offer, args: {}
+= render 'bazaar/offer_sku_admin/new_modal', parent_obj: @offer, args: { apply: 'per_quantity' }
 = render 'bazaar/offer_price_admin/new_modal', parent_obj: @offer, args: {}
 = render 'bazaar/offer_schedule_admin/new_modal', parent_obj: @offer, args: {}
 = render 'bazaar/upsell_offer_admin/new_modal', args: { src_offer: @offer }

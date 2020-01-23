@@ -14,20 +14,24 @@
 				- if args[:max_intervals]
 					= f.hidden_field :max_intervals, value: args[:max_intervals]
 				.modal-body
-					- unless args[:start_interval]
-						.form-group
-							= f.label :start_interval
-							= f.number_field :start_interval, class: 'form-control', min: 1, step: 1
-					- unless args[:max_intervals]
-						.form-group
-							= f.label :max_intervals
-							= f.number_field :max_intervals, value: nil, class: 'form-control', min: 1, step: 1, placeholder: 'unlimited'
+					.row
+						- unless args[:start_interval]
+							.col-xs-12.col-md-6
+								.form-group
+									= f.label :start_interval
+									= f.number_field :start_interval, class: 'form-control', min: 1, step: 1
+						- unless args[:max_intervals]
+							.col-xs-12.col-md-6
+								.form-group
+									= f.label :max_intervals
+									= f.number_field :max_intervals, value: nil, class: 'form-control', min: 1, step: 1, placeholder: 'unlimited'
+				.modal-body
 					.form-group
 						= f.label :price_as_money_string, 'Price'
 						= f.number_field :price_as_money_string, class: 'form-control', min: 0.00, step: 0.01
 					.form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::OfferPrice.statuses, :first, :first, {}, class: 'form-control'
+						= f.collection_select :status, Bazaar::OfferPrice.statuses, :first, humanize_first, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close
