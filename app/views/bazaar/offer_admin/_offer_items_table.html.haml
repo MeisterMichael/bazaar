@@ -22,13 +22,26 @@
 		height: #{(max_start_interval) * 3}em;
 		position:relative;
 	}
-	.offer-item-sku-column-cell {
+	.offer-item-column-cell {
 		background: #fff;
 		padding: 8px;
 		border: 1px solid #ddd;
 		position: absolute;
 		width: 100%;
 		left: 0;
+	}
+	.offer-item-column-cell .btn {
+		display: none;
+		position: absolute;
+		bottom: -0.5em;
+		right: 5px;
+		left: 5px;
+		z-index: 99;
+	}
+	.offer-item-column-cell:hover .btn, .offer-item-column-cell:active .btn {
+		display: block;
+	}
+	.offer-item-sku-column-cell {
 	}
 
 .row{ style: 'margin: 0;border: 1px solid #ccc;' }
@@ -58,24 +71,56 @@
 				.row
 					.col-xs-4.offer-item-column
 						- (1..(max_start_interval-1)).each do |start_interval|
-							.offer-item-sku-column-cell{ style: "top: #{(start_interval-1) * 3}em;height: 3em" }
+							.offer-item-column-cell{ style: "top: #{(start_interval-1) * 3}em;height: 3em" }
 								= start_interval.ordinalize
 						- if max_end_interval == Float::INFINITY
-							.offer-item-sku-column-cell{ style: "top: #{(max_start_interval-1) * 3}em;height: 3em" }
+							.offer-item-column-cell{ style: "top: #{(max_start_interval-1) * 3}em;height: 3em" }
 								#{max_start_interval.ordinalize}+
 					.col-xs-4.offer-item-column
 						- @offer.offer_schedules.active.each do |offer_schedule|
-							.offer-item-sku-column-cell{ style: "top: #{(offer_schedule.start_interval-1) * 3}em;height: #{offer_schedule.end_interval_with_infinity == Float::INFINITY ? (max_start_interval - offer_schedule.start_interval + 1) * 3 : offer_schedule.end_interval_with_infinity * 3}em" }
+							.offer-item-column-cell{ style: "top: #{(offer_schedule.start_interval-1) * 3}em;height: #{offer_schedule.end_interval_with_infinity == Float::INFINITY ? (max_start_interval - offer_schedule.start_interval + 1) * 3 : offer_schedule.end_interval_with_infinity * 3}em" }
 								= pluralize offer_schedule.interval_value, offer_schedule.interval_unit
+								- if offer_schedule.start_interval == 1
+									.btn.btn-danger.btn-xs.disabled
+										%i.fa.fa-trash
+								- else
+									%a.btn.btn-danger.btn-xs{ href: offer_schedule_admin_path( offer_schedule ), data: { method: :delete, confirm: 'Are you sure?' } }
+										%i.fa.fa-trash
 					.col-xs-4.offer-item-column
 						- @offer.offer_prices.active.each do |offer_price|
-							.offer-item-sku-column-cell.text-right{ style: "top: #{(offer_price.start_interval-1) * 3}em;height: #{offer_price.end_interval_with_infinity == Float::INFINITY ? (max_start_interval - offer_price.start_interval + 1) * 3 : offer_price.end_interval_with_infinity * 3}em" }
+							.offer-item-column-cell.text-right{ style: "top: #{(offer_price.start_interval-1) * 3}em;height: #{offer_price.end_interval_with_infinity == Float::INFINITY ? (max_start_interval - offer_price.start_interval + 1) * 3 : offer_price.end_interval_with_infinity * 3}em" }
 								= offer_price.price_formatted
+								- if offer_price.start_interval == 1
+									.btn.btn-danger.btn-xs.disabled
+										%i.fa.fa-trash
+								- else
+									%a.btn.btn-danger.btn-xs{ href: offer_price_admin_path( offer_price ), data: { method: :delete, confirm: 'Are you sure?' } }
+										%i.fa.fa-trash
 
 			.col-xs-8.offer-item-column{ style: 'background-color: #ddd;' }
 				- left = 0
 				- skus.each_with_index do |sku,index|
 					- @offer.offer_skus.active.where( sku: sku ).each do |offer_sku|
-						.offer-item-sku-column-cell.text-right{ style: "width: #{(100.0 / skus.count.to_f)}%;left:#{left}%;top: #{(offer_sku.start_interval-1) * 3}em;height: #{( offer_sku.max_intervals_with_infinity == Float::INFINITY ? (max_start_interval - offer_sku.start_interval + 1) : offer_sku.max_intervals ) * 3 }em;" }
+						.offer-item-column-cell.offer-item-sku-column-cell.text-right{ style: "width: #{(100.0 / skus.count.to_f)}%;left:#{left}%;top: #{(offer_sku.start_interval-1) * 3}em;height: #{( offer_sku.max_intervals_with_infinity == Float::INFINITY ? (max_start_interval - offer_sku.start_interval + 1) : offer_sku.max_intervals ) * 3 }em;" }
 							= offer_sku.quantity
+							%a.btn.btn-danger.btn-xs{ href: offer_sku_admin_path( offer_sku ), data: { method: :delete, confirm: 'Are you sure?' } }
+								%i.fa.fa-trash
 					- left += (100.0 / skus.count.to_f)
+
+		.row
+			.col-xs-4
+				.row
+					.col-xs-4.offer-item-header
+						&nbsp;
+					.col-xs-4.offer-item-header.text-center
+						%a{ href: '#new_offer_price_modal', data: { toggle: :modal, target: '#new_offer_price_modal' } }
+							%i.fa.fa-plus
+							Add
+					.col-xs-4.offer-item-header.text-center
+						%a{ href: '#new_offer_price_modal', data: { toggle: :modal, target: '#new_offer_price_modal' } }
+							%i.fa.fa-plus
+							Add
+			.col-xs-8.offer-item-sku-header.text-center
+				%a{ href: '#new_offer_sku_modal', data: { toggle: :modal, target: '#new_offer_sku_modal' } }
+					%i.fa.fa-plus
+					Add
