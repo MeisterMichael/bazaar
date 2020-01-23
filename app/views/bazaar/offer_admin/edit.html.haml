@@ -104,37 +104,6 @@
 				%h4
 					Recurring Schedule
 				= render 'offer_items_table'
-	-# .row
-		.col-xs-12#schedule
-			.well.white-well
-				%a.pull-right{ href: '#new_offer_schedule_modal', data: { toggle: :modal, target: '#new_offer_schedule_modal' } }
-					%i.fa.fa-plus
-					Add
-				%h4
-					Renewal Frequency Schedule
-
-				= render 'schedule_table', offer_schedules: @offer.offer_schedules, args: {}
-
-		.col-xs-12#price
-			.well.white-well
-				%a.pull-right{ href: '#new_offer_price_modal', data: { toggle: :modal, target: '#new_offer_price_modal' } }
-					%i.fa.fa-plus
-					Add
-				%h4
-					Prices Schedule
-
-				= render 'price_table', offer_prices: @offer.offer_prices, args: {}
-
-		.col-xs-12#skus
-			.well.white-well
-				%a.pull-right{ href: '#new_offer_sku_modal', data: { toggle: :modal, target: '#new_offer_sku_modal' } }
-					%i.fa.fa-plus
-					Add
-				%h4
-					SKU Schedule
-
-				= render 'sku_table', offer_skus: @offer.offer_skus, args: {}
-
 
 
 = render 'bazaar/offer_sku_admin/new_modal', parent_obj: @offer, args: { apply: 'per_quantity' }
