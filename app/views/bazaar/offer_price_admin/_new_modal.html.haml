@@ -9,6 +9,7 @@
 			= form_for Bazaar::OfferPrice.new( parent_obj: parent_obj ), url: bazaar.offer_price_admin_index_path do |f|
 				= f.hidden_field :parent_obj_type
 				= f.hidden_field :parent_obj_id
+				= f.hidden_field :status, value: 'active'
 				- if args[:start_interval]
 					= f.hidden_field :start_interval, value: args[:start_interval]
 				- if args[:max_intervals]
@@ -29,7 +30,7 @@
 					.form-group
 						= f.label :price_as_money_string, 'Price'
 						= f.number_field :price_as_money_string, class: 'form-control', min: 0.00, step: 0.01
-					.form-group
+					-# .form-group
 						= f.label :status
 						= f.collection_select :status, Bazaar::OfferPrice.statuses, :first, humanize_first, {}, class: 'form-control'
 				.modal-footer

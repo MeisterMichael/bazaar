@@ -9,6 +9,7 @@
 			= form_for Bazaar::OfferSchedule.new( parent_obj: parent_obj, interval_unit: 'weeks' ), url: bazaar.offer_schedule_admin_index_path do |f|
 				= f.hidden_field :parent_obj_type
 				= f.hidden_field :parent_obj_id
+				= f.hidden_field :status, value: 'active'
 				- if args[:start_interval]
 					= f.hidden_field :start_interval, value: args[:start_interval]
 				- if args[:max_intervals]
@@ -40,7 +41,7 @@
 						= f.label :period_type
 						= f.select :period_type, [['None',nil],['Trial','trial']], {}, class: 'form-control'
 
-					.form-group
+					-# .form-group
 						= f.label :status
 						= f.collection_select :status, Bazaar::OfferSku.statuses, :first, humanize_first, {}, class: 'form-control'
 				.modal-footer
