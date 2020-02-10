@@ -61,6 +61,8 @@ module Bazaar
 
 			@transactions = @transactions.where( provider: params[:provider] ) if params[:provider].present?
 
+			@transactions = @transactions.where( credit_card_ending_in: params[:credit_card_ending_in] ) if params[:credit_card_ending_in].present?
+
 			@transactions = @transactions.where( "reference_code like :code", code: "%#{params[:reference_code]}%" ) if params[:reference_code].present?
 
 			@total_amount = @transactions.sum( :amount )

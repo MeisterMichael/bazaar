@@ -14,11 +14,11 @@
 						= "(#{number_to_currency( @total_amount/100.to_f )})"
 
 		.col-xs-2
-			
+
 	.row
 		.col-xs-12
 			= raw paginate @transactions
-	
+
 	= form_tag bazaar.transaction_admin_index_path, method: :get, class: 'form-inline' do
 		.row
 			.col-xs-12
@@ -26,7 +26,7 @@
 				= text_field_tag :start_date, params[:start_date], class: 'form-control datetimepicker'
 				end:
 				= text_field_tag :end_date, params[:end_date], class: 'form-control datetimepicker'
-				
+
 		.row{ style: 'margin-top:1em; '}
 			.col-xs-2
 				= label_tag :provider
@@ -46,6 +46,9 @@
 			.col-xs-2
 				= label_tag :reference_code
 				= text_field_tag :reference_code, params[:reference_code], class: 'form-control'
+			.col-xs-2
+				= label_tag :credit_card_ending_in
+				= text_field_tag :credit_card_ending_in, params[:credit_card_ending_in], class: 'form-control'
 
 
 		.row{ style: 'margin-top:1em; '}
@@ -55,7 +58,7 @@
 				&nbsp;&nbsp;
 				= link_to 'Clear', bazaar.transaction_admin_index_path, class: 'btn btn-default btn-xs'
 
-				
+
 
 	.row
 		.col-xs-12
@@ -95,7 +98,7 @@
 						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 
-					
+
 
 					%th Status
 					%th
@@ -117,7 +120,7 @@
 								= transaction.properties['credit_card_ending_in']
 							%td
 								= transaction.created_at.to_s( :slashed_time )
-							
+
 							%td
 								.badge{ class: transaction.status }
 									= transaction.status
@@ -127,7 +130,7 @@
 										= "Order #{transaction.parent_obj.code}"
 								- else
 									= "#{transaction.parent_obj_type}_#{transaction.parent_obj_id}"
-						
+
 							%td
 								.btn-group
 									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
@@ -138,6 +141,3 @@
 											%a{ href: edit_transaction_admin_path( transaction ) }
 												%i.fa.fa-pencil
 												Edit
-										
-
-
