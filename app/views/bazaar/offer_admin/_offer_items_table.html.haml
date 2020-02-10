@@ -80,12 +80,8 @@
 						- @offer.offer_schedules.active.each do |offer_schedule|
 							.offer-item-column-cell{ style: "top: #{(offer_schedule.start_interval-1) * 3}em;height: #{offer_schedule.end_interval_with_infinity == Float::INFINITY ? (max_start_interval - offer_schedule.start_interval + 1) * 3 : offer_schedule.end_interval_with_infinity * 3}em" }
 								= pluralize offer_schedule.interval_value, offer_schedule.interval_unit
-								- if offer_schedule.start_interval == 1
-									.btn.btn-danger.btn-xs.disabled
-										%i.fa.fa-trash
-								- else
-									%a.btn.btn-danger.btn-xs{ href: offer_schedule_admin_path( offer_schedule ), data: { method: :delete, confirm: 'Are you sure?' } }
-										%i.fa.fa-trash
+								%a.btn.btn-danger.btn-xs{ href: offer_schedule_admin_path( offer_schedule ), data: { method: :delete, confirm: 'Are you sure?' } }
+									%i.fa.fa-trash
 					.col-xs-4.offer-item-column
 						- @offer.offer_prices.active.each do |offer_price|
 							.offer-item-column-cell.text-right{ style: "top: #{(offer_price.start_interval-1) * 3}em;height: #{offer_price.end_interval_with_infinity == Float::INFINITY ? (max_start_interval - offer_price.start_interval + 1) * 3 : offer_price.end_interval_with_infinity * 3}em" }
@@ -113,7 +109,7 @@
 					.col-xs-4.offer-item-header
 						&nbsp;
 					.col-xs-4.offer-item-header.text-center
-						%a{ href: '#new_offer_price_modal', data: { toggle: :modal, target: '#new_offer_price_modal' } }
+						%a{ href: '#new_offer_schedule_modal', data: { toggle: :modal, target: '#new_offer_schedule_modal' } }
 							%i.fa.fa-plus
 							Add
 					.col-xs-4.offer-item-header.text-center
