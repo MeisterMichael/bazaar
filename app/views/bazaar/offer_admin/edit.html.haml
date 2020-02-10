@@ -20,38 +20,31 @@
 			.col-xs-8
 				.well.white-well
 					.form-group
-						%h4 Content
+						%h4 Internal Descriptors
 					.form-group
 						= f.label :title
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A title for internal reference.' }
-						= f.text_field :title, class: 'form-control input-lg'
+						= f.text_field :title, class: 'form-control'
 
 					.form-group
 						= f.label :description
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A description for internal reference.' }
 						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @offer.class.base_class.name, object_id: @offer.id }.to_json }
 
+				.well.white-well
 					.form-group
-						= f.label :cart_title, 'Cart Title'
+						%h4 Public Descriptors
+					.form-group
+						= f.label :cart_title, 'Title'
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The title displayed publically to customers, in the cart, order and at checkout.' }
 						= f.text_field :cart_title, class: 'form-control'
 
 					.form-group
-						= f.label :cart_description, 'Cart Description'
+						= f.label :cart_description, 'Description'
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The discription displayed publically to customers at checkout.' }
 						= f.text_area :cart_description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @offer.class.base_class.name, object_id: @offer.id }.to_json }
 
-				.row
-					.col-xs-2
-						.well
-							- if @offer.avatar
-								%a{ href: @offer.avatar, target: '_preview_image' }
-									%img.img.img-responsive.center-block#product_avatar_img{:src => @offer.avatar }
-							- else
-								%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
-					.col-xs-8
-						= f.label :avatar_attachment, 'Avatar'
-						= f.file_field :avatar_attachment
+
 
 			.col-xs-4
 				.well.white-well
@@ -85,6 +78,22 @@
 					%hr
 
 					.form-group
+						= f.label :avatar_attachment, "Avatar"
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The public facing image used to reference this product.' }
+						.row
+							.col-xs-6{ style: 'max-width: 100px;' }
+								%div{ style: 'border: 1px solid #ccc;background: #fff;margin-bottom: 5px;' }
+									- if @offer.avatar
+										%a{ href: @offer.avatar, target: '_preview_image' }
+											%img.img.img-responsive.center-block#product_avatar_img{:src => @offer.avatar }
+									- else
+										%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
+							.col-xs-6
+								= f.file_field :avatar_attachment
+
+					%hr
+
+					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
 	.row
@@ -102,7 +111,7 @@
 		.col-xs-12
 			.well.white-well#offer_items
 				%h4
-					Recurring Schedule
+					Order Configuration 
 				= render 'offer_items_table'
 
 
