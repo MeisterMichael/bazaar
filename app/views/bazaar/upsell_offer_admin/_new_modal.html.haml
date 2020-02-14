@@ -20,6 +20,9 @@
 							%label Source Product
 							%div=f.object.src_product.title
 					.form-group
+						= f.label :upsell_type
+						= f.collection_select :upsell_type, Bazaar::UpsellOffer.upsell_types, :first, humanize_first, {}, class: 'form-control'
+					.form-group
 						= f.label :full_price_offer_id, "Full Price Offer"
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The full price equivalent offer, which can be used to calculate the amount of saving the upsell offer provides.' }
 						= f.collection_select :full_price_offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'

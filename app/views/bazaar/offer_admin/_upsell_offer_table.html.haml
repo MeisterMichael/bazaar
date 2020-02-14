@@ -3,10 +3,11 @@
 	%thead
 		%th Upsell Offer
 		%th Full Price Offer
+		%th Type
 		%th{ style: 'width: 6em' }
 	- if upsell_offers.count == 0
 		%tr
-			%td{ colspan: 3 }
+			%td{ colspan: 4 }
 				\- No Offers Found -
 	- upsell_offers.joins(:offer).order( 'bazaar_offers.title asc' ).each do |upsell_offer|
 		%tr
@@ -24,6 +25,8 @@
 					( #{ upsell_offer.full_price_offer.initial_price_formatted } )
 				- else
 					\-
+			%td
+				= upsell_offer.upsell_type.titleize
 			%td.text-right
 				%a.btn.btn-danger.btn-xs{ href: upsell_offer_admin_path( upsell_offer ), data: { method: :delete, confirm: 'Are you sure?' } }
 					%i.fa.fa-trash
