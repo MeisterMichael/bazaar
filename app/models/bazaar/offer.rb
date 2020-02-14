@@ -13,6 +13,8 @@ module Bazaar
 		has_many :offer_skus, as: :parent_obj
 		has_many :skus, through: :offer_skus
 
+		has_many :order_offers
+
 		has_many :wholesale_items
 
 		has_one_attached :avatar_attachment
