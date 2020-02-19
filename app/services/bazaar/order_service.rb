@@ -292,8 +292,9 @@ module Bazaar
 				item = Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first if order_offer.offer.recurring?
 				item = order_offer.subscription if order_offer.subscription_interval > 1
 
-				order_item = order.order_items.to_a.find{ |order_item| order_item.item == item }
-				order_item ||= order.order_items.new( order_item_type: 'prod', item: item )
+				order_item = order.order_items.to_a.find{ |order_item| order_item.offer == order_offer.offer }
+				order_item ||= order.order_items.to_a.find{ |order_item| order_item.item == item }
+				order_item ||= order.order_items.new( order_item_type: 'prod', item: item, offer: order_offer.offer )
 				order_item.attributes = {
 					quantity: order_offer.quantity,
 					title: order_offer.title,
