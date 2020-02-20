@@ -89,8 +89,11 @@ module Bazaar
 		def edit_shipping_carrier_service
 
 			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+			@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
 
-			@shipping_rates = @shipping_service.find_rates( @subscription )
+			@order = @subscription_service.generate_subscription_order( @subscription )
+
+			@shipping_rates = @shipping_service.find_rates( @order )
 
 		end
 
