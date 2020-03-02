@@ -27,7 +27,7 @@ module Bazaar
 		def address
 			authorize( @order )
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
-			address = GeoAddress.create( address_attributes.merge( user: @order.user ) )
+			address = UserAddress.canonical_find_or_create_with_cannonical_geo_address( address_attributes.merge( user: @order.user ) )
 
 			if address.errors.present?
 
@@ -127,8 +127,8 @@ module Bazaar
 				@order = Bazaar::CheckoutOrder.new order_params
 			else
 				@order = Bazaar::CheckoutOrder.new
-				@order.billing_address = GeoAddress.new
-				@order.shipping_address = GeoAddress.new
+				@order.billing_address = UserAddress.new_with_geo_address
+				@order.shipping_address = UserAddress.new_with_geo_address
 			end
 			@order.total ||= 0
 			@order.status = 'draft'

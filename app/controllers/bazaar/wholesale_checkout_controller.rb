@@ -22,8 +22,8 @@ module Bazaar
 		def calculate
 
 			begin
-				@order.billing_address ||= GeoAddress.new
-				@order.shipping_address ||= GeoAddress.new
+				@order.billing_address ||= UserAddress.new_with_geo_address
+				@order.shipping_address ||= UserAddress.new_with_geo_address
 
 
 				@order_service.calculate( @order,

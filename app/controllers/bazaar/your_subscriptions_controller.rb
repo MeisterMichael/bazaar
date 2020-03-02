@@ -54,7 +54,7 @@ module Bazaar
 				if payment_info[:billing_address_attributes].present?
 
 					billing_address_attributes = payment_info.require(:billing_address_attributes).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
-					billing_address = GeoAddress.create( billing_address_attributes.merge( user: current_user ) )
+					billing_address = UserAddress.canonical_find_or_create_with_cannonical_geo_address( billing_address_attributes.merge( user: current_user ) )
 
 					if billing_address.errors.present?
 						set_flash billing_address.errors.full_messages, :danger
@@ -92,7 +92,7 @@ module Bazaar
 				@subscription.attributes = subscription_attributes
 
 				if ( shipping_address_attributes = subscription_shipping_address_attributes() ).present?
-					@subscription.shipping_address = GeoAddress.new( shipping_address_attributes.merge( user: @subscription.user ) )
+					@subscription.shipping_address = UserAddress.new_with_cannonical_geo_address( shipping_address_attributes.merge( user: @subscription.user ) )
 				end
 
 				# recalculate amounts on change

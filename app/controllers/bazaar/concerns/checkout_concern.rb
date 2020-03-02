@@ -18,6 +18,8 @@ module Bazaar
 						phone: (order.user.phone || order.billing_address.phone),
 						preferred_billing_address_id: (user.preferred_billing_address_id || order.billing_address.id),
 						preferred_shipping_address_id: (user.preferred_shipping_address_id || order.shipping_address.id),
+						preferred_billing_user_address_id: (user.preferred_billing_user_address_id || order.billing_user_address.id),
+						preferred_shipping_user_address_id: (user.preferred_shipping_user_address_id || order.shipping_user_address.id),
 					)
 				end
 
@@ -63,6 +65,9 @@ module Bazaar
 
 				order_attributes[:shipping_address_attributes]	= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
 				order_attributes[:billing_address_attributes]	= order_attributes[:shipping_address_attributes] if order_attributes.delete(:same_as_shipping)
+
+				order_attributes[:shipping_user_address_attributes] = order_attributes[:shipping_address_attributes]
+				order_attributes[:billing_user_address_attributes] = order_attributes[:billing_address_attributes]
 
 				if order_attributes[:order_offers_attributes].present?
 					order_offer_attributes = order_attributes[:order_offers_attributes]

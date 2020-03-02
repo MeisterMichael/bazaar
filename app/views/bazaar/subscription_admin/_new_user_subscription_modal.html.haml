@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add Subscription for #{user.full_name}
-			= form_for Bazaar::Subscription.new( attributes.merge( shipping_address: ( attributes[:shipping_address] || GeoAddress.new ), billing_address: ( attributes[:billing_address] || GeoAddress.new ) ) ), url: bazaar.subscription_admin_index_path(), html: {} do |f|
+			= form_for Bazaar::Subscription.new( attributes.merge( shipping_address: ( attributes[:shipping_address] || UserAddress.new_with_geo_address ), billing_address: ( attributes[:billing_address] || UserAddress.new_with_geo_address ) ) ), url: bazaar.subscription_admin_index_path(), html: {} do |f|
 				= hidden_field_tag :user_id, user.id
 				.modal-body
 					= f.hidden_field :price, value: (attributes[:price] || 0)

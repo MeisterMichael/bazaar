@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Order
-			= form_for ( order = ( args[:order_class] || Bazaar.checkout_order_class_name ).constantize.new( billing_address: GeoAddress.new, shipping_address: GeoAddress.new ) ), url: order_admin_index_path, as: :order, html: { class: 'form' } do |f|
+			= form_for ( order = ( args[:order_class] || Bazaar.checkout_order_class_name ).constantize.new( billing_address: UserAddress.new_with_geo_address, shipping_address: UserAddress.new_with_geo_address ) ), url: order_admin_index_path, as: :order, html: { class: 'form' } do |f|
 				.modal-body.checkout-container{ style: 'text-align: center;' }
 					.row
 						.col-xs-12.col-md-6.col-md-offset-3

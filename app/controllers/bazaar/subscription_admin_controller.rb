@@ -8,7 +8,7 @@ module Bazaar
 			authorize( @subscription )
 
 			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
-			address = GeoAddress.create( address_attributes.merge( user: @subscription.user ) )
+			address = UserAddress.canonical_find_or_create_with_cannonical_geo_address( address_attributes.merge( user: @subscription.user ) )
 
 			if address.errors.present?
 
@@ -45,13 +45,15 @@ module Bazaar
 				},
 			).to_h
 
-			subscription_options[:shipping_address]	= GeoAddress.new( subscription_options.delete(:shipping_address_attributes) ) if subscription_options[:shipping_address_attributes].present?
-			subscription_options[:billing_address]	= GeoAddress.new( subscription_options.delete(:billing_address_attributes) ) if subscription_options[:billing_address_attributes].present?
-			subscription_options[:shipping_address] ||= subscription_options[:billing_address]
-			subscription_options[:billing_address]	||= subscription_options[:shipping_address]
+			subscription_options[:shipping_user_address]	= UserAddress.new_with_cannonical_geo_address( subscription_options.delete(:shipping_address_attributes) ) if subscription_options[:shipping_address_attributes].present?
+			subscription_options[:billing_user_address]		= UserAddress.new_with_cannonical_geo_address( subscription_options.delete(:billing_address_attributes) ) if subscription_options[:billing_address_attributes].present?
+			subscription_options[:shipping_user_address]	||= subscription_options[:billing_user_address]
+			subscription_options[:billing_user_address]		||= subscription_options[:shipping_user_address]
 
-			subscription_options[:billing_address].user		= user
-			subscription_options[:shipping_address].user	= user
+			subscription_options[:billing_user_address].user	= user
+			subscription_options[:shipping_user_address].user	= user
+			subscription_options[:billing_address]		= subscription_options[:billing_user_address].geo_address
+			subscription_options[:shipping_address]		= subscription_options[:shipping_user_address].geo_address
 
 			subscription_options[:price]						= subscription_options[:price].to_i if subscription_options[:price]
 			subscription_options[:quantity]					= subscription_options[:quantity].to_i if subscription_options[:quantity]
@@ -59,10 +61,6 @@ module Bazaar
 			subscription_options[:tax]							||= 0
 
 			offer = Bazaar::Offer.find( subscription_options.delete( :offer_id ) )
-
-			puts JSON.pretty_generate subscription_options
-			puts JSON.pretty_generate subscription_options[:shipping_address].to_json
-			puts JSON.pretty_generate subscription_options[:billing_address].to_json
 
 			@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
 			@subscription = @subscription_service.subscribe( user, offer, subscription_options )
@@ -114,11 +112,11 @@ module Bazaar
 			@user = User.find( params[:user_id] )
 
 			@subscription = Bazaar::Subscription.new(
-				shipping_address: GeoAddress.new(
+				shipping_address: UserAddress.new_with_geo_address(
 					first_name: @user.first_name,
 					last_name: @user.last_name,
 				),
-				billing_address: GeoAddress.new(
+				billing_address: UserAddress.new_with_geo_address(
 					first_name: @user.first_name,
 					last_name: @user.last_name,
 				),
@@ -131,7 +129,7 @@ module Bazaar
 			@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
 
 			address_attributes = params.require( :subscription ).require( :billing_address_attributes ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
-			address = GeoAddress.create( address_attributes.merge( user: @subscription.user ) )
+			address = UserAddress.canonical_find_or_create_with_cannonical_geo_address( address_attributes.merge( user: @subscription.user ) )
 
 			if address.errors.present?
 
