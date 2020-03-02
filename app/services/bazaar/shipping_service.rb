@@ -138,7 +138,7 @@ module Bazaar
 			country = GeoCountry.find_by( abbrev: args[:ip_country].upcase )
 			return [] unless country.present?
 
-			address = GeoAddress.new( geo_country: country )
+			address = UserAddress.new_with_cannonical_geo_address( geo_country: country )
 
 			find_address_rates( address, cart.cart_offers, args )
 		end
