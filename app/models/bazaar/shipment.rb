@@ -8,7 +8,9 @@ module Bazaar
 		belongs_to	:user, required: false
 		belongs_to	:order, required: false
 		belongs_to	:destination_address, class_name: 'GeoAddress', validate: true, required: false
-		belongs_to	:source_address, required: false
+		belongs_to	:source_address, class_name: 'GeoAddress', required: false #, required: false
+		belongs_to	:destination_user_address, class_name: 'UserAddress', required: false #, validate: true, required: false
+		belongs_to	:source_user_address, class_name: 'UserAddress', required: false
 		belongs_to	:warehouse, required: false
 		belongs_to	:shipping_carrier_service, required: false
 

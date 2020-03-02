@@ -8,7 +8,8 @@ module Bazaar
 		enum transaction_type: { 'void' => -3, 'chargeback' => -2, 'refund' => -1, 'preauth' => 0, 'charge' => 1 }
 		enum status: { 'declined' => -1, 'approved' => 1 }
 		belongs_to :parent_obj, polymorphic: true, required: false # subscription, order
-		belongs_to :billing_address, required: false, class_name: 'GeoAddress'
+		belongs_to :billing_address, class_name: 'GeoAddress', required: false
+		belongs_to :billing_user_address, class_name: 'UserAddress', required: false #, required: false
 
 		money_attributes :amount, :signed_amount
 

@@ -12,8 +12,6 @@ module Bazaar
 
 		before_create :generate_order_code
 
-		# belongs_to 	:billing_address, class_name: 'GeoAddress' # set in subsclass
-		# belongs_to 	:shipping_address, class_name: 'GeoAddress' # set in subsclass
 		belongs_to 	:user, required: false, class_name: 'User'
 		belongs_to	:parent, polymorphic: true, required: false
 

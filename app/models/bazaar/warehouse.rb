@@ -9,6 +9,7 @@ module Bazaar
 		has_many :shipments
 
 		belongs_to 	:geo_address, class_name: 'GeoAddress', required: false
+		belongs_to 	:user_address, class_name: 'UserAddress', required: false #, required: false
 
 		accepts_nested_attributes_for :geo_address, :warehouse_skus
 
