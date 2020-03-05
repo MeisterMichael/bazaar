@@ -267,15 +267,7 @@
 
 		.col-xs-12.col-sm-4
 			- if @order.user.present?
-				.well.white-well
-					.pull-right
-						%a{ href: swell_id.edit_user_admin_path( @order.user ) }
-							Edit
-					%h5
-						Customer
-					%div
-						%a{ href: swell_id.edit_user_admin_path( @order.user ) }= @order.user.full_name
-					%a{ href: swell_id.edit_user_admin_path( @order.user ) }= @order.user.email
+				= render 'customer_section'
 
 			- if @order.respond_to?( :billing_address ) && @order.billing_address.present?
 				.well.white-well
@@ -293,6 +285,8 @@
 				%h5
 					Shipping Address
 				= raw @order.shipping_address.to_html
+
+			= render 'fraud_events_section'
 
 			= render 'fulfillment_tracking'
 

@@ -1,0 +1,9 @@
+.well.white-well
+	%h5{ style: 'padding-bottom: 0;margin-bottom: 0;' }
+		Fraud Events
+	- if @fraud_events.present?
+		- @fraud_events.each do |event|
+			%div{ style: 'margin-top: 10px;' }
+				= event.to_s
+	- else
+		\- None -

@@ -200,6 +200,8 @@ module Bazaar
 
 			@shipments = @order.shipments.order( created_at: :desc )
 
+			@fraud_events = Bunyan::Event.where( target_obj: @order, name: 'fraud_warning' ).order( created_at: :desc )
+
 			set_page_meta( title: "#{@order.code} | Order" )
 		end
 
