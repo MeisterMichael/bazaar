@@ -35,12 +35,17 @@ module Bazaar
 			price_for_interval( 1 )
 		end
 
-		def price_for_interval( interval = 1 )
-			self.offer_prices.active.for_interval( interval ).first.try(:price)
+		def price_for_interval( interval = 1, args = {} )
+			args[:attribute] ||= :price
+			self.offer_prices.active.for_interval( interval ).first.try(args[:attribute])
 		end
 
 		def price_as_money_for_interval( interval = 1 )
-			self.offer_prices.active.for_interval( interval ).first.try(:price_as_money)
+			self.price_for_interval( interval, attribute: :price_for_money )
+		end
+
+		def price_formatted_for_interval( interval = 1 )
+			self.price_for_interval( interval, attribute: :price_formatted )
 		end
 
 		def interval_period_for_interval( interval = 1 )

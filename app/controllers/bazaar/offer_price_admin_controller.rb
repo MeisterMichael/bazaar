@@ -8,6 +8,12 @@ module Bazaar
 
 			@offer_price = Bazaar::OfferPrice.new( offer_price_params )
 
+			if params[:replace] == 'duplicate_start_intervals'
+				sibling_offer_prices = @offer_price.parent_obj.offer_prices.active
+				sibling_offer_prices = sibling_offer_prices.where( start_interval: @offer_price.start_interval )
+				sibling_offer_prices.update( status: 'trash' )
+			end
+
 			if @offer_price.save
 				set_flash 'Price Added'
 				redirect_back fallback_location: sku_admin_index_path()

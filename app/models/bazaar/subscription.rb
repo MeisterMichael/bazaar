@@ -56,20 +56,22 @@ module Bazaar
 			active.where( 'next_charged_at < :now', now: time_now )
 		end
 
-		def price_for_interval( interval = 1 )
+		def price_for_interval( interval = 1, args = {} )
+			args[:attribute] ||= :price
+
 			if ( offer_price = self.offer_prices.active.for_interval( interval ).first ).present?
-				offer_price.price
+				offer_price.try(args[:attribute])
 			else
-				self.offer.price_for_interval( interval )
+				self.offer.price_for_interval( interval, args )
 			end
 		end
 
 		def price_as_money_for_interval( interval = 1 )
-			if ( offer_price = self.offer_prices.active.for_interval( interval ).first ).present?
-				offer_price.price
-			else
-				self.offer.price_as_money_for_interval( interval )
-			end
+			self.price_for_interval( interval, attribute: :price_as_money )
+		end
+
+		def price_formatted_for_interval( interval = 1 )
+			self.price_for_interval( interval, attribute: :price_formatted )
 		end
 
 		def interval_period_for_interval( interval = 1 )
