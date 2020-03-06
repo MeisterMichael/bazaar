@@ -116,13 +116,13 @@
 								= label_tag :next_renewal_price, "Next Renewal Price"
 								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The per unit price that will be used to on the next subscription renewal order.' }
 								.form-control
-									#{number_to_currency( @subscription.offer.offer_prices.active.for_interval( @subscription.next_subscription_interval ).first.price_as_money )}
+									#{number_to_currency( @subscription.price_as_money_for_interval( @subscription.next_subscription_interval ) )}
 						.col-md-12
 							.form-group
 								= label_tag :next_renewal_price, "Next Renewal Subtotal"
 								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The total (before taxes, shipping and discounts) to be charged on the next subscription renewal order.' }
 								.form-control
-									#{number_to_currency( @subscription.offer.offer_prices.active.for_interval( @subscription.next_subscription_interval ).first.price_as_money * @subscription.quantity )}
+									#{number_to_currency( @subscription.price_as_money_for_interval( @subscription.next_subscription_interval ) * @subscription.quantity )}
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'

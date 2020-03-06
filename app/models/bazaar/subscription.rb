@@ -64,6 +64,14 @@ module Bazaar
 			end
 		end
 
+		def price_as_money_for_interval( interval = 1 )
+			if ( offer_price = self.offer_prices.active.for_interval( interval ).first ).present?
+				offer_price.price
+			else
+				self.offer.price_as_money_for_interval( interval )
+			end
+		end
+
 		def interval_period_for_interval( interval = 1 )
 			if ( offer_schedule = self.offer_schedules.active.for_interval( interval ).first ).present?
 				offer_schedule.interval_period

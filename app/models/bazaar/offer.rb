@@ -39,6 +39,10 @@ module Bazaar
 			self.offer_prices.active.for_interval( interval ).first.try(:price)
 		end
 
+		def price_as_money_for_interval( interval = 1 )
+			self.offer_prices.active.for_interval( interval ).first.try(:price_as_money)
+		end
+
 		def interval_period_for_interval( interval = 1 )
 			self.offer_schedules.active.for_interval( interval ).limit(1).collect(&:interval_period).first
 		end
