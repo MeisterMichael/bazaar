@@ -57,32 +57,32 @@ module Bazaar
 		end
 
 		def price_for_interval( interval = 1 )
-			if self.offer_prices.active.present?
-				self.offer_prices.active.for_interval( interval ).first.try(:price)
+			if ( offer_price = self.offer_prices.active.for_interval( interval ).first ).present?
+				offer_price.price
 			else
 				self.offer.price_for_interval( interval )
 			end
 		end
 
 		def interval_period_for_interval( interval = 1 )
-			if self.offer_schedules.active.present?
-				self.offer_schedules.active.for_interval( interval ).limit(1).collect(&:interval_period).first
+			if ( offer_schedule = self.offer_schedules.active.for_interval( interval ).first ).present?
+				offer_schedule.interval_period
 			else
 				self.offer.interval_period_for_interval( interval )
 			end
 		end
 
 		def interval_value_for_interval( interval = 1 )
-			if self.offer_schedules.active.present?
-				self.offer_schedules.active.for_interval( interval ).limit(1).collect(&:interval_value).first
+			if ( offer_schedule = self.offer_schedules.active.for_interval( interval ).first ).present?
+				offer_schedule.interval_value
 			else
 				self.offer.interval_value_for_interval( interval )
 			end
 		end
 
 		def interval_unit_for_interval( interval = 1 )
-			if self.offer_schedules.active.present?
-				self.offer_schedules.active.for_interval( interval ).limit(1).collect(&:interval_unit).first
+			if ( offer_schedule = self.offer_schedules.active.for_interval( interval ).first ).present?
+				offer_schedule.interval_unit
 			else
 				self.offer.interval_unit_for_interval( interval )
 			end
