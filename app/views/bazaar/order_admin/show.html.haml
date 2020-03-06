@@ -12,11 +12,11 @@
 			- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update )
 				.pull-right
 					- if @order.review?
-						%a.btn.btn-primary{ href: accept_order_admin_path( @order ), data: { method: 'POST' } }
+						%a.btn.btn-primary{ href: accept_order_admin_path( @order ), data: { method: 'POST', toggle: 'tooltip' }, title: 'Change the status of the order, and any subscriptions, to the "Active" status.' }
 							Accept
-						%a.btn.btn-primary{ href: hold_order_admin_path( @order ), data: { method: 'POST' } }
+						%a.btn.btn-primary{ href: hold_order_admin_path( @order ), data: { method: 'POST', toggle: 'tooltip' }, title: 'Change the status of the order, and any subscriptions, to the "Hold Review" status.' }
 							Hold for Review
-						%a.btn.btn-default{ href: reject_order_admin_path( @order ), data: { method: 'POST' } }
+						%a.btn.btn-default{ href: reject_order_admin_path( @order ), data: { method: 'POST', toggle: 'tooltip' }, title: 'Change the status of the order, and any subscriptions, to the "Rejected" status.' }
 							Reject
 
 					- if defined?(Bunyan)
@@ -279,9 +279,6 @@
 
 
 			.well.white-well
-				- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update ) && not( @order.fulfilled? || @order.delivered? )
-					.pull-right
-						%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
 				%h5
 					Shipping Address
 				= raw @order.shipping_address.to_html
