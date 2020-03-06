@@ -62,10 +62,12 @@ module Bazaar
 			args[:amount]		||= args[:price] * quantity
 
 			args[:currency]		||= 'USD'
+			offer_schedule_interval_period	= offer.interval_period_for_interval( interval )
+			offer_schedule_interval_value		= offer.interval_value_for_interval( interval )
+			offer_schedule_interval_unit		= offer.interval_unit_for_interval( interval )
 
-			offer_schedule = offer.offer_schedules.active.for_interval( interval ).first
-			puts "current_period_end_at = #{start_at} + #{offer_schedule.interval_period} (#{offer.id}, #{interval})"
-			current_period_end_at = start_at + offer_schedule.interval_period
+			puts "current_period_end_at = #{start_at} + #{offer_schedule_interval_period} (#{offer.id}, #{interval})"
+			current_period_end_at = start_at + offer_schedule_interval_period
 
 			subscription = args[:subscription] || Subscription.new()
 			subscription.attributes = {
@@ -79,8 +81,8 @@ module Bazaar
 				current_period_start_at: start_at,
 				current_period_end_at: current_period_end_at,
 				next_charged_at: current_period_end_at,
-				billing_interval_value: offer_schedule.interval_value,
-				billing_interval_unit: offer_schedule.interval_unit,
+				billing_interval_value: offer_schedule_interval_value,
+				billing_interval_unit: offer_schedule_interval_unit,
 				currency: args[:currency],
 				discount: discount,
 				provider: args[:provider],
@@ -129,7 +131,7 @@ module Bazaar
 
 
 			interval = subscription.next_subscription_interval
-			price = offer.price_for_interval( interval )
+			price = subscription.price_for_interval( interval )
 			order.order_offers.new offer: offer, subscription: subscription, price: price, subtotal: price * subscription.quantity, quantity: subscription.quantity, title: offer.cart_title, tax_code: offer.tax_code, subscription_interval: interval
 
 			# apply the subscription discount to new orders
@@ -234,9 +236,9 @@ module Bazaar
 				subscription.failed_attempts = 0 if subscription.respond_to? :failed_attempts
 
 				# @todo don't change billing interval if customer has updated it
-				if ( new_offer_schedule = subscription.offer.offer_schedules.active.where( start_interval: subscription_interval ).first ).present?
-					subscription.billing_interval_value	= new_offer_schedule.interval_value
-					subscription.billing_interval_unit	= new_offer_schedule.interval_unit
+				if ( interval_value = subscription.interval_value_for_interval( subscription_interval ) ).present?
+					subscription.billing_interval_value	= interval_value
+					subscription.billing_interval_unit	= subscription.interval_unit_for_interval( subscription_interval )
 				end
 
 				# update the subscriptions next date

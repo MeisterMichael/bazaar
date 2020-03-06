@@ -17,7 +17,6 @@ module Bazaar
 		belongs_to 	:billing_user_address, class_name: 'UserAddress', required: false #
 		belongs_to 	:shipping_user_address, class_name: 'UserAddress', required: false #
 
-		has_many		:subscription_schedules, as: :parent_obj
 		has_many		:order_offers
 		has_many		:orders, through: :order_offers
 
@@ -53,6 +52,27 @@ module Bazaar
 			time_now ||= Time.now
 			active.where( 'next_charged_at < :now', now: time_now )
 		end
+
+		def price_for_interval( interval = 1 )
+			self.offer.price_for_interval( interval )
+		end
+
+		def interval_period_for_interval( interval = 1 )
+			self.offer.interval_period_for_interval( interval )
+		end
+
+		def interval_value_for_interval( interval = 1 )
+			self.offer.interval_value_for_interval( interval )
+		end
+
+		def interval_unit_for_interval( interval = 1 )
+			self.offer.interval_unit_for_interval( interval )
+		end
+
+		def skus_for_interval( interval = 1 )
+			self.offer.skus_for_interval( interval )
+		end
+
 
 		def next_subscription_interval( args = {} )
 			orders = Bazaar::Order.where( status: args[:statuses] ) if args[:statuses]
