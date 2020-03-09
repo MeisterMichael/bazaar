@@ -91,6 +91,15 @@ module Bazaar
 
 				@subscription.attributes = subscription_attributes
 
+				if @subscription.billing_interval_value_changed? || @subscription.billing_interval_unit_changed?
+					@subscription.offer_schedules.active.where( start_interval: @subscription.next_subscription_interval ).destroy_all
+					@subscription.offer_schedules.active.create(
+						start_interval: @subscription.next_subscription_interval,
+						interval_value: @subscription.billing_interval_value,
+						interval_unit: @subscription.billing_interval_unit,
+					)
+				end
+
 				if ( shipping_address_attributes = subscription_shipping_address_attributes() ).present?
 					@subscription.shipping_address = GeoAddress.new( shipping_address_attributes.merge( user: @subscription.user ) )
 				end
