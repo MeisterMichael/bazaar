@@ -6,7 +6,10 @@
 					&times;
 				%h4.modal-title
 					Add New Renewal Frequency to Schedule
-			= form_for Bazaar::OfferSchedule.new( parent_obj: parent_obj, interval_unit: 'weeks' ), url: bazaar.offer_schedule_admin_index_path do |f|
+			= form_for Bazaar::OfferSchedule.new( parent_obj: parent_obj, interval_value: args[:interval_value], interval_unit: ( args[:interval_unit] || 'weeks' ) ), url: bazaar.offer_schedule_admin_index_path do |f|
+				- if args[:replace_mode]
+					= hidden_field_tag :replace, args[:replace_mode]
+
 				= f.hidden_field :parent_obj_type
 				= f.hidden_field :parent_obj_id
 				= f.hidden_field :status, value: 'active'
