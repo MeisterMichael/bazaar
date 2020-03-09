@@ -8,6 +8,12 @@ module Bazaar
 
 			@offer_schedule = Bazaar::OfferSchedule.new( offer_schedule_params )
 
+			if params[:replace] == 'duplicate_start_intervals'
+				sibling_offer_schedules = @offer_schedule.parent_obj.offer_schedules.active
+				sibling_offer_schedules = sibling_offer_schedules.where( start_interval: @offer_schedule.start_interval )
+				sibling_offer_schedules.update( status: 'trash' )
+			end
+
 			if @offer_schedule.save
 				set_flash 'Schedule Added'
 				redirect_back fallback_location: sku_admin_index_path()
