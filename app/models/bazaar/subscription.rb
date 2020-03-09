@@ -59,7 +59,7 @@ module Bazaar
 		def price_for_interval( interval = 1, args = {} )
 			args[:attribute] ||= :price
 
-			if ( offer_price = self.offer_prices.active.for_interval( interval ).first ).present?
+			if ( offer_price = self.offer_prices.active.for_interval( interval ).order( start_interval: :desc, id: :asc ).first ).present?
 				offer_price.try(args[:attribute])
 			else
 				self.offer.price_for_interval( interval, args )
@@ -75,7 +75,7 @@ module Bazaar
 		end
 
 		def interval_period_for_interval( interval = 1 )
-			if ( offer_schedule = self.offer_schedules.active.for_interval( interval ).first ).present?
+			if ( offer_schedule = self.offer_schedules.active.for_interval( interval ).order( start_interval: :desc, id: :asc ).first ).present?
 				offer_schedule.interval_period
 			else
 				self.offer.interval_period_for_interval( interval )
@@ -83,7 +83,7 @@ module Bazaar
 		end
 
 		def interval_value_for_interval( interval = 1 )
-			if ( offer_schedule = self.offer_schedules.active.for_interval( interval ).first ).present?
+			if ( offer_schedule = self.offer_schedules.active.for_interval( interval ).order( start_interval: :desc, id: :asc ).first ).present?
 				offer_schedule.interval_value
 			else
 				self.offer.interval_value_for_interval( interval )
@@ -91,7 +91,7 @@ module Bazaar
 		end
 
 		def interval_unit_for_interval( interval = 1 )
-			if ( offer_schedule = self.offer_schedules.active.for_interval( interval ).first ).present?
+			if ( offer_schedule = self.offer_schedules.active.for_interval( interval ).order( start_interval: :desc, id: :asc ).first ).present?
 				offer_schedule.interval_unit
 			else
 				self.offer.interval_unit_for_interval( interval )
