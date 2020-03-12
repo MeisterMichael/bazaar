@@ -111,32 +111,47 @@ module Bazaar
 		end
 
 		def generate_subscription_order( subscription, args = {} )
+			generate_subscriptions_order( [subscription], args )
+		end
+
+		def generate_subscriptions_order( subscriptions, args = {} )
 			time_now = args[:now] || Time.now
 
-			# create order
-			offer = subscription.offer
 
 			order = @order_class.constantize.new(
-				billing_address: subscription.billing_address,
-				shipping_address: subscription.shipping_address,
-				user: subscription.user,
+				billing_address: subscriptions.first.billing_address,
+				shipping_address: subscriptions.first.shipping_address,
+				user: subscriptions.first.user,
 				generated_by: 'system_generaged',
-				parent: subscription,
-				email: subscription.user.email,
-				currency: subscription.currency,
-				provider: subscription.provider,
-				provider_customer_profile_reference: subscription.provider_customer_profile_reference,
-				provider_customer_payment_profile_reference: subscription.provider_customer_payment_profile_reference,
+				parent: subscriptions.first,
+				email: subscriptions.first.user.email,
+				currency: subscriptions.first.currency,
+				provider: subscriptions.first.provider,
+				provider_customer_profile_reference: subscriptions.first.provider_customer_profile_reference,
+				provider_customer_payment_profile_reference: subscriptions.first.provider_customer_payment_profile_reference,
 			)
 
+			subscriptions.each do |subscription|
+				# create order
+				offer = subscription.offer
 
-			interval = subscription.next_subscription_interval
-			price = subscription.price_for_interval( interval )
-			order.order_offers.new offer: offer, subscription: subscription, price: price, subtotal: price * subscription.quantity, quantity: subscription.quantity, title: offer.cart_title, tax_code: offer.tax_code, subscription_interval: interval
+				interval = subscription.next_subscription_interval
+				price = subscription.price_for_interval( interval )
+				order.order_offers.new(
+					offer: offer,
+					subscription: subscription,
+					price: price,
+					subtotal: price * subscription.quantity,
+					quantity: subscription.quantity,
+					title: offer.cart_title,
+					tax_code: offer.tax_code,
+					subscription_interval: interval
+				)
 
-			# apply the subscription discount to new orders
-			discount = subscription.discount
-			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present? && discount.active? && discount.in_progress?( now: time_now ) && @order_service.discount_service.get_order_discount_errors( order, discount ).blank?
+				# apply the subscription discount to new orders
+				discount = subscription.discount
+				order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present? && discount.active? && discount.in_progress?( now: time_now ) && @order_service.discount_service.get_order_discount_errors( order, discount ).blank?
+			end
 
 			order
 		end
@@ -150,34 +165,62 @@ module Bazaar
 			order
 		end
 
+		def calculate_subscriptions_order( subscriptions, args = {} )
+
+			order = generate_subscriptions_order( subscriptions, args = {} )
+			order.status = 'draft'
+
+			@order_service.calculate( order, shipping: { shipping_carrier_service_id: subscriptions.collect(&:shipping_carrier_service_id).select(&:present?).first } )
+
+			order
+		end
+
 		def charge_subscription( subscription, args = {} )
+			charge_subscriptions( [subscription], args )
+		end
+
+		def charge_subscriptions( subscriptions, args = {} )
 			time_now = args[:now] || Time.now
 
-			raise Exception.new("Subscription #{subscription.id } isn't ready to renew yet.  Currently it's #{time_now}, but subscription doesn't renew until #{subscription.next_charged_at}") unless subscription.next_charged_at < time_now
-			raise Exception.new("Subscription #{subscription.id } isn't active, so can't be charged.") unless subscription.active?
+			subscription_intervals = {}
+			subscriptions.each do |subscription|
+				raise Exception.new("Subscription #{subscription.id } isn't ready to renew yet.  Currently it's #{time_now}, but subscription doesn't renew until #{subscription.next_charged_at}") unless subscription.next_charged_at < time_now
+				raise Exception.new("Subscription #{subscription.id } isn't active, so can't be charged.") unless subscription.active?
 
-			subscription_interval = subscription.next_subscription_interval
+				subscription_intervals[subscription.id] = subscription.next_subscription_interval
+			end
 
-			order = generate_subscription_order( subscription, args.merge( now: time_now ) )
+			order = generate_subscriptions_order( subscriptions, args.merge( now: time_now ) )
 
 
 			# process order
 			begin
 
-				transaction = @order_service.process( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping } )
+				if subscriptions.count == 1
+					transaction = @order_service.process( order, shipping: {
+						shipping_carrier_service_id: subscriptions.first.shipping_carrier_service_id,
+						fixed_price: subscriptions.first.shipping,
+					})
+				else
+					transaction = @order_service.process( order, shipping: {
+						shipping_carrier_service_id: subscriptions.collect(&:shipping_carrier_service_id).select(&:present?).first,
+					})
+				end
 
 			rescue Exception => e
 
-				subscription.failed_attempts = subscription.failed_attempts + 1 if subscription.respond_to? :failed_attempts
-				subscription.failed_message = "Exception: #{e.message}" if subscription.respond_to? :failed_message
-				subscription.failed_at = Time.now if subscription.respond_to? :failed_at
+				subscriptions.each do |subscription|
+					subscription.failed_attempts = subscription.failed_attempts + 1 if subscription.respond_to? :failed_attempts
+					subscription.failed_message = "Exception: #{e.message}" if subscription.respond_to? :failed_message
+					subscription.failed_at = Time.now if subscription.respond_to? :failed_at
 
-				# mark subscription as failed if the transaction failed
-				subscription.status = 'failed'
+					# mark subscription as failed if the transaction failed
+					subscription.status = 'failed'
 
-				subscription.save
+					subscription.save
 
-				log_event( name: 'subscription_failed', category: 'ecom', on: subscription, content: "subscription #{subscription.code} failed to renew due to: #{subscription.failed_message}" )
+					log_event( name: 'subscription_failed', category: 'ecom', on: subscription, content: "subscription #{subscription.code} failed to renew due to: #{subscription.failed_message}" )
+				end
 
 				raise e
 
@@ -196,7 +239,7 @@ module Bazaar
 
 				if transaction.present? && transaction.persisted?
 
-					transaction.parent_obj = subscription
+					transaction.parent_obj = subscriptions.first
 					transaction.save
 
 				else
@@ -204,7 +247,7 @@ module Bazaar
 					# if no transaction was created, create one to log the error
 					transaction = Bazaar::Transaction.create(
 						message: order.nested_errors.join(' * '),
-						parent_obj: subscription,
+						parent_obj: subscriptions.first,
 						status: 'declined',
 						transaction_type: 'charge',
 						amount: order.total,
@@ -213,38 +256,45 @@ module Bazaar
 
 				end
 
-				# annotate how, how often, and when the subscription failed
-				subscription.failed_attempts = subscription.failed_attempts + 1 if subscription.respond_to? :failed_attempts
-				subscription.failed_message = transaction.message if subscription.respond_to? :failed_message
-				subscription.failed_at = transaction.created_at if subscription.respond_to? :failed_at
+				subscriptions.each do |subscription|
+					# annotate how, how often, and when the subscription failed
+					subscription.failed_attempts = subscription.failed_attempts + 1 if subscription.respond_to? :failed_attempts
+					subscription.failed_message = transaction.message if subscription.respond_to? :failed_message
+					subscription.failed_at = transaction.created_at if subscription.respond_to? :failed_at
 
-				# mark subscription as failed if the transaction failed
-				subscription.status = 'failed'
+					# mark subscription as failed if the transaction failed
+					subscription.status = 'failed'
 
-				subscription.save
+					subscription.save
+				end
 
 				order.errors.add(:base, :processing_error, message: 'Transaction failed') if !transaction || not( transaction.approved? )
 
 			else
 				order.save
 
-				log_event( user: subscription.user, name: 'renewal', on: subscription, content: "auto renewed a subscription #{subscription.code}" )
+				subscriptions.each do |subscription|
+					subscription_interval = subscription_intervals[subscription.id]
 
-				# remove discount after use, if it is not for more than one order
-				subscription.discount = nil unless subscription.discount.try(:for_subscriptions?)
+					log_event( user: subscription.user, name: 'renewal', on: subscription, content: "auto renewed a subscription #{subscription.code}" )
 
-				subscription.failed_attempts = 0 if subscription.respond_to? :failed_attempts
+					# remove discount after use, if it is not for more than one order
+					subscription.discount = nil unless subscription.discount.try(:for_subscriptions?)
 
-				# @todo don't change billing interval if customer has updated it
-				if ( interval_value = subscription.interval_value_for_interval( subscription_interval ) ).present?
-					subscription.billing_interval_value	= interval_value
-					subscription.billing_interval_unit	= subscription.interval_unit_for_interval( subscription_interval )
+					subscription.failed_attempts = 0 if subscription.respond_to? :failed_attempts
+
+					# @todo don't change billing interval if customer has updated it
+					if ( interval_value = subscription.interval_value_for_interval( subscription_interval ) ).present?
+						subscription.billing_interval_value	= interval_value
+						subscription.billing_interval_unit	= subscription.interval_unit_for_interval( subscription_interval )
+					end
+
+					# update the subscriptions next date
+					update_next_charged_at( subscription )
+
+					subscription.save
+
 				end
-
-				# update the subscriptions next date
-				update_next_charged_at( subscription )
-
-				subscription.save
 
 			end
 

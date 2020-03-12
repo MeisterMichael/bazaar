@@ -37,7 +37,7 @@ module Bazaar
 
 		def price_for_interval( interval = 1, args = {} )
 			args[:attribute] ||= :price
-			self.offer_prices.active.for_interval( interval ).first.try(args[:attribute])
+			self.offer_prices.active.for_interval( interval ).order( start_interval: :desc, id: :asc ).first.try(args[:attribute])
 		end
 
 		def price_as_money_for_interval( interval = 1 )
@@ -49,19 +49,19 @@ module Bazaar
 		end
 
 		def interval_period_for_interval( interval = 1 )
-			self.offer_schedules.active.for_interval( interval ).limit(1).collect(&:interval_period).first
+			self.offer_schedules.active.for_interval( interval ).order( start_interval: :desc, id: :asc ).limit(1).collect(&:interval_period).first
 		end
 
 		def interval_value_for_interval( interval = 1 )
-			self.offer_schedules.active.for_interval( interval ).limit(1).collect(&:interval_value).first
+			self.offer_schedules.active.for_interval( interval ).order( start_interval: :desc, id: :asc ).limit(1).collect(&:interval_value).first
 		end
 
 		def interval_unit_for_interval( interval = 1 )
-			self.offer_schedules.active.for_interval( interval ).limit(1).collect(&:interval_unit).first
+			self.offer_schedules.active.for_interval( interval ).order( start_interval: :desc, id: :asc ).limit(1).collect(&:interval_unit).first
 		end
 
 		def skus_for_interval( interval = 1 )
-			self.skus.merge( self.offer_skus.active.for_interval( interval ) )
+			self.skus.merge( self.offer_skus.active.for_interval( interval ) ).order( start_interval: :desc, id: :asc )
 		end
 
 		def page_event_data
