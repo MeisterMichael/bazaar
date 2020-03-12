@@ -279,6 +279,9 @@
 
 
 			.well.white-well
+				- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update ) && not( @order.fulfilled? || @order.delivered? )
+					.pull-right
+						%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
 				%h5
 					Shipping Address
 				= raw @order.shipping_address.to_html
