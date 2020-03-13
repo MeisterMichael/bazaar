@@ -55,6 +55,8 @@ module Bazaar
 		mattr_accessor :checkout_order_service_class
 		mattr_accessor :wholesale_order_service_class
 
+		mattr_accessor :admin_permit_additions
+
 		mattr_accessor :order_code_prefix
 		mattr_accessor :order_code_postfix
 
@@ -117,6 +119,8 @@ module Bazaar
 		self.checkout_order_class_name = "Bazaar::CheckoutOrder"
 		self.wholesale_order_class_name = "Bazaar::WholesaleOrder"
 		self.wholesale_item_collections = [ 'Bazaar::Product.published.active' ]
+
+		self.admin_permit_additions = {}
 
 		self.order_code_prefix = nil
 		self.order_code_postfix = nil
