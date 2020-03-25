@@ -57,6 +57,8 @@ module Bazaar
 
 		mattr_accessor :admin_permit_additions
 
+		mattr_accessor :discount_types
+
 		mattr_accessor :order_code_prefix
 		mattr_accessor :order_code_postfix
 
@@ -121,6 +123,8 @@ module Bazaar
 		self.wholesale_item_collections = [ 'Bazaar::Product.published.active' ]
 
 		self.admin_permit_additions = {}
+
+		self.discount_types = { 'Coupon' => 'Bazaar::CouponDiscount', 'Promotion' => 'Bazaar::PromotionDiscount' }
 
 		self.order_code_prefix = nil
 		self.order_code_postfix = nil

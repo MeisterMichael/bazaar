@@ -147,7 +147,11 @@ module Bazaar
 		end
 
 		def calculate_order_discounts( order, args = {} )
-			discount = Discount.active.in_progress.where( 'lower(code) = ?', args[:code].downcase.strip ).first if args[:code].present?
+			Bazaar::PromotionDiscount.active.in_progress.each do |discount|
+				order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title )
+			end
+
+			discount = Bazaar::CouponDiscount.active.in_progress.where( 'lower(code) = ?', args[:code].downcase.strip ).first if args[:code].present?
 			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 		end
 
