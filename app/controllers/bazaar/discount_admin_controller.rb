@@ -41,10 +41,11 @@ module Bazaar
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
-			filters.delete(:type) if filters[:type] == 'all'
-			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
-			@discounts = @search_service.discount_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
+			@filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			@filters[:type] ||= Bazaar.discount_types.values.first
+			@filters.delete(:type) if @filters[:type] == 'all'
+			@filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
+			@discounts = @search_service.discount_search( params[:q], @filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Discounts" )
 		end
