@@ -124,7 +124,7 @@ module Bazaar
 
 		self.admin_permit_additions = {}
 
-		self.discount_types = { 'Coupon' => 'Bazaar::CouponDiscount', 'Promotion' => 'Bazaar::PromotionDiscount' }
+		self.discount_types = { 'House Coupon' => 'Bazaar::HouseCouponDiscount', 'Partner Coupon' => 'Bazaar::PartnerCouponDiscount', 'Promotion' => 'Bazaar::PromotionDiscount' }
 
 		self.order_code_prefix = nil
 		self.order_code_postfix = nil
