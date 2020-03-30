@@ -41,9 +41,11 @@ module Bazaar
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
-			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
-			@discounts = @search_service.discount_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
+			@filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			@filters[:type] ||= Bazaar.discount_types.values.first
+			@filters.delete(:type) if @filters[:type] == 'all'
+			@filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
+			@discounts = @search_service.discount_search( params[:q], @filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Discounts" )
 		end
@@ -69,7 +71,7 @@ module Bazaar
 
 			def discount_params
 				params.require( :discount ).permit(
-					:start_at, :end_at, :status, :title, :code, :description, :availability, :minimum_prod_subtotal_as_money, :minimum_tax_subtotal_as_money, :minimum_shipping_subtotal_as_money, :limit_per_customer, :limit_global,
+					:type, :start_at, :end_at, :status, :title, :code, :description, :availability, :minimum_prod_subtotal_as_money, :minimum_tax_subtotal_as_money, :minimum_shipping_subtotal_as_money, :limit_per_customer, :limit_global,
 					first_discount_item_attributes: [ :id, :discount_type, :discount_amount_as_money, :maximum_orders, :minimum_orders, :order_item_type ],
 					discount_items_attributes: [ :id, :discount_type, :discount_amount_as_money, :maximum_orders, :minimum_orders, :order_item_type ]
 				)

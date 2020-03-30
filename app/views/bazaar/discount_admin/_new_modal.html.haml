@@ -6,12 +6,18 @@
 					&times;
 				%h4.modal-title
 					New Discount
-			= form_for Bazaar::Discount.new, url: bazaar.discount_admin_index_path do |f|
+			= form_for Bazaar::Discount.new, url: bazaar.discount_admin_index_path, as: :discount do |f|
 				.modal-body
 					.form-group
 						= f.label :title
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A descriptive title for internal use.' }
 						= f.text_field :title, class: 'form-control'
+
+					.form-group
+						= f.label :type
+						-# %i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A descriptive title for internal use.' }
+						= f.select :type, Bazaar.discount_types.collect{|key,klass| [key,klass] }, {}, { class: 'form-control' }
+
 					.form-group
 						= f.label :description
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'Notes and details regarding the nature of this discount, who uses it and why it was created.  For internal use.' }
