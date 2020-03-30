@@ -67,7 +67,7 @@ module Bazaar
 		def page_event_data
 			data = {
 				id: self.code || self.id,
-				name: self.title,
+				name: self.cart_title,
 				price: self.initial_price_as_money,
 				category: nil,
 			}
