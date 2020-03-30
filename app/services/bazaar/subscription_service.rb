@@ -33,10 +33,12 @@ module Bazaar
 
 			if (order = args[:order]).present?
 
-				args[:billing_address]	||= order.billing_address
-				args[:shipping_address]	||= order.shipping_address
-				args[:currency]			||= order.currency
-				args[:provider]			||= order.provider
+				args[:billing_user_address]		||= order.billing_user_address
+				args[:shipping_user_address]	||= order.shipping_user_address
+				args[:billing_address]				||= order.billing_address
+				args[:shipping_address]				||= order.shipping_address
+				args[:currency]								||= order.currency
+				args[:provider]								||= order.provider
 				args[:provider_customer_profile_reference] ||= order.provider_customer_profile_reference
 				args[:provider_customer_payment_profile_reference] ||= order.provider_customer_payment_profile_reference
 				args[:shipping_carrier_service_id] = order.order_items.shipping.first.try(:item_id)
@@ -73,6 +75,8 @@ module Bazaar
 			subscription.attributes = {
 				user: user,
 				offer: offer,
+				billing_user_address: args[:billing_user_address],
+				shipping_user_address: args[:shipping_user_address],
 				billing_address: args[:billing_address],
 				shipping_address: args[:shipping_address],
 				quantity: quantity,
@@ -95,6 +99,9 @@ module Bazaar
 				shipping: args[:shipping],
 				tax: args[:tax],
 			}
+
+			subscription.billing_address ||= subscription.billing_user_address.try(:geo_address)
+			subscription.shipping_address ||= subscription.shipping_user_address.try(:geo_address)
 
 			if subscription.respond_to? :properties
 				subscription.properties = {
@@ -121,6 +128,8 @@ module Bazaar
 			order = @order_class.constantize.new(
 				billing_address: subscriptions.first.billing_address,
 				shipping_address: subscriptions.first.shipping_address,
+				billing_user_address: subscriptions.first.billing_user_address,
+				shipping_user_address: subscriptions.first.shipping_user_address,
 				user: subscriptions.first.user,
 				generated_by: 'system_generaged',
 				parent: subscriptions.first,

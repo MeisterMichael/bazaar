@@ -57,12 +57,17 @@ module Bazaar
 
 				order_attributes = order_attributes[:order] || {}
 
-				order_attributes[:billing_address_attributes]	||= order_attributes.delete(:billing_address) || {}
-				order_attributes[:shipping_address_attributes]	||= order_attributes.delete(:shipping_address) || {}
-				order_attributes[:order_offers_attributes]		||= order_attributes.delete(:order_offers) || []
+				order_attributes[:billing_user_address_attributes]	= order_attributes[:billing_user_address_attributes] order_attributes.delete(:billing_address) || order_attributes.delete(:billing_user_address) || {}
+				order_attributes[:shipping_user_address_attributes]	= order_attributes[:shipping_user_address_attributes] order_attributes.delete(:shipping_address) || order_attributes.delete(:shipping_user_address) || {}
 
-				order_attributes[:shipping_address_attributes]	= order_attributes[:billing_address_attributes] if order_attributes.delete(:same_as_billing)
-				order_attributes[:billing_address_attributes]	= order_attributes[:shipping_address_attributes] if order_attributes.delete(:same_as_shipping)
+				order_attributes[:billing_user_address_attributes]	= order_attributes[:shipping_user_address_attributes] if order_attributes.delete(:same_as_shipping)
+				order_attributes[:shipping_user_address_attributes]	= order_attributes[:billing_user_address_attributes] if order_attributes.delete(:same_as_billing)
+
+				order_attributes[:billing_user_address_attributes] ||= {}
+				order_attributes[:shipping_user_address_attributes] ||= {}
+
+
+				order_attributes[:order_offers_attributes]		||= order_attributes.delete(:order_offers) || []
 
 				if order_attributes[:order_offers_attributes].present?
 					order_offer_attributes = order_attributes[:order_offers_attributes]

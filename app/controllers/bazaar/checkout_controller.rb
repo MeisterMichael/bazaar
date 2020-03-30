@@ -252,13 +252,15 @@ module Bazaar
 		end
 
 		def get_order_attributes
-			super().merge( order_offers_attributes: [], user: current_user )
+			attrs = super().merge( order_offers_attributes: [], user: current_user )
+			attrs[:billing_user_address][:user] = current_user
+			attrs[:shipping_user_address][:user] = current_user
+			attrs
 		end
 
 		def get_order
 
 			@order = Bazaar.checkout_order_class_name.constantize.new( get_order_attributes )
-			@order.billing_address.user = @order.shipping_address.user = @order.user
 
 			@cart.cart_offers.each do |cart_offer|
 				@order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: cart_offer.quantity, title: cart_offer.offer.cart_title, tax_code: cart_offer.offer.tax_code )

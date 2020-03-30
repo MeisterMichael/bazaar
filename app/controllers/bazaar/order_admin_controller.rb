@@ -45,32 +45,6 @@ module Bazaar
 			redirect_back fallback_location: '/admin'
 		end
 
-		def create
-			@order = Bazaar::CheckoutOrder.new( order_params )
-			@order.user = User.find_by( email: @order.email.downcase )
-			@order.user ||= User.create( email: @order.email.downcase, first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name )
-			@order.billing_address.user = @order.shipping_address.user = @order.user
-			@order.total = 0 if @order.total.nil?
-			@order.status = 'draft'
-
-			@order.order_offers.each do |order_offer|
-				order_offer.title		= order_offer.offer.title if order_offer.title.blank?
-				order_offer.price		= order_offer.offer.initial_price
-				order_offer.subtotal	= order_offer.price * order_offer.quantity
-				order_offer.tax_code	= order_offer.offer.tax_code
-			end
-
-			if @order.save && @order.nested_errors.blank?
-				set_flash 'Success.'
-
-				redirect_to edit_order_admin_path( @order.id )
-			else
-				set_flash @order.nested_errors, :danger
-
-				redirect_back fallback_location: '/order_admin'
-			end
-
-		end
 
 		def edit
 			unless @order.draft?
@@ -120,19 +94,6 @@ module Bazaar
 			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Orders" )
-		end
-
-		def new
-			if params[:order]
-				@order = Bazaar::CheckoutOrder.new order_params
-			else
-				@order = Bazaar::CheckoutOrder.new
-				@order.billing_address = GeoAddress.new
-				@order.shipping_address = GeoAddress.new
-			end
-			@order.total ||= 0
-			@order.status = 'draft'
-
 		end
 
 		def refund
@@ -262,10 +223,10 @@ module Bazaar
 					:same_as_billing,
 					:same_as_shipping,
 					{
-						:billing_address_attributes => [
+						:billing_user_address_attributes => [
 							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 						],
-						:shipping_address_attributes => [
+						:shipping_user_address_attributes => [
 							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 						],
 						:order_offers_attributes => [

@@ -171,10 +171,10 @@ module Bazaar
 					:billing_address_id,
 					:shipping_address_id,
 					{
-						:billing_address_attributes => [
+						:billing_user_address_attributes => [
 							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 						],
-						:shipping_address_attributes => [
+						:billing_user_address_attributes => [
 							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 						],
 						:order_offers_attributes => [
