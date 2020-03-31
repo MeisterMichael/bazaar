@@ -253,8 +253,8 @@ module Bazaar
 
 		def get_order_attributes
 			attrs = super().merge( order_offers_attributes: [], user: current_user )
-			attrs[:billing_user_address][:user] = current_user
-			attrs[:shipping_user_address][:user] = current_user
+			attrs[:billing_user_address_attributes][:user] = current_user
+			attrs[:billing_user_address_attributes][:user] = current_user
 			attrs
 		end
 

@@ -1,7 +1,7 @@
 
 module Bazaar
 	class WholesaleOrder < Bazaar::Order
-		include Bazaar::UserAddressAttributesConcern
+		include Bazaar::Concerns::UserAddressAttributesConcern
 		include Bazaar::WholesaleOrderSearchable if (Bazaar::WholesaleOrderSearchable rescue nil)
 
 		belongs_to 	:billing_address, class_name: 'GeoAddress', validate: true, required: true
