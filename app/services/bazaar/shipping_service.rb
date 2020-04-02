@@ -216,6 +216,7 @@ module Bazaar
 			shipment = order.shipments.first
 			shipment ||= order.shipments.new(
 				destination_address: order.shipping_address,
+				destination_user_address: order.shipping_user_address,
 				status: 'draft',
 			)
 

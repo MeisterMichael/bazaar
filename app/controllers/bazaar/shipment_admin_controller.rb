@@ -20,6 +20,7 @@ module Bazaar
 					weight:								old_shipment.weight,
 					cost:									old_shipment.cost,
 					destination_address:	old_shipment.destination_address,
+					destination_user_address:	old_shipment.destination_user_address,
 					source_address:				old_shipment.source_address,
 					order:								old_shipment.order,
 					warehouse:						old_shipment.warehouse,
@@ -43,6 +44,8 @@ module Bazaar
 			else
 				@shipment = Bazaar::Shipment.new shipment_params
 			end
+
+			@shipment.destination_address ||= @shipment.destination_user_address.try(:geo_address)
 
 			authorize( @shipment )
 
@@ -100,8 +103,10 @@ module Bazaar
 
 			get_destination_addresses
 
-			@shipment.destination_address ||= @shipment.user.preferred_shipping_address if @shipment.user
-			@shipment.destination_address ||= @destination_addresses.first
+			@shipment.destination_user_address ||= @shipment.user.preferred_shipping_user_address if @shipment.user
+			@shipment.destination_user_address ||= @destination_user_addresses.first
+
+			@shipment.destination_address ||= @shipment.destination_user_address.try(:geo_address)
 
 			authorize( @shipment )
 
@@ -151,12 +156,13 @@ module Bazaar
 		end
 
 		def get_destination_addresses
-			@destination_addresses = GeoAddress.none
-			@destination_addresses = @shipment.user.geo_addresses.de_dup( priority: [ @shipment.user.preferred_shipping_address, @shipment.user.preferred_billing_address ] ) if @shipment.user
+			@destination_user_addresses = UserAddress.none
+			@destination_user_addresses = @shipment.user.user_addresses.canonical if @shipment.user
 		end
 
 		def shipment_params
-			shipment_attributes = params.require( :shipment ).permit(
+			shipment_attributes = {} unless params[:shipment].present?
+			shipment_attributes ||= params.require( :shipment ).permit(
 				:user_id,
 				:warehouse_id,
 				:notes,
@@ -172,7 +178,7 @@ module Bazaar
 				:returned_at,
 				:processable_at,
 				:order_id,
-				:destination_address_id,
+				:destination_user_address_id,
 				:cost_as_money,
 				:cost,
 				:price_as_money,
@@ -187,7 +193,7 @@ module Bazaar
 				:requested_service_level,
 				{
 					shipment_skus_attributes: [:sku_id,:quantity],
-					destination_address_attributes: [ :user_id, :phone, :zip, :geo_country_id, :geo_state_id, :state, :city, :street2, :street, :last_name, :first_name ]
+					destination_user_address_attributes: [ :user_id, :phone, :zip, :geo_country_id, :geo_state_id, :state, :city, :street2, :street, :last_name, :first_name ],
 				}
 			)
 
@@ -203,10 +209,10 @@ module Bazaar
 				)
 			end
 
-			if shipment_attributes[:destination_address_id].present? && shipment_attributes[:destination_address_id] != 'on'
-				shipment_attributes.delete(:destination_address_attributes)
+			if shipment_attributes[:destination_user_address_id].present? && shipment_attributes[:destination_user_address_id] != 'on'
+				shipment_attributes.delete(:destination_user_address_attributes)
 			else
-				shipment_attributes.delete(:destination_address_id)
+				shipment_attributes.delete(:destination_user_address_id)
 			end
 
 			shipment_attributes

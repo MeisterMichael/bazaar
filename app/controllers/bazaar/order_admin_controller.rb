@@ -26,8 +26,8 @@ module Bazaar
 
 		def address
 			authorize( @order )
-			address_attributes = params.require( :geo_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
-			address = GeoAddress.create( address_attributes.merge( user: @order.user ) )
+			address_attributes = params.require( :user_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
+			address = UserAddress.canonical_find_or_create_with_cannonical_geo_address( address_attributes.merge( user: @order.user ) )
 
 			if address.errors.present?
 
@@ -35,11 +35,20 @@ module Bazaar
 
 			else
 
-				attribute_name = params[:attribute] == 'billing_address' ? 'billing_address' : 'shipping_address'
-				# @todo trash the old address if it's no long used by any orders or subscriptions
-				@order.update( attribute_name => address )
+				user_address_attribute_name = params[:attribute] == 'billing_user_address' ? 'billing_user_address' : 'shipping_user_address'
+				geo_address_attribute_name = user_address_attribute_name.gsub(/user_/,'')
 
-				set_flash "Address Updated", :success
+				# @todo trash the old address if it's no long used by any orders or subscriptions
+				@order.update(
+					user_address_attribute_name => address,
+					geo_address_attribute_name => address.geo_address
+				)
+
+				if @order.errors.present?
+					set_flash address.errors.full_messages, :danger
+				else
+					set_flash "Address Updated", :success
+				end
 
 			end
 			redirect_back fallback_location: '/admin'

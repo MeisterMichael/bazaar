@@ -2,6 +2,7 @@ module Bazaar
 	class Subscription < ApplicationRecord
 
 
+		include Bazaar::Concerns::UserAddressAttributesConcern
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include Bazaar::SubscriptionSearchable if (Bazaar::SubscriptionSearchable rescue nil)
 
@@ -28,6 +29,7 @@ module Bazaar
 		before_save :update_timestamps
 
 		accepts_nested_attributes_for :billing_address, :shipping_address, :user
+	accepts_nested_user_address_attributes_for [:billing_user_address,:billing_address], [:shipping_user_address,:shipping_address]
 
 		money_attributes :amount, :price
 

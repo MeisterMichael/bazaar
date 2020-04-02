@@ -215,14 +215,14 @@
 
 				%hr
 				.pull-right
-					%a{ href: '#', data: { toggle: :modal, target: '#billing_address_modal' } } Edit
+					%a{ href: '#', data: { toggle: :modal, target: '#billing_user_address_modal' } } Edit
 				%h5
 					Billing Address
 				= render 'address_section', geo_address: @subscription.billing_address, user_address: @subscription.billing_user_address, args: {}
 
 			.well.white-well
 				.pull-right
-					%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
+					%a{ href: '#', data: { toggle: :modal, target: '#shipping_user_address_modal' } } Edit
 				%h5
 					Shipping Address
 				= render 'address_section', geo_address: @subscription.shipping_address, user_address: @subscription.shipping_user_address, args: {}
@@ -238,8 +238,8 @@
 				- else
 					%div Default
 
-= render 'bazaar/subscription_admin/edit_address_modal', args: { title: 'Billing Address', attribute: 'billing_address' }, countries: get_billing_countries, states: get_billing_states( @subscription.billing_address.geo_country.id )
-= render 'bazaar/subscription_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_address' }, countries: get_shipping_countries, states: get_shipping_states( @subscription.shipping_address.geo_country.id )
+= render 'bazaar/subscription_admin/edit_address_modal', args: { title: 'Billing Address', attribute: 'billing_user_address' }, countries: get_billing_countries, states: get_billing_states( @subscription.billing_user_address.geo_country.id )
+= render 'bazaar/subscription_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_user_address' }, countries: get_shipping_countries, states: get_shipping_states( @subscription.shipping_user_address.geo_country.id )
 = render 'bazaar/subscription_admin/change_payment_profile_modal', args: {}
 = render 'bazaar/subscription_admin/update_discount_modal', args: {}
 = render 'bazaar/offer_price_admin/new_modal', parent_obj: @subscription, args: { start_interval: @subscription.next_subscription_interval, price_as_money: @subscription.price_as_money_for_interval( @subscription.next_subscription_interval ), replace_mode: 'duplicate_start_intervals' }

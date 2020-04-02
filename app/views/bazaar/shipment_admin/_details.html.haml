@@ -77,4 +77,4 @@
 		.well.white-well
 			.form-group
 				%label Destination Address
-				%div= raw @shipment.destination_address.try(:to_html) || 'N/A'
+				%div= raw @shipment.destination_user_address.try(:to_html) || 'N/A'

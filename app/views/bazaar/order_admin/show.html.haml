@@ -222,7 +222,7 @@
 
 			.well.white-well
 				.pull-right
-					%a{ href: bazaar.shipment_admin_index_path( shipment: { user_id: @order.user_id, status: 'draft', email: @order.email, order_id: @order.id, destination_address_id: @order.shipping_address_id } ), data: { method: 'POST' } }
+					%a{ href: bazaar.shipment_admin_index_path( shipment: { user_id: @order.user_id, status: 'draft', email: @order.email, order_id: @order.id, destination_user_address_id: @order.shipping_user_address_id } ), data: { method: 'POST' } }
 						New Shipment
 				%h4 Shipments
 				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
@@ -278,11 +278,11 @@
 					= render 'address_section', geo_address: @order.billing_address, user_address: @order.billing_user_address, args: {}
 
 
-			- if @order.respond_to?( :shipping_address ) && @order.shipping_address.present?
+			- if @order.respond_to?( :shipping_user_address ) && @order.shipping_user_address.present?
 				.well.white-well
 					- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update ) && not( @order.fulfilled? || @order.delivered? )
 						.pull-right
-							%a{ href: '#', data: { toggle: :modal, target: '#shipping_address_modal' } } Edit
+							%a{ href: '#', data: { toggle: :modal, target: '#shipping_user_address_modal' } } Edit
 					%h5
 						Shipping Address
 					= render 'address_section', geo_address: @order.shipping_address, user_address: @order.shipping_user_address, args: {}
@@ -295,4 +295,4 @@
 = render 'bazaar/order_admin/edit_status_modal'
 = render 'bazaar/order_admin/refund_modal'
 = render 'bazaar/order_admin/support_notes_modal'
-= render 'bazaar/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_address' }, countries: get_shipping_countries, states: get_shipping_states( @order.shipping_address.geo_country_id )
+= render 'bazaar/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_user_address' }, countries: get_shipping_countries, states: get_shipping_states( @order.shipping_user_address.geo_country_id )

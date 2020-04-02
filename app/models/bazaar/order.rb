@@ -103,8 +103,8 @@ module Bazaar
 		private
 
 		def order_address_users_match
-			self.errors.add(:billing_address, "does not exist.") if self.user.present? && billing_address.present? && billing_address.user != self.user
-			self.errors.add(:shipping_address, "does not exist.") if self.user.present? && shipping_address.present? && shipping_address.user != self.user
+			self.errors.add(:billing_address, "does not exist.") if self.user.present? && billing_user_address.present? && billing_user_address.user != self.user
+			self.errors.add(:shipping_address, "does not exist.") if self.user.present? && shipping_user_address.present? && shipping_user_address.user != self.user
 		end
 
 		def generate_order_code
