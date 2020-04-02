@@ -31,7 +31,7 @@ module Bazaar
 
 		money_attributes :cost, :price, :tax, :declared_value
 
-		accepts_nested_user_address_attributes_for [:destination_user_address,:destination_address]
+		accepts_nested_user_address_attributes_for [:destination_user_address,:destination_address,:user_id]
 
 		def clear_shipping_carrier_service
 			self.shipping_carrier_service_id = nil

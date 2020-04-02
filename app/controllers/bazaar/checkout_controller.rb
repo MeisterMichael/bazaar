@@ -36,9 +36,9 @@ module Bazaar
 			if @cart.present?
 				@cart.email = @order.email if @order.email.present? && @order.email.match( Devise::email_regexp ).present?
 
-				if @order.billing_address.present?
-					@cart.first_name = @order.billing_address.first_name || @cart.first_name
-					@cart.last_name = @order.billing_address.last_name || @cart.last_name
+				if @order.billing_user_address.present?
+					@cart.first_name = @order.billing_user_address.first_name || @cart.first_name
+					@cart.last_name = @order.billing_user_address.last_name || @cart.last_name
 				end
 
 				order_offers_attributes = @order.order_offers.collect do |order_offer|
@@ -74,12 +74,12 @@ module Bazaar
 		end
 
 		def create
-			@order.user ||= User.create_with( first_name: @order.billing_address.first_name, last_name: @order.billing_address.last_name ).find_or_create_by( email: @order.email.downcase ) if @order.email.present? && Bazaar.create_user_on_checkout
+			@order.user ||= User.create_with( first_name: @order.billing_user_address.first_name, last_name: @order.billing_user_address.last_name ).find_or_create_by( email: @order.email.downcase ) if @order.email.present? && Bazaar.create_user_on_checkout
 			Email.create_or_update_by_email( @order.email, user: @order.user )
-			@order.billing_address.user = @order.shipping_address.user = @order.user
+			@order.billing_user_address.user = @order.shipping_user_address.user = @order.user
 
-			@order.billing_address.tags = @order.billing_address.tags + ['billing_address']
-			@order.shipping_address.tags = @order.shipping_address.tags + ['shipping_address']
+			@order.billing_user_address.tags = @order.billing_user_address.tags + ['billing_address']
+			@order.shipping_user_address.tags = @order.shipping_user_address.tags + ['shipping_address']
 
 			@order.source = 'Consumer Checkout'
 
@@ -103,7 +103,7 @@ module Bazaar
 			if params[:newsletter].present?
 				Scuttlebutt::Optin.create(
 					email: @order.email,
-					name: "#{@order.billing_address.first_name} #{@order.billing_address.last_name}",
+					name: "#{@order.billing_user_address.first_name} #{@order.billing_user_address.last_name}",
 					ip: @order.ip,
 					user: @order.user
 				)

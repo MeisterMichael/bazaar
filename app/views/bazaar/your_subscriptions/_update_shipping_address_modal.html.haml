@@ -10,7 +10,7 @@
 					Enter New Shipping Information
 			= form_for @subscription, url: bazaar.your_subscription_path( @subscription.code ) do |subscription_form|
 				.modal-body
-					= subscription_form.fields_for :shipping_address do |f|
+					= subscription_form.fields_for :shipping_user_address do |f|
 
 						.form-group
 							%label

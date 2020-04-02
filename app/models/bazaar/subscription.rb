@@ -29,7 +29,7 @@ module Bazaar
 		before_save :update_timestamps
 
 		accepts_nested_attributes_for :billing_address, :shipping_address, :user
-	accepts_nested_user_address_attributes_for [:billing_user_address,:billing_address], [:shipping_user_address,:shipping_address]
+		accepts_nested_user_address_attributes_for [:billing_user_address,:billing_address,:user_id], [:shipping_user_address,:shipping_address,:user_id]
 
 		money_attributes :amount, :price
 
