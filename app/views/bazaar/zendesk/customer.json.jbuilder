@@ -18,7 +18,7 @@ if @user.present?
 		  json.fulfillment_status_name 'No Shipment'
 		end
 	  json.url bazaar.order_admin_url( order )
-	  json.total order.total / 100.0
+	  json.total order.total.to_f / 100.0
 	end
 else
 	json.status 404
