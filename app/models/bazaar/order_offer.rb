@@ -6,6 +6,8 @@ module Bazaar
 		belongs_to :order
 		belongs_to :subscription, required: false, validate: true
 
+		has_many :order_offer_discounts
+
 		money_attributes :subtotal, :price, :tax
 
 		def product
