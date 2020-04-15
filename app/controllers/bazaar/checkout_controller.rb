@@ -68,6 +68,7 @@ module Bazaar
 			rescue Exception => e
 				puts e
 				NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				raise e if Rails.env.development?
 			end
 
 			log_event( name: 'init_checkout', value: @cart.subtotal, on: @cart, content: "started checkout process", ttl: 10.minutes )
