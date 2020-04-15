@@ -51,7 +51,7 @@ module Bazaar
 			if ( payment_info = params[:payment_info] ).present?
 
 
-				if payment_info[:billing_address_attributes].present?
+				if payment_info[:billing_user_address_attributes].present?
 
 					billing_address_attributes = payment_info.require(:billing_user_address_attributes).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
 

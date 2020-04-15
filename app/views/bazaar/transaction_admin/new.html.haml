@@ -21,9 +21,9 @@
 							=f.label :status
 							= f.collection_select :status, @transaction.class.statuses, :first, :first, {}, class: 'form-control'
 				.form-group
-					=f.label :billing_address
+					=f.label :billing_user_address
 					%div
-						= raw @transaction.billing_address.try(:to_html) || 'N/A'
+						= raw @transaction.billing_user_address.try(:to_html) || 'N/A'
 				.form-group
 					=f.label :amount_as_money, "Amount"
 					= f.number_field :amount_as_money, class: 'form-control', step: 0.01, min: 0.0

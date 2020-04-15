@@ -41,9 +41,9 @@
 				.row
 					.col-xs-12.col-md-3
 						%h5{ style: 'margin-bottom: 0.2em;' } Shipping Address
-						= raw @subscription.shipping_address.to_html
+						= raw @subscription.shipping_user_address.to_html
 						%div
-							%a{ href: '#', data: { toggle: :modal, target: '#update_shipping_address_modal' } }
+							%a{ href: '#', data: { toggle: :modal, target: '#update_shipping_user_address_modal' } }
 								Edit
 					.col-xs-12.col-md-4
 						%h5{ style: 'margin-bottom: 0.2em;' } Payment Method
@@ -95,5 +95,5 @@
 
 = render 'bazaar/your_subscriptions/update_payment_info_modal'
 = render 'bazaar/your_subscriptions/update_next_interval_modal'
-= render 'bazaar/your_subscriptions/update_shipping_address_modal'
+= render 'bazaar/your_subscriptions/update_shipping_user_address_modal'
 = render 'bazaar/your_subscriptions/update_billing_interval_modal'

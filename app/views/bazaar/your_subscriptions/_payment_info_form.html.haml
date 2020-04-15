@@ -1,60 +1,60 @@
-= f.fields_for :billing_user_address do |billing_address_form|
+= f.fields_for :billing_user_address do |billing_user_address_form|
 	%h5{ style: 'border-bottom: 1px solid #222;margin-top: 1.5em;font-weight: bold;' } Billing Information
 
 	.form-group
 		%label
 			%span First Name
-		= billing_address_form.text_field :first_name, class: 'form-control', required: true
+		= billing_user_address_form.text_field :first_name, class: 'form-control', required: true
 		.help-block.with-errors
 
 	.form-group
 		%label
 			%span Last Name
-		= billing_address_form.text_field :last_name, class: 'form-control', required: true
+		= billing_user_address_form.text_field :last_name, class: 'form-control', required: true
 		.help-block.with-errors
 
-	%span.geo-address-country-state-group{ data: { address_attribute: :billing_address } }
+	%span.geo-address-country-state-group{ data: { address_attribute: :billing_user_address } }
 		.form-group
 			%label
 				%span Country
-			= render 'bazaar/geo_address/country_input', f: billing_address_form, countries: get_billing_countries, args: {}
+			= render 'bazaar/geo_address/country_input', f: billing_user_address_form, countries: get_billing_countries, args: {}
 			.help-block.with-errors
 
 
 		.form-group
 			%label
 				%span State
-			= render 'bazaar/geo_address/state_input', f: billing_address_form, states: get_billing_states( @subscription.billing_address.geo_country_id ), args: {}
+			= render 'bazaar/geo_address/state_input', f: billing_user_address_form, states: get_billing_states( @subscription.billing_user_address.geo_country_id ), args: {}
 			.help-block.with-errors
 	.form-group
 		%label
 			%span Address Line 1
-		= billing_address_form.text_field :street, class: 'form-control', required: true
+		= billing_user_address_form.text_field :street, class: 'form-control', required: true
 		.help-block.with-errors
 
 	.form-group
 		%label
 			%span Address Line 2
 			%small (optional)
-		= billing_address_form.text_field :street2, class: 'form-control'
+		= billing_user_address_form.text_field :street2, class: 'form-control'
 		.help-block.with-errors
 
 	.form-group
 		%label
 			%span City
-		= billing_address_form.text_field :city, class: 'form-control', required: true
+		= billing_user_address_form.text_field :city, class: 'form-control', required: true
 		.help-block.with-errors
 
 	.form-group
 		%label
 			%span Zip
-		= billing_address_form.text_field :zip, class: 'form-control', "data-stripe" => "address_zip", required: true
+		= billing_user_address_form.text_field :zip, class: 'form-control', "data-stripe" => "address_zip", required: true
 		.help-block.with-errors
 
 	.form-group
 		%label
 			%span Phone Number
-		= billing_address_form.telephone_field :phone, class: 'form-control telephone_formatted', required: true
+		= billing_user_address_form.telephone_field :phone, class: 'form-control telephone_formatted', required: true
 		.help-block.with-errors
 
 	.payment-errors.alert.alert-danger.hide

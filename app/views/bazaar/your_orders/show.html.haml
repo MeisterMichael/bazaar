@@ -16,7 +16,7 @@
 				.row
 					.col-xs-12.col-md-3
 						%h5{ style: 'margin-bottom: 0.2em;' } Shipping Address
-						= raw @order.shipping_address.to_html
+						= raw @order.shipping_user_address.to_html
 					.col-xs-12.col-md-6
 						%h5{ style: 'margin-bottom: 0.2em;' } Payment Method
 						- if ( transaction = @order.transactions.approved.charge.first).present? && transaction.credit_card_brand.present?

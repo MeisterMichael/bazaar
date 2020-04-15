@@ -1,6 +1,6 @@
 
 
-.modal.fade#update_shipping_address_modal
+.modal.fade#update_shipping_user_address_modal
 	.modal-dialog
 		.modal-content
 			.modal-header
@@ -24,7 +24,7 @@
 							= f.text_field :last_name, class: 'form-control', required: true
 							.help-block.with-errors
 
-						%span.geo-address-country-state-group{ data: { address_attribute: :shipping_address } }
+						%span.geo-address-country-state-group{ data: { address_attribute: :shipping_user_address } }
 							.form-group
 								%label
 									%span Country
@@ -33,7 +33,7 @@
 							.form-group
 								%label
 									%span State
-								= render 'bazaar/geo_address/state_input', f: f, states: get_shipping_states( @subscription.shipping_address.geo_country_id ), args: {}
+								= render 'bazaar/geo_address/state_input', f: f, states: get_shipping_states( @subscription.shipping_user_address.geo_country_id ), args: {}
 								.help-block.with-errors
 						.form-group
 							%label

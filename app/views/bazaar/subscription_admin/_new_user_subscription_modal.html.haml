@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add Subscription for #{user.full_name}
-			= form_for Bazaar::Subscription.new( attributes.merge( shipping_address: ( attributes[:shipping_address] || GeoAddress.new ), billing_address: ( attributes[:billing_address] || GeoAddress.new ) ) ), url: bazaar.subscription_admin_index_path(), html: {} do |f|
+			= form_for Bazaar::Subscription.new( attributes.merge( shipping_user_address: ( attributes[:shipping_user_address] || GeoAddress.new ), billing_user_address: ( attributes[:billing_user_address] || GeoAddress.new ) ) ), url: bazaar.subscription_admin_index_path(), html: {} do |f|
 				= hidden_field_tag :user_id, user.id
 				.modal-body
 					= f.hidden_field :price, value: (attributes[:price] || 0)
@@ -20,9 +20,9 @@
 								= f.label :offer_id, 'Offer'
 								= f.collection_select :offer_id, Bazaar::Offer.recurring.active, :id, :title, {}, class: 'form-control'
 
-					= f.fields_for :shipping_address do |shipping_address_form|
+					= f.fields_for :shipping_user_address do |shipping_user_address_form|
 
-						= render 'bazaar/geo_address/form', f: shipping_address_form, countries: get_shipping_countries, states: get_shipping_states( nil ), id: "new_user_subscription_modal", address_attribute: :shipping_address
+						= render 'bazaar/geo_address/form', f: shipping_user_address_form, countries: get_shipping_countries, states: get_shipping_states( nil ), id: "new_user_subscription_modal", address_attribute: :shipping_user_address
 
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }

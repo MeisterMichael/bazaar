@@ -8,7 +8,7 @@
 			%div= number_to_currency order.total / 100.0
 		.col-xs-3
 			SHIP TO
-			%div= order.shipping_address.full_name
+			%div= order.shipping_user_address.full_name
 		.col-xs-4.text-right
 			ORDER # #{order.code}
 			%div
