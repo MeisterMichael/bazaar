@@ -4,8 +4,8 @@ module Bazaar
 		belongs_to :discount
 		belongs_to :order
 		belongs_to :offer
-		belongs_to :subscription
-		belongs_to :user
+		belongs_to :subscription, required: false
+		belongs_to :user, required: false
 
 		before_save :update_relations
 
