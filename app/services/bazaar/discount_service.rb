@@ -112,10 +112,8 @@ module Bazaar
 						if keep
 							quantity = [ quantity_remaining, order_offer.quantity ].min
 
-							puts "!!!quantity = [ quantity_remaining, order_offer.quantity ].min #{quantity} #{quantity_remaining} #{order_offer.quantity}"
-
 							if quantity > 0
-								order_offer_discount = order_offer.order_offer_discounts.new( discount: discount, quantity: quantity )
+								order_offer_discount = order_offer.order_offer_discounts.new( discount: discount, quantity: quantity, offer: order_offer.offer, order: order_offer.order, user: order_offer.order.user )
 
 								# duduct the quantity used from quantity available/remaining.
 								quantity_remaining = quantity_remaining - quantity
