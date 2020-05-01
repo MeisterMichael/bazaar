@@ -51,7 +51,7 @@ module Bazaar
 				return true unless @environment == :production
 				order_info = get_order_info( order )
 
-				order_info[:sales_tax] = order.tax
+				order_info[:sales_tax] = order.tax_as_money
 				tax_for_order = @client.tax_for_order( order_info )
 
 				tax_breakdown = tax_for_order.breakdown

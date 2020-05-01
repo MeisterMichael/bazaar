@@ -2,10 +2,10 @@ module Bazaar
 	class OrderOfferDiscount < ApplicationRecord
 		belongs_to :order_offer
 		belongs_to :discount
-		belongs_to :order
-		belongs_to :offer
-		belongs_to :subscription
-		belongs_to :user
+		belongs_to :order, required: false, optional: true
+		belongs_to :offer, required: false, optional: true
+		belongs_to :subscription, required: false, optional: true
+		belongs_to :user, required: false, optional: true
 
 		before_save :update_relations
 
