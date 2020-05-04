@@ -24,6 +24,8 @@ module Bazaar
 		mattr_accessor :fraud_service_class
 		mattr_accessor :fraud_service_config
 
+		mattr_accessor :permit_order_options
+
 		mattr_accessor :shipping_service_class
 		mattr_accessor :shipping_service_config
 
@@ -84,6 +86,8 @@ module Bazaar
 
 		self.fraud_service_class = "Bazaar::FraudService"
 		self.fraud_service_config = {}
+
+		self.permit_order_options = [:tracking]
 
 		self.shipping_service_class = "Bazaar::ShippingService"
 		self.shipping_service_config = {}

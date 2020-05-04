@@ -65,6 +65,14 @@ module Bazaar
 
 				order_attributes[:order_offers_attributes]		||= order_attributes.delete(:order_offers) || []
 
+				# order_attributes[:billing_user_address_attributes]	= order_attributes[:billing_user_address_attributes] || order_attributes.delete(:billing_address_attributes) || order_attributes.delete(:billing_address) || order_attributes.delete(:billing_user_address) || {}
+				# order_attributes[:shipping_user_address_attributes]	= order_attributes[:shipping_user_address_attributes] || order_attributes.delete(:shipping_address_attributes) || order_attributes.delete(:shipping_address) || order_attributes.delete(:shipping_user_address) || {}
+				# order_attributes[:billing_user_address_attributes]	= order_attributes[:shipping_user_address_attributes] if order_attributes.delete(:same_as_shipping)
+				# order_attributes[:shipping_user_address_attributes]	= order_attributes[:billing_user_address_attributes] if order_attributes.delete(:same_as_billing)
+				# order_attributes[:billing_user_address_attributes] ||= {}
+				# order_attributes[:shipping_user_address_attributes] ||= {}
+				# order_attributes[:order_offers_attributes]		||= order_attributes.delete(:order_offers) || []
+
 				if order_attributes[:order_offers_attributes].present?
 					order_offer_attributes = order_attributes[:order_offers_attributes]
 					order_offer_attributes = order_offer_attributes.values if order_offer_attributes.is_a? Hash
@@ -95,6 +103,10 @@ module Bazaar
 				(params.permit( :discount_options => [ :code ] )[:discount_options] || {}).to_h
 			end
 
+			def order_options_params
+				(params.permit( :order_options => Bazaar.permit_order_options || [] )[:order_options] || {}).to_h
+			end
+
 			def shipping_options_params
 				(params.permit( :shipping_options => [ :rate_code, :rate_name, :shipping_carrier_service_id ] )[:shipping_options] || {}).to_h
 			end
@@ -105,6 +117,10 @@ module Bazaar
 
 			def discount_options
 				discount_options_params.merge({ ip: client_ip, ip_country: client_ip_country })
+			end
+
+			def order_options
+				order_options_params
 			end
 
 			def shipping_options

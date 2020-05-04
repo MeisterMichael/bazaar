@@ -35,6 +35,7 @@ module Bazaar
 
 		def calculate( obj, args = {} )
 
+			args[:order] ||= {}
 			args[:discount] ||= {}
 			args[:shipping] ||= {}
 			args[:tax] ||= {}
@@ -89,6 +90,7 @@ module Bazaar
 
 		def process( order, args = {} )
 
+			args[:order] ||= {}
 			args[:discount] ||= {}
 			args[:shipping] ||= {}
 			args[:tax] ||= {}
@@ -225,6 +227,7 @@ module Bazaar
 
 		def recalculate( obj, args = {} )
 
+			args[:order] ||= {}
 			args[:discount] ||= {}
 			args[:shipping] ||= {}
 			args[:tax] ||= {}

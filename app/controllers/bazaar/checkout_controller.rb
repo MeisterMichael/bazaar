@@ -15,12 +15,14 @@ module Bazaar
 		before_action :get_cart
 		before_action :validate_cart, only: [ :confirm, :create, :index, :calculate ]
 		before_action :initialize_services, only: [ :confirm, :create, :index, :calculate ]
+		before_action :get_user, only: [ :create ]
 		before_action :get_order, only: [ :confirm, :create, :index, :calculate ]
 		before_action :get_geo_addresses, only: :index
 
 		def confirm
 
 			@order_service.calculate( @order,
+				order: order_options,
 				transaction: transaction_options,
 				shipping: shipping_options,
 				discount: discount_options,
@@ -60,6 +62,7 @@ module Bazaar
 			begin
 
 				@order_service.calculate( @order,
+					order: order_options,
 					transaction: transaction_options,
 					shipping: shipping_options,
 					discount: discount_options,
@@ -75,7 +78,6 @@ module Bazaar
 		end
 
 		def create
-			@order.user ||= User.create_with( first_name: @order.billing_user_address.first_name, last_name: @order.billing_user_address.last_name ).find_or_create_by( email: @order.email.downcase ) if @order.email.present? && Bazaar.create_user_on_checkout
 			Email.create_or_update_by_email( @order.email, user: @order.user )
 			@order.billing_user_address.user = @order.shipping_user_address.user = @order.user
 
@@ -83,6 +85,7 @@ module Bazaar
 
 			begin
 				@order_service.process( @order,
+					order: order_options,
 					transaction: transaction_options.merge( default_parent_obj: @cart ),
 					shipping: shipping_options,
 					discount: discount_options,
@@ -250,10 +253,24 @@ module Bazaar
 		end
 
 		def get_order_attributes
-			attrs = super().merge( order_offers_attributes: [], user: current_user )
-			attrs[:billing_user_address_attributes][:user] = current_user
-			attrs[:shipping_user_address_attributes][:user] = current_user
+			attrs = super().merge( order_offers_attributes: [], user: @user )
+			attrs[:billing_user_address_attributes][:user] = @user
+			attrs[:shipping_user_address_attributes][:user] = @user
 			attrs
+		end
+
+		def get_user
+			@user = current_user
+
+			if Bazaar.create_user_on_checkout && @user.blank? && params[:order].present?
+				user_attributes = params.require( :order ).permit( :email, billing_user_address_attributes: [:first_name,:last_name] )
+
+				if user_attributes[:email].present?
+					@user = User.create_with( first_name: user_attributes[:billing_user_address_attributes][:first_name], last_name: user_attributes[:billing_user_address_attributes][:last_name] ).find_or_create_by( email: attributes[:email].downcase )
+				end
+			end
+
+			@user
 		end
 
 		def get_order
