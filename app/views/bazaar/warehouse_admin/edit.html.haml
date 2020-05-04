@@ -36,7 +36,7 @@
 								%tr
 									%td=current_user.to_local_tz(shipment.created_at).to_s( :short )
 									%td=shipment.shipment_skus.includes(:sku).collect{|shipment_sku| "#{shipment_sku.sku.code}x#{shipment_sku.quantity}" }.join(',')
-									%td=raw shipment.destination_address.to_html
+									%td=raw shipment.destination_user_address.to_html
 									%td
 										%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) } Edit
 					= raw paginate @shipments

@@ -86,8 +86,8 @@ module Bazaar
 
 		def nested_errors
 			all_errors = self.errors.full_messages
-			all_errors = all_errors.concat( self.billing_address.errors.full_messages ) if self.billing_address
-			all_errors = all_errors.concat( self.shipping_address.errors.full_messages ) if self.shipping_address
+			all_errors = all_errors.concat( self.billing_user_address.errors.full_messages ) if self.billing_user_address
+			all_errors = all_errors.concat( self.shipping_user_address.errors.full_messages ) if self.shipping_user_address
 
 			self.order_items.each do |order_item|
 				all_errors = all_errors.concat( order_item.errors.full_messages )
@@ -103,8 +103,8 @@ module Bazaar
 		private
 
 		def order_address_users_match
-			self.errors.add(:billing_address, "does not exist.") if self.user.present? && billing_user_address.present? && billing_user_address.user != self.user
-			self.errors.add(:shipping_address, "does not exist.") if self.user.present? && shipping_user_address.present? && shipping_user_address.user != self.user
+			self.errors.add(:billing_user_address, "does not exist.") if self.user.present? && billing_user_address.present? && billing_user_address.user != self.user
+			self.errors.add(:shipping_user_address, "does not exist.") if self.user.present? && shipping_user_address.present? && shipping_user_address.user != self.user
 		end
 
 		def generate_order_code

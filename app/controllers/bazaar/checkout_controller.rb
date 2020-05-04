@@ -79,9 +79,6 @@ module Bazaar
 			Email.create_or_update_by_email( @order.email, user: @order.user )
 			@order.billing_user_address.user = @order.shipping_user_address.user = @order.user
 
-			@order.billing_user_address.tags = @order.billing_user_address.tags + ['billing_address']
-			@order.shipping_user_address.tags = @order.shipping_user_address.tags + ['shipping_address']
-
 			@order.source = 'Consumer Checkout'
 
 			begin
@@ -255,7 +252,7 @@ module Bazaar
 		def get_order_attributes
 			attrs = super().merge( order_offers_attributes: [], user: current_user )
 			attrs[:billing_user_address_attributes][:user] = current_user
-			attrs[:billing_user_address_attributes][:user] = current_user
+			attrs[:shipping_user_address_attributes][:user] = current_user
 			attrs
 		end
 

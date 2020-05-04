@@ -257,14 +257,14 @@ module Bazaar
 					order_attributes[:order_offers_attributes] = order_attributes[:order_offers_attributes].select{|index, order_offer_attributes| order_offer_attributes[:quantity].present? }
 				end
 
-				if order_attributes[:same_as_shipping] == '1' && order_attributes[:shipping_address_attributes].present?
+				if order_attributes[:same_as_shipping] == '1' && order_attributes[:shipping_user_address_attributes].present?
 					order_attributes.delete(:same_as_shipping)
-					order_attributes[:billing_address_attributes] = order_attributes[:shipping_address_attributes]
+					order_attributes[:billing_user_address_attributes] = order_attributes[:shipping_user_address_attributes]
 				end
 
-				if order_attributes[:same_as_billing] == '1' && order_attributes[:billing_address_attributes].present?
+				if order_attributes[:same_as_billing] == '1' && order_attributes[:billing_user_address_attributes].present?
 					order_attributes.delete(:same_as_billing)
-					order_attributes[:shipping_address_attributes] = order_attributes[:billing_address_attributes]
+					order_attributes[:shipping_user_address_attributes] = order_attributes[:billing_user_address_attributes]
 				end
 
 				order_attributes

@@ -25,6 +25,8 @@ module Bazaar
 						end
 
 						define_method "#{user_address_attribute_name}_attributes=" do |attrs|
+							puts "!!!puts #{user_address_attribute_name}_attributes= attrs #{attrs}"
+
 							self.try("#{user_address_attribute_name}=", UserAddress.new( geo_address: GeoAddress.new ) ) unless self.try(user_address_attribute_name).present?
 							self.try(user_address_attribute_name).attributes = attrs
 
@@ -33,6 +35,8 @@ module Bazaar
 							self.try(user_address_attribute_name).canonical_geo_address!
 							self.try("#{user_address_attribute_name}=", self.try(user_address_attribute_name).canonical_find_or_self )
 							self.try("#{geo_address_name}=", self.try(user_address_attribute_name).geo_address ) if geo_address_name
+
+							puts "!!!puts geo_address_name #{geo_address_name} #{self.try(user_address_attribute_name).geo_address.to_json}"
 
 						end
 					end

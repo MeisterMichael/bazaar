@@ -73,8 +73,8 @@ module Bazaar
 			initialize_order_shipments( order, args )
 
 			order.shipping = 0
-			return false if order.shipping_address.nil?
-			return false if not( order.shipping_address.validate ) || order.shipping_address.geo_country.blank? || order.shipping_address.zip.blank?
+			return false if order.shipping_user_address.nil?
+			return false if not( order.shipping_user_address.validate ) || order.shipping_user_address.geo_country.blank? || order.shipping_user_address.zip.blank?
 
 			order.shipments.to_a.select(&:not_negative_status?).each do |shipment|
 				calculate_shipment( shipment, args )
@@ -156,17 +156,17 @@ module Bazaar
 		end
 
 		def find_order_rates( order, args = {} )
-			find_address_rates( order.shipping_address, order.order_offers.select{ |order_offer| order_offer.quantity > 0 }, args )
+			find_address_rates( order.shipping_user_address, order.order_offers.select{ |order_offer| order_offer.quantity > 0 }, args )
 		end
 
 		def find_shipment_rates( shipment, args = {} )
 			# @todo update order rate calculation to shipments rather than order
 			# find_order_rates( shipment.order, args )
-			find_address_rates( shipment.destination_address, shipment.shipment_skus.collect{ |shipment_sku| OrderItem.new( item: shipment_sku.sku, quantity: shipment_sku.quantity ) }, args )
+			find_address_rates( shipment.destination_user_address, shipment.shipment_skus.collect{ |shipment_sku| OrderItem.new( item: shipment_sku.sku, quantity: shipment_sku.quantity ) }, args )
 		end
 
 		def find_subscription_rates( subscription, args = {} )
-			find_address_rates( subscription.shipping_address, [OrderOffer.new( subscription: subscription, offer: subscription.offer, subscription_interval: subscription.next_subscription_interval, quantity: subscription.quantity )], args )
+			find_address_rates( subscription.shipping_user_address, [OrderOffer.new( subscription: subscription, offer: subscription.offer, subscription_interval: subscription.next_subscription_interval, quantity: subscription.quantity )], args )
 		end
 
 		def find_address_rates( geo_address, line_items, args = {} )

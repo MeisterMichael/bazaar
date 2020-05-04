@@ -54,8 +54,8 @@ module Bazaar
 				},
 			).to_h
 
-			subscription_options[:shipping_user_address]	= UserAddress.canonical_find_or_new_with_cannonical_geo_address( subscription_options.delete(:shipping_address_attributes) ) if subscription_options[:shipping_address_attributes].present?
-			subscription_options[:billing_user_address]	= UserAddress.canonical_find_or_new_with_cannonical_geo_address( subscription_options.delete(:billing_address_attributes) ) if subscription_options[:billing_address_attributes].present?
+			subscription_options[:shipping_user_address]	= UserAddress.canonical_find_or_new_with_cannonical_geo_address( subscription_options.delete(:shipping_user_address_attributes) ) if subscription_options[:shipping_user_address_attributes].present?
+			subscription_options[:billing_user_address]	= UserAddress.canonical_find_or_new_with_cannonical_geo_address( subscription_options.delete(:billing_user_address_attributes) ) if subscription_options[:billing_user_address_attributes].present?
 			subscription_options[:shipping_user_address] ||= subscription_options[:shipping_user_address]
 			subscription_options[:billing_user_address]	||= subscription_options[:billing_user_address]
 

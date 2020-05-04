@@ -208,7 +208,7 @@ module Bazaar
 			if order.user.nil? && order.email.present? && Bazaar.create_user_on_checkout
 
 				order.user = User.create_with( first_name: order.billing_address.first_name, last_name: order.billing_address.last_name ).find_or_create_by( email: order.email.downcase )
-				order.billing_address.user = order.shipping_address.user = order.user
+				order.billing_user_address.user = order.shipping_user_address.user = order.user
 				order.save
 
 			end
@@ -278,8 +278,8 @@ module Bazaar
 			return false if order.nested_errors.present?
 
 			order.validate
-			@shipping_service.validate( order.shipping_address )
-			@shipping_service.validate( order.billing_address )
+			@shipping_service.validate( order.shipping_user_address )
+			@shipping_service.validate( order.billing_user_address )
 			@fraud_service.validate( order ) if @fraud_service
 
 			return not( order.nested_errors.present? )

@@ -72,7 +72,7 @@ module Bazaar
 			@shipment = Bazaar::Shipment.find( params[:id] )
 			authorize( @shipment )
 
-			@shipping_service.calculate_shipment( @shipment ) if params[:calculate_shipping] && @shipment.destination_address.present?
+			@shipping_service.calculate_shipment( @shipment ) if params[:calculate_shipping] && @shipment.destination_user_address.present?
 
 			set_page_meta( title: "Shipment #{@shipment.created_at}" )
 

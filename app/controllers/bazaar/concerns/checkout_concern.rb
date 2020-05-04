@@ -31,20 +31,14 @@ module Bazaar
 						:same_as_billing,
 						:same_as_shipping,
 						{
-							:billing_address => [
-								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
-							],
-							:shipping_address => [
-								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
-							],
 							:order_offers => [
 								:offer_id,
 								:quantity,
 							],
-							:billing_address_attributes => [
+							:billing_user_address_attributes => [
 								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 							],
-							:shipping_address_attributes => [
+							:shipping_user_address_attributes => [
 								:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
 							],
 							:order_offers_attributes => [
@@ -56,6 +50,8 @@ module Bazaar
 				).to_h
 
 				order_attributes = order_attributes[:order] || {}
+
+				puts "!!!puts order_attributes #{order_attributes}"
 
 				order_attributes[:billing_user_address_attributes]	= order_attributes[:billing_user_address_attributes] || order_attributes.delete(:billing_address_attributes) || order_attributes.delete(:billing_address) || order_attributes.delete(:billing_user_address) || {}
 				order_attributes[:shipping_user_address_attributes]	= order_attributes[:shipping_user_address_attributes] || order_attributes.delete(:shipping_address_attributes) || order_attributes.delete(:shipping_address) || order_attributes.delete(:shipping_user_address) || {}
