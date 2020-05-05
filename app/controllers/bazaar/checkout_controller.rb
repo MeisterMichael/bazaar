@@ -262,12 +262,10 @@ module Bazaar
 		def get_user
 			@user = current_user
 
-			if Bazaar.create_user_on_checkout && @user.blank? && params[:order].present?
+			if Bazaar.create_user_on_checkout && @user.blank? && params[:order].present? && params[:order][:email].present?
 				user_attributes = params.require( :order ).permit( :email, billing_user_address_attributes: [:first_name,:last_name] )
 
-				if user_attributes[:email].present?
-					@user = User.create_with( first_name: user_attributes[:billing_user_address_attributes][:first_name], last_name: user_attributes[:billing_user_address_attributes][:last_name] ).find_or_create_by( email: attributes[:email].downcase )
-				end
+				@user = User.create_with( first_name: user_attributes[:billing_user_address_attributes][:first_name], last_name: user_attributes[:billing_user_address_attributes][:last_name] ).find_or_create_by( email: user_attributes[:email].downcase )
 			end
 
 			@user
