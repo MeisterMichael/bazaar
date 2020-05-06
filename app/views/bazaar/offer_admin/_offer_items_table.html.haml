@@ -85,7 +85,8 @@
 					.col-xs-4.offer-item-column
 						- @offer.offer_prices.active.each do |offer_price|
 							.offer-item-column-cell.text-right{ style: "top: #{(offer_price.start_interval-1) * 3}em;height: #{offer_price.end_interval_with_infinity == Float::INFINITY ? (max_start_interval - offer_price.start_interval + 1) * 3 : offer_price.end_interval_with_infinity * 3}em" }
-								= offer_price.price_formatted
+								%a{ href: edit_offer_price_admin_path( offer_price ) }
+									= offer_price.price_formatted
 								- if offer_price.start_interval == 1
 									.btn.btn-danger.btn-xs.disabled
 										%i.fa.fa-trash

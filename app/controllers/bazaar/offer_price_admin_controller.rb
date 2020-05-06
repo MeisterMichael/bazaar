@@ -33,16 +33,39 @@ module Bazaar
 			end
 		end
 
+		def edit
+			authorize( @offer_price )
+		end
+
 		def update
 			authorize( @offer_price )
 
-			@offer_price.attributes = offer_price_params
+			@new_offer_price = Bazaar::OfferPrice.new(
+				parent_obj_type: @offer_price.parent_obj_type,
+				parent_obj_id: @offer_price.parent_obj_id,
+				start_interval: @offer_price.start_interval,
+				max_intervals: @offer_price.max_intervals,
+				price: @offer_price.price,
+				status: @offer_price.status,
+				properties: @offer_price.properties,
+			)
+
+			@offer_price.status = 'trash'
+			@new_offer_price.attributes = offer_price_params
+
 			if @offer_price.save
-				set_flash "Offer Price Updated", :success
+
+				if @new_offer_price.save
+					set_flash "Offer Price Updated", :success
+				else
+					set_flash @new_offer_price.errors.full_messages, :danger
+				end
+
 			else
 				set_flash @offer_price.errors.full_messages, :danger
 			end
-			redirect_back fallback_location: sku_admin_index_path()
+
+			redirect_to edit_offer_admin_path( @new_offer_price.parent_obj )
 		end
 
 		protected
