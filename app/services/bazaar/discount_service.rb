@@ -62,15 +62,16 @@ module Bazaar
 		protected
 
 		def calculate_discount_amount( discount_order_item, order, args = {} )
-			puts "!!!calculate_discount_amount"
 			discount = discount_order_item.item
 			discount_items = args[:discount_items] || discount.discount_items
 			amount = 0
 
 			quantity_remaining = Float::INFINITY
 			if discount.maximum_units_per_customer.to_i > 0
+				quantity_used = Bazaar::OrderOfferDiscount.where( order: order.user.orders.positive_status, discount: discount ).sum(:quantity).to_i
+
 				quantity_remaining = discount.maximum_units_per_customer
-				quantity_remaining = quantity_remaining - Bazaar::OrderOfferDiscount.where( order: order.user.orders.not_declined ).sum(:quantity)
+				quantity_remaining = quantity_remaining - quantity_used
 				quantity_remaining = 0 if quantity_remaining < 0
 			end
 
