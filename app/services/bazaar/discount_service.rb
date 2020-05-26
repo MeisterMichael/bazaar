@@ -71,7 +71,7 @@ module Bazaar
 				order_user = order.user
 				order_user ||= User.find_by( email: order.email.downcase ) if order.email.present?
 
-				if user.present?
+				if order_user.present?
 					quantity_used = Bazaar::OrderOfferDiscount.where( order: order_user.orders.positive_status, discount: discount ).sum(:quantity).to_i
 
 					quantity_remaining = discount.maximum_units_per_customer
