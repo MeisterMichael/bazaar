@@ -68,11 +68,16 @@ module Bazaar
 
 			quantity_remaining = Float::INFINITY
 			if discount.maximum_units_per_customer.to_i > 0
-				quantity_used = Bazaar::OrderOfferDiscount.where( order: order.user.orders.positive_status, discount: discount ).sum(:quantity).to_i
+				order_user = order.user
+				order_user ||= User.find_by( email: order.email.downcase ) if order.email.present?
 
-				quantity_remaining = discount.maximum_units_per_customer
-				quantity_remaining = quantity_remaining - quantity_used
-				quantity_remaining = 0 if quantity_remaining < 0
+				if user.present?
+					quantity_used = Bazaar::OrderOfferDiscount.where( order: order_user.orders.positive_status, discount: discount ).sum(:quantity).to_i
+
+					quantity_remaining = discount.maximum_units_per_customer
+					quantity_remaining = quantity_remaining - quantity_used
+					quantity_remaining = 0 if quantity_remaining < 0
+				end
 			end
 
 
