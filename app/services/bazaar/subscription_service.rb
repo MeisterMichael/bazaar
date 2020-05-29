@@ -190,10 +190,11 @@ module Bazaar
 
 		def charge_subscriptions( subscriptions, args = {} )
 			time_now = args[:now] || Time.now
+			max_next_charged_at = args[:max_next_charged_at] || time_now
 
 			subscription_intervals = {}
 			subscriptions.each do |subscription|
-				raise Exception.new("Subscription #{subscription.id } isn't ready to renew yet.  Currently it's #{time_now}, but subscription doesn't renew until #{subscription.next_charged_at}") unless subscription.next_charged_at < time_now
+				raise Exception.new("Subscription #{subscription.id } isn't ready to renew yet.  Currently it's #{time_now}, but subscription doesn't renew until #{subscription.next_charged_at}") unless subscription.next_charged_at < max_next_charged_at
 				raise Exception.new("Subscription #{subscription.id } isn't active, so can't be charged.") unless subscription.active?
 
 				subscription_intervals[subscription.id] = subscription.next_subscription_interval
