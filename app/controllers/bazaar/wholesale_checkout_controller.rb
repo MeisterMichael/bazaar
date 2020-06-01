@@ -22,8 +22,8 @@ module Bazaar
 		def calculate
 
 			begin
-				@order.billing_address ||= GeoAddress.new
-				@order.shipping_address ||= GeoAddress.new
+				@order.billing_user_address ||= UserAddress.new
+				@order.shipping_user_address ||= UserAddress.new
 
 
 				@order_service.calculate( @order,
@@ -54,12 +54,6 @@ module Bazaar
 
 			@order.status = 'active'
 			@order.source = 'Wholesale Checkout'
-
-			@order.billing_address.user		||= @order.user
-			@order.billing_address.tags		= @order.billing_address.tags + ['billing_address']
-
-			@order.shipping_address.user	||= @order.user
-			@order.shipping_address.tags	= @order.shipping_address.tags + ['shipping_address']
 
 			@order.order_offers = @order.order_offers.select{|order_offer| order_offer.quantity > 0 }
 
@@ -168,15 +162,9 @@ module Bazaar
 					:customer_notes,
 					:same_as_billing,
 					:same_as_shipping,
-					:billing_address_id,
-					:shipping_address_id,
+					:billing_user_address_id,
+					:shipping_user_address_id,
 					{
-						:billing_user_address_attributes => [
-							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
-						],
-						:billing_user_address_attributes => [
-							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
-						],
 						:order_offers_attributes => [
 							:offer_id,
 							:quantity,
@@ -187,18 +175,11 @@ module Bazaar
 
 			order_attributes = order_attributes[:order] || {}
 
-			order_attributes.delete(:shipping_address_attributes) if order_attributes[:shipping_address_id]
-			order_attributes.delete(:billing_address_attributes) if order_attributes[:billing_address_id]
+			order_attributes[:billing_user_address]		= current_user.user_addresses.find( order_attributes.delete(:billing_user_address_id) ) if order_attributes[:billing_user_address_id].present?
+			order_attributes[:billing_address]				= order_attributes[:billing_user_address].try(:geo_address)
 
-			if order_attributes.delete(:same_as_billing)
-				order_attributes[:shipping_address_attributes]	= order_attributes[:billing_address_attributes] if order_attributes[:billing_address_attributes]
-				order_attributes[:shipping_address_id]			= order_attributes[:billing_address_id] if order_attributes[:billing_address_id]
-			end
-
-			if order_attributes.delete(:same_as_shipping)
-				order_attributes[:billing_address_attributes]	= order_attributes[:shipping_address_attributes] if order_attributes[:shipping_address_attributes]
-				order_attributes[:billing_address_id]			= order_attributes[:shipping_address_id] if order_attributes[:shipping_address_id]
-			end
+			order_attributes[:shipping_user_address]	= current_user.user_addresses.find( order_attributes.delete(:shipping_user_address_id) ) if order_attributes[:shipping_user_address_id].present?
+			order_attributes[:shipping_address]				= order_attributes[:shipping_user_address].try(:geo_address)
 
 			order_attributes[:status]	= 'draft'
 			order_attributes[:ip]		= client_ip
