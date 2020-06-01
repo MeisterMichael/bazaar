@@ -26,8 +26,18 @@ module Bazaar
 
 						define_method "#{user_address_attribute_name}_attributes=" do |attrs|
 
-							self.try("#{user_address_attribute_name}=", UserAddress.new( geo_address: GeoAddress.new ) ) unless self.try(user_address_attribute_name).present?
-							self.try(user_address_attribute_name).attributes = attrs
+							if self.try(user_address_attribute_name).present?
+								old_user_address = self.try(user_address_attribute_name)
+
+								new_user_address = UserAddress.new( old_user_address.attributes.delete_if { |k,_| [:created_at,:updated_at,:id,:geo_address_id].include?(k.to_sym) } )
+								new_user_address.geo_address = GeoAddress.new( old_user_address.geo_address.attributes.delete_if { |k,_| [:created_at,:updated_at,:id,:user_id].include?(k.to_sym) } )
+
+								self.try("#{user_address_attribute_name}=", new_user_address )
+							else
+								self.try("#{user_address_attribute_name}=", UserAddress.new( geo_address: GeoAddress.new ) )
+							end
+
+							self.try(user_address_attribute_name).attributes = attrs.delete_if { |k,_| [:id,:geo_address_id].include?(k) }
 
 							self.try(user_address_attribute_name).user_id ||= self.try(user_id_attribute_name) if user_id_attribute_name
 
