@@ -74,7 +74,7 @@ module Bazaar
 
 			order.shipping = 0
 			return false if order.shipping_user_address.nil?
-			return false if not( order.shipping_user_address.geo_address.try(:validate) || false ) || order.shipping_user_address.geo_country.blank? || order.shipping_user_address.zip.blank?
+			return false if not( order.shipping_user_address.try(:validate) || false ) || order.shipping_user_address.geo_country.blank? || order.shipping_user_address.zip.blank?
 
 			order.shipments.to_a.select(&:not_negative_status?).each do |shipment|
 				calculate_shipment( shipment, args )
