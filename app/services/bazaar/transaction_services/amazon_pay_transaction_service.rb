@@ -52,6 +52,30 @@ module Bazaar
 				end
 			end
 
+			def get_login_profile( access_token )
+				login = AmazonPay::Login.new(
+				  @client_id,
+					@client_options
+				)
+
+				# The access token is available in the return URL
+				# parameters after a user has logged in.
+				# access_token
+
+				# Make the 'get_user_info' api call.
+				begin
+					profile = login.get_login_profile(access_token)
+					# name = profile['name']
+					# email = profile['email']
+					# user_id = profile['user_id']
+				rescue Exception => e
+					# Invalid access token
+					return false
+				end
+
+				profile
+			end
+
 			def get_client( obj, args = {} )
 				return AmazonPay::Client.new(
 					@merchant_id,
@@ -234,7 +258,7 @@ module Bazaar
 						custom_information: custom_information,
 					)
 
-					print('authorize_on_billing_agreement set_address_information')
+
 					self.set_address_information( order, args )
 
 					if response.success
@@ -454,24 +478,23 @@ module Bazaar
 
 					buyer_email		= get_result_element(res,BILLING_AGREEMENT_BUYER_XPATH,'Email')
 
-					billing_address = order.billing_address
-					shipping_address = order.shipping_address
-
 					geo_country = GeoCountry.find_by( abbrev: country_code )
 					geo_state   = GeoState.find_by( geo_country: geo_country, abbrev: state_code )
 
+					attributes = {}
+					attributes[:first_name]		= customer_name.first || 'TBD'
+					attributes[:last_name]		= customer_name.last || 'TBD'
+					attributes[:phone]				= phone
+					attributes[:street]				= street || 'TBD'
+					attributes[:street2]			= street2
+					attributes[:geo_country]	= geo_country
+					attributes[:geo_state]		= geo_state
+					attributes[:state]				= state_code unless geo_state.present?
+					attributes[:city]					= city
+					attributes[:zip]					= postal_code
 
-					billing_address.first_name = shipping_address.first_name	= customer_name.first || 'TBD'
-					billing_address.last_name = shipping_address.last_name		= customer_name.last || 'TBD'
-					billing_address.phone = shipping_address.phone						= phone
-					billing_address.street = shipping_address.street					= street || 'TBD'
-					billing_address.street2 = shipping_address.street2				= street2
-
-					billing_address.geo_country = shipping_address.geo_country  = geo_country
-					billing_address.geo_state = shipping_address.geo_state      = geo_state
-					billing_address.state = shipping_address.state      				= state_code unless geo_state.present?
-					billing_address.city = shipping_address.city                = city
-					billing_address.zip = shipping_address.zip                  = postal_code
+					order.billing_user_address_attributes = attributes
+					order.shipping_user_address_attributes = attributes
 
 					order.email ||= buyer_email if buyer_email.present?
 
