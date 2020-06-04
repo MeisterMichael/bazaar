@@ -1,5 +1,6 @@
 module Bazaar
 	class Shipment < ApplicationRecord
+		include Bazaar::Concerns::UserAddressAttributesConcern
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include Bazaar::ShipmentSearchable if (Bazaar::ShipmentSearchable rescue nil)
 
@@ -28,6 +29,8 @@ module Bazaar
 		validate :validate_warehouse_skus, if: :validate_warehouse_skus?
 
 		money_attributes :cost, :price, :tax, :declared_value
+
+		accepts_nested_user_address_attributes_for [:destination_user_address,:destination_address,:user_id]
 
 		def clear_shipping_carrier_service
 			self.shipping_carrier_service_id = nil
