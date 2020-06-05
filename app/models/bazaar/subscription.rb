@@ -1,7 +1,5 @@
 module Bazaar
 	class Subscription < ApplicationRecord
-
-
 		include Bazaar::Concerns::UserAddressAttributesConcern
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include Bazaar::SubscriptionSearchable if (Bazaar::SubscriptionSearchable rescue nil)

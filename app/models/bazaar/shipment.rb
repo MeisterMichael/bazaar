@@ -1,7 +1,6 @@
 module Bazaar
 	class Shipment < ApplicationRecord
 		include Bazaar::Concerns::UserAddressAttributesConcern
-
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include Bazaar::ShipmentSearchable if (Bazaar::ShipmentSearchable rescue nil)
 
