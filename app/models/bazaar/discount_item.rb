@@ -1,6 +1,6 @@
 module Bazaar
 	class DiscountItem < ApplicationRecord
-		
+		include SwellId::Concerns::PolymorphicIdentifiers
 		include Bazaar::Concerns::MoneyAttributesConcern
 		money_attributes :discount_amount
 

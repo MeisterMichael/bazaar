@@ -88,6 +88,10 @@
 									= di_form.collection_select :order_item_type, Bazaar::DiscountItem.order_item_types.keys.select{|key| key.to_sym != :discount}.collect{|key| [({ prod: "Products", all_order_item_types: "Order Total" }[key.to_sym] || key).humanize.titleize,key] }, :last, :first, {}, class: 'form-control'
 
 								.form-group
+									= di_form.label :applies_to_polymorphic_id, "Offer Limitations"
+									= di_form.select :applies_to_polymorphic_id, grouped_options_for_select( [ ['Collections', Bazaar::Collection.active.order( title: :asc ).collect{|c| [c.title,c.polymorphic_id] }], ['Offers', Bazaar::Offer.active.order( title: :asc ).collect{|o| [o.title,o.polymorphic_id] }] ], di_form.object.applies_to_polymorphic_id, { prompt: 'Select Offer or Collection' } ), {}, class: 'form-control'
+
+								.form-group
 									= di_form.label :discount_amount, "Discount Amount"
 									%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'Either a percent or dollar amount, depending upon the selected calculation method.' }
 									- if di_form.object.percent?
