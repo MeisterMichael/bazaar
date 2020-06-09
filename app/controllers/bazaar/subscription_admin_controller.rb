@@ -56,8 +56,8 @@ module Bazaar
 
 			subscription_options[:shipping_user_address]	= UserAddress.canonical_find_or_new_with_cannonical_geo_address( subscription_options.delete(:shipping_user_address_attributes) ) if subscription_options[:shipping_user_address_attributes].present?
 			subscription_options[:billing_user_address]	= UserAddress.canonical_find_or_new_with_cannonical_geo_address( subscription_options.delete(:billing_user_address_attributes) ) if subscription_options[:billing_user_address_attributes].present?
-			subscription_options[:shipping_user_address] ||= subscription_options[:shipping_user_address]
-			subscription_options[:billing_user_address]	||= subscription_options[:billing_user_address]
+			subscription_options[:shipping_user_address] ||= subscription_options[:billing_user_address]
+			subscription_options[:billing_user_address]	||= subscription_options[:shipping_user_address]
 
 			subscription_options[:shipping_user_address].user	= user
 			subscription_options[:billing_user_address].user	= user
@@ -68,10 +68,6 @@ module Bazaar
 			subscription_options[:tax]							||= 0
 
 			offer = Bazaar::Offer.find( subscription_options.delete( :offer_id ) )
-
-			puts JSON.pretty_generate subscription_options
-			puts JSON.pretty_generate subscription_options[:shipping_user_address].to_json
-			puts JSON.pretty_generate subscription_options[:billing_user_address].to_json
 
 			@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
 			@subscription = @subscription_service.subscribe( user, offer, subscription_options )
