@@ -275,7 +275,7 @@
 						%a{ href: '#', data: { toggle: :modal, target: '#billing_user_address_modal' } } Edit
 					%h5
 						Billing Address
-					= render 'address_section', geo_address: @order.billing_user_address, user_address: @order.billing_user_address, args: {}
+					= render 'address_section', geo_address: @order.billing_address, user_address: @order.billing_user_address, args: {}
 
 
 			- if @order.respond_to?( :shipping_user_address ) && @order.shipping_user_address.present?
@@ -285,7 +285,7 @@
 							%a{ href: '#', data: { toggle: :modal, target: '#shipping_user_address_modal' } } Edit
 					%h5
 						Shipping Address
-					= render 'address_section', geo_address: @order.shipping_user_address, user_address: @order.shipping_user_address, args: {}
+					= render 'address_section', geo_address: @order.shipping_address, user_address: @order.shipping_user_address, args: {}
 
 			= render 'fraud_events_section'
 
