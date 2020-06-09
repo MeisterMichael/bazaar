@@ -55,7 +55,7 @@
 						.pull-left= f.radio_button :destination_user_address_id, nil, data: { expand: '#destination_address_well' }
 						%div{ style: 'margin-left: 1.5em;' }
 							New Address
-					.well.collapse#destination_address_well{ style: 'margin-left: 1.5em;', data: { if_hidden: { disable_require: 'true' } } }
+					.well#destination_address_well{ style: 'margin-left: 1.5em;', data: { if_hidden: { disable_require: 'true' } }, class: ( @destination_user_addresses.present? ? 'collapse' : '' ) }
 						= f.fields_for :destination_user_address, UserAddress.new( geo_address: GeoAddress.new, first_name: @shipment.user.try(:first_name), last_name: @shipment.user.try(:last_name), user: @shipment.user ) do |destination_addresses_form|
 							= destination_addresses_form.hidden_field :user_id
 							= render 'bazaar/geo_address/form', f: destination_addresses_form, countries: get_shipping_countries, states: get_shipping_states( nil ), address_attribute: :destination_user_address
