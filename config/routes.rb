@@ -19,6 +19,9 @@ Bazaar::Engine.routes.draw do
 		get :state_input, on: :collection
 	end
 
+	resources :collection_admin
+	resources :collection_item_admin
+
 	resources :discount_admin
 
 	resources :fulfillment_admin, only: [:create, :destroy]

@@ -1,0 +1,64 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%ul.breadcrumb
+				%li
+					%a{ href: collection_admin_index_path }
+						%i.fa.fa-angle-left
+						Collections
+			%h2{ style: 'margin-bottom: 0;' }
+				%strong= @collection.title
+				%small= current_user.to_local_tz(@collection.created_at).to_s( :short )
+		.col-xs-2
+
+
+	= form_for @collection, url: collection_admin_path( @collection ), as: :collection do |f|
+		.row
+			.col-xs-8
+				.form-group
+					= f.label :title
+					%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A descriptive title for internal use.' }
+					= f.text_field :title, class: 'form-control input-lg'
+
+				.pull-right
+					%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_item_modal' } }
+						%i.fa.fa-plus-square
+						New
+				%h4{ style: 'margin-bottom: 1.5em;' } Items
+				- if @collection.collection_items.blank?
+					%div None
+				- else
+					- @collection.collection_items.each do |collection_item|
+						.form-group
+							.pull-right
+								%a{ href: collection_item_admin_path( collection_item ), data: { method: 'delete', confirm: 'Are you sure?' } }
+									%i.fa.fa-trash-o
+									Delete!
+							= collection_item.item.to_s
+			.col-xs-4
+				.well.white-well
+					%h4
+						Publishing Settings
+					.form-group
+						= f.label :status
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'An <strong>active</strong> status means the discount is now available for use, as long as the current date is between the start and end dates.<br/><strong>Draft</strong> indicates that the discount is not yet ready for use.<br/><strong>Archived</strong> indicates the discount is not for use and will not be discoverable by default.' }
+						= f.collection_select :status, Bazaar::Collection.statuses, :first, :first, {}, class: 'form-control'
+
+					%hr
+
+					%h4
+						Stats
+
+					.form-group
+						.pull-right=Bazaar::OrderItem.where( item: @discount ).count
+						%label # Uses
+
+					%hr
+
+						= f.submit 'Update', class: 'btn btn-primary'
+
+
+
+= render "bazaar/collection_item_admin/new_modal"
