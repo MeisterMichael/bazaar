@@ -218,14 +218,14 @@
 					%a{ href: '#', data: { toggle: :modal, target: '#billing_user_address_modal' } } Edit
 				%h5
 					Billing Address
-				= render 'address_section', geo_address: @subscription.billing_user_address, user_address: @subscription.billing_user_address, args: {}
+				= render 'address_section', geo_address: @subscription.billing_address, user_address: @subscription.billing_user_address, args: {}
 
 			.well.white-well
 				.pull-right
 					%a{ href: '#', data: { toggle: :modal, target: '#shipping_user_address_modal' } } Edit
 				%h5
 					Shipping Address
-				= render 'address_section', geo_address: @subscription.shipping_user_address, user_address: @subscription.shipping_user_address, args: {}
+				= render 'address_section', geo_address: @subscription.shipping_address, user_address: @subscription.shipping_user_address, args: {}
 
 
 				%hr
