@@ -1,6 +1,7 @@
 module Bazaar
 	class CollectionItem < ApplicationRecord
-		
+		include SwellId::Concerns::PolymorphicIdentifiers
+
 
 		belongs_to :collection
 		belongs_to :item, polymorphic: true

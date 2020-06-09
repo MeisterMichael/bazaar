@@ -1,5 +1,6 @@
 module Bazaar
 	class Offer < ApplicationRecord
+		include SwellId::Concerns::PolymorphicIdentifiers
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include Bazaar::OfferSearchable if (Bazaar::OfferSearchable rescue nil)
 

@@ -1,0 +1,66 @@
+
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%h2 Collections
+		.col-xs-2
+			- if authorized?(Bazaar::Collection, controller: Bazaar::CollectionAdminController, action: :create )
+				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_modal' } }
+					%i.fa.fa-plus-square
+					New
+	.row{ style: 'margin-top: 0' }
+		.col-xs-6
+			= raw paginate @collections
+		.col-xs-6
+			= form_tag collection_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= select_tag :status, options_from_collection_for_select( Bazaar::Collection.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
+				= submit_tag 'Search', class: 'btn btn-primary'
+				= link_to 'Clear', discount_admin_index_path, class: 'btn btn-default'
+
+
+	.row
+		.col-xs-12
+			%table.table.table-light.table-bordered
+				%thead
+					%th
+						Title
+						%a{ href: collection_admin_index_path( sort_by: 'title', sort_dir: 'asc', q: params[:q], status: params[:status] ) }
+							%i.fa.fa-arrow-up
+						%a{ href: collection_admin_index_path( sort_by: 'title', sort_dir: 'desc', q: params[:q], status: params[:status] ) }
+							%i.fa.fa-arrow-down
+					%th Status
+					%th{ style: 'width: 6em' }
+				%tbody
+					- if @collections.blank?
+						%tr
+							%td{ colspan: 3 }
+								\- No Collections Found -
+					- @collections.each do |collection|
+						%tr
+							%td
+								= link_to collection.title, edit_collection_admin_path( collection.id )
+							%td
+								.badge{ class: collection.status }
+									= collection.status
+							%td
+								.btn-group
+									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+										%i.fa.fa-cog
+										%b.caret
+									%ul.dropdown-menu
+										- if authorized?(collection, controller: Bazaar::CollectionAdminController, action: :edit )
+											%li
+												%a{ href: edit_collection_admin_path( collection.id ) }
+													%i.fa.fa-pencil
+													Edit
+											%li.divider
+										- if authorized?(collection, controller: Bazaar::CollectionAdminController, action: :destroy )
+											%li
+												%a{ href: collection_admin_path( collection ), data: { method: 'delete', confirm: 'Are you sure?' } }
+													%i.fa.fa-trash-o
+													Delete!
+
+
+= render "new_modal"
