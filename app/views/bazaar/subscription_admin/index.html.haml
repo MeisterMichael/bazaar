@@ -71,7 +71,10 @@
 							%td
 								= current_user.to_local_tz(subscription.created_at).to_s(:short)
 							%td
-								= current_user.to_local_tz(subscription.next_charged_at).to_s(:short)
+								- if subscription.next_charged_at.present?
+									= current_user.to_local_tz(subscription.next_charged_at).to_s(:short)
+								- else
+									\-
 							%td
 								- if subscription.payment_profile_expires_at.present?
 									= subscription.payment_profile_expires_at.strftime('%m/%Y')
