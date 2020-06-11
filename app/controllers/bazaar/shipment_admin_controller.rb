@@ -4,6 +4,179 @@ module Bazaar
 		before_action :get_services
 		before_action :initialize_search_service, only: [:index]
 
+		def batch_create
+			application_shipping_service = ApplicationShippingService.new( Bazaar.shipping_service_config )
+
+			warehouse = nil # Bazaar::Warehouse.find_by( fulfillment_service_code: 'rsl' )
+
+			batch_id = params[:batch_id] || "Batch #{Time.now.to_i}"
+			batch_date = Time.now.to_s
+
+			csv_file = params[:file]
+			csv = CSV.parse( File.read( csv_file.path ), headers: true )
+
+			shipment_rows = []
+			csv.each_with_index do |shipment_row, index|
+				shipment_row = shipment_row.to_h
+				shipment_row.each do |key,value|
+					shipment_row[key] = value.try(:strip)
+				end
+
+				shipment_rows << shipment_row
+			end
+
+			required_columns = [ 'EMAIL', 'FULL NAME', 'STREET 1', 'STREET 2', 'CITY', 'ZIPCODE', 'STATE', 'COUNTRY', "ITEM 1 QUANTITY", "ITEM 1 SKU" ]
+			if shipment_rows.count == 0
+				set_flash "CSV is Empty", :danger
+				redirect_back fallback_location: shipment_admin_index_path()
+				return false
+			elsif (missing_columns = required_columns - shipment_rows.first.keys).count > 0
+				set_flash "CSV is missing columns: \"#{missing_columns.join('","')}\"", :danger
+				redirect_back fallback_location: shipment_admin_index_path()
+				return false
+			end
+
+			shipments = []
+			shipment_rows.each_with_index do |shipment_row, index|
+				shipment_row = shipment_row.to_h
+
+				shipment_skus = []
+				sku_i = 1
+				while( shipment_row["ITEM #{sku_i} SKU"].present? )
+					code = shipment_row["ITEM #{sku_i} SKU"]
+					shipment_skus << { sku: Bazaar::Sku.find_by( code: code ), quantity: (shipment_row["ITEM #{sku_i} QUANTITY"] || 1).to_i }
+					sku_i += 1
+				end
+
+				state_field = shipment_row['REGION'] if shipment_row['REGION'].present?
+				state_field ||= shipment_row['STATE'] if shipment_row['STATE'].present?
+
+				geo_country = GeoCountry.find_by( abbrev: shipment_row['COUNTRY'] )
+				if geo_country && ['US','CA'].include?( geo_country.abbrev )
+					geo_state = GeoState.where( abbrev: state_field, geo_country: geo_country ).first
+					geo_state ||= GeoState.where( geo_country: geo_country ).where( 'LOWER(name) = ?', state_field.downcase ).first
+				end
+				state = state_field unless geo_state.present?
+
+				split_full_name = shipment_row['FULL NAME'].split(' ',2)
+
+				shipment_email = shipment_row['EMAIL']
+
+				shipment_user = User.create_with( first_name: split_full_name.first, last_name: split_full_name.second ).find_or_create_by( email: shipment_email.downcase )
+
+				destination_user_address = UserAddress.canonical_find_or_create_with_cannonical_geo_address(
+					first_name: split_full_name.first,
+					last_name: split_full_name.second,
+					street: shipment_row['STREET 1'],
+					street2: shipment_row['STREET 2'],
+					city: shipment_row['CITY'],
+					geo_state: geo_state,
+					state: state,
+					zip: shipment_row['ZIPCODE'],
+					geo_country: geo_country,
+					# phone: shipment_row['Phone'],
+					user: shipment_user,
+				)
+
+				puts "destination_user_address.errors.full_messages #{destination_user_address.errors.full_messages}"
+				puts "destination_user_address.errors.full_messages #{destination_user_address.to_html}"
+
+				if Bazaar::Shipment.where( "(properties::hstore -> 'BATCH_ID') = ?", batch_id ).where( "(properties::hstore -> 'IMPORT_INDEX') = ?", index.to_s ).present?
+					puts "  - already exists"
+					next
+				end
+
+				shipment = Bazaar::Shipment.new({
+					dyanically_configured:		false,
+					# code: 										nil,
+					status:										'draft',
+					properties:								{
+						"BATCH_ID"								=> batch_id,
+						"BATCH_DATE"							=> batch_date,
+						"IMPORT_ROW"							=> shipment_row.to_json,
+						"IMPORT_INDEX"						=> index.to_s,
+					},
+					# notes:										nil,
+					# email:										nil,
+					# length:										nil,
+					# width:										nil,
+					# height:										nil,
+					# shape:										nil,
+					# weight:										nil,
+					# cost:											nil,
+					destination_user_address:		destination_user_address,
+					destination_address:				destination_user_address.geo_address,
+					# source_address:						nil,
+					# order:										nil,
+					# shipping_carrier_service:	Bazaar::ShippingCarrierService.find_by( service_name: "Standard", service_code: 'DHL', carrier: 'DHL' ),
+					warehouse:								warehouse,
+					# fulfilled_by:							nil,
+					# user:											nil,
+					# price:										nil,
+					processable_at:						Time.now,
+					# declared_value:						nil,
+					# tax:											nil,
+					# tax_breakdown:						nil,
+					# currency:									nil,
+				} )
+
+				shipment_skus.each do |shipment_sku|
+					shipment.shipment_skus.new(shipment_sku)
+				end
+
+				application_shipping_service.calculate_shipment( shipment )
+
+				shipment.save!
+
+				shipments << shipment
+			end
+
+			successes = shipments.select(&:persisted?).count
+			failures = shipment_rows.count - successes
+			if successes > 0
+				set_flash "#{successes} #{'Shipment'.pluralize( successes )} Created"
+			end
+
+			if failures > 0
+				set_flash "#{failures} #{'Shipment'.pluralize( failures )} Failed", :error
+			end
+
+			redirect_to shipment_admin_index_path( 'filters[batch_id]' => batch_id )
+
+		end
+
+		def batch_template
+			csv_array = [
+				['EMAIL',					'FULL NAME',	'STREET 1',	'STREET 2',	'CITY',				'ZIPCODE',	'STATE',	'COUNTRY',	"ITEM 1 QUANTITY",	"ITEM 1 SKU",					"ITEM 2 QUANTITY",	"ITEM 2 SKU"],
+				['mike@nhc.com',	'Mike Ferg',	'123 A St',	'',					'San Diego',	'92126',		'CA',			'US',				'2',								"Eternus.160capsule",	"1",								"	Qualia.Focus.100capsules"],
+			]
+
+			respond_to do |format|
+				format.csv { send_data csv_array.collect(&:to_csv).join(""), filename: "batch_template.csv" }
+			end
+
+		end
+
+		def batch_update
+			@shipments = Bazaar::Shipment.all
+
+			if params[:batch_id].present?
+				@shipments = @shipments.where( "(properties::hstore -> 'BATCH_ID') = ?", params[:batch_id] )
+			else
+				@shipments = @shipments.where( id: params[:ids] )
+			end
+
+			authorize( @shipments )
+
+			attributes = shipment_params.merge( updated_at: Time.now )
+			puts "attributes #{attributes.to_json}"
+			@successes	= @shipments.update( attributes )
+
+			set_flash "#{@shipments.count} #{'Shipment'.pluralize( @shipments.count )} Updated"
+
+			redirect_back fallback_location: shipment_admin_index_path()
+		end
+
 		def create
 
 			if params[:shipment_id]
@@ -91,7 +264,12 @@ module Bazaar
 
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
-			@shipments = @search_service.shipment_search( params[:q], filters, page: params[:page], order: { @sort_by => @sort_dir } )
+
+			if ( @batch_id = filters[:batch_id] ).present?
+				@shipments = Bazaar::Shipment.all.where( "(properties::hstore -> 'BATCH_ID') = ?", @batch_id ).order( @sort_by => @sort_dir )
+			else
+				@shipments = @search_service.shipment_search( params[:q], filters, page: params[:page], order: { @sort_by => @sort_dir } )
+			end
 
 			set_page_meta( title: "Shipments" )
 			render( 'bazaar/shipment_admin/index' )

@@ -3,17 +3,32 @@
 
 .container-fluid
 	.row
-		.col-xs-10
-			%h2 Shipments
-		.col-xs-2.text-right
+		.col-xs-9
+			%h2
+				Shipments
+				- if @batch_id.present?
+					%small BATCH ID: #{@batch_id}
+
+		.col-xs-3.text-right
 			- if authorized?(Bazaar::Shipment, controller: Bazaar::ShipmentAdminController, action: :create ) && Rails.env.development?
 				%a.btn.btn-success{ href: bazaar.new_shipment_admin_path() }
 					%i.fa.fa-plus-square
 					New
+				%a.btn.btn-default{ href: '#', data: { toggle: :modal, target: '#batch_shipment_modal' } }
+					%i.fa.fa-plus-square
+					Batch
+				- if @batch_id.present?
+					%a.btn.btn-default{ href: '#', data: { toggle: :modal, target: '#batch_shipment_update_modal' } }
+						%i.fa.fa-plus-square
+						Update
+
 	.row{ style: 'margin-top: 0' }
 		.col-xs-6
-			= raw paginate @shipments
-			= "(#{pluralize @shipments.total_count, 'Shipment'})"
+			- if @shipments.respond_to? :total_count
+				= raw paginate @shipments
+				= "(#{pluralize @shipments.total_count, 'Shipment'})"
+			- else
+				= "(#{pluralize @shipments.count, 'Shipment'})"
 		.col-xs-6
 			-# = form_tag shipment_admin_index_path, method: :get, class: 'pull-right form-inline' do
 				= select_tag :status, options_from_collection_for_select( Bazaar::Shipment.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
@@ -91,3 +106,7 @@
 											%a{ href: shipment_admin_path( shipment ), data: { method: 'delete', confirm: 'Are you sure?' } }
 												%i.fa.fa-trash-o
 												Delete!
+
+= render 'batch_modal'
+- if @batch_id.present?
+	= render 'batch_update_modal', args: { batch_id: @batch_id }

@@ -57,7 +57,11 @@ Bazaar::Engine.routes.draw do
 		delete :empty_trash, on: :collection
 	end
 
-	resources :shipment_admin
+	resources :shipment_admin do
+		post :batch_create, on: :collection
+		get :batch_template, on: :collection
+		put :batch_update, on: :collection
+	end
 
 	resources :shipping_carrier_service_admin, only: [:index,:edit,:update]
 	resources :shipping_option_admin, only: [:index,:edit,:update,:create]

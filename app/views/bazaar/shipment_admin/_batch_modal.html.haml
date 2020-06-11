@@ -1,0 +1,17 @@
+.modal.fade#batch_shipment_modal
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Batch Create Shipments
+			= form_tag batch_create_shipment_admin_index_path(), method: :post, multipart: true do |f|
+				.modal-body
+					.form-group
+						= file_field_tag :file, class: 'form-element'
+					%a{ href: batch_template_shipment_admin_index_path( format: 'csv' ) } Template
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= submit_tag 'Save', class: 'btn btn-primary'
