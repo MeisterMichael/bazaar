@@ -263,9 +263,18 @@ module Bazaar
 			@user = current_user
 
 			if Bazaar.create_user_on_checkout && @user.blank? && params[:order].present? && params[:order][:email].present?
-				user_attributes = params.require( :order ).permit( :email, billing_user_address_attributes: [:first_name,:last_name] )
+				user_attributes = params.require( :order ).permit( :email, billing_user_address_attributes: [:first_name,:last_name], shipping_user_address_attributes: [:first_name,:last_name] )
+				attributes = {
+					email: user_attributes[:email].downcase,
+				}
 
-				@user = User.create_with( first_name: user_attributes[:billing_user_address_attributes][:first_name], last_name: user_attributes[:billing_user_address_attributes][:last_name] ).find_or_create_by( email: user_attributes[:email].downcase )
+				attributes[:first_name]	= user_attributes[:billing_user_address_attributes][:first_name]	if user_attributes[:first_name].blank? && user_attributes[:billing_user_address_attributes].present?
+				attributes[:last_name]	= user_attributes[:billing_user_address_attributes][:last_name]	if user_attributes[:last_name].blank? && user_attributes[:billing_user_address_attributes].present?
+
+				attributes[:first_name]	= user_attributes[:shipping_user_address_attributes][:first_name]	if user_attributes[:first_name].blank? && user_attributes[:shipping_user_address_attributes].present?
+				attributes[:last_name]	= user_attributes[:shipping_user_address_attributes][:last_name]	if user_attributes[:last_name].blank? && user_attributes[:shipping_user_address_attributes].present?
+
+				@user = User.create_with( first_name: attributes[:first_name], last_name: attributes[:last_name] ).find_or_create_by( email: attributes[:email] )
 			end
 
 			@user
