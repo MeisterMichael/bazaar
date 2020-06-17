@@ -495,6 +495,11 @@ module Bazaar
 
 					order.billing_user_address_attributes = attributes
 					order.shipping_user_address_attributes = attributes
+					order.shipments.each do |shipment|
+						shipment.destination_address = order.shipping_address
+						shipment.destination_user_address = order.shipping_user_address
+						shipment.save if shipment.persisted?
+					end
 
 					order.email ||= buyer_email if buyer_email.present?
 
