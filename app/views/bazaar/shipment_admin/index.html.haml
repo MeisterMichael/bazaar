@@ -10,17 +10,19 @@
 					%small BATCH ID: #{@batch_id}
 
 		.col-xs-3.text-right
-			- if authorized?(Bazaar::Shipment, controller: Bazaar::ShipmentAdminController, action: :create ) && Rails.env.development?
-				%a.btn.btn-success{ href: bazaar.new_shipment_admin_path() }
-					%i.fa.fa-plus-square
-					New
-				%a.btn.btn-default{ href: '#', data: { toggle: :modal, target: '#batch_shipment_modal' } }
-					%i.fa.fa-plus-square
-					Batch
-				- if @batch_id.present?
-					%a.btn.btn-default{ href: '#', data: { toggle: :modal, target: '#batch_shipment_update_modal' } }
+			- if authorized?(Bazaar::Shipment, controller: Bazaar::ShipmentAdminController, action: :create )
+				- if (params[:features] || '').include?( 'new_modal' )
+					%a.btn.btn-success{ href: bazaar.new_shipment_admin_path() }
 						%i.fa.fa-plus-square
-						Update
+						New
+				- if (params[:features] || '').include?( 'batch_modal' )
+					%a.btn.btn-default{ href: '#', data: { toggle: :modal, target: '#batch_shipment_modal' } }
+						%i.fa.fa-plus-square
+						Batch
+					- if @batch_id.present?
+						%a.btn.btn-default{ href: '#', data: { toggle: :modal, target: '#batch_shipment_update_modal' } }
+							%i.fa.fa-plus-square
+							Update
 
 	.row{ style: 'margin-top: 0' }
 		.col-xs-6
