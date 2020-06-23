@@ -29,6 +29,8 @@ module Bazaar
 
 		money_attributes :initial_price
 
+		acts_as_taggable_array_on :tags
+
 		before_save		:set_avatar
 
 
@@ -114,6 +116,14 @@ module Bazaar
 
 		def set_trashed_at
 			self.trashed_at ||= Time.now if self.trash?
+		end
+
+		def tags_csv
+			self.tags.join(',')
+		end
+
+		def tags_csv=(tags_csv)
+			self.tags = tags_csv.split(/,\s*/)
 		end
 
 		def to_s

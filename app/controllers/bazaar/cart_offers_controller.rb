@@ -51,6 +51,8 @@ module Bazaar
 			log_event( { name:'add_cart', on: @offer, content: "added #{@offer} to their cart." } )
 
 			respond_to do |format|
+				format.js {
+				}
 				format.json {
 				}
 				format.html {
