@@ -2,6 +2,7 @@ module Bazaar
 	class SkuAdminController < Bazaar::EcomAdminController
 
 		before_action :get_sku, except: [:index,:new,:create]
+		before_action :init_search_service, only: :index
 
 		def create
 			authorize( Bazaar::Sku )
@@ -28,7 +29,15 @@ module Bazaar
 		end
 
 		def index
-			@skus = Bazaar::Sku.all.order( name: :asc ).page( params[:page] ).per( 10 )
+			authorize( Bazaar::Sku )
+
+			sort_by = params[:sort_by] || 'name'
+			sort_dir = params[:sort_dir] || 'asc'
+
+			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
+			params[:status] ||= 'active'
+			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
+			@skus = @search_service.sku_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Sku Admin" )
 		end
@@ -60,6 +69,10 @@ module Bazaar
 		protected
 		def get_sku
 			@sku = Bazaar::Sku.find params[:id]
+		end
+
+		def init_search_service
+			@search_service = EcomSearchService.new
 		end
 
 		def sku_params

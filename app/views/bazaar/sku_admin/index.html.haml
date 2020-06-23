@@ -13,7 +13,13 @@
 	.row{ style: 'margin-top: 0' }
 		.col-xs-6
 			= raw paginate @skus
+			= "(#{pluralize @skus.total_count, 'Sku'})"
 		.col-xs-6
+			= form_tag sku_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= select_tag :status, options_from_collection_for_select( Bazaar::Sku.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+				= text_field_tag :q, params[:q], class: 'form-control'
+				= submit_tag 'Search', class: 'btn btn-primary'
+				= link_to 'Clear', offer_admin_index_path, class: 'btn btn-default'
 
 
 	.row

@@ -128,6 +128,16 @@ module Bazaar
 			return self.apply_options_and_filters( shipments, filters, options )
 		end
 
+		def sku_search( term, filters = {}, options = {} )
+			skus = Sku.all
+
+			if term.present?
+				skus = skus.where( "code ILIKE :q OR name ILIKE :q OR description ILIKE :q", q: "%#{term.gsub('%','\\\\%')}%".downcase )
+			end
+
+			return self.apply_options_and_filters( skus, filters, options )
+		end
+
 		def subscription_search( term, filters = {}, options = {} )
 			subscriptions = Subscription.all
 
