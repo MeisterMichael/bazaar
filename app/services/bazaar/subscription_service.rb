@@ -140,6 +140,8 @@ module Bazaar
 				provider_customer_payment_profile_reference: subscriptions.first.provider_customer_payment_profile_reference,
 			)
 
+			discounts = []
+
 			subscriptions.each do |subscription|
 				# create order
 				offer = subscription.offer
@@ -157,9 +159,11 @@ module Bazaar
 					subscription_interval: interval
 				)
 
-				# apply the subscription discount to new orders
-				discount = subscription.discount
-				order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present? && discount.active? && discount.in_progress?( now: time_now ) && @order_service.discount_service.get_order_discount_errors( order, discount ).blank?
+				# apply the subscription discount to new orders, but only the first one.
+				if ( discount = subscription.discount ).present?
+					order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discounts.blank? && discount.active? && discount.in_progress?( now: time_now ) && @order_service.discount_service.get_order_discount_errors( order, discount ).blank?
+					discounts << discount
+				end
 			end
 
 			order
