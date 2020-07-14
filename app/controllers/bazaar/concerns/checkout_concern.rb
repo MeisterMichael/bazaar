@@ -27,6 +27,7 @@ module Bazaar
 				order_attributes = params.permit(
 					order: [
 						:email,
+						:phone,
 						:customer_notes,
 						:same_as_billing,
 						:same_as_shipping,
@@ -60,6 +61,9 @@ module Bazaar
 				order_attributes[:billing_user_address_attributes] ||= {}
 				order_attributes[:shipping_user_address_attributes] ||= {}
 
+
+				order_attributes[:billing_user_address_attributes][:phone]	||= order_attributes[:phone]
+				order_attributes[:shipping_user_address_attributes][:phone]	||= order_attributes[:phone]
 
 				order_attributes[:order_offers_attributes]		||= order_attributes.delete(:order_offers) || []
 
