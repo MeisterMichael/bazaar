@@ -87,6 +87,9 @@
 									%td= link_to offer.to_s, edit_offer_admin_path(offer)
 									%td=offer.class
 
+				- if defined?( SwellId::IdentifierAdminController )
+					= render 'swell_id/identifier_admin/well', parent_obj: @sku, args: {}
+
 				.well.white-well
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#new_sku_country_modal' } }
