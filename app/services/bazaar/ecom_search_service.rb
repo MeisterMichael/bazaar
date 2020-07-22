@@ -64,7 +64,7 @@ module Bazaar
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%".downcase
 
-				offers = offers.where( "title ILIKE :q OR description ILIKE :q OR cart_description ILIKE :q", q: query )
+				offers = offers.where( "title ILIKE :q OR description ILIKE :q OR cart_description ILIKE :q OR CONCAT(tags) ILIKE :q", q: query )
 			end
 
 			return self.apply_options_and_filters( offers, filters, options )
