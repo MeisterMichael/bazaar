@@ -113,7 +113,7 @@
 				%h4
 					Upsell Offers
 
-				= render 'upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.for_source( offer: @offer ), args: {}
+				= render 'upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.where( src_offer: @offer ), args: {}
 
 	.row
 		.col-xs-12

@@ -201,6 +201,9 @@ module Bazaar
 
 		def index
 
+			@upsell_offers = @upsell_service.find_at_checkout_offers_for_order( @order )
+			@first_upsell_offer = @upsell_offers.first
+
 			@order.subtotal = @order.order_offers.to_a.sum(&:subtotal)
 			@order.total = @order.subtotal
 

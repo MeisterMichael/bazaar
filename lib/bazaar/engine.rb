@@ -55,6 +55,7 @@ module Bazaar
 		mattr_accessor :wholesale_transaction_service_config
 
 		mattr_accessor :checkout_order_service_class
+		mattr_accessor :upsell_service_class
 		mattr_accessor :wholesale_order_service_class
 
 		mattr_accessor :admin_permit_additions
@@ -115,6 +116,7 @@ module Bazaar
 		self.wholesale_transaction_service_config = {}
 
 		self.checkout_order_service_class = "Bazaar::CheckoutOrderService"
+		self.upsell_service_class = "Bazaar::UpsellService"
 		self.wholesale_order_service_class = "Bazaar::WholesaleOrderService"
 
 		self.warehouse_address = {}

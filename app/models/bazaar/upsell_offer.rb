@@ -12,17 +12,5 @@ module Bazaar
 			self.offer.product
 		end
 
-		def self.for_source( options={} )
-			if options[:product] && options[:offer]
-				self.where( src_product: options[:product] ).or( self.where( src_offer: options[:offer] ) )
-			elsif options[:offer]
-				self.where( src_offer: options[:offer] )
-			elsif options[:product]
-				self.where( src_product: options[:product] )
-			else
-				raise Exception.new('Must provide offer and/or product')
-			end
-		end
-
 	end
 end
