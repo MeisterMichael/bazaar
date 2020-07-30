@@ -17,7 +17,7 @@ module Bazaar
 		end
 
 		def destroy
-			if @upsell_offer.destroy
+			if @upsell_offer.trash!
 				set_flash "Upsell Offer deleted", :success
 			else
 				set_flash @upsell_offer.errors.full_messages, :danger
@@ -26,7 +26,7 @@ module Bazaar
 		end
 
 		def index
-			@upsell_offers = Bazaar::UpsellOffer.all.order( name: :asc ).page( params[:page] ).per( 10 )
+			@upsell_offers = Bazaar::UpsellOffer.where( status: ['active','draft'] ).order( name: :asc ).page( params[:page] ).per( 10 )
 
 			set_page_meta( title: "Upsell Offer Admin" )
 		end
@@ -56,7 +56,7 @@ module Bazaar
 		end
 
 		def upsell_offer_params
-			params.require(:upsell_offer).permit( :src_offer_id, :src_product_id, :offer_id, :full_price_offer_id, :upsell_type )
+			params.require(:upsell_offer).permit( :src_offer_id, :src_product_id, :offer_id, :full_price_offer_id, :upsell_type, :status )
 		end
 
 	end

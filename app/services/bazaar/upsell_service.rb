@@ -21,7 +21,7 @@ module Bazaar
 
 		def find_offers_for_offers( offers, options = {} )
 			products = offers.collect(&:product).uniq
-			upsell_offers = Bazaar::UpsellOffer.all.joins(:offer)
+			upsell_offers = Bazaar::UpsellOffer.active.joins(:offer)
 
 			# limit upsell_offers to the type provided (otherwise all types allowed)
 			upsell_offers = upsell_offers.where( upsell_type: options[:upsell_type] ) if options[:upsell_type].present?

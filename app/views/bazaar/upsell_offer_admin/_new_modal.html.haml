@@ -9,6 +9,7 @@
 			= form_for Bazaar::UpsellOffer.new( args ), url: bazaar.upsell_offer_admin_index_path do |f|
 				= f.hidden_field :src_offer_id
 				= f.hidden_field :src_product_id
+				= f.hidden_field :status, value: 'active'
 				.modal-body
 
 					- if f.object.src_offer
