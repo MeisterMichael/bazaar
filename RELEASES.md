@@ -1,3 +1,6 @@
+== 4.28.0
+* paypal express checkout v2 upgrade.  previous plugin no longer supported and not longer working.
+
 == 4.10.0
 * Transaction Admin search by credit card ending in
 
