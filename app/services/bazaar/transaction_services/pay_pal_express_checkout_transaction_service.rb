@@ -9,13 +9,21 @@ module Bazaar
 			PROVIDER_NAME = 'PayPalExpressCheckout'
 
 			def initialize( args = {} )
-				raise Exception.new('add "gem \'paypal-sdk-rest\'" to your Gemfile') unless defined?( PayPal::SDK )
+				raise Exception.new('add "gem \'paypal-checkout-sdk\'" to your Gemfile') unless defined?( PayPalCheckoutSdk )
 
 				@client_id		= args[:client_id] || ENV['PAYPAL_EXPRESS_CHECKOUT_CLIENT_ID']
 				@client_secret	= args[:client_secret] || ENV['PAYPAL_EXPRESS_CHECKOUT_CLIENT_SECRET']
 				@mode			= args[:mode] || ENV['PAYPAL_EXPRESS_CHECKOUT_MODE'] || 'sandbox' # or 'live'
 
 				@provider_name	= args[:provider_name] || PROVIDER_NAME
+
+				if @mode == 'sandbox'
+					@environment = PayPal::SandboxEnvironment.new( @client_id, @client_secret )
+				else
+					@environment = PayPal::LiveEnvironment.new( @client_id, @client_secret )
+				end
+
+				@client = PayPal::PayPalHttpClient.new( @environment )
 			end
 
 
@@ -32,81 +40,107 @@ module Bazaar
 
 			def process( order, args = {} )
 
-				payer_id = args[:pay_pal][:payer_id]
-				payment_id = args[:pay_pal][:payment_id]
+				pay_pal_payer_id = args[:pay_pal][:payer_id]
+				pay_pal_payment_id = args[:pay_pal][:payment_id]
+				pay_pal_order_id = args[:pay_pal][:order_id]
+				pay_pal_payment_token = args[:pay_pal][:payment_token]
 
-				PayPal::SDK.configure(
-					:mode => @mode,
-					:client_id => @client_id,
-					:client_secret => @client_secret,
-					# :ssl_options => { }
-				)
+
 
 				# order.payment_status = 'payment_method_captured'
 				order.provider = @provider_name
 
-				order.provider_customer_profile_reference = payer_id
-				order.provider_customer_payment_profile_reference = payment_id
+				order.provider_customer_profile_reference = pay_pal_payer_id
+				order.provider_customer_payment_profile_reference = pay_pal_order_id
 				order.save
 
 				transaction = Bazaar::Transaction.create(
 					parent_obj: order,
 					transaction_type: 'charge',
-					reference_code: payment_id,
-					customer_profile_reference: payer_id,
-					customer_payment_profile_reference: payment_id,
+					reference_code: pay_pal_order_id,
+					customer_profile_reference: pay_pal_payer_id,
+					customer_payment_profile_reference: pay_pal_payment_id,
 					provider: @provider_name,
 					amount: order.total,
 					currency: order.currency,
 					status: 'declined'
 				)
 
+				request = PayPalCheckoutSdk::Orders::OrdersCaptureRequest::new( pay_pal_order_id )
 
-				if payment_id.present? && payer_id.present? && ( payment = PayPal::SDK::REST::Payment.find(payment_id) ).present?
+				begin
 
-					payment_amount = ( payment.transactions.sum{|transaction| transaction.amount.total.to_f } * 100 ).to_i
+					response = @client.execute(request)
+					paypal_order = response.result
 
-					if payment.error
+				rescue Exception => e
+					# Something went wrong server-side
 
-						transaction.message = payment.error
+					execption_message = e.message
+					exception_message = e.result.message if e.respond_to? :result
+
+					transaction.message = "PayPalExpressCheckout Payment Error: An Error Occured while executing the authorization request. #{exception_message}"
+					transaction.save
+
+					NewRelic::Agent.notice_error( e ) if defined?( NewRelic )
+					order.errors.add(:base, :processing_error, message: "An error occured while authorizing your Paypal transaction.")
+
+					return transaction
+
+				end
+
+				if paypal_order.present?
+
+					purchase_units = paypal_order.purchase_units
+					purchase_units = [purchase_units] unless purchase_units.is_a? Array
+
+					reference_codes = []
+
+					payment_amount = purchase_units.sum do |purchase_unit|
+						payments = purchase_unit.payments
+						payments = [payments] unless payments.is_a? Array
+
+						payments.sum do |payment|
+							captures = payment.captures
+							captures = [captures] unless captures.is_a? Array
+
+							captures.sum do |capture|
+
+								reference_codes << capture.id
+
+								( capture.amount.value.to_f * 100.0 ).to_i
+							end
+						end
+					end
+
+					transaction.reference_code = reference_codes.join(',') #capture ids
+
+					if paypal_order.status != 'COMPLETED'
+
+						# @todo need to handle failed response
+						transaction.message = paypal_order.error
 						transaction.save
 
-						NewRelic::Agent.notice_error( Exception.new("PayPalExpressCheckout Payment Error: #{payment.error}") ) if defined?( NewRelic )
+						NewRelic::Agent.notice_error( Exception.new("PayPalExpressCheckout Payment Error: #{paypal_order.error}") ) if defined?( NewRelic )
 						order.errors.add(:base, :processing_error, message: "Transaction declined.")
-
-					elsif not( ((order.total-1)..(order.total+1)).include?( payment_amount ) )
-
-						transaction.message = "PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}"
-						transaction.save
-
-						NewRelic::Agent.notice_error( Exception.new("PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}") ) if defined?( NewRelic )
-						puts "PayPal checkout amount does not match invoice. #{payment_amount} vs #{order.total}" if @mode == 'sandbox'
-						order.errors.add(:base, :processing_error, message: "PayPal checkout amount does not match invoice.")
-
-					elsif payment.execute( payer_id: payer_id )
-
-						transaction.status = 'approved'
-						transaction.save
-
-						order.payment_status = 'paid'
-						order.save
 
 					else
 
-						transaction.message = "Transaction declined."
-						transaction.save
+						transaction.status = 'approved'
+						transaction.save!
 
-						order.errors.add(:base, :processing_error, message: "Transaction declined.")
+						order.payment_status = 'paid'
+						order.save!
 
 					end
 
 				else
 
-					transaction.message = "PayPalExpressCheckout Payment Error: Payer and/or payment id not present"
+					transaction.message = "PayPalExpressCheckout Payment Error: response did not include a result"
 					transaction.save
 
-					NewRelic::Agent.notice_error( Exception.new("PayPalExpressCheckout Payment Error: Payer and/or payment id not present") ) if defined?( NewRelic )
-					order.errors.add(:base, :processing_error, message: "Invalid PayPal Credentials.")
+					NewRelic::Agent.notice_error( Exception.new("PayPalExpressCheckout Payment Error: response did not include a result") ) if defined?( NewRelic )
+					order.errors.add(:base, :processing_error, message: "Paypal failed to authorize your transaction.")
 
 				end
 
@@ -130,6 +164,7 @@ module Bazaar
 
 				# Generate Refund transaction
 				transaction = Bazaar::Transaction.new( args )
+				transaction.status = 'declined'
 				transaction.transaction_type	= 'refund'
 				transaction.provider			= @provider_name
 				transaction.amount				= args[:amount]
@@ -143,48 +178,61 @@ module Bazaar
 					return transaction
 				end
 
-				# Fetch paypal payment object for original sale
-				payment = PayPal::SDK::REST::Payment.find(charge_transaction.reference_code)
-				payment_obj = JSON.parse( payment.to_json, symbolize_names: true )
 
-				# Find sale in from payment object
-				transaction_obj = payment_obj[:transactions].first
-				if transaction_obj.present? && transaction_obj[:related_resources].present?
-					sale_obj = transaction_obj[:related_resources].select{|resource| resource[:sale].present? }.first
-				end
-				sale = PayPal::SDK::REST::Sale.find( sale_obj[:sale][:id] ) if sale_obj.present?
+				request = PayPalCheckoutSdk::Payments::CapturesRefundRequest::new( charge_transaction.reference_code )
 
-				# Use the sale to process a refund
-				if sale.present?
-
-					refund_obj = {
-						:amount => {
-							:total => "#{'%.2f' % transaction.amount_as_money}",
-							:currency => transaction.currency.upcase
-						}
+				request_body = {
+					amount: {
+						value: "#{'%.2f' % transaction.amount_as_money}",
+						currency_code: transaction.currency.upcase,
 					}
+				}
+				request.request_body(request_body);
 
-					refund = sale.refund( refund_obj )
+				begin
 
-					if refund.error
+					response = @client.execute(request)
+					paypal_refund = response.result
+
+				rescue Exception => e
+					# Something went wrong server-side
+
+					execption_message = e.message
+					exception_message = e.result.message if e.respond_to? :result
+
+					transaction.message = "PayPalExpressCheckout Refund Error: An Error Occured while executing the refund request. #{exception_message}"
+					transaction.save
+
+					NewRelic::Agent.notice_error( e ) if defined?( NewRelic )
+					parent_obj.errors.add(:base, :processing_error, message: "An error occured while authorizing the Paypal refund.")
+
+					return transaction
+
+				end
+
+
+				if paypal_refund.present?
+
+					if paypal_refund.status != 'COMPLETED'
 
 						transaction.status = 'declined'
-						transaction.message = refund.error
+						transaction.message = "Refund Failed: #{paypal_refund.status}"
 						# transaction.errors.add(:base, "Refuned failed")
 
 					else
 
 						transaction.status = 'approved'
-						transaction.reference_code = refund.id
+						transaction.reference_code = paypal_refund.id
 
 					end
-
-					transaction.save!
-
 				else
+
 					transaction.status = 'declined'
-					transaction.errors.errors.add(:base, "Unable to find corresponding sale")
+					transaction.message = 'No response given'
+
 				end
+
+				transaction.save!
 
 				return transaction
 			end
