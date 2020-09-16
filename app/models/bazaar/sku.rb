@@ -6,7 +6,7 @@ module Bazaar
 
 
 		has_many	:offer_skus
-		has_many	:offers, through: :offer_skus
+		has_many	:offers, through: :offer_skus, source: :parent_obj, source_type: 'Bazaar::Offer'
 		has_many	:shipment_skus
 		has_many	:shipments, through: :shipment_skus
 		has_many	:sku_countries
@@ -14,6 +14,8 @@ module Bazaar
 		has_many	:warehouses, through: :warehouse_skus
 		has_many	:wholesale_items
 		has_many	:wholesale_profiles, through: :wholesale_items
+
+		has_one_attached :avatar_attachment
 
 		enum status: { 'trash' => -1, 'draft' => 0, 'active' => 100 }
 		enum country_restriction_type: { 'countries_blacklist' => -1, 'countries_unrestricted' => 0, 'countries_whitelist' => 1 }

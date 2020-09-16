@@ -137,6 +137,22 @@
 					%hr
 
 					.form-group
+						= f.label :avatar_attachment, "Avatar"
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The public facing image used to reference this product.' }
+						.row
+							.col-xs-6{ style: 'max-width: 100px;' }
+								%div{ style: 'border: 1px solid #ccc;background: #fff;margin-bottom: 5px;' }
+									- if @sku.avatar_attachment.attached?
+										%a{ href: @sku.avatar_attachment.service_url, target: '_preview_image' }
+											%img.img.img-responsive.center-block#product_avatar_img{:src => @sku.avatar_attachment.service_url }
+									- else
+										%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
+							.col-xs-6
+								= f.file_field :avatar_attachment
+
+					%hr
+
+					.form-group
 						= f.label :shape
 						= f.collection_select :shape, Bazaar::Sku.shapes, :first, :first, {}, class: 'form-control'
 					.form-group
