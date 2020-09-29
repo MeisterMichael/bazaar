@@ -202,6 +202,29 @@ module Bazaar
 			end
 		end
 
+		def update_offer
+			authorize( @subscription )
+			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first
+			@subscription.attributes = params.require( :subscription ).permit( :offer_id )
+			@subscription.price = @subscription.offer.price_for_interval( @subscription.next_subscription_interval )
+			@subscription.amount = @subscription.price * @subscription.quantity
+
+			if @subscription.save
+				set_flash "Subscription Offer updated successfully", :success
+
+			else
+
+				set_flash @subscription.errors.full_messages, :danger
+
+			end
+
+			if params[:redirect_to] == 'edit'
+				redirect_to edit_subscription_admin_path( @subscription )
+			else
+				redirect_back fallback_location: '/admin'
+			end
+		end
+
 		private
 			def subscription_params
 				params.require( :subscription ).permit( :next_charged_at, :shipping_carrier_service_id, :quantity, :price_as_money, :billing_interval_value, :billing_interval_unit, :status, :discount_id, user_attributes: [ :first_name, :last_name, :email ] )

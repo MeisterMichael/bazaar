@@ -83,6 +83,7 @@ Bazaar::Engine.routes.draw do
 		post :payment_profile, on: :member
 		get :edit_shipping_carrier_service, on: :member
 		get :timeline, on: :member
+		patch :update_offer, on: :member
 	end
 
 	resources :transaction_admin

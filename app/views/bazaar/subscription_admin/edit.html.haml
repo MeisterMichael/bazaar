@@ -19,7 +19,9 @@
 				%small= @subscription.created_at.to_s( :short )
 			Plan:
 			%a{ href: bazaar.edit_offer_admin_path( @subscription.offer ) }= @subscription.offer.title
-
+			(
+			%a{ href: '#', data: { toggle: :modal, target: '#edit_subscription_offer_modal' } } Edit
+			)
 
 	.row
 		.col-xs-8
@@ -244,3 +246,4 @@
 = render 'bazaar/subscription_admin/update_discount_modal', args: {}
 = render 'bazaar/offer_price_admin/new_modal', parent_obj: @subscription, args: { start_interval: @subscription.next_subscription_interval, price_as_money: @subscription.price_as_money_for_interval( @subscription.next_subscription_interval ), replace_mode: 'duplicate_start_intervals' }
 = render 'bazaar/offer_schedule_admin/new_modal', parent_obj: @subscription, args: { start_interval: @subscription.next_subscription_interval, interval_value: @subscription.interval_value_for_interval( @subscription.next_subscription_interval ), interval_unit: @subscription.interval_unit_for_interval( @subscription.next_subscription_interval ), replace_mode: 'duplicate_start_intervals' }
+= render 'bazaar/subscription_admin/edit_offer_modal', args: {}
