@@ -26,11 +26,13 @@ module Bazaar
 				@order.shipping_user_address ||= UserAddress.new
 
 
-				@order_service.calculate( @order,
+				@order.options = {
 					transaction: transaction_options,
 					shipping: shipping_options,
 					discount: discount_options,
-				)
+				}
+
+				@order_service.calculate( @order, @order.options )
 
 			rescue Exception => e
 				puts e
@@ -41,11 +43,13 @@ module Bazaar
 
 		def confirm
 
-			@order_service.calculate( @order,
+			@order.options = {
 				transaction: transaction_options,
 				shipping: shipping_options,
 				discount: discount_options,
-			)
+			}
+
+			@order_service.calculate( @order, @order.options )
 
 			render layout: 'bazaar/checkout'
 		end
@@ -57,11 +61,13 @@ module Bazaar
 
 			@order.order_offers = @order.order_offers.select{|order_offer| order_offer.quantity > 0 }
 
-			@order_service.process( @order,
+			@order.options = {
 				transaction: transaction_options,
 				shipping: shipping_options,
 				discount: discount_options,
-			)
+			}
+
+			@order_service.process( @order, @order.options )
 
 			if @order.nested_errors.present?
 				respond_to do |format|
@@ -112,11 +118,13 @@ module Bazaar
 
 			begin
 
-				@order_service.calculate( @order,
+				@order.options = {
 					transaction: transaction_options,
 					shipping: shipping_options,
 					discount: discount_options,
-				)
+				}
+
+				@order_service.calculate( @order, @order.options )
 
 			rescue Exception => e
 				raise e if Rails.env.development?

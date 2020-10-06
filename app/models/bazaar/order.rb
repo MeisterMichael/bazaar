@@ -28,6 +28,7 @@ module Bazaar
 
 		money_attributes :subtotal, :tax, :shipping, :total, :discount
 
+		attr_accessor :options
 
 		# def email=(value)
 		# 	super( Email.email_sanitize( value ) )

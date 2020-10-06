@@ -21,13 +21,14 @@ module Bazaar
 		before_action :get_geo_addresses, only: :index
 
 		def confirm
-
-			@order_service.calculate( @order,
+			@order.options = {
 				order: order_options,
 				transaction: transaction_options,
 				shipping: shipping_options,
 				discount: discount_options,
-			)
+			}
+
+			@order_service.calculate( @order, @order.options )
 
 			render layout: 'bazaar/checkout'
 		end
@@ -61,13 +62,14 @@ module Bazaar
 			end
 
 			begin
-
-				@order_service.calculate( @order,
+				@order.options = {
 					order: order_options,
 					transaction: transaction_options,
 					shipping: shipping_options,
 					discount: discount_options,
-				)
+				}
+
+				@order_service.calculate( @order, @order.options )
 
 			rescue Exception => e
 				puts e
@@ -85,12 +87,14 @@ module Bazaar
 			@order.source = 'Consumer Checkout'
 
 			begin
-				@order_service.process( @order,
+				@order.options = {
 					order: order_options,
 					transaction: transaction_options.merge( default_parent_obj: @cart ),
 					shipping: shipping_options,
 					discount: discount_options,
-				)
+				}
+
+				@order_service.process( @order, @order.options )
 			rescue Exception => e
 				if Rails.env.development?
 					puts e.message

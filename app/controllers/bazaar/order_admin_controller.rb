@@ -63,11 +63,13 @@ module Bazaar
 
 			authorize( @order )
 
-			@order_service.calculate( @order,
+			@order.options = {
 				transaction: transaction_options,
 				shipping: shipping_options,
 				discount: discount_options,
-			)
+			}
+
+			@order_service.calculate( @order, @order.options )
 
 			set_page_meta( title: "#{@order.code} | Order" )
 		end
