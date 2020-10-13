@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_dependency "swell_id"
   # s.add_dependency 'tax_cloud'
   # s.add_dependency 'stripe' #, :git => 'https://github.com/stripe/stripe-ruby'
-  s.add_dependency 'bazaar_core' #, :git => 'https://github.com/MeisterMichael/bazaar.git', :branch => 'bazaar-core'
+  s.add_dependency 'bazaar_core'# , :git => 'https://github.com/MeisterMichael/bazaar.git', :branch => 'bazaar-core'
   s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'rails-controller-testing'
   s.add_development_dependency 'capybara'
