@@ -1,3 +1,3 @@
 module BazaarCore
-  VERSION = "4.31.0"
+  VERSION = "5.0.0"
 end
