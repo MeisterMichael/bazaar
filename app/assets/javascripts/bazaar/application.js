@@ -10,4 +10,5 @@
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require_tree .
+// r equire_tree ../bazaar_core/plugins
+//= require bazaar_core/custom/geo-addresses

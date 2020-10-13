@@ -1,2 +1,2 @@
-//= require ./checkout
+//= require bazaar_core/checkout
 //= require ./custom/admin
