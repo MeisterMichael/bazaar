@@ -54,7 +54,7 @@ module BazaarCore
 
 			end
 
-			discount = BazaarCore::Discount.find_by( args.delete(:discount_id) ) if args[:discount_id]
+			discount = Bazaar::Discount.find_by( args.delete(:discount_id) ) if args[:discount_id]
 			discount ||= args[:discount]
 			discount = nil unless discount.try(:for_subscriptions?)
 
@@ -259,7 +259,7 @@ module BazaarCore
 				else
 
 					# if no transaction was created, create one to log the error
-					transaction = BazaarCore::Transaction.create(
+					transaction = Bazaar::Transaction.create(
 						message: order.nested_errors.join(' * '),
 						parent_obj: subscriptions.first,
 						status: 'declined',
