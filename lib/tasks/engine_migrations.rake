@@ -1,5 +1,5 @@
 # desc "Explaining what the task does"
-namespace :bazaar do
+namespace :bazaar_core do
 
 	task backfill_order_offer_relations: :environment do
 		puts "Bazaar::OrderSku.count #{Bazaar::OrderSku.count}"
@@ -41,7 +41,7 @@ namespace :bazaar do
 		index = 0
 		files.each do |source_file_path,destination_path|
 			source_file_name = File.basename(source_file_path)
-			source = File.join( Gem.loaded_specs["bazaar"].full_gem_path, "lib/tasks/install_files", source_file_path )
+			source = File.join( Gem.loaded_specs["bazaar_core"].full_gem_path, "lib/tasks/install_files", source_file_path )
 
 			source_file_name = "#{(prefix + index)}_#{source_file_name.gsub(/^[0-9]+_/,"")}" if destination_path == 'db/migrate'
 

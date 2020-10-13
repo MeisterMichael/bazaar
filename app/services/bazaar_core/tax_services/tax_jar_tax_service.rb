@@ -9,7 +9,7 @@ module Bazaar
 			TAX_RESULTS_FIELDS = %w( state_amount county_amount city_amount special_district_amount state_tax_collectable county_tax_collectable city_tax_collectable special_district_tax_collectable gst pst qst )
 
 			def initialize( args = {} )
-				raise Exception.new('add "gem \'taxjar-ruby\'" to your Gemfile and "require \'taxjar\'" at the top of config/initializers/bazaar.rb') unless defined?( Taxjar )
+				raise Exception.new('add "gem \'taxjar-ruby\'" to your Gemfile and "require \'taxjar\'" at the top of config/initializers/bazaar_core.rb') unless defined?( Taxjar )
 
 				@environment = args[:environment].to_sym if args[:environment].present?
 				@environment ||= :production if Rails.env.production?

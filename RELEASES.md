@@ -56,7 +56,7 @@
 
 == V2.1.2
 * bug fix to the thank you page token generation.
-* set all bazaar public controllers to use bazaar/application as the default layout
+* set all bazaar_core public controllers to use bazaar_core/application as the default layout
 
 == V2.1.1
 * Fix to the discount service code, so it will calculate discounts despite order errors
@@ -67,7 +67,7 @@
 * Add a renewal failure email
 * Fixed rollup calculations on orders
 * Migrating
-  * update bazaar.rb initializer to user nexus_addresses (previously nexus_address)
+  * update bazaar_core.rb initializer to user nexus_addresses (previously nexus_address)
   * run> rake db:migrate
-  * run> rake bazaar:migrate_subscription_customizations
-  * run> rake bazaar:recalculate_order_rollups
+  * run> rake bazaar_core:migrate_subscription_customizations
+  * run> rake bazaar_core:recalculate_order_rollups

@@ -1,9 +1,9 @@
 # desc "Explaining what the task does"
-namespace :bazaar do
+namespace :bazaar_core do
 	task :install do
 		puts "installing"
 
-		file_paths = Dir.glob File.join( Gem.loaded_specs["bazaar"].full_gem_path, "lib/tasks/install_files/*" )
+		file_paths = Dir.glob File.join( Gem.loaded_specs["bazaar_core"].full_gem_path, "lib/tasks/install_files/*" )
 		prefix = Time.now.utc.strftime("%Y%m%d%H%M%S").to_i
 
 		file_paths.each_with_index do |source,index|
@@ -19,12 +19,12 @@ namespace :bazaar do
 		end
 
 		files = {
-			'bazaar.rb' => 'config/initializers',
+			'bazaar_core.rb' => 'config/initializers',
 		}
 
 		files.each do |source_file_path,destination_path|
 			source_file_name = File.basename(source_file_path)
-			source = File.join( Gem.loaded_specs["bazaar"].full_gem_path, "lib/tasks/install_files", source_file_path )
+			source = File.join( Gem.loaded_specs["bazaar_core"].full_gem_path, "lib/tasks/install_files", source_file_path )
 			target = File.join( Rails.root, destination_path, source_file_name )
 
 			FileUtils.cp_r source, target
@@ -33,7 +33,7 @@ namespace :bazaar do
 		end
 
 
-		Rake::Task["bazaar:swell_ecom_to_bazaar_install"].invoke
+		Rake::Task["bazaar_core:swell_ecom_to_bazaar_install"].invoke
 
 	end
 

@@ -1,4 +1,4 @@
-namespace :bazaar do
+namespace :bazaar_core do
 	task load_geo_data: :environment do
 		puts "Loading Geo Data"
 

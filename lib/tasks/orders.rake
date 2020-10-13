@@ -1,5 +1,5 @@
 # desc "Explaining what the task does"
-namespace :bazaar do
+namespace :bazaar_core do
 
 	task process_payment_method_captured_orders: :environment do
 

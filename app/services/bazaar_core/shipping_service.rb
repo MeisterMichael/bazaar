@@ -173,7 +173,7 @@ module Bazaar
 			cache_key = geo_address.attributes.to_json
 			cache_key = cache_key + line_items.collect(&:attributes).to_json
 
-			cached_rates = Rails.cache.fetch("bazaar/shipping_service/#{cache_key}", expires_in: 10.minutes) do
+			cached_rates = Rails.cache.fetch("bazaar_core/shipping_service/#{cache_key}", expires_in: 10.minutes) do
 
 				request_rates = request_address_rates( geo_address, line_items, args )
 

@@ -1,11 +1,11 @@
 $:.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
-require "bazaar/version"
+require "bazaar_core/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "bazaar"
+  s.name        = "bazaar_core"
   s.version     = Bazaar::VERSION
   s.authors     = ["Gk Parish-Philp", "Michael Ferguson"]
   s.email       = ["gk@groundswellenterprises.com"]

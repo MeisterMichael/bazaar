@@ -2,7 +2,7 @@
 PATH
   remote: .
   specs:
-    bazaar (2.1.16)
+    bazaar_core (2.1.16)
       authorizenet
       credit_card_validations
       jbuilder
@@ -487,7 +487,7 @@ DEPENDENCIES
   rake (< 11.0)
   rspec-rails
   sqlite3
-  bazaar!
+  bazaar_core!
   taxjar-ruby
 
 BUNDLED WITH

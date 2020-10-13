@@ -1,5 +1,5 @@
 # desc "Explaining what the task does"
-namespace :bazaar do
+namespace :bazaar_core do
 
 	task cached_discount_stats_backfill: :environment do
 

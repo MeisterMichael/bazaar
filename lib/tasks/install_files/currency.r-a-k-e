@@ -2,7 +2,7 @@
 # gem 'countries'
 # gem 'money-open-exchange-rates'
 
-namespace :bazaar do
+namespace :bazaar_core do
 
 	task cache_currnecy_rates: :environment do
 		require 'money/bank/open_exchange_rates_bank'

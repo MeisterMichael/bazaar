@@ -1,5 +1,5 @@
 # desc "Explaining what the task does"
-namespace :bazaar do
+namespace :bazaar_core do
 
 	task payment_profile_expiration_reminder: :environment do
 
