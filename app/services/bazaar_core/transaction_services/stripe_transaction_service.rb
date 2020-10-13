@@ -1,8 +1,8 @@
-module Bazaar
+module BazaarCore
 
 	module TransactionServices
 
-		class StripeTransactionService < Bazaar::TransactionService
+		class StripeTransactionService < BazaarCore::TransactionService
 
 			def initialize( args = {} )
 				raise Exception.new('add "gem \'stripe\'" to your Gemfile') unless defined?( Stripe )

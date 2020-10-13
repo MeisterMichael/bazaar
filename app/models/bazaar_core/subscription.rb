@@ -1,8 +1,8 @@
-module Bazaar
+module BazaarCore
 	class Subscription < ApplicationRecord
-		include Bazaar::Concerns::UserAddressAttributesConcern
-		include Bazaar::Concerns::MoneyAttributesConcern
-		include Bazaar::SubscriptionSearchable if (Bazaar::SubscriptionSearchable rescue nil)
+		include BazaarCore::Concerns::UserAddressAttributesConcern
+		include BazaarCore::Concerns::MoneyAttributesConcern
+		include BazaarCore::SubscriptionSearchable if (BazaarCore::SubscriptionSearchable rescue nil)
 
 		enum status: { 'trash' => -99, 'rejected' => -5, 'on_hold' => -2, 'canceled' => -1, 'failed' => 0, 'active' => 1, 'review' => 98, 'hold_review' => 110 }
 
@@ -104,10 +104,10 @@ module Bazaar
 
 
 		def next_subscription_interval( args = {} )
-			orders = Bazaar::Order.where( status: args[:statuses] ) if args[:statuses]
-			orders ||= Bazaar::Order.positive_status
+			orders = BazaarCore::Order.where( status: args[:statuses] ) if args[:statuses]
+			orders ||= BazaarCore::Order.positive_status
 
-			( Bazaar::OrderOffer.where( subscription: self ).joins(:order).merge( orders ).maximum(:subscription_interval) || 0 ) + 1
+			( BazaarCore::OrderOffer.where( subscription: self ).joins(:order).merge( orders ).maximum(:subscription_interval) || 0 ) + 1
 		end
 
 		def order
@@ -132,7 +132,7 @@ module Bazaar
 		end
 
 		def related_transactions
-			Bazaar::Transaction.where( parent_obj: ( self.orders.to_a + [ self ] ) )
+			BazaarCore::Transaction.where( parent_obj: ( self.orders.to_a + [ self ] ) )
 		end
 
 		def title
@@ -148,8 +148,8 @@ module Bazaar
 		def generate_order_code
 			self.code = loop do
   				token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
-				token = "#{Bazaar.subscription_code_prefix}#{token}"if Bazaar.order_code_prefix.present?
-				token = "#{token}#{Bazaar.subscription_code_postfix}"if Bazaar.order_code_postfix.present?
+				token = "#{BazaarCore.subscription_code_prefix}#{token}"if BazaarCore.order_code_prefix.present?
+				token = "#{token}#{BazaarCore.subscription_code_postfix}"if BazaarCore.order_code_postfix.present?
   				break token unless Subscription.exists?( code: token )
 			end
 		end

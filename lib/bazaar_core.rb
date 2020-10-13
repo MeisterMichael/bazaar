@@ -1,4 +1,4 @@
 require "bazaar_core/engine"
 
-module Bazaar
+module BazaarCore
 end

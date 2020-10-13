@@ -1,8 +1,8 @@
-module Bazaar
+module BazaarCore
 	class Offer < ApplicationRecord
 		include SwellId::Concerns::PolymorphicIdentifiers
-		include Bazaar::Concerns::MoneyAttributesConcern
-		include Bazaar::OfferSearchable if (Bazaar::OfferSearchable rescue nil)
+		include BazaarCore::Concerns::MoneyAttributesConcern
+		include BazaarCore::OfferSearchable if (BazaarCore::OfferSearchable rescue nil)
 
 		before_save :set_trashed_at
 		before_save :set_default_code
@@ -87,7 +87,7 @@ module Bazaar
 		end
 
 		def self.zero_price_sum
-			self.where( id: Bazaar::OfferPrice.active.where( parent_obj: Bazaar::Offer.all ).group(:parent_obj_type,:parent_obj_id).having("SUM(price) = 0").select(:parent_obj_id) )
+			self.where( id: BazaarCore::OfferPrice.active.where( parent_obj: BazaarCore::Offer.all ).group(:parent_obj_type,:parent_obj_id).having("SUM(price) = 0").select(:parent_obj_id) )
 		end
 
 		def zero_price_sum?
@@ -95,7 +95,7 @@ module Bazaar
 		end
 
 		def self.not_recurring
-			self.where( id: Bazaar::OfferSchedule.active.where( parent_obj: Bazaar::Offer.all ).group(:parent_obj_type,:parent_obj_id).having("SUM(COALESCE(max_intervals,99)) <= 1").select(:parent_obj_id) )
+			self.where( id: BazaarCore::OfferSchedule.active.where( parent_obj: BazaarCore::Offer.all ).group(:parent_obj_type,:parent_obj_id).having("SUM(COALESCE(max_intervals,99)) <= 1").select(:parent_obj_id) )
 		end
 
 		def not_recurring?
@@ -103,7 +103,7 @@ module Bazaar
 		end
 
 		def self.recurring
-			self.where( id: Bazaar::OfferSchedule.active.where( parent_obj: Bazaar::Offer.all ).group(:parent_obj_type,:parent_obj_id).having("SUM(COALESCE(max_intervals,99)) > 1").select(:parent_obj_id) )
+			self.where( id: BazaarCore::OfferSchedule.active.where( parent_obj: BazaarCore::Offer.all ).group(:parent_obj_type,:parent_obj_id).having("SUM(COALESCE(max_intervals,99)) > 1").select(:parent_obj_id) )
 		end
 
 		def recurring?

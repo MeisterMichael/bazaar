@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	module OrderSearchable
 		extend ActiveSupport::Concern
 

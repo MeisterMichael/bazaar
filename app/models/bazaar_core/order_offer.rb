@@ -1,6 +1,6 @@
-module Bazaar
+module BazaarCore
 	class OrderOffer < ApplicationRecord
-		include Bazaar::Concerns::MoneyAttributesConcern
+		include BazaarCore::Concerns::MoneyAttributesConcern
 
 		belongs_to :offer
 		belongs_to :order

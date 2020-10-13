@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	class OfferPrice < ApplicationRecord
 		before_save :set_trashed_at
 
@@ -8,7 +8,7 @@ module Bazaar
 
 		validate :validate_start_interval_uniq
 
-		include Bazaar::Concerns::MoneyAttributesConcern
+		include BazaarCore::Concerns::MoneyAttributesConcern
 		money_attributes :price
 
 		def end_interval

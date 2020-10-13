@@ -15,17 +15,17 @@
 # => Kunaki
 # => Australia Post
 
-module Bazaar
+module BazaarCore
 
 	module ShippingServices
 
-		class ActiveShippingService < Bazaar::ShippingService
+		class ActiveShippingService < BazaarCore::ShippingService
 
 			def initialize( args = {} )
 				super( args )
 
 
-				warehouse_address = args[:warehouse] || Bazaar.warehouse_address
+				warehouse_address = args[:warehouse] || BazaarCore.warehouse_address
 				@origin = ActiveShipping::Location.new(
 					country: warehouse_address[:country],
 					state: warehouse_address[:state],

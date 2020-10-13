@@ -1,6 +1,6 @@
-module Bazaar
+module BazaarCore
 
-	class CheckoutOrderService < Bazaar::OrderService
+	class CheckoutOrderService < BazaarCore::OrderService
 
 		def calculate_order_status( order, args = {} )
 			order_status = order.status

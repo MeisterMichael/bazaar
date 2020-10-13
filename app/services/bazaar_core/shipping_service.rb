@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 
 	class ShippingService < ::ApplicationService
 
@@ -120,7 +120,7 @@ module Bazaar
 
 			if rate.present?
 
-				if rate[:carrier_service].is_a? Bazaar::ShippingCarrierService
+				if rate[:carrier_service].is_a? BazaarCore::ShippingCarrierService
 					shipment.shipping_carrier_service = rate[:carrier_service]
 					shipment.carrier_service_level = rate[:carrier_service].service_name
 				end
@@ -178,7 +178,7 @@ module Bazaar
 				request_rates = request_address_rates( geo_address, line_items, args )
 
 				request_rates.collect do |rate|
-					carrier_service = Bazaar::ShippingCarrierService.create_with( name: rate[:name] ).find_or_create_by( service_name: rate[:name], service_code: rate[:code], carrier: rate[:carrier] )
+					carrier_service = BazaarCore::ShippingCarrierService.create_with( name: rate[:name] ).find_or_create_by( service_name: rate[:name], service_code: rate[:code], carrier: rate[:carrier] )
 				end
 
 				request_rates = request_rates.select{ |rate| @code_whitelist.include?( rate[:code] ) } if @code_whitelist.present?
@@ -188,7 +188,7 @@ module Bazaar
 
 				rates = []
 				request_rates.collect do |rate|
-					carrier_service = Bazaar::ShippingCarrierService.create_with( name: rate[:name] ).find_or_create_by( service_name: rate[:name], service_code: rate[:code], carrier: rate[:carrier] )
+					carrier_service = BazaarCore::ShippingCarrierService.create_with( name: rate[:name] ).find_or_create_by( service_name: rate[:name], service_code: rate[:code], carrier: rate[:carrier] )
 
 					price = (rate[:price] * @multiplier_adjustment + @flat_adjustment).round()
 					label = carrier_service.shipping_option.try(:name) || @labels[rate[:name]] || rate[:name]

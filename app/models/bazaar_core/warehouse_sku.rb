@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	class WarehouseSku < ApplicationRecord
 		belongs_to	:warehouse
 		belongs_to	:sku

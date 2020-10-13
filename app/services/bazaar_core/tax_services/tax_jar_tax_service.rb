@@ -1,6 +1,6 @@
 # require 'taxjar'
 
-module Bazaar
+module BazaarCore
 
 	module TaxServices
 
@@ -19,12 +19,12 @@ module Bazaar
 					api_key: args[:api_key] || ENV['TAX_JAR_API_KEY']
 				)
 
-				@warehouse_address = args[:warehouse] || Bazaar.warehouse_address
-				@origin_address = args[:origin] || Bazaar.origin_address
+				@warehouse_address = args[:warehouse] || BazaarCore.warehouse_address
+				@origin_address = args[:origin] || BazaarCore.origin_address
 
 				@nexus_addresses = args[:nexus] || []
 				unless @nexus_addresses.present?
-					Bazaar.nexus_addresses.each do |address|
+					BazaarCore.nexus_addresses.each do |address|
 						@nexus_addresses << {
 							:address_id => address[:address_id],
 							:country => address[:country],

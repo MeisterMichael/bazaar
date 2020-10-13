@@ -6,7 +6,7 @@ require "bazaar_core/version"
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = "bazaar_core"
-  s.version     = Bazaar::VERSION
+  s.version     = BazaarCore::VERSION
   s.authors     = ["Gk Parish-Philp", "Michael Ferguson"]
   s.email       = ["gk@groundswellenterprises.com"]
   s.homepage    = "http://www.groundswellenterprises.com"

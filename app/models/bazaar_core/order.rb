@@ -1,9 +1,9 @@
 
-module Bazaar
+module BazaarCore
 	class Order < ApplicationRecord
 
-		include Bazaar::Concerns::MoneyAttributesConcern
-		include Bazaar::OrderSearchable if (Bazaar::OrderSearchable rescue nil)
+		include BazaarCore::Concerns::MoneyAttributesConcern
+		include BazaarCore::OrderSearchable if (BazaarCore::OrderSearchable rescue nil)
 
 		enum status: { 'trash' => -99, 'rejected' => -5, 'failed' => -1, 'draft' => 0, 'pre_order' => 1, 'active' => 2, 'review' => 98, 'archived' => 99, 'hold_review' => 110 }
 		enum payment_status: { 'payment_failed' => -4, 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'invoice' => 0, 'payment_method_captured' => 1, 'paid' => 2 }
@@ -62,15 +62,15 @@ module Bazaar
 		end
 
 		def self.not_archived
-			where.not( status: Bazaar::Order.statuses['archived'] )
+			where.not( status: BazaarCore::Order.statuses['archived'] )
 		end
 
 		def self.not_declined
-			where.not( payment_status: Bazaar::Order.payment_statuses['declined'] )
+			where.not( payment_status: BazaarCore::Order.payment_statuses['declined'] )
 		end
 
 		def self.not_trash
-			where.not( status: Bazaar::Order.statuses['trash'] )
+			where.not( status: BazaarCore::Order.statuses['trash'] )
 		end
 
 		def shipments_status_least
@@ -82,7 +82,7 @@ module Bazaar
 		end
 
 		def subscription_renewal?
-			self.parent.is_a?( Bazaar::Subscription )
+			self.parent.is_a?( BazaarCore::Subscription )
 		end
 
 		def nested_errors
@@ -111,8 +111,8 @@ module Bazaar
 		def generate_order_code
 			self.code = loop do
   				token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
-				token = "#{Bazaar.order_code_prefix}#{token}"if Bazaar.order_code_prefix.present?
-				token = "#{token}#{Bazaar.order_code_postfix}"if Bazaar.order_code_postfix.present?
+				token = "#{BazaarCore.order_code_prefix}#{token}"if BazaarCore.order_code_prefix.present?
+				token = "#{token}#{BazaarCore.order_code_postfix}"if BazaarCore.order_code_postfix.present?
   				break token unless Order.exists?( code: token )
 			end
 		end

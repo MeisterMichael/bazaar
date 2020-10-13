@@ -1,8 +1,8 @@
-module Bazaar
+module BazaarCore
 	class Collection < ApplicationRecord
 
 		include SwellId::Concerns::PolymorphicIdentifiers
-		include Bazaar::CollectionSearchable if (Bazaar::CollectionSearchable rescue nil)
+		include BazaarCore::CollectionSearchable if (BazaarCore::CollectionSearchable rescue nil)
 
 		has_many :collection_items
 

@@ -1,4 +1,4 @@
-module Bazaar
-	class PartnerCouponDiscount < Bazaar::CouponDiscount
+module BazaarCore
+	class PartnerCouponDiscount < BazaarCore::CouponDiscount
 	end
 end

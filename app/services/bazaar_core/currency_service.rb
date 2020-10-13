@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	class CurrencyService
 
 		MARKETPLACE_CURRENCIES_CONVERSION_RATE = {

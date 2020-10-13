@@ -1,11 +1,11 @@
 # require 'authorizenet'
 require 'credit_card_validations'
 
-module Bazaar
+module BazaarCore
 
 	module TransactionServices
 
-		class AuthorizeDotNetTransactionService < Bazaar::TransactionService
+		class AuthorizeDotNetTransactionService < BazaarCore::TransactionService
 
 			PROVIDER_NAME = 'Authorize.net'
 			ERROR_DUPLICATE_CUSTOMER_PROFILE = 'E00039'
@@ -72,7 +72,7 @@ module Bazaar
 				order.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
 				order.save
 
-				transaction = Bazaar::Transaction.new(
+				transaction = BazaarCore::Transaction.new(
 					billing_address: order.billing_address,
 					parent_obj: order,
 					transaction_type: 'charge',
@@ -97,7 +97,7 @@ module Bazaar
 					order.properties = order.properties.merge(new_properties)
 					transaction_properties = new_properties
 
-				elsif ( first_profile_transaction = Bazaar::Transaction.where( provider: @provider_name, customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference] ).where.not(credit_card_ending_in: nil).first ).present?
+				elsif ( first_profile_transaction = BazaarCore::Transaction.where( provider: @provider_name, customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference] ).where.not(credit_card_ending_in: nil).first ).present?
 
 					new_properties = {
 						'credit_card_ending_in' => first_profile_transaction.credit_card_ending_in,
@@ -131,7 +131,7 @@ module Bazaar
 					if order.save
 
 						# sanity check
-						raise Exception.new( "Bazaar::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
+						raise Exception.new( "BazaarCore::Transaction create errors #{transaction.errors.full_messages}" ) if transaction.errors.present?
 
 						return transaction
 
@@ -165,7 +165,7 @@ module Bazaar
 				request.transactionRequest = AuthorizeNet::API::TransactionRequestType.new()
 				request.transactionRequest.amount = transaction.amount_as_money
 				request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::AuthCaptureTransaction
-				request.transactionRequest.order = AuthorizeNet::API::OrderType.new(transaction.parent_obj.code) if transaction.parent_obj.is_a? Bazaar::Order
+				request.transactionRequest.order = AuthorizeNet::API::OrderType.new(transaction.parent_obj.code) if transaction.parent_obj.is_a? BazaarCore::Order
 				request.transactionRequest.profile = AuthorizeNet::API::CustomerProfilePaymentType.new
 				request.transactionRequest.profile.customerProfileId = transaction.customer_profile_reference
 				request.transactionRequest.profile.paymentProfile = AuthorizeNet::API::PaymentProfile.new(transaction.customer_payment_profile_reference)
@@ -216,14 +216,14 @@ module Bazaar
 
 				elsif anet_transaction_id.present?
 
-					charge_transaction	= Bazaar::Transaction.charge.approved.where( provider: @provider_name, reference_code: anet_transaction_id ).first
+					charge_transaction	= BazaarCore::Transaction.charge.approved.where( provider: @provider_name, reference_code: anet_transaction_id ).first
 					raise Exception.new( 'Unable to find transaction by reference code' ) if charge_transaction.nil?
 
 					new_transactions << refund_transaction( charge_transaction, args.merge( amount: amount ) )
 
-				elsif parent.present? && ( charge_transactions = Bazaar::Transaction.charge.approved.where(  provider: @provider_name, parent_obj: parent ) ).count >= 1
+				elsif parent.present? && ( charge_transactions = BazaarCore::Transaction.charge.approved.where(  provider: @provider_name, parent_obj: parent ) ).count >= 1
 
-					refund_transactions = Bazaar::Transaction.refund.approved.where( provider: @provider_name, parent_obj: parent )
+					refund_transactions = BazaarCore::Transaction.refund.approved.where( provider: @provider_name, parent_obj: parent )
 					refunded_amount = refund_transactions.sum(:amount)
 					charged_amount = charge_transactions.sum(:amount)
 
@@ -269,7 +269,7 @@ module Bazaar
 
 				args[:amount] ||= charge_transaction.amount
 
-				transaction = Bazaar::Transaction.new( args )
+				transaction = BazaarCore::Transaction.new( args )
 				transaction.transaction_type	= 'refund'
 				transaction.provider					= @provider_name
 				transaction.currency					||= charge_transaction.currency
@@ -393,7 +393,7 @@ module Bazaar
 				subscription.provider_customer_profile_reference = payment_profile[:customer_profile_reference]
 				subscription.provider_customer_payment_profile_reference = payment_profile[:customer_payment_profile_reference]
 				subscription.properties = subscription.properties.merge( new_properties )
-				subscription.payment_profile_expires_at	= Bazaar::TransactionService.parse_credit_card_expiry( args[:credit_card][:expiration] ) if subscription.respond_to?(:payment_profile_expires_at)
+				subscription.payment_profile_expires_at	= BazaarCore::TransactionService.parse_credit_card_expiry( args[:credit_card][:expiration] ) if subscription.respond_to?(:payment_profile_expires_at)
 
 				subscription.save
 
@@ -453,7 +453,7 @@ module Bazaar
 				end
 
 				# VALIDATE Credit card expirey
-				expiration_time = Bazaar::TransactionService.parse_credit_card_expiry( credit_card[:expiration] )
+				expiration_time = BazaarCore::TransactionService.parse_credit_card_expiry( credit_card[:expiration] )
 				if expiration_time.nil?
 					errors.add( :base, 'Credit Card Expired is required') if errors
 					return false

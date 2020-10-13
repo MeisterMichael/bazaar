@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 
 	class OrderService < ::ApplicationService
 		# abstract
@@ -6,22 +6,22 @@ module Bazaar
 		def initialize( args = {} )
 
 			@fraud_service		= args[:fraud_service]
-			@fraud_service		||= Bazaar.fraud_service_class.constantize.new( Bazaar.fraud_service_config )
+			@fraud_service		||= BazaarCore.fraud_service_class.constantize.new( BazaarCore.fraud_service_config )
 
 			@shipping_service		= args[:shipping_service]
-			@shipping_service		||= Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+			@shipping_service		||= BazaarCore.shipping_service_class.constantize.new( BazaarCore.shipping_service_config )
 
 			@tax_service			= args[:tax_service]
-			@tax_service			||= Bazaar.tax_service_class.constantize.new( Bazaar.tax_service_config )
+			@tax_service			||= BazaarCore.tax_service_class.constantize.new( BazaarCore.tax_service_config )
 
 			@transaction_service	= args[:transaction_service]
-			@transaction_service	||= Bazaar.transaction_service_class.constantize.new( Bazaar.transaction_service_config )
+			@transaction_service	||= BazaarCore.transaction_service_class.constantize.new( BazaarCore.transaction_service_config )
 
 			@discount_service		= args[:discount_service]
-			@discount_service		||= Bazaar.discount_service_class.constantize.new( Bazaar.discount_service_config )
+			@discount_service		||= BazaarCore.discount_service_class.constantize.new( BazaarCore.discount_service_config )
 
 			@subscription_service = args[:subscription_service]
-			@subscription_service		||= Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config.merge( order_service: self ) )
+			@subscription_service		||= BazaarCore.subscription_service_class.constantize.new( BazaarCore.subscription_service_config.merge( order_service: self ) )
 
 		end
 
@@ -41,7 +41,7 @@ module Bazaar
 			args[:tax] ||= {}
 			args[:transaction] ||= {}
 
-			self.calculate_order_before( obj, args ) if obj.is_a? Bazaar::Order
+			self.calculate_order_before( obj, args ) if obj.is_a? BazaarCore::Order
 
 			shipping_response						= @shipping_service.calculate( obj, args[:shipping] )
 			discount_pre_tax_response		= @discount_service.calculate_pre_tax( obj, args[:discount] ) if apply_discount?( obj ) # calculate discounts pre-tax
@@ -49,7 +49,7 @@ module Bazaar
 			discount_post_tax_response	= @discount_service.calculate_post_tax( obj, args[:discount] ) if apply_discount?( obj ) # calucate again after taxes
 			transaction_response				= @transaction_service.calculate( obj, args[:transaction] )
 
-			self.calculate_order_after( obj, args ) if obj.is_a? Bazaar::Order
+			self.calculate_order_after( obj, args ) if obj.is_a? BazaarCore::Order
 
 			{
 				shipping: shipping_response,
@@ -65,7 +65,7 @@ module Bazaar
 		end
 
 		def create_order_transaction( order, attributes = {} )
-			transaction = Bazaar::Transaction.create({
+			transaction = BazaarCore::Transaction.create({
 				transaction_type: 'charge',
 				status: 'declined',
 				parent_obj_id: order.id,
@@ -207,7 +207,7 @@ module Bazaar
 				end
 			end
 
-			if order.user.nil? && order.email.present? && Bazaar.create_user_on_checkout
+			if order.user.nil? && order.email.present? && BazaarCore.create_user_on_checkout
 
 				order.user = User.create_with( first_name: order.billing_address.first_name, last_name: order.billing_address.last_name ).find_or_create_by( email: order.email.downcase )
 				order.billing_user_address.user = order.shipping_user_address.user = order.user
@@ -215,7 +215,7 @@ module Bazaar
 
 			end
 
-			payment_profile_expires_at = Bazaar::TransactionService.parse_credit_card_expiry( transaction_options[:credit_card][:expiration] ) if transaction_options[:credit_card].present?
+			payment_profile_expires_at = BazaarCore::TransactionService.parse_credit_card_expiry( transaction_options[:credit_card][:expiration] ) if transaction_options[:credit_card].present?
 			@subscription_service.subscribe_ordered_plans( order, payment_profile_expires_at: payment_profile_expires_at ) if @subscription_service.present? && not( order.pre_order? )
 
 			order.shipments.not_negative_status.each do |shipment|
@@ -233,7 +233,7 @@ module Bazaar
 			args[:tax] ||= {}
 			args[:transaction] ||= {}
 
-			if obj.is_a? Bazaar::Order
+			if obj.is_a? BazaarCore::Order
 				obj.order_skus.each { |order_sku| order_sku.quantity = 0 }
 				self.calculate_order_before( obj, args )
 			end
@@ -244,7 +244,7 @@ module Bazaar
 			discount_post_tax_response	= @discount_service.recalculate_post_tax( obj, args[:discount] ) if apply_discount?( obj ) # calucate again after taxes
 			transaction_response				= @transaction_service.recalculate( obj, args[:transaction] )
 
-			self.calculate_order_after( obj, args ) if obj.is_a? Bazaar::Order
+			self.calculate_order_after( obj, args ) if obj.is_a? BazaarCore::Order
 
 			{
 				shipping: shipping_response,
@@ -292,7 +292,7 @@ module Bazaar
 		def calculate_order_items( order, args = {} )
 			order.order_offers.to_a.each do |order_offer|
 				item = order_offer.offer.product
-				item = Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first if order_offer.offer.recurring?
+				item = BazaarCore::SubscriptionPlan.where( offer: order_offer.offer ).first if order_offer.offer.recurring?
 				item = order_offer.subscription if order_offer.subscription_interval > 1
 
 				order_item = order.order_items.to_a.find{ |order_item| order_item.offer == order_offer.offer }

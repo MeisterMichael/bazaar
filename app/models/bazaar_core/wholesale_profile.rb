@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	class WholesaleProfile < ApplicationRecord
 
 
@@ -22,7 +22,7 @@ module Bazaar
 		end
 
 		def items
-			Bazaar::Product.where( id: wholesale_items.where( item_type: Bazaar::Product.name ).select(:item_id) )
+			BazaarCore::Product.where( id: wholesale_items.where( item_type: BazaarCore::Product.name ).select(:item_id) )
 		end
 
 	end

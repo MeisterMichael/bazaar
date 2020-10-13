@@ -1,6 +1,6 @@
-module Bazaar
+module BazaarCore
 	class Cart < ApplicationRecord
-		include Bazaar::CartSearchable if (Bazaar::CartSearchable rescue nil)
+		include BazaarCore::CartSearchable if (BazaarCore::CartSearchable rescue nil)
 
 		enum status: { 'active' => 1, 'init_checkout' => 2, 'success' => 3 }
 

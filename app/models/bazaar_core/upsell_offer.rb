@@ -1,9 +1,9 @@
-module Bazaar
+module BazaarCore
 	class UpsellOffer < ApplicationRecord
 
-		belongs_to :src_product, class_name: 'Bazaar::Product', required: false
-		belongs_to :full_price_offer, class_name: 'Bazaar::Offer', required: false
-		belongs_to :src_offer, class_name: 'Bazaar::Offer', required: false
+		belongs_to :src_product, class_name: 'BazaarCore::Product', required: false
+		belongs_to :full_price_offer, class_name: 'BazaarCore::Offer', required: false
+		belongs_to :src_offer, class_name: 'BazaarCore::Offer', required: false
 		belongs_to :offer
 
 		enum upsell_type: { 'post_sale' => 1, 'at_checkout' => 2 } #, 'post_add_to_cart' => 3 }

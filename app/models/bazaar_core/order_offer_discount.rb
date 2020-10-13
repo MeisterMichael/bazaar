@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	class OrderOfferDiscount < ApplicationRecord
 		belongs_to :order_offer
 		belongs_to :discount

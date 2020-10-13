@@ -1,12 +1,12 @@
-module Bazaar
+module BazaarCore
 	class Sku < ApplicationRecord
-		include Bazaar::Concerns::MoneyAttributesConcern
-		include Bazaar::SkuSearchable if (Bazaar::SkuSearchable rescue nil)
+		include BazaarCore::Concerns::MoneyAttributesConcern
+		include BazaarCore::SkuSearchable if (BazaarCore::SkuSearchable rescue nil)
 		include SwellId::Concerns::MultiIdentifierConcern if (SwellId::Concerns::MultiIdentifierConcern rescue nil)
 
 
 		has_many	:offer_skus
-		has_many	:offers, through: :offer_skus, source: :parent_obj, source_type: 'Bazaar::Offer'
+		has_many	:offers, through: :offer_skus, source: :parent_obj, source_type: 'BazaarCore::Offer'
 		has_many	:shipment_skus
 		has_many	:shipments, through: :shipment_skus
 		has_many	:sku_countries

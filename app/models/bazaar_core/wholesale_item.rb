@@ -1,7 +1,7 @@
-module Bazaar
+module BazaarCore
 	class WholesaleItem < ApplicationRecord
 
-		include Bazaar::Concerns::MoneyAttributesConcern
+		include BazaarCore::Concerns::MoneyAttributesConcern
 		include SwellId::Concerns::PolymorphicIdentifiers
 
 		belongs_to :wholesale_profile

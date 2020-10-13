@@ -1,7 +1,7 @@
 # a list of tax codes
 # https://taxcloud.net/tic/
 
-module Bazaar
+module BazaarCore
 
 	class TaxService < ::ApplicationService
 

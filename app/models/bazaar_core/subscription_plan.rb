@@ -1,11 +1,11 @@
-module Bazaar
+module BazaarCore
 	class SubscriptionPlan < ApplicationRecord
 
 
 		include Pulitzer::Concerns::URLConcern
-		include Bazaar::Concerns::MoneyAttributesConcern
+		include BazaarCore::Concerns::MoneyAttributesConcern
 		include SwellId::Concerns::PolymorphicIdentifiers
-		include Bazaar::ProductSearchable if (Bazaar::ProductSearchable rescue nil)
+		include BazaarCore::ProductSearchable if (BazaarCore::ProductSearchable rescue nil)
 
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }

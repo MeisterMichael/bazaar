@@ -2,7 +2,7 @@
 # require 'stripe'
 # require 'tax_cloud'
 
-module Bazaar
+module BazaarCore
 
 
 	class << self
@@ -79,58 +79,58 @@ module Bazaar
 
 		self.disable_add_to_cart_authenticity_token_verification = false
 
-		self.discount_service_class = "Bazaar::DiscountService"
+		self.discount_service_class = "BazaarCore::DiscountService"
 		self.discount_service_config = {}
 
 		self.enable_wholesale_order_mailer = true
 		self.enable_checkout_order_mailer = true
 
-		self.fraud_service_class = "Bazaar::FraudService"
+		self.fraud_service_class = "BazaarCore::FraudService"
 		self.fraud_service_config = {}
 
 		self.permit_order_options = [:tracking]
 
-		self.shipping_service_class = "Bazaar::ShippingService"
+		self.shipping_service_class = "BazaarCore::ShippingService"
 		self.shipping_service_config = {}
 
-		self.subscription_service_class = "Bazaar::SubscriptionService"
+		self.subscription_service_class = "BazaarCore::SubscriptionService"
 		self.subscription_service_config = {}
 
-		self.tax_service_class = "Bazaar::TaxService"
+		self.tax_service_class = "BazaarCore::TaxService"
 		self.tax_service_config = {}
 
-		self.transaction_service_class = "Bazaar::TransactionServices::StripeTransactionService"
+		self.transaction_service_class = "BazaarCore::TransactionServices::StripeTransactionService"
 		self.transaction_service_config = {}
 
 
-		self.wholesale_discount_service_class = "Bazaar::DiscountService"
+		self.wholesale_discount_service_class = "BazaarCore::DiscountService"
 		self.wholesale_discount_service_config = {}
 
-		self.wholesale_shipping_service_class = "Bazaar::ShippingService"
+		self.wholesale_shipping_service_class = "BazaarCore::ShippingService"
 		self.wholesale_shipping_service_config = {}
 
-		self.wholesale_tax_service_class = "Bazaar::TaxService"
+		self.wholesale_tax_service_class = "BazaarCore::TaxService"
 		self.wholesale_tax_service_config = {}
 
-		self.wholesale_transaction_service_class = "Bazaar::TransactionServices::StripeTransactionService"
+		self.wholesale_transaction_service_class = "BazaarCore::TransactionServices::StripeTransactionService"
 		self.wholesale_transaction_service_config = {}
 
-		self.checkout_order_service_class = "Bazaar::CheckoutOrderService"
-		self.upsell_service_class = "Bazaar::UpsellService"
-		self.wholesale_order_service_class = "Bazaar::WholesaleOrderService"
+		self.checkout_order_service_class = "BazaarCore::CheckoutOrderService"
+		self.upsell_service_class = "BazaarCore::UpsellService"
+		self.wholesale_order_service_class = "BazaarCore::WholesaleOrderService"
 
 		self.warehouse_address = {}
 		self.nexus_addresses = []
 
 		self.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
 
-		self.checkout_order_class_name = "Bazaar::CheckoutOrder"
-		self.wholesale_order_class_name = "Bazaar::WholesaleOrder"
-		self.wholesale_item_collections = [ 'Bazaar::Product.published.active' ]
+		self.checkout_order_class_name = "BazaarCore::CheckoutOrder"
+		self.wholesale_order_class_name = "BazaarCore::WholesaleOrder"
+		self.wholesale_item_collections = [ 'BazaarCore::Product.published.active' ]
 
 		self.admin_permit_additions = {}
 
-		self.discount_types = { 'House Coupon' => 'Bazaar::HouseCouponDiscount', 'Partner Coupon' => 'Bazaar::PartnerCouponDiscount', 'Promotion' => 'Bazaar::PromotionDiscount' }
+		self.discount_types = { 'House Coupon' => 'BazaarCore::HouseCouponDiscount', 'Partner Coupon' => 'BazaarCore::PartnerCouponDiscount', 'Promotion' => 'BazaarCore::PromotionDiscount' }
 
 		self.order_code_prefix = nil
 		self.order_code_postfix = nil
@@ -153,7 +153,7 @@ module Bazaar
 
 
   class Engine < ::Rails::Engine
-    isolate_namespace Bazaar
+    isolate_namespace BazaarCore
 	config.generators do |g|
 		g.test_framework :rspec, :fixture => false
 		g.fixture_replacement :factory_girl, :dir => 'spec/factories'

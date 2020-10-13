@@ -1,6 +1,6 @@
-module Bazaar
-	class PromotionDiscount < Bazaar::Discount
-		include Bazaar::PromotionDiscountSearchable if (Bazaar::PromotionDiscountSearchable rescue nil)
+module BazaarCore
+	class PromotionDiscount < BazaarCore::Discount
+		include BazaarCore::PromotionDiscountSearchable if (BazaarCore::PromotionDiscountSearchable rescue nil)
 
 	end
 end

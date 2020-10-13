@@ -1,6 +1,6 @@
-module Bazaar
+module BazaarCore
 	class ProductCategory < Pulitzer::Category
-		include Bazaar::ProductCategorySearchable if (Bazaar::ProductCategorySearchable rescue nil)
+		include BazaarCore::ProductCategorySearchable if (BazaarCore::ProductCategorySearchable rescue nil)
 
 		has_many :products, foreign_key: :category_id
 

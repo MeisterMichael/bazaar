@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	class UpsellService
 
 		def find_at_checkout_offers_for_order( order, options = {} )
@@ -21,7 +21,7 @@ module Bazaar
 
 		def find_offers_for_offers( offers, options = {} )
 			products = offers.collect(&:product).uniq
-			upsell_offers = Bazaar::UpsellOffer.active.joins(:offer)
+			upsell_offers = BazaarCore::UpsellOffer.active.joins(:offer)
 
 			# limit upsell_offers to the type provided (otherwise all types allowed)
 			upsell_offers = upsell_offers.where( upsell_type: options[:upsell_type] ) if options[:upsell_type].present?
@@ -29,13 +29,13 @@ module Bazaar
 			# limit upsell_offers to those from products/offers provided
 			upsell_offers = upsell_offers.where( src_product: products ).or( upsell_offers.where( src_offer: offers ) )
 
-			offers = Bazaar::Offer.all
+			offers = BazaarCore::Offer.all
 
 			# exclude offers for products that are already in list
 			offers = offers.where.not( product: products )
 
 			# exclude offers with skus that are already in the list
-			# offers = offers.where.not( id: Bazaar::OfferSku.where( sku: offers.collect(&:skus).flatten.uniq ).select(:offer_id) )
+			# offers = offers.where.not( id: BazaarCore::OfferSku.where( sku: offers.collect(&:skus).flatten.uniq ).select(:offer_id) )
 
 			# limit upsell_offers to qualified offers
 			upsell_offers = upsell_offers.merge( offers )

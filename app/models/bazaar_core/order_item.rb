@@ -1,7 +1,7 @@
-module Bazaar
+module BazaarCore
 	class OrderItem < ApplicationRecord
 
-		include Bazaar::Concerns::MoneyAttributesConcern
+		include BazaarCore::Concerns::MoneyAttributesConcern
 		include SwellId::Concerns::PolymorphicIdentifiers
 
 		enum order_item_type: { 'prod' => 1, 'tax' => 2, 'shipping' => 3, 'discount' => 4 }

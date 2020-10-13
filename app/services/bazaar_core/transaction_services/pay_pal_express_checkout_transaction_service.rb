@@ -1,10 +1,10 @@
 # require 'paypal-sdk-rest'
 
-module Bazaar
+module BazaarCore
 
 	module TransactionServices
 
-		class PayPalExpressCheckoutTransactionService < Bazaar::TransactionService
+		class PayPalExpressCheckoutTransactionService < BazaarCore::TransactionService
 
 			PROVIDER_NAME = 'PayPalExpressCheckout'
 
@@ -54,7 +54,7 @@ module Bazaar
 				order.provider_customer_payment_profile_reference = pay_pal_order_id
 				order.save
 
-				transaction = Bazaar::Transaction.create(
+				transaction = BazaarCore::Transaction.create(
 					parent_obj: order,
 					transaction_type: 'charge',
 					reference_code: pay_pal_order_id,
@@ -163,7 +163,7 @@ module Bazaar
 				raise Exception.new('unable to find transaction') if charge_transaction.nil?
 
 				# Generate Refund transaction
-				transaction = Bazaar::Transaction.new( args )
+				transaction = BazaarCore::Transaction.new( args )
 				transaction.status = 'declined'
 				transaction.transaction_type	= 'refund'
 				transaction.provider			= @provider_name

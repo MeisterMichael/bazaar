@@ -1,10 +1,10 @@
 require 'rest-client'
 
-module Bazaar
+module BazaarCore
 
 	module ShippingServices
 
-		class DHLShippingService < Bazaar::ShippingService
+		class DHLShippingService < BazaarCore::ShippingService
 
 			# https://api.dhlglobalmail.com/docs/v1/track.html
 			JSON_TRACKING_ENDPOINT = 'https://api.dhlglobalmail.com/v1/mailitems/track'
@@ -12,7 +12,7 @@ module Bazaar
 			def initialize( args = {} )
 				super( args )
 
-				warehouse_address = args[:warehouse] || Bazaar.warehouse_address
+				warehouse_address = args[:warehouse] || BazaarCore.warehouse_address
 
 				@access_token	= args[:access_token]
 				@username		= args[:username]

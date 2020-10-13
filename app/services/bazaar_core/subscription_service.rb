@@ -1,13 +1,13 @@
-module Bazaar
+module BazaarCore
 
 	class SubscriptionService < ::ApplicationService
 
 		def initialize( args = {} )
 
-			@order_class			= args[:order_class] || Bazaar.checkout_order_class_name
+			@order_class			= args[:order_class] || BazaarCore.checkout_order_class_name
 
 			@order_service			= args[:order_service]
-			@order_service			||= Bazaar.checkout_order_service_class.constantize.new( subscription_service: self )
+			@order_service			||= BazaarCore.checkout_order_service_class.constantize.new( subscription_service: self )
 
 		end
 
@@ -54,7 +54,7 @@ module Bazaar
 
 			end
 
-			discount = Bazaar::Discount.find_by( args.delete(:discount_id) ) if args[:discount_id]
+			discount = BazaarCore::Discount.find_by( args.delete(:discount_id) ) if args[:discount_id]
 			discount ||= args[:discount]
 			discount = nil unless discount.try(:for_subscriptions?)
 
@@ -259,7 +259,7 @@ module Bazaar
 				else
 
 					# if no transaction was created, create one to log the error
-					transaction = Bazaar::Transaction.create(
+					transaction = BazaarCore::Transaction.create(
 						message: order.nested_errors.join(' * '),
 						parent_obj: subscriptions.first,
 						status: 'declined',

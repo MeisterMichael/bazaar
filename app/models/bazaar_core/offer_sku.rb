@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	class OfferSku < ApplicationRecord
 		before_save :set_trashed_at
 

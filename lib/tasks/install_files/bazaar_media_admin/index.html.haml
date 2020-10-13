@@ -8,7 +8,7 @@
 					= link_to 'Admin', main_app.admin_index_path
 				%li
 					%strong
-						Bazaar Media Admin
+						BazaarCore Media Admin
 						= "(#{pluralize @medias.total_count, 'Media'})"
 		.col-xs-2
 			- if authorized?( BazaarMedia, controller: BazaarMediaAdminController, action: :create )

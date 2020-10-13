@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	class ShipmentLog < ApplicationRecord
 		belongs_to	:shipment
 	end

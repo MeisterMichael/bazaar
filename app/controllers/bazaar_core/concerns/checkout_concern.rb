@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	module Concerns
 
 		module CheckoutConcern
@@ -80,7 +80,7 @@ module Bazaar
 					order_offer_attributes = order_offer_attributes.values if order_offer_attributes.is_a? Hash
 
 					order_offer_attributes.each do |order_offer|
-						order_offer[:offer]				= Bazaar::Offer.find_by( id: order_offer[:offer_id] )
+						order_offer[:offer]				= BazaarCore::Offer.find_by( id: order_offer[:offer_id] )
 						order_offer[:title]				= order_offer[:offer].title
 						order_offer[:price]				= order_offer[:offer].initial_price
 						order_offer[:subtotal]		= order_offer[:price].to_i * order_offer[:quantity].to_i
@@ -97,9 +97,9 @@ module Bazaar
 			end
 
 			def initialize_services
-				@fraud_service = Bazaar.fraud_service_class.constantize.new( Bazaar.fraud_service_config.merge( params: params, session: session, cookies: cookies, request: request ) )
-				@order_service = Bazaar.checkout_order_service_class.constantize.new( fraud_service: @fraud_service )
-				@upsell_service = Bazaar.upsell_service_class.constantize.new
+				@fraud_service = BazaarCore.fraud_service_class.constantize.new( BazaarCore.fraud_service_config.merge( params: params, session: session, cookies: cookies, request: request ) )
+				@order_service = BazaarCore.checkout_order_service_class.constantize.new( fraud_service: @fraud_service )
+				@upsell_service = BazaarCore.upsell_service_class.constantize.new
 			end
 
 			def discount_options_params
@@ -107,7 +107,7 @@ module Bazaar
 			end
 
 			def order_options_params
-				(params.permit( :order_options => Bazaar.permit_order_options || [] )[:order_options] || {}).to_h
+				(params.permit( :order_options => BazaarCore.permit_order_options || [] )[:order_options] || {}).to_h
 			end
 
 			def shipping_options_params

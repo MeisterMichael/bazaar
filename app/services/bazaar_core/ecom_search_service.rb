@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 
 	class EcomSearchService
 
@@ -20,7 +20,7 @@ module Bazaar
 		def customer_search( term, filters = {}, options = {} )
 			users = User.all
 
-			users = users.where( id: Bazaar::Order.select(:user_id) ) # @todo replace with a more elegant mechanism.  this one is not scalable
+			users = users.where( id: BazaarCore::Order.select(:user_id) ) # @todo replace with a more elegant mechanism.  this one is not scalable
 
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%".downcase
@@ -35,7 +35,7 @@ module Bazaar
 		end
 
 		def discount_search( term, filters = {}, options = {} )
-			discounts = Bazaar::Discount.all
+			discounts = BazaarCore::Discount.all
 
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%".downcase
@@ -59,7 +59,7 @@ module Bazaar
 		end
 
 		def offer_search( term, filters = {}, options = {} )
-			offers = Bazaar::Offer.all
+			offers = BazaarCore::Offer.all
 
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%".downcase
@@ -72,9 +72,9 @@ module Bazaar
 
 		def order_search( term, filters = {}, options = {} )
 
-			filters[:type] = Bazaar.checkout_order_class_name unless filters.has_key? :type
+			filters[:type] = BazaarCore.checkout_order_class_name unless filters.has_key? :type
 
-			orders = ( filters.delete(:type) || 'Bazaar::Order' ).constantize.all
+			orders = ( filters.delete(:type) || 'BazaarCore::Order' ).constantize.all
 
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%".downcase
@@ -90,9 +90,9 @@ module Bazaar
 				renewal = %w( 1 true ).include? renewal_filter.to_s
 
 				if renewal
-					orders = orders.where( parent_type: 'Bazaar::Subscription' )
+					orders = orders.where( parent_type: 'BazaarCore::Subscription' )
 				else
-					orders = orders.where( "parent_type IS NULL OR NOT( parent_type = ? )", 'Bazaar::Subscription' )
+					orders = orders.where( "parent_type IS NULL OR NOT( parent_type = ? )", 'BazaarCore::Subscription' )
 				end
 			end
 
@@ -100,7 +100,7 @@ module Bazaar
 		end
 
 		def product_search( term, filters = {}, options = {} )
-			products = Bazaar::Product.all
+			products = BazaarCore::Product.all
 
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%".downcase
@@ -113,7 +113,7 @@ module Bazaar
 
 		def shipment_search( term, filters = {}, options = {} )
 
-			shipments = Bazaar::Shipment.all
+			shipments = BazaarCore::Shipment.all
 
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%".downcase

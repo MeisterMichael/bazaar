@@ -2,11 +2,11 @@
 # https://www.ups.com/upsdeveloperkit/requestaccesskey?loc=en_US
 # install 'ups' gem
 
-module Bazaar
+module BazaarCore
 
 	module ShippingServices
 
-		class UPSShippingService < Bazaar::ShippingService
+		class UPSShippingService < BazaarCore::ShippingService
 
 			def initialize( args = {} )
 

@@ -1,7 +1,7 @@
-module Bazaar
+module BazaarCore
 	class CartOffer < ApplicationRecord
 
-		include Bazaar::Concerns::MoneyAttributesConcern
+		include BazaarCore::Concerns::MoneyAttributesConcern
 
 		belongs_to 	:cart
 		belongs_to 	:item, polymorphic: true, required: false

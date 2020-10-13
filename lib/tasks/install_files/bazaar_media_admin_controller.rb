@@ -1,5 +1,5 @@
 class BazaarMediaAdminController < ApplicationAdminController
-	include Bazaar::Concerns::MediaAdminControllerConcern
+	include BazaarCore::Concerns::MediaAdminControllerConcern
 
 	def index
 		authorize( BazaarMedia )

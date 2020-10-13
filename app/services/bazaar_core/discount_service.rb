@@ -1,7 +1,7 @@
 # a list of tax codes
 # https://taxcloud.net/tic/
 
-module Bazaar
+module BazaarCore
 
 	class DiscountService < ::ApplicationService
 
@@ -72,7 +72,7 @@ module Bazaar
 				order_user ||= User.find_by( email: order.email.downcase ) if order.email.present?
 
 				if order_user.present?
-					quantity_used = Bazaar::OrderOfferDiscount.where( order: order_user.orders.positive_status, discount: discount ).sum(:quantity).to_i
+					quantity_used = BazaarCore::OrderOfferDiscount.where( order: order_user.orders.positive_status, discount: discount ).sum(:quantity).to_i
 
 					quantity_remaining = discount.maximum_units_per_customer
 					quantity_remaining = quantity_remaining - quantity_used
@@ -129,11 +129,11 @@ module Bazaar
 					end
 				end
 
-				if discount_item.applies_to.is_a?( Bazaar::Collection )
+				if discount_item.applies_to.is_a?( BazaarCore::Collection )
 
 					offers = []
 					discount_item.applies_to.items.each do |item|
-						if item.is_a? Bazaar::Offer
+						if item.is_a? BazaarCore::Offer
 							offers << item
 						elsif item.respond_to? :offer
 							offers << item.offer
@@ -145,7 +145,7 @@ module Bazaar
 
 					order_offer_discounts = order_offer_discounts.select{ |order_offer_discount| offers.include?( order_offer_discount.offer ) }
 
-				elsif discount_item.applies_to.is_a? Bazaar::Offer
+				elsif discount_item.applies_to.is_a? BazaarCore::Offer
 
 					order_offer_discounts = order_offer_discounts.select{ |order_offer_discount| order_offer_discount.offer == discount_item.applies_to }
 
@@ -183,12 +183,12 @@ module Bazaar
 		end
 
 		def calculate_order_discounts( order, args = {} )
-			Bazaar::PromotionDiscount.active.in_progress.each do |discount|
+			BazaarCore::PromotionDiscount.active.in_progress.each do |discount|
 				order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title )
 			end
 
-			Bazaar::Discount.pluck('distinct type').collect(&:constantize) if Rails.env.development?
-			discount = Bazaar::CouponDiscount.active.in_progress.where( 'lower(code) = ?', args[:code].downcase.strip ).first if args[:code].present?
+			BazaarCore::Discount.pluck('distinct type').collect(&:constantize) if Rails.env.development?
+			discount = BazaarCore::CouponDiscount.active.in_progress.where( 'lower(code) = ?', args[:code].downcase.strip ).first if args[:code].present?
 			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 		end
 

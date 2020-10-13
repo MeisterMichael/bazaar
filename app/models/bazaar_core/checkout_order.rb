@@ -1,8 +1,8 @@
 
-module Bazaar
-	class CheckoutOrder < Bazaar::Order
-		include Bazaar::Concerns::UserAddressAttributesConcern
-		include Bazaar::CheckoutOrderSearchable if (Bazaar::CheckoutOrderSearchable rescue nil)
+module BazaarCore
+	class CheckoutOrder < BazaarCore::Order
+		include BazaarCore::Concerns::UserAddressAttributesConcern
+		include BazaarCore::CheckoutOrderSearchable if (BazaarCore::CheckoutOrderSearchable rescue nil)
 
 		belongs_to 	:billing_address, class_name: 'GeoAddress', validate: true, required: true
 		belongs_to 	:shipping_address, class_name: 'GeoAddress', validate: true, required: true

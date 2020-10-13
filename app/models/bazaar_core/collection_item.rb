@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarCore
 	class CollectionItem < ApplicationRecord
 		include SwellId::Concerns::PolymorphicIdentifiers
 

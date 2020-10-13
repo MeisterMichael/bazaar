@@ -1,7 +1,7 @@
-module Bazaar
+module BazaarCore
 	class DiscountItem < ApplicationRecord
 		include SwellId::Concerns::PolymorphicIdentifiers
-		include Bazaar::Concerns::MoneyAttributesConcern
+		include BazaarCore::Concerns::MoneyAttributesConcern
 		money_attributes :discount_amount
 
 		enum order_item_type: { 'all_order_item_types' => 0, 'prod' => 1, 'tax' => 2, 'shipping' => 3, 'discount' => 4 }
