@@ -21,9 +21,9 @@ module BazaarCore
 		end
 
 		def calculate( obj, args = {} )
-			return self.calculate_order( obj, args ) if obj.is_a? Order
-			return self.calculate_cart( obj, args ) if obj.is_a? Cart
-			return self.calculate_shipment( obj, args ) if obj.is_a? Shipment
+			return self.calculate_order( obj, args ) if obj.is_a? Bazaar::Order
+			return self.calculate_cart( obj, args ) if obj.is_a? Bazaar::Cart
+			return self.calculate_shipment( obj, args ) if obj.is_a? Bazaar::Shipment
 		end
 
 		def fetch_delivery_status( order, args = {} )
@@ -37,10 +37,10 @@ module BazaarCore
 		end
 
 		def find_rates( obj, args = {} )
-			return self.find_order_rates( obj, args ) if obj.is_a? Order
-			return self.find_cart_rates( obj, args ) if obj.is_a? Cart
-			return self.find_subscription_rates( obj, args ) if obj.is_a? Subscription
-			return self.find_shipment_rates( obj, args ) if obj.is_a? Shipment
+			return self.find_order_rates( obj, args ) if obj.is_a? Bazaar::Order
+			return self.find_cart_rates( obj, args ) if obj.is_a? Bazaar::Cart
+			return self.find_subscription_rates( obj, args ) if obj.is_a? Bazaar::Subscription
+			return self.find_shipment_rates( obj, args ) if obj.is_a? Bazaar::Shipment
 		end
 
 		def process( order, args = {} )
@@ -144,9 +144,9 @@ module BazaarCore
 		end
 
 		def recalculate( obj, args = {} )
-			return self.calculate_order( obj, args ) if obj.is_a? Order
-			return self.calculate_cart( obj, args ) if obj.is_a? Cart
-			return self.calculate_shipment( obj, args ) if obj.is_a? Shipment
+			return self.calculate_order( obj, args ) if obj.is_a? Bazaar::Order
+			return self.calculate_cart( obj, args ) if obj.is_a? Bazaar::Cart
+			return self.calculate_shipment( obj, args ) if obj.is_a? Bazaar::Shipment
 		end
 
 		protected
@@ -162,11 +162,11 @@ module BazaarCore
 		def find_shipment_rates( shipment, args = {} )
 			# @todo update order rate calculation to shipments rather than order
 			# find_order_rates( shipment.order, args )
-			find_address_rates( shipment.destination_user_address, shipment.shipment_skus.collect{ |shipment_sku| OrderItem.new( item: shipment_sku.sku, quantity: shipment_sku.quantity ) }, args )
+			find_address_rates( shipment.destination_user_address, shipment.shipment_skus.collect{ |shipment_sku| Bazaar::OrderItem.new( item: shipment_sku.sku, quantity: shipment_sku.quantity ) }, args )
 		end
 
 		def find_subscription_rates( subscription, args = {} )
-			find_address_rates( subscription.shipping_user_address, [OrderOffer.new( subscription: subscription, offer: subscription.offer, subscription_interval: subscription.next_subscription_interval, quantity: subscription.quantity )], args )
+			find_address_rates( subscription.shipping_user_address, [Bazaar::OrderOffer.new( subscription: subscription, offer: subscription.offer, subscription_interval: subscription.next_subscription_interval, quantity: subscription.quantity )], args )
 		end
 
 		def find_address_rates( geo_address, line_items, args = {} )

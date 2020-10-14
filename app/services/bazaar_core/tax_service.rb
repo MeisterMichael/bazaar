@@ -10,16 +10,16 @@ module BazaarCore
 
 		def calculate( obj, args = {} )
 
-			return self.calculate_order( obj ) if obj.is_a? Order
-			return self.calculate_cart( obj ) if obj.is_a? Cart
+			return self.calculate_order( obj ) if obj.is_a? Bazaar::Order
+			return self.calculate_cart( obj ) if obj.is_a? Bazaar::Cart
 			return false
 
 		end
 
 		def recalculate( obj, args = {} )
 
-			return self.calculate_order( obj ) if obj.is_a? Order
-			return self.calculate_cart( obj ) if obj.is_a? Cart
+			return self.calculate_order( obj ) if obj.is_a? Bazaar::Order
+			return self.calculate_cart( obj ) if obj.is_a? Bazaar::Cart
 			return false
 
 		end

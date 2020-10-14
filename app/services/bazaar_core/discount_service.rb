@@ -10,14 +10,14 @@ module BazaarCore
 
 		def calculate_pre_tax( obj, args = {} )
 
-			return self.calculate_order_pre_tax( obj, args ) if obj.is_a? Order
-			return self.calculate_cart_pre_tax( obj, args ) if obj.is_a? Cart
+			return self.calculate_order_pre_tax( obj, args ) if obj.is_a? Bazaar::Order
+			return self.calculate_cart_pre_tax( obj, args ) if obj.is_a? Bazaar::Cart
 
 		end
 		def calculate_post_tax( obj, args = {} )
 
-			return self.calculate_order_post_tax( obj, args ) if obj.is_a? Order
-			return self.calculate_cart_post_tax( obj, args ) if obj.is_a? Cart
+			return self.calculate_order_post_tax( obj, args ) if obj.is_a? Bazaar::Order
+			return self.calculate_cart_post_tax( obj, args ) if obj.is_a? Bazaar::Cart
 
 		end
 
@@ -27,8 +27,8 @@ module BazaarCore
 			shipping_order_items	= order.order_items.select{ |order_item| order_item.shipping? }
 			tax_order_items			= order.order_items.select{ |order_item| order_item.tax? }
 
-			all_not_self_positive_status_orders = Order.positive_status.where.not( id: order.id )
-			all_discount_order_items = OrderItem.where( item: discount ).joins(:order)
+			all_not_self_positive_status_orders = Bazaar::Order.positive_status.where.not( id: order.id )
+			all_discount_order_items = Bazaar::OrderItem.where( item: discount ).joins(:order)
 
 			error_messages = []
 			error_messages << 'Invalid discount' if not( discount.active? ) || not( discount.in_progress? )
@@ -44,14 +44,14 @@ module BazaarCore
 
 		def recalculate_pre_tax( obj, args = {} )
 
-			return self.calculate_order_pre_tax( obj, args.merge( recalculate: true ) ) if obj.is_a? Order
-			return self.calculate_cart_pre_tax( obj, args ) if obj.is_a? Cart
+			return self.calculate_order_pre_tax( obj, args.merge( recalculate: true ) ) if obj.is_a? Bazaar::Order
+			return self.calculate_cart_pre_tax( obj, args ) if obj.is_a? Bazaar::Cart
 
 		end
 		def recalculate_post_tax( obj, args = {} )
 
-			return self.calculate_order_post_tax( obj, args ) if obj.is_a? Order
-			return self.calculate_cart_post_tax( obj, args ) if obj.is_a? Cart
+			return self.calculate_order_post_tax( obj, args ) if obj.is_a? Bazaar::Order
+			return self.calculate_cart_post_tax( obj, args ) if obj.is_a? Bazaar::Cart
 
 		end
 
@@ -105,8 +105,8 @@ module BazaarCore
 					order_offers.each do |order_offer|
 						keep = true
 
-						if ( subscription = order_offer.subscription ).is_a?( Subscription )
-							this_discount_order_items = OrderItem.discount.joins(:order).merge( subscription.orders.not_declined.where.not( id: order.id ) ).where( item: discount_item.discount )
+						if ( subscription = order_offer.subscription ).is_a?( Bazaar::Subscription )
+							this_discount_order_items = Bazaar::OrderItem.discount.joins(:order).merge( subscription.orders.not_declined.where.not( id: order.id ) ).where( item: discount_item.discount )
 
 							keep = false if discount_item.minimum_orders.to_i > 0 || discount_item.maximum_orders.to_i > 1
 							keep = keep || (this_discount_order_items.count >= discount_item.minimum_orders) if discount_item.minimum_orders.to_i > 0
