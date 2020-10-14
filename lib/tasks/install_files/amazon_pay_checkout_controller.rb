@@ -83,7 +83,7 @@ class AmazonPayCheckoutController < Bazaar::CheckoutController
   end
 
   def get_amazon_pay_service
-    @amz = @order_service.transaction_service.find_transaction_service_by_name( 'Amazon Pay' ) || Bazaar::TransactionServices::AmazonPayTransactionService.new
+    @amz = @order_service.transaction_service.find_transaction_service_by_name( 'Amazon Pay' ) || BazaarCore::TransactionServices::AmazonPayTransactionService.new
   end
 
 end
