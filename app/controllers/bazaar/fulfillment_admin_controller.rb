@@ -39,7 +39,7 @@ module Bazaar
 
 		protected
 		def get_shipping_service
-			@shipping_service		||= Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+			@shipping_service		||= BazaarCore.shipping_service_class.constantize.new( BazaarCore.shipping_service_config )
 		end
 	end
 end

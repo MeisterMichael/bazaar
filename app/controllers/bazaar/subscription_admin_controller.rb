@@ -69,7 +69,7 @@ module Bazaar
 
 			offer = Bazaar::Offer.find( subscription_options.delete( :offer_id ) )
 
-			@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
+			@subscription_service = BazaarCore.subscription_service_class.constantize.new( BazaarCore.subscription_service_config )
 			@subscription = @subscription_service.subscribe( user, offer, subscription_options )
 
 			if @subscription.errors.present?
@@ -93,8 +93,8 @@ module Bazaar
 
 		def edit_shipping_carrier_service
 
-			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
-			@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
+			@shipping_service = BazaarCore.shipping_service_class.constantize.new( BazaarCore.shipping_service_config )
+			@subscription_service = BazaarCore.subscription_service_class.constantize.new( BazaarCore.subscription_service_config )
 
 			@order = @subscription_service.generate_subscription_order( @subscription )
 
@@ -135,7 +135,7 @@ module Bazaar
 		def payment_profile
 			authorize( @subscription )
 
-			@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
+			@subscription_service = BazaarCore.subscription_service_class.constantize.new( BazaarCore.subscription_service_config )
 
 			address_attributes = params.require( :subscription ).require( :billing_user_address_attributes ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
 			address = UserAddress.canonical_find_or_create_with_cannonical_geo_address( address_attributes.merge( user: @subscription.user ) )

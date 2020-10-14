@@ -114,7 +114,7 @@ module Bazaar
 			# check that refund amount doesn't exceed charges?
 			# amount_net = Transaction.approved.positive.where( parent: @order ).sum(:amount) - Transaction.approved.negative.where( parent: @order ).sum(:amount)
 
-			@order_service = Bazaar.checkout_order_service_class.constantize.new
+			@order_service = BazaarCore.checkout_order_service_class.constantize.new
 
 			@transactions = @order_service.refund( amount: refund_amount, order: @order )
 			@transactions = [@transactions] if @transactions.is_a? Bazaar::Transaction
@@ -277,7 +277,7 @@ module Bazaar
 			end
 
 			def initialize_fraud_service
-				@fraud_service = Bazaar.fraud_service_class.constantize.new( Bazaar.fraud_service_config )
+				@fraud_service = BazaarCore.fraud_service_class.constantize.new( BazaarCore.fraud_service_config )
 			end
 
 			def initialize_search_service

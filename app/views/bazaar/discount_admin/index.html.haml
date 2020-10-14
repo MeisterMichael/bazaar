@@ -15,7 +15,7 @@
 			= raw paginate @discounts
 		.col-xs-6
 			= form_tag discount_admin_index_path, method: :get, class: 'pull-right form-inline' do
-				= select_tag 'filters[type]', options_for_select([['All Discounts','all']] + Bazaar.discount_types.collect{|key,klass| [key,klass] }, @filters[:type] ), { class: 'form-control' }
+				= select_tag 'filters[type]', options_for_select([['All Discounts','all']] + BazaarCore.discount_types.collect{|key,klass| [key,klass] }, @filters[:type] ), { class: 'form-control' }
 				= select_tag :status, options_from_collection_for_select( Bazaar::Discount.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'

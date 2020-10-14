@@ -24,7 +24,7 @@ namespace :bazaar do
 	task process_subscriptions: :environment do
 
 		time_now = Time.now
-		subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
+		subscription_service = BazaarCore.subscription_service_class.constantize.new( BazaarCore.subscription_service_config )
 
 		Bazaar::Subscription.ready_for_next_charge( time_now ).find_each do |subscription|
 

@@ -35,7 +35,7 @@ module Bazaar
 
 		def calculate
 
-			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+			@shipping_service = BazaarCore.shipping_service_class.constantize.new( BazaarCore.shipping_service_config )
 
 			if @cart.present?
 				@cart.email = @order.email if @order.email.present? && @order.email.match( Devise::email_regexp ).present?
@@ -144,7 +144,7 @@ module Bazaar
 				end
 
 				begin
-					OrderMailer.receipt( @order ).deliver_now if Bazaar.enable_checkout_order_mailer
+					OrderMailer.receipt( @order ).deliver_now if BazaarCore.enable_checkout_order_mailer
 					#OrderMailer.notify_admin( @order ).deliver_now
 				rescue Exception => e
 					if Rails.env.development?
@@ -270,7 +270,7 @@ module Bazaar
 		def get_user
 			@user = current_user
 
-			if Bazaar.create_user_on_checkout && @user.blank? && params[:order].present? && params[:order][:email].present?
+			if BazaarCore.create_user_on_checkout && @user.blank? && params[:order].present? && params[:order][:email].present?
 				user_attributes = params.require( :order ).permit( :email, billing_user_address_attributes: [:first_name,:last_name], shipping_user_address_attributes: [:first_name,:last_name] )
 				attributes = {
 					email: user_attributes[:email].downcase,
@@ -290,7 +290,7 @@ module Bazaar
 
 		def get_order
 
-			@order = Bazaar.checkout_order_class_name.constantize.new( get_order_attributes )
+			@order = BazaarCore.checkout_order_class_name.constantize.new( get_order_attributes )
 
 			@cart.cart_offers.each do |cart_offer|
 				@order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: cart_offer.quantity, title: cart_offer.offer.cart_title, tax_code: cart_offer.offer.tax_code )

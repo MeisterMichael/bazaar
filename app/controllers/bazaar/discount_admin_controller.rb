@@ -42,7 +42,7 @@ module Bazaar
 			sort_dir = params[:sort_dir] || 'desc'
 
 			@filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
-			@filters[:type] ||= Bazaar.discount_types.values.first
+			@filters[:type] ||= BazaarCore.discount_types.values.first
 			@filters.delete(:type) if @filters[:type] == 'all'
 			@filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
 			@discounts = @search_service.discount_search( params[:q], @filters, page: params[:page], order: { sort_by => sort_dir } )

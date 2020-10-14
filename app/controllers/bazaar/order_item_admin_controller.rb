@@ -132,7 +132,7 @@ module Bazaar
 		private
 
 			def init_order_service
-				@order_service = Bazaar.checkout_order_service_class.constantize.new
+				@order_service = BazaarCore.checkout_order_service_class.constantize.new
 			end
 
 			def get_order

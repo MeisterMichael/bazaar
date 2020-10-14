@@ -34,7 +34,7 @@ module Bazaar
 
 		def edit_shipping_preferences
 
-			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+			@shipping_service = BazaarCore.shipping_service_class.constantize.new( BazaarCore.shipping_service_config )
 
 			@shipping_rates = @shipping_service.find_rates( @subscription )
 
@@ -69,7 +69,7 @@ module Bazaar
 
 				end
 
-				@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
+				@subscription_service = BazaarCore.subscription_service_class.constantize.new( BazaarCore.subscription_service_config )
 
 				if @subscription_service.update_payment_profile( @subscription, transaction_options )
 

@@ -90,7 +90,7 @@ module Bazaar
 
 				@fraud_service.mark_for_review( @order ) if @fraud_service.suspicious?( @order )
 
-				WholesaleOrderMailer.receipt( @order ).deliver_now if Bazaar.enable_wholesale_order_mailer
+				WholesaleOrderMailer.receipt( @order ).deliver_now if BazaarCore.enable_wholesale_order_mailer
 
 				log_event( user: @order.user, name: 'wholesale_purchase', category: 'ecom', value: @order.total, on: @order, content: "placed a wholesale order for $#{@order.total/100.to_f}." )
 
@@ -147,8 +147,8 @@ module Bazaar
 
 
 		def initialize_services
-			@fraud_service = Bazaar.fraud_service_class.constantize.new( Bazaar.fraud_service_config.merge( params: params, session: session, cookies: cookies, request: request ) )
-			@order_service = Bazaar.wholesale_order_service_class.constantize.new( fraud_service: @fraud_service )
+			@fraud_service = BazaarCore.fraud_service_class.constantize.new( BazaarCore.fraud_service_config.merge( params: params, session: session, cookies: cookies, request: request ) )
+			@order_service = BazaarCore.wholesale_order_service_class.constantize.new( fraud_service: @fraud_service )
 		end
 
 
@@ -194,7 +194,7 @@ module Bazaar
 			order_attributes[:user]		= current_user
 			order_attributes[:currency]	= 'USD'
 
-			@order = Bazaar.wholesale_order_class_name.constantize.new( order_attributes )
+			@order = BazaarCore.wholesale_order_class_name.constantize.new( order_attributes )
 			@order.email = @order.user.email if @order.email.blank?
 
 			@wholesale_profile = Bazaar::WholesaleProfile.find( current_user.wholesale_profile_id )

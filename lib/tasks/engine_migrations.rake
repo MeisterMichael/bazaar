@@ -80,7 +80,7 @@ namespace :bazaar do
 		puts "migrate_all_orders_to_checkout_order"
 
 		orders = Bazaar::Order.all
-		orders.update_all( type: Bazaar.checkout_order_class_name, source: 'Consumer Checkout' )
+		orders.update_all( type: BazaarCore.checkout_order_class_name, source: 'Consumer Checkout' )
 
 	end
 

@@ -5,7 +5,7 @@ module Bazaar
 		before_action :initialize_search_service, only: [:index]
 
 		def batch_create
-			application_shipping_service = ApplicationShippingService.new( Bazaar.shipping_service_config )
+			application_shipping_service = ApplicationShippingService.new( BazaarCore.shipping_service_config )
 
 			warehouse = nil # Bazaar::Warehouse.find_by( fulfillment_service_code: 'rsl' )
 
@@ -240,7 +240,7 @@ module Bazaar
 		end
 
 		def edit
-			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+			@shipping_service = BazaarCore.shipping_service_class.constantize.new( BazaarCore.shipping_service_config )
 
 			@shipment = Bazaar::Shipment.find( params[:id] )
 			authorize( @shipment )
@@ -277,7 +277,7 @@ module Bazaar
 
 		def new
 			@shipment = Bazaar::Shipment.new shipment_params
-			@shipment.warehouse_id ||= Bazaar.shipping_service_class.constantize.find_warehouse_by_shipment( @shipment ) if Bazaar.shipping_service_class.constantize.respond_to? :find_warehouse_by_shipment
+			@shipment.warehouse_id ||= BazaarCore.shipping_service_class.constantize.find_warehouse_by_shipment( @shipment ) if BazaarCore.shipping_service_class.constantize.respond_to? :find_warehouse_by_shipment
 
 			get_destination_addresses
 
@@ -330,7 +330,7 @@ module Bazaar
 
 		protected
 		def get_services
-			@shipping_service = Bazaar.shipping_service_class.constantize.new( Bazaar.shipping_service_config )
+			@shipping_service = BazaarCore.shipping_service_class.constantize.new( BazaarCore.shipping_service_config )
 		end
 
 		def get_destination_addresses

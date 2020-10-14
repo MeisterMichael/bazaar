@@ -1,5 +1,5 @@
 
-Bazaar.configure do |config|
+BazaarCore.configure do |config|
 
 	config.origin_address = {
 		street: '1412 Camino Del Mar',
