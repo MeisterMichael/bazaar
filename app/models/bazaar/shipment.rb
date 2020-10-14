@@ -75,8 +75,8 @@ module Bazaar
 		def generate_shipment_code
 			self.code = loop do
 				token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
-				token = "#{Bazaar.shipment_code_prefix}#{token}"if Bazaar.shipment_code_prefix.present?
-				token = "#{token}#{Bazaar.shipment_code_postfix}"if Bazaar.shipment_code_postfix.present?
+				token = "#{BazaarCore.shipment_code_prefix}#{token}"if BazaarCore.shipment_code_prefix.present?
+				token = "#{token}#{BazaarCore.shipment_code_postfix}"if BazaarCore.shipment_code_postfix.present?
 				break token unless Shipment.exists?( code: token )
 			end
 		end

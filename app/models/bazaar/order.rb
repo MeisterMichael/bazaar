@@ -111,8 +111,8 @@ module Bazaar
 		def generate_order_code
 			self.code = loop do
   				token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
-				token = "#{Bazaar.order_code_prefix}#{token}"if Bazaar.order_code_prefix.present?
-				token = "#{token}#{Bazaar.order_code_postfix}"if Bazaar.order_code_postfix.present?
+				token = "#{BazaarCore.order_code_prefix}#{token}"if BazaarCore.order_code_prefix.present?
+				token = "#{token}#{BazaarCore.order_code_postfix}"if BazaarCore.order_code_postfix.present?
   				break token unless Order.exists?( code: token )
 			end
 		end
