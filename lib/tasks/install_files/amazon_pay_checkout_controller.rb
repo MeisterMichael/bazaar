@@ -62,10 +62,10 @@ class AmazonPayCheckoutController < BazaarCore::CheckoutController
 	end
 
 	def get_order
-		@order = BazaarCore::CheckoutOrder.new( get_order_attributes )
+		@order = Bazaar::CheckoutOrder.new( get_order_attributes )
 		@order.billing_address.user = @order.shipping_address.user = @order.user
 
-		discount = BazaarCore::Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if discount_options[:code].present?
+		discount = Bazaar::Discount.active.in_progress.where( 'lower(code) = ?', discount_options[:code].downcase ).first if discount_options[:code].present?
 		order_item = @order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 
 	end

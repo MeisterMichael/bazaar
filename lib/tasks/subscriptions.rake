@@ -3,7 +3,7 @@ namespace :bazaar_core do
 
 	task payment_profile_expiration_reminder: :environment do
 
-		subscriptions = BazaarCore::Subscription.active
+		subscriptions = Bazaar::Subscription.active
 		subscriptions = subscriptions.where( payment_profile_expires_at: Time.now..1.month.from_now ).where.not( payment_profile_expires_at: nil )
 
 		subscriptions.find_each do |subscription|
@@ -26,7 +26,7 @@ namespace :bazaar_core do
 		time_now = Time.now
 		subscription_service = BazaarCore.subscription_service_class.constantize.new( BazaarCore.subscription_service_config )
 
-		BazaarCore::Subscription.ready_for_next_charge( time_now ).find_each do |subscription|
+		Bazaar::Subscription.ready_for_next_charge( time_now ).find_each do |subscription|
 
 			begin
 

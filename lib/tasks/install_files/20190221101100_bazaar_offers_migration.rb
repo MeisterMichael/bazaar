@@ -43,39 +43,39 @@ class BazaarOffersMigration < ActiveRecord::Migration[5.1]
 
 		reversible do |dir|
 			dir.up do
-				BazaarCore::Product.all.each do |product|
+				Bazaar::Product.all.each do |product|
 					product.update_offer!
 
-					BazaarCore::OfferSku.where( parent_obj: product ).update_all( parent_obj_id: product.offer.id, parent_obj_type: product.offer.class.base_class.name )
+					Bazaar::OfferSku.where( parent_obj: product ).update_all( parent_obj_id: product.offer.id, parent_obj_type: product.offer.class.base_class.name )
 					product.update_prices!
 					product.update_schedule!
 
 				end
 
-				BazaarCore::SubscriptionPlan.all.each do |plan|
+				Bazaar::SubscriptionPlan.all.each do |plan|
 					plan.update_offer!
 
-					BazaarCore::OfferSku.where( parent_obj: plan ).update_all( parent_obj_id: plan.offer.id, parent_obj_type: plan.offer.class.base_class.name )
+					Bazaar::OfferSku.where( parent_obj: plan ).update_all( parent_obj_id: plan.offer.id, parent_obj_type: plan.offer.class.base_class.name )
 					plan.update_prices!
 					plan.update_schedule!
 
-					BazaarCore::Subscription.where( subscription_plan_id: plan.id ).update_all( offer_id: plan.offer.id )
+					Bazaar::Subscription.where( subscription_plan_id: plan.id ).update_all( offer_id: plan.offer.id )
 
 				end
 			end
 
 			dir.down do
-				BazaarCore::Product.all.each do |product|
+				Bazaar::Product.all.each do |product|
 
-					BazaarCore::OfferSku.where( parent_obj: product.offer ).update_all( parent_obj_id: product.id, parent_obj_type: product.class.base_class.name )
+					Bazaar::OfferSku.where( parent_obj: product.offer ).update_all( parent_obj_id: product.id, parent_obj_type: product.class.base_class.name )
 					product.update_prices!
 					product.update_schedule!
 
 				end
 
-				BazaarCore::SubscriptionPlan.all.each do |plan|
+				Bazaar::SubscriptionPlan.all.each do |plan|
 
-					BazaarCore::OfferSku.where( parent_obj: plan.offer ).update_all( parent_obj_id: plan.id, parent_obj_type: plan.class.base_class.name )
+					Bazaar::OfferSku.where( parent_obj: plan.offer ).update_all( parent_obj_id: plan.id, parent_obj_type: plan.class.base_class.name )
 					plan.update_prices!
 					plan.update_schedule!
 

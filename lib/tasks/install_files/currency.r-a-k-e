@@ -16,7 +16,7 @@ namespace :bazaar_core do
 		timestamp = oxr.rates_timestamp.to_f
 
 		rates.each do |currency_code,rate|
-			currency = BazaarCore::Currency.create_with( name: currency_code ).find_or_create_by( code: currency_code )
+			currency = Bazaar::Currency.create_with( name: currency_code ).find_or_create_by( code: currency_code )
 
 			currency.history[timestamp] = rate
 			currency.usd_conversion_rate = rate
@@ -31,7 +31,7 @@ namespace :bazaar_core do
 
 				currency_code = country.currency_code
 
-				geo_country.currency_id = BazaarCore::Currency.where( code: currency_code ).first.try(:id) if geo_country.respond_to? :currency_id
+				geo_country.currency_id = Bazaar::Currency.where( code: currency_code ).first.try(:id) if geo_country.respond_to? :currency_id
 				geo_country.save
 
 			else
