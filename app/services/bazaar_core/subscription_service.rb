@@ -71,7 +71,7 @@ module BazaarCore
 			puts "current_period_end_at = #{start_at} + #{offer_schedule_interval_period} (#{offer.id}, #{interval})"
 			current_period_end_at = start_at + offer_schedule_interval_period
 
-			subscription = args[:subscription] || Subscription.new()
+			subscription = args[:subscription] || Bazaar::Subscription.new()
 			subscription.attributes = {
 				user: user,
 				offer: offer,
