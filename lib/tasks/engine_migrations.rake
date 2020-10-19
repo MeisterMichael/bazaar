@@ -31,11 +31,9 @@ namespace :bazaar do
 
 		files = {
 			'bazaar_media_controller.rb' => 'app/controllers',
-			'bazaar_media_admin_controller.rb' => 'app/controllers',
 			'bazaar_media.rb' => 'app/models',
 			'20180919154400_bazaar_media_migration.rb' => 'db/migrate',
 			'bazaar_media' => 'app/views',
-			'bazaar_media_admin' => 'app/views',
 		}
 
 		index = 0
