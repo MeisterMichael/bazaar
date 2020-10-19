@@ -5,7 +5,7 @@ require "bazaar_web/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "bazaar"
+  s.name        = "bazaar_web"
   s.version     = BazaarWeb::VERSION
   s.authors     = ["Gk Parish-Philp", "Michael Ferguson"]
   s.email       = ["gk@groundswellenterprises.com"]
