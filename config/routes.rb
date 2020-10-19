@@ -1,4 +1,4 @@
-Bazaar::Engine.routes.draw do
+BazaarAdmin::Engine.routes.draw do
 
 	resources :cart_admin
 
