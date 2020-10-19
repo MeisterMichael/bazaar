@@ -6,7 +6,7 @@ module BazaarAdmin
 
 
 	class << self
-		
+
 	end
 
 	# this function maps the vars from your app into your engine
@@ -17,7 +17,7 @@ module BazaarAdmin
 
 
   class Engine < ::Rails::Engine
-    isolate_namespace Bazaar
+    isolate_namespace BazaarAdmin
 	config.generators do |g|
 		g.test_framework :rspec, :fixture => false
 		g.fixture_replacement :factory_girl, :dir => 'spec/factories'
