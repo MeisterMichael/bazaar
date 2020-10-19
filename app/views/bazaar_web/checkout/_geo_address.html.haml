@@ -34,12 +34,12 @@
 
 		.form-group.input-form-group
 			%label Country
-			= render 'bazaar/checkout/country_input', f: f, countries: countries, args: {}
+			= render 'bazaar_web/checkout/country_input', f: f, countries: countries, args: {}
 			.help-block.with-errors
 	.col-xs-12.col-sm-5
 		.form-group.address_state_toggle.geo-address-geo-state-input.input-form-group
 			%label State/Province
-			= render 'bazaar/checkout/state_input', f: f, states: states
+			= render 'bazaar_web/checkout/state_input', f: f, states: states
 			.help-block.with-errors
 	.col-xs-12.col-sm-3
 		.form-group.input-form-group

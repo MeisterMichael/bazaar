@@ -1,6 +1,6 @@
 module BazaarWeb
 	class CartsController < ApplicationController
-		layout 'bazaar/application'
+		layout 'bazaar_web/application'
 		# really just to show the user's cart
 
 		before_action :get_cart

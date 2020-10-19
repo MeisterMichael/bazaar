@@ -1,6 +1,6 @@
 module BazaarWeb
 	class CartOffersController < ApplicationController
-		layout 'bazaar/application'
+		layout 'bazaar_web/application'
 		# for adding, removing, updating quantity, etc. of items in the cart
 
 		# Disable cross origin security for adding items to cart

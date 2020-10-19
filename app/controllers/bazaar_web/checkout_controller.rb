@@ -3,7 +3,7 @@ module BazaarWeb
 	class CheckoutController < ApplicationController
 		include Bazaar::Concerns::CheckoutConcern
 		include Bazaar::Concerns::EcomConcern
-		layout 'bazaar/application'
+		layout 'bazaar_web/application'
 
 		helper_method :get_billing_countries
 		helper_method :get_shipping_countries
@@ -30,7 +30,7 @@ module BazaarWeb
 
 			@order_service.calculate( @order, @order.options )
 
-			render layout: 'bazaar/checkout'
+			render layout: 'bazaar_web/checkout'
 		end
 
 		def calculate
@@ -246,7 +246,7 @@ module BazaarWeb
 
 			set_page_meta( title: "#{Pulitzer.app_name} - Checkout" )
 
-			render layout: 'bazaar/checkout'
+			render layout: 'bazaar_web/checkout'
 		end
 
 		def new

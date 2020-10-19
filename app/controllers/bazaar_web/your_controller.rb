@@ -9,7 +9,7 @@ module BazaarWeb
 		helper_method :get_shipping_states
 
 		before_action :authenticate_user!
-		layout 'bazaar/your'
+		layout 'bazaar_web/your'
 
 		def index
 		end

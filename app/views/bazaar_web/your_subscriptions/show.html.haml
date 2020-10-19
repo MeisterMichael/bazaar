@@ -87,13 +87,13 @@
 			%h5{ style: 'margin-bottom: 0.2em;' } Order History
 	- @orders.each do |order|
 		.row
-			.col-xs-12.col-md-10= render 'bazaar/your_orders/well', order: order, args: {}
+			.col-xs-12.col-md-10= render 'bazaar_web/your_orders/well', order: order, args: {}
 
 	.row
 		.col-xs-12
 			%div= raw paginate @orders
 
-= render 'bazaar/your_subscriptions/update_payment_info_modal'
-= render 'bazaar/your_subscriptions/update_next_interval_modal'
-= render 'bazaar/your_subscriptions/update_shipping_user_address_modal'
-= render 'bazaar/your_subscriptions/update_billing_interval_modal'
+= render 'bazaar_web/your_subscriptions/update_payment_info_modal'
+= render 'bazaar_web/your_subscriptions/update_next_interval_modal'
+= render 'bazaar_web/your_subscriptions/update_shipping_user_address_modal'
+= render 'bazaar_web/your_subscriptions/update_billing_interval_modal'

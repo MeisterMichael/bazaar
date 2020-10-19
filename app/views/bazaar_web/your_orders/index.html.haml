@@ -5,6 +5,6 @@
 			> My Orders
 			%h2 My Orders
 			- @orders.each do |order|
-				= render 'bazaar/your_orders/well', order: order, args: {}
+				= render 'bazaar_web/your_orders/well', order: order, args: {}
 
 			%div= raw paginate @orders

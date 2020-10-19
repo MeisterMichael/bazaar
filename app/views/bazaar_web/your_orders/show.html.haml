@@ -82,4 +82,4 @@
 				%h5{ style: 'margin-bottom: 20px' } #{pluralize @order.order_offers.count, "Item"}
 				%div{ style: 'padding: 20px;margin: 1px -20px -20px -20px;background: #fff;' }
 					- @order.order_offers.each do |order_offer|
-						= render 'bazaar/your_orders/order_offer', order_offer: order_offer, args: {}
+						= render 'bazaar_web/your_orders/order_offer', order_offer: order_offer, args: {}

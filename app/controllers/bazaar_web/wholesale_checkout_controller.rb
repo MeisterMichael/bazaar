@@ -3,7 +3,7 @@ module BazaarWeb
 	class WholesaleCheckoutController < ApplicationController
 		include Bazaar::Concerns::CheckoutConcern
 		include Bazaar::Concerns::EcomConcern
-		layout 'bazaar/application'
+		layout 'bazaar_web/application'
 
 		helper_method :get_billing_countries
 		helper_method :get_shipping_countries
@@ -51,7 +51,7 @@ module BazaarWeb
 
 			@order_service.calculate( @order, @order.options )
 
-			render layout: 'bazaar/checkout'
+			render layout: 'bazaar_web/checkout'
 		end
 
 		def create
@@ -80,9 +80,9 @@ module BazaarWeb
 					format.html {
 						set_flash @order.nested_errors, :danger
 						if params[:from] == 'checkout'
-							render 'bazaar/wholesale_checkout/index', layout: 'bazaar/checkout'
+							render 'bazaar_web/wholesale_checkout/index', layout: 'bazaar_web/checkout'
 						else
-							render 'bazaar/wholesale_checkout/confirm', layout: 'bazaar/checkout'
+							render 'bazaar_web/wholesale_checkout/confirm', layout: 'bazaar_web/checkout'
 						end
 					}
 				end
@@ -134,7 +134,7 @@ module BazaarWeb
 
 			set_page_meta( title: "#{Pulitzer.app_name} - Checkout" )
 
-			render layout: 'bazaar/checkout'
+			render layout: 'bazaar_web/checkout'
 		end
 
 		def thank_you
@@ -142,7 +142,7 @@ module BazaarWeb
 			@order = current_user.orders.find_by( code: params[:id] )
 			raise ActionController::RoutingError.new( 'Not Found' ) unless @order.present?
 
-			# render layout: 'bazaar/checkout'
+			# render layout: 'bazaar_web/checkout'
 		end
 
 

@@ -1,6 +1,6 @@
 module BazaarWeb
 	class OrdersController < ApplicationController
-		layout 'bazaar/application'
+		layout 'bazaar_web/application'
 
 		def thank_you
 			@order = Order.find_by( code: params[:id] )
