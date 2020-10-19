@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add New Renewal Frequency to Schedule
-			= form_for Bazaar::OfferSchedule.new( parent_obj: parent_obj, interval_value: args[:interval_value], interval_unit: ( args[:interval_unit] || 'weeks' ) ), url: bazaar.offer_schedule_admin_index_path do |f|
+			= form_for BazaarCore::OfferSchedule.new( parent_obj: parent_obj, interval_value: args[:interval_value], interval_unit: ( args[:interval_unit] || 'weeks' ) ), url: bazaar.offer_schedule_admin_index_path do |f|
 				- if args[:replace_mode]
 					= hidden_field_tag :replace, args[:replace_mode]
 
@@ -46,7 +46,7 @@
 
 					-# .form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::OfferSku.statuses, :first, humanize_first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::OfferSku.statuses, :first, humanize_first, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

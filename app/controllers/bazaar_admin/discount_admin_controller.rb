@@ -6,7 +6,7 @@ module BazaarAdmin
 		before_action :init_search_service, only: [:index]
 
 		def create
-			authorize( Bazaar::Discount )
+			authorize( BazaarCore::Discount )
 
 			@discount = Discount.new( discount_params )
 			@discount.status = 'draft'
@@ -36,7 +36,7 @@ module BazaarAdmin
 
 
 		def index
-			authorize( Bazaar::Discount )
+			authorize( BazaarCore::Discount )
 
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'

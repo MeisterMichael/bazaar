@@ -25,7 +25,7 @@
           .col-xs-12.col-md-9
             .form-group
               = f.label :offer_id, 'Offer'
-              = f.collection_select :offer_id, Bazaar::Offer.recurring.zero_price_sum.active.or(Bazaar::Offer.where( id: @subscription.offer_id )), :id, :title, {}, class: 'form-control select-2-basic'
+              = f.collection_select :offer_id, BazaarCore::Offer.recurring.zero_price_sum.active.or(BazaarCore::Offer.where( id: @subscription.offer_id )), :id, :title, {}, class: 'form-control select-2-basic'
 
         = f.fields_for :shipping_user_address do |shipping_user_address_form|
 

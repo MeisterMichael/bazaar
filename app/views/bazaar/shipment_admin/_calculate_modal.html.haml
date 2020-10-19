@@ -17,7 +17,7 @@
 				.modal-body
 					.form-group
 						= f.label :warehouse_id
-						= f.collection_select :warehouse_id, Bazaar::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
+						= f.collection_select :warehouse_id, BazaarCore::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

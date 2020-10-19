@@ -28,7 +28,7 @@
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A descriptive title for internal use.' }
 						= f.text_field :title, class: 'form-control input-lg'
 
-					- if @discount.is_a? Bazaar::CouponDiscount
+					- if @discount.is_a? BazaarCore::CouponDiscount
 						.form-group
 							= f.label :code
 							%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The value customers enter into the coupon field at checkout to have this discount applied to their order.  Codes are case insensitive, meaning that capitalization of characters does not make it distinct in the eyes of the system.' }
@@ -85,11 +85,11 @@
 
 								.form-group
 									= di_form.label :order_item_type, "Applies To"
-									= di_form.collection_select :order_item_type, Bazaar::DiscountItem.order_item_types.keys.select{|key| key.to_sym != :discount}.collect{|key| [({ prod: "Products", all_order_item_types: "Order Total" }[key.to_sym] || key).humanize.titleize,key] }, :last, :first, {}, class: 'form-control'
+									= di_form.collection_select :order_item_type, BazaarCore::DiscountItem.order_item_types.keys.select{|key| key.to_sym != :discount}.collect{|key| [({ prod: "Products", all_order_item_types: "Order Total" }[key.to_sym] || key).humanize.titleize,key] }, :last, :first, {}, class: 'form-control'
 
 								.form-group
 									= di_form.label :applies_to_polymorphic_id, "Offer Limitations"
-									= di_form.select :applies_to_polymorphic_id, grouped_options_for_select( [ ['Collections', Bazaar::Collection.active.order( title: :asc ).collect{|c| [c.title,c.polymorphic_id] }], ['Offers', Bazaar::Offer.active.order( title: :asc ).collect{|o| [o.title,o.polymorphic_id] }] ], di_form.object.applies_to_polymorphic_id, { prompt: 'None' } ), {}, class: 'form-control'
+									= di_form.select :applies_to_polymorphic_id, grouped_options_for_select( [ ['Collections', BazaarCore::Collection.active.order( title: :asc ).collect{|c| [c.title,c.polymorphic_id] }], ['Offers', BazaarCore::Offer.active.order( title: :asc ).collect{|o| [o.title,o.polymorphic_id] }] ], di_form.object.applies_to_polymorphic_id, { prompt: 'None' } ), {}, class: 'form-control'
 
 								.form-group
 									= di_form.label :discount_amount, "Discount Amount"
@@ -102,7 +102,7 @@
 								.form-group
 									= di_form.label :discount_type, "Discount Calculation Method"
 									%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The various methods for calculating discounts.<br/><strong>Percent</strong> - calculate based on the specified percent of selected amount.<br/><strong>Fixed</strong> - a fixed amount per order.<br/><strong>Fixed Each</strong> - a fixed amount per unit.' }
-									= di_form.collection_select :discount_type, Bazaar::DiscountItem.discount_types.collect{|key,value| [key.humanize.titleize,key] }, :last, :first, {}, class: 'form-control'
+									= di_form.collection_select :discount_type, BazaarCore::DiscountItem.discount_types.collect{|key,value| [key.humanize.titleize,key] }, :last, :first, {}, class: 'form-control'
 
 								.form-group
 									= di_form.label :maximum_orders, "Maximum Uses Per Subscription"
@@ -126,10 +126,10 @@
 					.form-group
 						= f.label :status
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'An <strong>active</strong> status means the discount is now available for use, as long as the current date is between the start and end dates.<br/><strong>Draft</strong> indicates that the discount is not yet ready for use.<br/><strong>Archived</strong> indicates the discount is not for use and will not be discoverable by default.' }
-						= f.collection_select :status, Bazaar::Discount.statuses, :first, :first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::Discount.statuses, :first, :first, {}, class: 'form-control'
 
 
-					- if @discount.is_a? Bazaar::PromotionDiscount
+					- if @discount.is_a? BazaarCore::PromotionDiscount
 						.form-group
 							.alert.alert-danger
 								%strong WARNING:
@@ -157,7 +157,7 @@
 						Stats
 
 					.form-group
-						.pull-right=Bazaar::OrderItem.where( item: @discount ).count
+						.pull-right=BazaarCore::OrderItem.where( item: @discount ).count
 						%label # Uses
 
 					%hr

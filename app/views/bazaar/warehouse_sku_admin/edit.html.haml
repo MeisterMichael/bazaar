@@ -32,7 +32,7 @@
 			= f.text_field :warehouse_code, class: 'form-control'
 		.form-group
 			= f.label :status
-			= f.collection_select :status, Bazaar::WarehouseSku.statuses, :first, :first, {}, class: 'form-control'
+			= f.collection_select :status, BazaarCore::WarehouseSku.statuses, :first, :first, {}, class: 'form-control'
 
 
 		= f.submit 'Update', class: 'btn btn-primary'

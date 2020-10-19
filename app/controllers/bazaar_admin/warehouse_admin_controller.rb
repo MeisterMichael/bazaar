@@ -4,9 +4,9 @@ module BazaarAdmin
 		before_action :get_warehouse, except: [:index,:new,:create]
 
 		def create
-			authorize( Bazaar::Warehouse )
+			authorize( BazaarCore::Warehouse )
 
-			@warehouse = Bazaar::Warehouse.new( warehouse_params )
+			@warehouse = BazaarCore::Warehouse.new( warehouse_params )
 
 			if @warehouse.save
 				set_flash 'Warehouse Created'
@@ -28,7 +28,7 @@ module BazaarAdmin
 		end
 
 		def index
-			@warehouses = Bazaar::Warehouse.all.order( name: :asc ).page( params[:page] ).per( 10 )
+			@warehouses = BazaarCore::Warehouse.all.order( name: :asc ).page( params[:page] ).per( 10 )
 
 			set_page_meta( title: "Warehouse Admin" )
 		end
@@ -61,7 +61,7 @@ module BazaarAdmin
 
 		protected
 		def get_warehouse
-			@warehouse = Bazaar::Warehouse.friendly.find params[:id]
+			@warehouse = BazaarCore::Warehouse.friendly.find params[:id]
 		end
 
 		def warehouse_params

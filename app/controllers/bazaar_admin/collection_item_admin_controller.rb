@@ -3,7 +3,7 @@ module BazaarAdmin
 		before_action :get_model, except: [ :create, :index ]
 
 		def create
-			authorize( Bazaar::CollectionItem )
+			authorize( BazaarCore::CollectionItem )
 
 			@collection_item = CollectionItem.new( model_params )
 

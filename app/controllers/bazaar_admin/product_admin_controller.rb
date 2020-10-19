@@ -5,7 +5,7 @@ module BazaarAdmin
 		before_action :init_search_service, only: [:index]
 
 		def index
-			authorize( Bazaar::Product )
+			authorize( BazaarCore::Product )
 			sort_by = params[:sort_by] || 'seq'
 			sort_dir = params[:sort_dir] || 'asc'
 
@@ -17,7 +17,7 @@ module BazaarAdmin
 		end
 
 		def create
-			authorize( Bazaar::Product )
+			authorize( BazaarCore::Product )
 
 			@product = Product.new( product_params )
 			@product.publish_at ||= Time.zone.now

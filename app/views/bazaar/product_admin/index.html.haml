@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Products
 		.col-xs-2.text-right
-			- if authorized?(Bazaar::Product, controller: BazaarAdmin::ProductAdminController, action: :create )
+			- if authorized?(BazaarCore::Product, controller: BazaarAdmin::ProductAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_product' } }
 					%i.fa.fa-plus-square
 					New
@@ -16,7 +16,7 @@
 			= "(#{pluralize @products.total_count, 'Product'})"
 		.col-xs-6
 			= form_tag product_admin_index_path, method: :get, class: 'pull-right form-inline' do
-				= select_tag :status, options_from_collection_for_select( Bazaar::Product.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+				= select_tag :status, options_from_collection_for_select( BazaarCore::Product.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
 				= link_to 'Clear', product_admin_index_path, class: 'btn btn-default'

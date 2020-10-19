@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Collections
 		.col-xs-2
-			- if authorized?(Bazaar::Collection, controller: BazaarAdmin::CollectionAdminController, action: :create )
+			- if authorized?(BazaarCore::Collection, controller: BazaarAdmin::CollectionAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_modal' } }
 					%i.fa.fa-plus-square
 					New
@@ -15,7 +15,7 @@
 			= raw paginate @collections
 		.col-xs-6
 			= form_tag collection_admin_index_path, method: :get, class: 'pull-right form-inline' do
-				= select_tag :status, options_from_collection_for_select( Bazaar::Collection.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
+				= select_tag :status, options_from_collection_for_select( BazaarCore::Collection.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
 				= submit_tag 'Search', class: 'btn btn-primary'
 				= link_to 'Clear', discount_admin_index_path, class: 'btn btn-default'
 

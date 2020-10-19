@@ -6,12 +6,12 @@
 					&times;
 				%h4.modal-title
 					New Shipment Sku
-			= form_for Bazaar::ShipmentSku.new( shipment: shipment ), url: bazaar.shipment_sku_admin_index_path do |f|
+			= form_for BazaarCore::ShipmentSku.new( shipment: shipment ), url: bazaar.shipment_sku_admin_index_path do |f|
 				= f.hidden_field :shipment_id
 				.modal-body
 					.form-group
 						= f.label :sku
-						= f.collection_select :sku_id, Bazaar::Sku.active.where.not( id: shipment.skus.select(:id) ).order(code: :asc), :id, :name, {}, class: 'form-control'
+						= f.collection_select :sku_id, BazaarCore::Sku.active.where.not( id: shipment.skus.select(:id) ).order(code: :asc), :id, :name, {}, class: 'form-control'
 					.form-group
 						= f.label :quantity
 						= f.number_field :quantity, class: 'form-control', min: 1, step: 1

@@ -2,7 +2,7 @@ module BazaarAdmin
 	class ShipmentSkuAdminController < BazaarAdmin::EcomAdminController
 
 		def create
-			@shipment_sku = Bazaar::ShipmentSku.new shipment_sku_params
+			@shipment_sku = BazaarCore::ShipmentSku.new shipment_sku_params
 			authorize( @shipment_sku )
 
 
@@ -26,7 +26,7 @@ module BazaarAdmin
 		end
 
 		def destroy
-			@shipment_sku = Bazaar::ShipmentSku.find params[:id]
+			@shipment_sku = BazaarCore::ShipmentSku.find params[:id]
 
 			authorize( @shipment_sku )
 

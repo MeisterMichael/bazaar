@@ -7,7 +7,7 @@ module BazaarAdmin
 		def batch_create
 			application_shipping_service = ApplicationShippingService.new( BazaarCore.shipping_service_config )
 
-			warehouse = nil # Bazaar::Warehouse.find_by( fulfillment_service_code: 'rsl' )
+			warehouse = nil # BazaarCore::Warehouse.find_by( fulfillment_service_code: 'rsl' )
 
 			batch_id = params[:batch_id] || "Batch #{Time.now.to_i}"
 			batch_date = Time.now.to_s
@@ -44,7 +44,7 @@ module BazaarAdmin
 				sku_i = 1
 				while( shipment_row["ITEM #{sku_i} SKU"].present? )
 					code = shipment_row["ITEM #{sku_i} SKU"]
-					shipment_skus << { sku: Bazaar::Sku.find_by( code: code ), quantity: (shipment_row["ITEM #{sku_i} QUANTITY"] || 1).to_i }
+					shipment_skus << { sku: BazaarCore::Sku.find_by( code: code ), quantity: (shipment_row["ITEM #{sku_i} QUANTITY"] || 1).to_i }
 					sku_i += 1
 				end
 
@@ -81,12 +81,12 @@ module BazaarAdmin
 				puts "destination_user_address.errors.full_messages #{destination_user_address.errors.full_messages}"
 				puts "destination_user_address.errors.full_messages #{destination_user_address.to_html}"
 
-				if Bazaar::Shipment.where( "(properties::hstore -> 'BATCH_ID') = ?", batch_id ).where( "(properties::hstore -> 'IMPORT_INDEX') = ?", index.to_s ).present?
+				if BazaarCore::Shipment.where( "(properties::hstore -> 'BATCH_ID') = ?", batch_id ).where( "(properties::hstore -> 'IMPORT_INDEX') = ?", index.to_s ).present?
 					puts "  - already exists"
 					next
 				end
 
-				shipment = Bazaar::Shipment.new({
+				shipment = BazaarCore::Shipment.new({
 					dyanically_configured:		false,
 					# code: 										nil,
 					status:										'draft',
@@ -108,7 +108,7 @@ module BazaarAdmin
 					destination_address:				destination_user_address.geo_address,
 					# source_address:						nil,
 					# order:										nil,
-					# shipping_carrier_service:	Bazaar::ShippingCarrierService.find_by( service_name: "Standard", service_code: 'DHL', carrier: 'DHL' ),
+					# shipping_carrier_service:	BazaarCore::ShippingCarrierService.find_by( service_name: "Standard", service_code: 'DHL', carrier: 'DHL' ),
 					warehouse:								warehouse,
 					# fulfilled_by:							nil,
 					# user:											nil,
@@ -158,7 +158,7 @@ module BazaarAdmin
 		end
 
 		def batch_update
-			@shipments = Bazaar::Shipment.all
+			@shipments = BazaarCore::Shipment.all
 
 			if params[:batch_id].present?
 				@shipments = @shipments.where( "(properties::hstore -> 'BATCH_ID') = ?", params[:batch_id] )
@@ -180,8 +180,8 @@ module BazaarAdmin
 		def create
 
 			if params[:shipment_id]
-				old_shipment = Bazaar::Shipment.find(params[:shipment_id])
-				@shipment = Bazaar::Shipment.new({
+				old_shipment = BazaarCore::Shipment.find(params[:shipment_id])
+				@shipment = BazaarCore::Shipment.new({
 					code: 								nil,
 					status:								'draft',
 					notes:								old_shipment.notes,
@@ -215,7 +215,7 @@ module BazaarAdmin
 					)
 				end
 			else
-				@shipment = Bazaar::Shipment.new shipment_params
+				@shipment = BazaarCore::Shipment.new shipment_params
 			end
 
 			@shipment.destination_address ||= @shipment.destination_user_address.try(:geo_address)
@@ -242,7 +242,7 @@ module BazaarAdmin
 		def edit
 			@shipping_service = BazaarCore.shipping_service_class.constantize.new( BazaarCore.shipping_service_config )
 
-			@shipment = Bazaar::Shipment.find( params[:id] )
+			@shipment = BazaarCore::Shipment.find( params[:id] )
 			authorize( @shipment )
 
 			@shipping_service.calculate_shipment( @shipment ) if params[:calculate_shipping] && @shipment.destination_user_address.present?
@@ -258,7 +258,7 @@ module BazaarAdmin
 
 
 		def index
-			authorize( Bazaar::Shipment )
+			authorize( BazaarCore::Shipment )
 			@sort_by = params[:sort_by] || 'created_at'
 			@sort_dir = params[:sort_dir] || 'desc'
 
@@ -266,7 +266,7 @@ module BazaarAdmin
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
 
 			if ( @batch_id = filters[:batch_id] ).present?
-				@shipments = Bazaar::Shipment.all.where( "(properties::hstore -> 'BATCH_ID') = ?", @batch_id ).order( @sort_by => @sort_dir )
+				@shipments = BazaarCore::Shipment.all.where( "(properties::hstore -> 'BATCH_ID') = ?", @batch_id ).order( @sort_by => @sort_dir )
 			else
 				@shipments = @search_service.shipment_search( params[:q], filters, page: params[:page], order: { @sort_by => @sort_dir } )
 			end
@@ -276,7 +276,7 @@ module BazaarAdmin
 		end
 
 		def new
-			@shipment = Bazaar::Shipment.new shipment_params
+			@shipment = BazaarCore::Shipment.new shipment_params
 			@shipment.warehouse_id ||= BazaarCore.shipping_service_class.constantize.find_warehouse_by_shipment( @shipment ) if BazaarCore.shipping_service_class.constantize.respond_to? :find_warehouse_by_shipment
 
 			get_destination_addresses
@@ -292,7 +292,7 @@ module BazaarAdmin
 		end
 
 		def update
-			@shipment = Bazaar::Shipment.find( params[:id] )
+			@shipment = BazaarCore::Shipment.find( params[:id] )
 			authorize( @shipment )
 
 			@shipment.attributes = shipment_params

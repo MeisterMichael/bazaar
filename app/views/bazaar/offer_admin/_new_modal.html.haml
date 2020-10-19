@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Offer
-			= form_for Bazaar::Offer.new, url: bazaar.offer_admin_index_path do |f|
+			= form_for BazaarCore::Offer.new, url: bazaar.offer_admin_index_path do |f|
 				.modal-body
 					.form-group
 						= f.label :title
@@ -16,10 +16,10 @@
 						= number_field_tag :price_as_money, '0.00', class: 'form-control', min: 0, step: 0.01
 					.form-group
 						= f.label :product_id, "Product"
-						= f.collection_select :product_id, Bazaar::Product.active.order(title: :asc), :id, :title, {}, { class: 'form-control' }
+						= f.collection_select :product_id, BazaarCore::Product.active.order(title: :asc), :id, :title, {}, { class: 'form-control' }
 					.form-group
 						= label_tag :sku_id, 'SKU'
-						= select_tag :sku_id, options_from_collection_for_select(Bazaar::Sku.active.order(code: :asc), 'id', 'to_s'), class: 'form-control'
+						= select_tag :sku_id, options_from_collection_for_select(BazaarCore::Sku.active.order(code: :asc), 'id', 'to_s'), class: 'form-control'
 
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }

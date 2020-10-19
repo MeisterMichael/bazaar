@@ -11,7 +11,7 @@
 				.modal-body
 					.form-group
 						= f.label :sku_id, 'Sku'
-						= f.collection_select :sku_id, Bazaar::Sku.active.where.not( id: @warehouse.warehouse_skus.select(:sku_id) ).order(code: :asc), :id, :code, {}, class: 'form-control'
+						= f.collection_select :sku_id, BazaarCore::Sku.active.where.not( id: @warehouse.warehouse_skus.select(:sku_id) ).order(code: :asc), :id, :code, {}, class: 'form-control'
 					.form-group
 						= f.label :quantity, 'Starting Quantity'
 						= f.number_field :quantity, class: 'form-control', min: 0, step: 1
@@ -20,7 +20,7 @@
 						= f.text_field :warehouse_code, class: 'form-control'
 					.form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::WarehouseSku.statuses, :first, :first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::WarehouseSku.statuses, :first, :first, {}, class: 'form-control'
 
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }

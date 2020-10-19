@@ -4,9 +4,9 @@ module BazaarAdmin
 		before_action :get_offer_schedule, except: [:index,:new,:create]
 
 		def create
-			authorize( Bazaar::OfferSchedule )
+			authorize( BazaarCore::OfferSchedule )
 
-			@offer_schedule = Bazaar::OfferSchedule.new( offer_schedule_params )
+			@offer_schedule = BazaarCore::OfferSchedule.new( offer_schedule_params )
 
 			if params[:replace] == 'duplicate_start_intervals'
 				sibling_offer_schedules = @offer_schedule.parent_obj.offer_schedules.active
@@ -47,7 +47,7 @@ module BazaarAdmin
 
 		protected
 		def get_offer_schedule
-			@offer_schedule = Bazaar::OfferSchedule.find params[:id]
+			@offer_schedule = BazaarCore::OfferSchedule.find params[:id]
 		end
 
 		def offer_schedule_params

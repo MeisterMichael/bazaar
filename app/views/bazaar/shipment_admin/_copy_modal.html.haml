@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Calculate Shipment
-			= form_for Bazaar::Shipment.new( warehouse_id: @shipment.warehouse_id, status: 'draft' ), url: bazaar.shipment_admin_index_path() do |f|
+			= form_for BazaarCore::Shipment.new( warehouse_id: @shipment.warehouse_id, status: 'draft' ), url: bazaar.shipment_admin_index_path() do |f|
 				= hidden_field_tag :shipment_id, @shipment.id
 				= f.hidden_field :status
 				= f.hidden_field :shipping_carrier_service_id, value: nil
@@ -19,7 +19,7 @@
 				.modal-body
 					.form-group
 						= f.label :warehouse_id
-						= f.collection_select :warehouse_id, Bazaar::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
+						= f.collection_select :warehouse_id, BazaarCore::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

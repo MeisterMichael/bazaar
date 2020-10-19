@@ -4,9 +4,9 @@ module BazaarAdmin
 		before_action :get_upsell_offer, except: [:index,:new,:create]
 
 		def create
-			authorize( Bazaar::UpsellOffer )
+			authorize( BazaarCore::UpsellOffer )
 
-			@upsell_offer = Bazaar::UpsellOffer.new upsell_offer_params
+			@upsell_offer = BazaarCore::UpsellOffer.new upsell_offer_params
 
 			if @upsell_offer.save
 				set_flash "Upsell Offer Created", :success
@@ -26,7 +26,7 @@ module BazaarAdmin
 		end
 
 		def index
-			@upsell_offers = Bazaar::UpsellOffer.where( status: ['active','draft'] ).order( name: :asc ).page( params[:page] ).per( 10 )
+			@upsell_offers = BazaarCore::UpsellOffer.where( status: ['active','draft'] ).order( name: :asc ).page( params[:page] ).per( 10 )
 
 			set_page_meta( title: "Upsell Offer Admin" )
 		end
@@ -52,7 +52,7 @@ module BazaarAdmin
 
 		protected
 		def get_upsell_offer
-			@upsell_offer = Bazaar::UpsellOffer.find params[:id]
+			@upsell_offer = BazaarCore::UpsellOffer.find params[:id]
 		end
 
 		def upsell_offer_params

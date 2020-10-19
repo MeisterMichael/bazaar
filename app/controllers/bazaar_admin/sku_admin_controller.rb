@@ -5,9 +5,9 @@ module BazaarAdmin
 		before_action :init_search_service, only: :index
 
 		def create
-			authorize( Bazaar::Sku )
+			authorize( BazaarCore::Sku )
 
-			@sku = Bazaar::Sku.new( sku_params )
+			@sku = BazaarCore::Sku.new( sku_params )
 
 			if @sku.save
 				set_flash 'Sku Created'
@@ -29,7 +29,7 @@ module BazaarAdmin
 		end
 
 		def index
-			authorize( Bazaar::Sku )
+			authorize( BazaarCore::Sku )
 
 			sort_by = params[:sort_by] || 'name'
 			sort_dir = params[:sort_dir] || 'asc'
@@ -68,7 +68,7 @@ module BazaarAdmin
 
 		protected
 		def get_sku
-			@sku = Bazaar::Sku.find params[:id]
+			@sku = BazaarCore::Sku.find params[:id]
 		end
 
 		def init_search_service

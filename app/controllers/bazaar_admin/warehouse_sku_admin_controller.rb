@@ -3,9 +3,9 @@ module BazaarAdmin
 		before_action :get_warehouse_sku, except: [:index,:new,:create]
 
 		def create
-			authorize( Bazaar::WarehouseSku )
+			authorize( BazaarCore::WarehouseSku )
 
-			@warehouse_sku = Bazaar::WarehouseSku.new( warehouse_sku_params )
+			@warehouse_sku = BazaarCore::WarehouseSku.new( warehouse_sku_params )
 
 			if @warehouse_sku.save
 				set_flash 'Sku added'
@@ -52,7 +52,7 @@ module BazaarAdmin
 		protected
 
 		def get_warehouse_sku
-			@warehouse_sku = Bazaar::WarehouseSku.find(params[:id])
+			@warehouse_sku = BazaarCore::WarehouseSku.find(params[:id])
 		end
 
 		def warehouse_sku_params

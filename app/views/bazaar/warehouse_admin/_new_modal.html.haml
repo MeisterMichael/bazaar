@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Warehouse
-			= form_for Bazaar::Warehouse.new(), url: bazaar.warehouse_admin_index_path do |f|
+			= form_for BazaarCore::Warehouse.new(), url: bazaar.warehouse_admin_index_path do |f|
 				.modal-body
 					.form-group
 						= f.label :name

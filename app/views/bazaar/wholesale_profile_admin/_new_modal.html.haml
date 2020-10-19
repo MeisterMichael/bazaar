@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Wholesale Profile
-			= form_for Bazaar::WholesaleProfile.new, url: bazaar.wholesale_profile_admin_index_path do |f|
+			= form_for BazaarCore::WholesaleProfile.new, url: bazaar.wholesale_profile_admin_index_path do |f|
 				.modal-body
 					= f.hidden_field :status, value: 'draft'
 

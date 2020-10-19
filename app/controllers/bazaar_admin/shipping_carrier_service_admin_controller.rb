@@ -8,8 +8,8 @@ module BazaarAdmin
 		end
 
 		def index
-			authorize( Bazaar::ShippingCarrierService )
-			@shipping_carrier_services = Bazaar::ShippingCarrierService.all
+			authorize( BazaarCore::ShippingCarrierService )
+			@shipping_carrier_services = BazaarCore::ShippingCarrierService.all
 
 			if ['name', 'carrier', 'service_code', 'created_at'].include? params[:sort_by]
 				@shipping_carrier_services = @shipping_carrier_services.order( params[:sort_by] => ( params[:sort_dir] == 'asc' ? :asc : :desc ) )
@@ -37,7 +37,7 @@ module BazaarAdmin
 
 		protected
 		def get_shipping_carrier_plan
-			@shipping_carrier_service = Bazaar::ShippingCarrierService.find(params[:id])
+			@shipping_carrier_service = BazaarCore::ShippingCarrierService.find(params[:id])
 		end
 		def shipping_carrier_plan_attributes
 			params.require( :shipping_carrier_service ).permit( :shipping_option_id, :name, :description, :status, :carrier, :service_name, :service_code, :service_description, :service_group, :delivery_category )

@@ -13,7 +13,7 @@
 			-# = "(#{pluralize @carts.total_count, 'Cart'})"
 		.col-xs-7
 			= form_tag cart_admin_index_path, method: :get, class: 'pull-right form-inline' do
-				= select_tag :status, options_from_collection_for_select( Bazaar::Cart.statuses, :first, :first, params[:status] ), { prompt: "Cart Status", class: 'form-control' }
+				= select_tag :status, options_from_collection_for_select( BazaarCore::Cart.statuses, :first, :first, params[:status] ), { prompt: "Cart Status", class: 'form-control' }
 				= submit_tag 'Search', class: 'btn btn-primary'
 
 	.row

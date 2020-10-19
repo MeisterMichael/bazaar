@@ -10,7 +10,7 @@
 			= raw paginate @subscriptions
 		.col-xs-6
 			= form_tag subscription_admin_index_path, method: :get, class: 'pull-right form-inline' do
-				= select_tag :status, options_from_collection_for_select( Bazaar::Subscription.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+				= select_tag :status, options_from_collection_for_select( BazaarCore::Subscription.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
 				= link_to 'Clear', subscription_admin_index_path, class: 'btn btn-default'

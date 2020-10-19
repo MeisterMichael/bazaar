@@ -4,9 +4,9 @@ module BazaarAdmin
 		before_action :get_offer_price, except: [:index,:new,:create]
 
 		def create
-			authorize( Bazaar::OfferPrice )
+			authorize( BazaarCore::OfferPrice )
 
-			@offer_price = Bazaar::OfferPrice.new( offer_price_params )
+			@offer_price = BazaarCore::OfferPrice.new( offer_price_params )
 
 			if params[:replace] == 'duplicate_start_intervals'
 				sibling_offer_prices = @offer_price.parent_obj.offer_prices.active
@@ -40,7 +40,7 @@ module BazaarAdmin
 		def update
 			authorize( @offer_price )
 
-			@new_offer_price = Bazaar::OfferPrice.new(
+			@new_offer_price = BazaarCore::OfferPrice.new(
 				parent_obj_type: @offer_price.parent_obj_type,
 				parent_obj_id: @offer_price.parent_obj_id,
 				start_interval: @offer_price.start_interval,
@@ -70,7 +70,7 @@ module BazaarAdmin
 
 		protected
 		def get_offer_price
-			@offer_price = Bazaar::OfferPrice.find params[:id]
+			@offer_price = BazaarCore::OfferPrice.find params[:id]
 		end
 
 		def offer_price_params

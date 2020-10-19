@@ -3,7 +3,7 @@ module BazaarAdmin
 		before_action :get_model, except: [ :create, :index ]
 
 		def create
-			authorize( Bazaar::Collection )
+			authorize( BazaarCore::Collection )
 
 			@collection = Collection.new( model_params )
 
@@ -30,7 +30,7 @@ module BazaarAdmin
 
 
 		def index
-			authorize( Bazaar::Collection )
+			authorize( BazaarCore::Collection )
 
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'

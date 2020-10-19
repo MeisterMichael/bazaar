@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add Sku to #{parent_obj.title}
-			= form_for Bazaar::OfferPrice.new( parent_obj: parent_obj, price_as_money: args[:price_as_money] ), url: bazaar.offer_price_admin_index_path do |f|
+			= form_for BazaarCore::OfferPrice.new( parent_obj: parent_obj, price_as_money: args[:price_as_money] ), url: bazaar.offer_price_admin_index_path do |f|
 				- if args[:replace_mode]
 					= hidden_field_tag :replace, args[:replace_mode]
 				= f.hidden_field :parent_obj_type
@@ -34,7 +34,7 @@
 						= f.number_field :price_as_money_string, class: 'form-control', min: 0.00, step: 0.01
 					-# .form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::OfferPrice.statuses, :first, humanize_first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::OfferPrice.statuses, :first, humanize_first, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

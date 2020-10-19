@@ -79,7 +79,7 @@
 							Add Country
 					%h4 Country Restrictions
 					.form-group
-						= f.collection_select :country_restriction_type, Bazaar::Warehouse.country_restriction_types, :first, Proc.new{|item| item.first.to_s.split('_').last }, {}, class: 'form-control'
+						= f.collection_select :country_restriction_type, BazaarCore::Warehouse.country_restriction_types, :first, Proc.new{|item| item.first.to_s.split('_').last }, {}, class: 'form-control'
 
 					%table.table.table-light.table-bordered{ style: 'margin:0;' }
 						%thead
@@ -105,7 +105,7 @@
 							Add State
 					%h4 State Restrictions
 					.form-group
-						= f.collection_select :state_restriction_type, Bazaar::Warehouse.state_restriction_types, :first, Proc.new{|item| item.first.to_s.split('_').last }, {}, class: 'form-control'
+						= f.collection_select :state_restriction_type, BazaarCore::Warehouse.state_restriction_types, :first, Proc.new{|item| item.first.to_s.split('_').last }, {}, class: 'form-control'
 
 					%table.table.table-light.table-bordered{ style: 'margin:0;' }
 						%thead
@@ -138,7 +138,7 @@
 
 					.form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::Warehouse.statuses, :first, :first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::Warehouse.statuses, :first, :first, {}, class: 'form-control'
 
 					%hr
 

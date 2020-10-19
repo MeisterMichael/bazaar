@@ -15,7 +15,7 @@ module BazaarAdmin
 		end
 
 		def index
-			authorize( Bazaar::Cart )
+			authorize( BazaarCore::Cart )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 

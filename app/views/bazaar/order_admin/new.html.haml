@@ -12,10 +12,10 @@
 		%h5 Items
 
 		.order-items
-			= f.fields_for :order_offers, Bazaar::OrderOffer.new() do |order_offer_form|
+			= f.fields_for :order_offers, BazaarCore::OrderOffer.new() do |order_offer_form|
 				.row.order-item
 					.col-xs-6.col-md-8
-						= order_offer_form.collection_select :offer_id, Bazaar::Offer.active, :id, :title, {}, class: 'form-control select-2-basic'
+						= order_offer_form.collection_select :offer_id, BazaarCore::Offer.active, :id, :title, {}, class: 'form-control select-2-basic'
 					.col-xs-6.col-md-4
 						= order_offer_form.number_field :quantity, class: 'form-control', value: 1, min: 1, step: 1
 				.row

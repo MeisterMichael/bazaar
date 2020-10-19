@@ -6,7 +6,7 @@ module BazaarAdmin
 
 		def create
 
-			@order_offer = Bazaar::OrderOffer.new( order_offer_params )
+			@order_offer = BazaarCore::OrderOffer.new( order_offer_params )
 			authorize( @order_offer.order )
 			@order_offer.title = @order_offer.item.title					if @order_offer.title.blank?
 			@order_offer.price = @order_offer.item.purchase_price	if order_offer_params[:price].blank?
@@ -47,7 +47,7 @@ module BazaarAdmin
 
 		def destroy
 
-			@order_offer = Bazaar::OrderOffer.find( params[:id] )
+			@order_offer = BazaarCore::OrderOffer.find( params[:id] )
 			authorize( @order_offer.order )
 
 			if @order_offer.destroy
@@ -87,7 +87,7 @@ module BazaarAdmin
 
 		def update
 
-			@order_offer = Bazaar::OrderOffer.find( params[:id] )
+			@order_offer = BazaarCore::OrderOffer.find( params[:id] )
 			authorize( @order_offer.order )
 
 			@order_offer.attributes = order_offer_params

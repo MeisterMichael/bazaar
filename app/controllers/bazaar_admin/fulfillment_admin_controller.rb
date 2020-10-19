@@ -5,7 +5,7 @@ module BazaarAdmin
 
 
 		def create
-			@order = Bazaar::Order.find( params[:order_id] )
+			@order = BazaarCore::Order.find( params[:order_id] )
 			authorize( @order )
 
 			begin
@@ -21,7 +21,7 @@ module BazaarAdmin
 		end
 
 		def destroy
-			@order = Bazaar::Order.find( params[:id] )
+			@order = BazaarCore::Order.find( params[:id] )
 			authorize( @order )
 
 			begin

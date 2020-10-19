@@ -6,12 +6,12 @@
 					&times;
 				%h4.modal-title
 					Add Item
-			= form_for Bazaar::OrderOffer.new( order: order ), url: order_offer_admin_index_path(), html: { class: 'form' } do |f|
+			= form_for BazaarCore::OrderOffer.new( order: order ), url: order_offer_admin_index_path(), html: { class: 'form' } do |f|
 				= f.hidden_field :order_id
 				.modal-body
 					.form-group
 						= f.label :order_id, 'Offer'
-						= f.collection_select :order_id, Bazaar::Offer.active, :offer_id, Proc.new{ |offer| "#{offer.title} (#{offer.initial_price_formatted})" }, {}, class: 'form-control'
+						= f.collection_select :order_id, BazaarCore::Offer.active, :offer_id, Proc.new{ |offer| "#{offer.title} (#{offer.initial_price_formatted})" }, {}, class: 'form-control'
 					.form-group
 						= f.label :quantity
 						= f.number_field :quantity, class: 'form-control', value: 1

@@ -6,13 +6,13 @@
 					&times;
 				%h4.modal-title
 					Batch Update #{pluralize @shipments.count, 'Shipment'}
-			= form_for Bazaar::Shipment.new, url: batch_update_shipment_admin_index_path(), method: :put, html: {} do |f|
+			= form_for BazaarCore::Shipment.new, url: batch_update_shipment_admin_index_path(), method: :put, html: {} do |f|
 				= hidden_field_tag :batch_id, @batch_id
 				.modal-body
 
 					.form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::Shipment.statuses, :first, :first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::Shipment.statuses, :first, :first, {}, class: 'form-control'
 
 					.form-group
 						= f.label :processable_at

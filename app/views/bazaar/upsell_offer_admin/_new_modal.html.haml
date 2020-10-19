@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Upsell Offer
-			= form_for Bazaar::UpsellOffer.new( args ), url: bazaar.upsell_offer_admin_index_path do |f|
+			= form_for BazaarCore::UpsellOffer.new( args ), url: bazaar.upsell_offer_admin_index_path do |f|
 				= f.hidden_field :src_offer_id
 				= f.hidden_field :src_product_id
 				= f.hidden_field :status, value: 'active'
@@ -22,15 +22,15 @@
 							%div=f.object.src_product.title
 					.form-group
 						= f.label :upsell_type
-						= f.collection_select :upsell_type, Bazaar::UpsellOffer.upsell_types, :first, humanize_first, {}, class: 'form-control'
+						= f.collection_select :upsell_type, BazaarCore::UpsellOffer.upsell_types, :first, humanize_first, {}, class: 'form-control'
 					.form-group
 						= f.label :full_price_offer_id, "Full Price Offer"
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The full price equivalent offer, which can be used to calculate the amount of saving the upsell offer provides.' }
-						= f.collection_select :full_price_offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
+						= f.collection_select :full_price_offer_id, BazaarCore::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
 					.form-group
 						= f.label :offer_id, "Upsell Offer"
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The offer you want to be made as an upsell.' }
-						= f.collection_select :offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
+						= f.collection_select :offer_id, BazaarCore::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

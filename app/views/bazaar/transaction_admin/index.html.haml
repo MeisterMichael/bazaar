@@ -35,11 +35,11 @@
 			.col-xs-2
 				= label_tag :status
 				%br
-				= select_tag :status, options_from_collection_for_select( Bazaar::Transaction.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+				= select_tag :status, options_from_collection_for_select( BazaarCore::Transaction.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
 			.col-xs-2
 				= label_tag :transaction_type
 				%br
-				= select_tag :transaction_type, options_from_collection_for_select( Bazaar::Transaction.transaction_types, :first, :first, params[:transaction_type] ), { prompt: "-- All --", class: 'form-control' }
+				= select_tag :transaction_type, options_from_collection_for_select( BazaarCore::Transaction.transaction_types, :first, :first, params[:transaction_type] ), { prompt: "-- All --", class: 'form-control' }
 			.col-xs-2
 				= label_tag :amount
 				= text_field_tag :amount, params[:amount], class: 'form-control'
@@ -125,7 +125,7 @@
 								.badge{ class: transaction.status }
 									= transaction.status
 							%td
-								- if transaction.parent_obj_type == 'Bazaar::Order'
+								- if transaction.parent_obj_type == 'BazaarCore::Order'
 									%a{ href: bazaar.order_admin_path( transaction.parent_obj_id ) }
 										= "Order #{transaction.parent_obj.code}"
 								- else

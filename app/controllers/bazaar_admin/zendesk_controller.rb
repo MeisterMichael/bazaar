@@ -17,9 +17,9 @@ module BazaarAdmin
 			@user = User.find_by( email: email ) if email.present?
 			@user = User.where( id: GeoAddress.where( phone: phone ).where.not( user_id: nil ).select('user_id') ).first if phone.present?
 
-			@orders = Bazaar::Order.where( user: @user ) if @user.present?
-			@orders ||= Bazaar::Order.where( email: email ) if email.present?
-			# @orders ||= Bazaar::Order.where( phone: phone ) if phone.present?
+			@orders = BazaarCore::Order.where( user: @user ) if @user.present?
+			@orders ||= BazaarCore::Order.where( email: email ) if email.present?
+			# @orders ||= BazaarCore::Order.where( phone: phone ) if phone.present?
 		end
 
 		private

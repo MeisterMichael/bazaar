@@ -111,7 +111,7 @@
 						#{@cart.ip || 'N/A'}
 					.form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::Cart.statuses, :first, :first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::Cart.statuses, :first, :first, {}, class: 'form-control'
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'

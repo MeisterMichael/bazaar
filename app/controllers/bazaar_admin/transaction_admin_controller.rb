@@ -4,7 +4,7 @@ module BazaarAdmin
 		require 'csv'
 
 		def create
-			@transaction = Bazaar::Transaction.new( get_transaction_attributes )
+			@transaction = BazaarCore::Transaction.new( get_transaction_attributes )
 
 			if @transaction.save
 				set_flash "Transaction created"
@@ -25,7 +25,7 @@ module BazaarAdmin
 		end
 
 		def destroy
-			@transaction = Bazaar::Transaction.find params[:id]
+			@transaction = BazaarCore::Transaction.find params[:id]
 
 			if @transaction.destroy
 				set_flash "Transaction deleted"
@@ -36,16 +36,16 @@ module BazaarAdmin
 		end
 
 		def edit
-			@transaction = Bazaar::Transaction.find( params[:id] )
+			@transaction = BazaarCore::Transaction.find( params[:id] )
 		end
 
 		def index
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@providers = Bazaar::Transaction.where.not( provider: nil ).pluck( :provider ).uniq
+			@providers = BazaarCore::Transaction.where.not( provider: nil ).pluck( :provider ).uniq
 
-			@transactions = Bazaar::Transaction.order( "#{sort_by} #{sort_dir}" )
+			@transactions = BazaarCore::Transaction.order( "#{sort_by} #{sort_dir}" )
 
 			start_date = params[:start_date]
 			end_date = params[:end_date] || Time.now.end_of_day
@@ -87,7 +87,7 @@ module BazaarAdmin
 		end
 
 		def new
-			@transaction = Bazaar::Transaction.new( get_transaction_attributes )
+			@transaction = BazaarCore::Transaction.new( get_transaction_attributes )
 		end
 
 		protected

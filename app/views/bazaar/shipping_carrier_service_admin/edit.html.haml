@@ -59,11 +59,11 @@
 
 					.form-group
 						= f.label :shipping_option_id, 'Shipping Option'
-						= f.collection_select :shipping_option_id, Bazaar::ShippingOption.all, :id, :name, { prompt: "Select Shipping Option" }, class: 'form-control'
+						= f.collection_select :shipping_option_id, BazaarCore::ShippingOption.all, :id, :name, { prompt: "Select Shipping Option" }, class: 'form-control'
 
 					.form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::ShippingCarrierService.statuses, :first, :first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::ShippingCarrierService.statuses, :first, :first, {}, class: 'form-control'
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'

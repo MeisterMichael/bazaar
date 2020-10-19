@@ -26,7 +26,7 @@
 
 				-# .form-group
 					=f.label :warehouse_id
-					= f.collection_select :warehouse_id, Bazaar::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
+					= f.collection_select :warehouse_id, BazaarCore::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
 
 				.form-group
 					=f.label :email

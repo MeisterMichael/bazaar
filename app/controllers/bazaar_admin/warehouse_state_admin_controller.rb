@@ -3,9 +3,9 @@ module BazaarAdmin
 		before_action :get_warehouse_state, except: [:index,:new,:create]
 
 		def create
-			authorize( Bazaar::WarehouseState )
+			authorize( BazaarCore::WarehouseState )
 
-			@warehouse_state = Bazaar::WarehouseState.new( warehouse_state_params )
+			@warehouse_state = BazaarCore::WarehouseState.new( warehouse_state_params )
 
 			if @warehouse_state.save
 
@@ -37,7 +37,7 @@ module BazaarAdmin
 		protected
 
 		def get_warehouse_state
-			@warehouse_state = Bazaar::WarehouseState.find(params[:id])
+			@warehouse_state = BazaarCore::WarehouseState.find(params[:id])
 		end
 
 		def warehouse_state_params

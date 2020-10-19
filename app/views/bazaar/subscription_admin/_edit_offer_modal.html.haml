@@ -11,7 +11,7 @@
 					.form-group.select2-form-group
 						= f.label :offer_id, 'Offer'
 						%div
-							= f.collection_select :offer_id, Bazaar::Offer.recurring.active.or(Bazaar::Offer.where( id: @subscription.offer_id )), :id, :title, {}, class: 'form-control select-2-basic', style: 'width: 100%'
+							= f.collection_select :offer_id, BazaarCore::Offer.recurring.active.or(BazaarCore::Offer.where( id: @subscription.offer_id )), :id, :title, {}, class: 'form-control select-2-basic', style: 'width: 100%'
 
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }

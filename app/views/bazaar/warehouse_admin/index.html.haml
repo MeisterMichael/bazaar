@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Warehouses
 		.col-xs-2
-			- if authorized?(Bazaar::Warehouse, controller: BazaarAdmin::WarehouseAdminController, action: :create )
+			- if authorized?(BazaarCore::Warehouse, controller: BazaarAdmin::WarehouseAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_warehouse_modal' } }
 					%i.fa.fa-plus-square
 					New

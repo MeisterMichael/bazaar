@@ -1,6 +1,6 @@
 module BazaarAdmin
 	class OrderAdminController < BazaarAdmin::EcomAdminController
-		include Bazaar::Concerns::CheckoutConcern
+		include BazaarCore::Concerns::CheckoutConcern
 		helper_method :shipping_options
 		helper_method :transaction_options
 
@@ -90,14 +90,14 @@ module BazaarAdmin
 
 
 		def index
-			authorize( Bazaar::Order )
+			authorize( BazaarCore::Order )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
 
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
 			filters[:renewal] = @renewal_filter = params[:renewal]
-			filters[:type] = @type_filter = ( params[:type] || 'Bazaar::CheckoutOrder' )
+			filters[:type] = @type_filter = ( params[:type] || 'BazaarCore::CheckoutOrder' )
 			filters[:not_trash] = true if params[:q].blank? # don't show trash, unless searching
 			filters[:not_archived] = true if params[:q].blank? # don't show archived, unless searching
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
@@ -117,7 +117,7 @@ module BazaarAdmin
 			@order_service = BazaarCore.checkout_order_service_class.constantize.new
 
 			@transactions = @order_service.refund( amount: refund_amount, order: @order )
-			@transactions = [@transactions] if @transactions.is_a? Bazaar::Transaction
+			@transactions = [@transactions] if @transactions.is_a? BazaarCore::Transaction
 
 			if ( transaction_errors = @transactions.collect{|transaction| transaction.errors.full_messages }.select(&:present?).join('. ') ).present?
 

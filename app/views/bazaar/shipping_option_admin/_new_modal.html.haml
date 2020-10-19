@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Shipping Options
-			= form_for Bazaar::ShippingOption.new, url: shipping_option_admin_index_path(), method: :POST, html: {} do |f|
+			= form_for BazaarCore::ShippingOption.new, url: shipping_option_admin_index_path(), method: :POST, html: {} do |f|
 				.modal-body
 					.form-group
 						= f.label :name

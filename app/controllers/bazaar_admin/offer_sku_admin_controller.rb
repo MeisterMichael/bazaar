@@ -4,9 +4,9 @@ module BazaarAdmin
 		before_action :get_offer_sku, except: [:index,:new,:create]
 
 		def create
-			authorize( Bazaar::OfferSku )
+			authorize( BazaarCore::OfferSku )
 
-			@offer_sku = Bazaar::OfferSku.new( offer_sku_params )
+			@offer_sku = BazaarCore::OfferSku.new( offer_sku_params )
 
 			if @offer_sku.save
 				set_flash 'Sku Added'
@@ -41,7 +41,7 @@ module BazaarAdmin
 
 		protected
 		def get_offer_sku
-			@offer_sku = Bazaar::OfferSku.find params[:id]
+			@offer_sku = BazaarCore::OfferSku.find params[:id]
 		end
 
 		def offer_sku_params

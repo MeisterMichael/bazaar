@@ -4,7 +4,7 @@ module BazaarAdmin
 		before_action :get_wholesale_profile, except: [ :index, :create ]
 
 		def create
-			authorize( Bazaar::WholesaleProfile )
+			authorize( BazaarCore::WholesaleProfile )
 
 			@wholesale_profile = WholesaleProfile.create( wholesale_profile_params )
 
@@ -33,7 +33,7 @@ module BazaarAdmin
 		end
 
 		def index
-			authorize( Bazaar::WholesaleProfile )
+			authorize( BazaarCore::WholesaleProfile )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 

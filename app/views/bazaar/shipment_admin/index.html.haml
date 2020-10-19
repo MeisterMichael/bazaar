@@ -10,7 +10,7 @@
 					%small BATCH ID: #{@batch_id}
 
 		.col-xs-3.text-right
-			- if authorized?(Bazaar::Shipment, controller: BazaarAdmin::ShipmentAdminController, action: :create )
+			- if authorized?(BazaarCore::Shipment, controller: BazaarAdmin::ShipmentAdminController, action: :create )
 				- if (params[:features] || '').include?( 'new_modal' )
 					%a.btn.btn-success{ href: bazaar.new_shipment_admin_path() }
 						%i.fa.fa-plus-square
@@ -33,12 +33,12 @@
 				= "(#{pluralize @shipments.count, 'Shipment'})"
 		.col-xs-6
 			-# = form_tag shipment_admin_index_path, method: :get, class: 'pull-right form-inline' do
-				= select_tag :status, options_from_collection_for_select( Bazaar::Shipment.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
+				= select_tag :status, options_from_collection_for_select( BazaarCore::Shipment.statuses, :first, :first, params[:status] ), { prompt: "-- All --", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
 				= link_to 'Clear', shipment_admin_index_path, class: 'btn btn-default'
 			= form_tag shipment_admin_index_path, method: :get, class: 'pull-right form-inline' do
-				= select_tag :status, options_from_collection_for_select( Bazaar::Shipment.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
+				= select_tag :status, options_from_collection_for_select( BazaarCore::Shipment.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
 				= link_to 'Clear', shipment_admin_index_path, class: 'btn btn-default'

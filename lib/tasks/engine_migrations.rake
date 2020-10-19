@@ -2,27 +2,27 @@
 namespace :bazaar do
 
 	task backfill_order_offer_relations: :environment do
-		puts "Bazaar::OrderSku.count #{Bazaar::OrderSku.count}"
-		puts "Bazaar::OrderOffer.count #{Bazaar::OrderOffer.count}"
+		puts "BazaarCore::OrderSku.count #{BazaarCore::OrderSku.count}"
+		puts "BazaarCore::OrderOffer.count #{BazaarCore::OrderOffer.count}"
 
-		Bazaar::OrderSku.delete_all
-		Bazaar::OrderOffer.delete_all
+		BazaarCore::OrderSku.delete_all
+		BazaarCore::OrderOffer.delete_all
 
-		puts "Bazaar::OrderSku.count #{Bazaar::OrderSku.count}"
-		puts "Bazaar::OrderOffer.count #{Bazaar::OrderOffer.count}"
-		puts "Bazaar::OrderItem.count #{Bazaar::OrderItem.prod.count}"
+		puts "BazaarCore::OrderSku.count #{BazaarCore::OrderSku.count}"
+		puts "BazaarCore::OrderOffer.count #{BazaarCore::OrderOffer.count}"
+		puts "BazaarCore::OrderItem.count #{BazaarCore::OrderItem.prod.count}"
 
-		Bazaar::OrderItem.prod.find_each do |order_item|
+		BazaarCore::OrderItem.prod.find_each do |order_item|
 			order_offer = order_item.create_offer_relations!
 			print "order_offer #{order_offer.id}\r"
 			order_offer.subscription = order_item.subscription
-			order_offer.subscription ||= order_item.order.parent if order_item.order.parent.is_a? Bazaar::Subscription
+			order_offer.subscription ||= order_item.order.parent if order_item.order.parent.is_a? BazaarCore::Subscription
 			order_offer.save!
 			true
 		end
 
-		puts "Bazaar::OrderSku.count #{Bazaar::OrderSku.count}"
-		puts "Bazaar::OrderOffer.count #{Bazaar::OrderOffer.count}"
+		puts "BazaarCore::OrderSku.count #{BazaarCore::OrderSku.count}"
+		puts "BazaarCore::OrderOffer.count #{BazaarCore::OrderOffer.count}"
 	end
 
 	task swell_ecom_to_bazaar_install: :environment do
@@ -60,14 +60,14 @@ namespace :bazaar do
 	task backfill_geo_address_tags: :environment do
 		puts "backfill_geo_address_tags"
 
-		GeoAddress.where( id: Bazaar::Order.select(:shipping_address_id) ).find_each do |geo_address|
+		GeoAddress.where( id: BazaarCore::Order.select(:shipping_address_id) ).find_each do |geo_address|
 			geo_address.tags = geo_address.tags + ['shipping_address']
 			geo_address.save
 
 			geo_address.user.update( preferred_shipping_address_id: geo_address.id ) if geo_address.user
 		end
 
-		GeoAddress.where( id: Bazaar::Order.select(:billing_address_id) ).find_each do |geo_address|
+		GeoAddress.where( id: BazaarCore::Order.select(:billing_address_id) ).find_each do |geo_address|
 			geo_address.tags = geo_address.tags + ['billing_address']
 			geo_address.save
 
@@ -79,14 +79,14 @@ namespace :bazaar do
 	task migrate_all_orders_to_checkout_order: :environment do
 		puts "migrate_all_orders_to_checkout_order"
 
-		orders = Bazaar::Order.all
+		orders = BazaarCore::Order.all
 		orders.update_all( type: BazaarCore.checkout_order_class_name, source: 'Consumer Checkout' )
 
 	end
 
 	task recalculate_order_rollups: :environment do
 
-		orders = Bazaar::Order.all
+		orders = BazaarCore::Order.all
 		orders.find_each do |order|
 
 			order.shipping = order.order_items.select(&:shipping?).sum(&:subtotal)
@@ -102,7 +102,7 @@ namespace :bazaar do
 
 	task migrate_order_status: :environment do
 
-		orders = Bazaar::Order.all
+		orders = BazaarCore::Order.all
 		orders.find_each do |order|
 
 			order.payment_status = 'paid' if order.transactions.positive.present?
@@ -122,7 +122,7 @@ namespace :bazaar do
 	end
 
 	task migrate_subscription_customizations: :environment do
-		subscriptions = Bazaar::Subscription.all
+		subscriptions = BazaarCore::Subscription.all
 
 		subscriptions.find_each do |subscription|
 

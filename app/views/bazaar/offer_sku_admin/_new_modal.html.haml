@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add Sku to #{parent_obj.title}
-			= form_for Bazaar::OfferSku.new( parent_obj: parent_obj ), url: bazaar.offer_sku_admin_index_path do |f|
+			= form_for BazaarCore::OfferSku.new( parent_obj: parent_obj ), url: bazaar.offer_sku_admin_index_path do |f|
 				= f.hidden_field :parent_obj_type
 				= f.hidden_field :parent_obj_id
 				- if args[:start_interval]
@@ -24,7 +24,7 @@
 						.col-xs-12.col-md-6
 							.form-group
 								= f.label :sku_id, 'SKU'
-								= f.collection_select :sku_id, Bazaar::Sku.active.order(code: :asc), :id, :to_s, {}, class: 'form-control'
+								= f.collection_select :sku_id, BazaarCore::Sku.active.order(code: :asc), :id, :to_s, {}, class: 'form-control'
 				.modal-body
 					.row
 						- unless args[:start_interval]
@@ -41,7 +41,7 @@
 					.modal-body
 						.form-group
 							= f.label :apply, "Apply"
-							= f.collection_select :apply, Bazaar::OfferSku.applies, :first, humanize_first, {}, class: 'form-control'
+							= f.collection_select :apply, BazaarCore::OfferSku.applies, :first, humanize_first, {}, class: 'form-control'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

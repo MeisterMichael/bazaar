@@ -77,13 +77,13 @@
 						Publishing Settings
 					.form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::Product.statuses, :first, :first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::Product.statuses, :first, :first, {}, class: 'form-control'
 					.form-group
 						= f.label :availability
-						= f.collection_select :availability, Bazaar::Product.availabilities, :first, :first, {}, class: 'form-control'
+						= f.collection_select :availability, BazaarCore::Product.availabilities, :first, :first, {}, class: 'form-control'
 					.form-group
 						= f.label :category_id
-						= f.collection_select :category_id, Bazaar::ProductCategory.active.order( :name ), :id, :name, { include_blank: '-- None -- ' }, class: 'form-control'
+						= f.collection_select :category_id, BazaarCore::ProductCategory.active.order( :name ), :id, :name, { include_blank: '-- None -- ' }, class: 'form-control'
 					.form-group
 						= f.text_field :category_name, class: 'form-control', placeholder: 'Add Category'
 

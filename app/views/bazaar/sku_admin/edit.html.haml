@@ -97,7 +97,7 @@
 							Add Country
 					%h4 Restrictions
 					.form-group
-						= f.collection_select :country_restriction_type, Bazaar::Sku.country_restriction_types, :first, :first, {}, class: 'form-control'
+						= f.collection_select :country_restriction_type, BazaarCore::Sku.country_restriction_types, :first, :first, {}, class: 'form-control'
 
 					%table.table.table-light.table-bordered{ style: 'margin:0;' }
 						%thead
@@ -132,7 +132,7 @@
 
 					.form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::Sku.statuses, :first, :first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::Sku.statuses, :first, :first, {}, class: 'form-control'
 
 					%hr
 
@@ -154,7 +154,7 @@
 
 					.form-group
 						= f.label :shape
-						= f.collection_select :shape, Bazaar::Sku.shapes, :first, :first, {}, class: 'form-control'
+						= f.collection_select :shape, BazaarCore::Sku.shapes, :first, :first, {}, class: 'form-control'
 					.form-group
 						= f.label :weight
 						.input-group

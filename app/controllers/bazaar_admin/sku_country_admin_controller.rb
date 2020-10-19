@@ -3,9 +3,9 @@ module BazaarAdmin
 		before_action :get_sku_country, except: [:index,:new,:create]
 
 		def create
-			authorize( Bazaar::SkuCountry )
+			authorize( BazaarCore::SkuCountry )
 
-			@sku_country = Bazaar::SkuCountry.new( sku_country_params )
+			@sku_country = BazaarCore::SkuCountry.new( sku_country_params )
 
 			if @sku_country.save
 				set_flash 'Country added'
@@ -32,7 +32,7 @@ module BazaarAdmin
 		protected
 
 		def get_sku_country
-			@sku_country = Bazaar::SkuCountry.find(params[:id])
+			@sku_country = BazaarCore::SkuCountry.find(params[:id])
 		end
 
 		def sku_country_params

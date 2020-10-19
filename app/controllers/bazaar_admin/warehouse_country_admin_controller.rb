@@ -3,9 +3,9 @@ module BazaarAdmin
 		before_action :get_warehouse_country, except: [:index,:new,:create]
 
 		def create
-			authorize( Bazaar::WarehouseCountry )
+			authorize( BazaarCore::WarehouseCountry )
 
-			@warehouse_country = Bazaar::WarehouseCountry.new( warehouse_country_params )
+			@warehouse_country = BazaarCore::WarehouseCountry.new( warehouse_country_params )
 
 			if @warehouse_country.save
 
@@ -37,7 +37,7 @@ module BazaarAdmin
 		protected
 
 		def get_warehouse_country
-			@warehouse_country = Bazaar::WarehouseCountry.find(params[:id])
+			@warehouse_country = BazaarCore::WarehouseCountry.find(params[:id])
 		end
 
 		def warehouse_country_params

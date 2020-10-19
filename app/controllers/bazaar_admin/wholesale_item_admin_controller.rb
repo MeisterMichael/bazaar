@@ -4,7 +4,7 @@ module BazaarAdmin
 		before_action :get_wholesale_item, except: [ :index, :create ]
 
 		def create
-			authorize( Bazaar::WholesaleItem )
+			authorize( BazaarCore::WholesaleItem )
 
 			@wholesale_item = WholesaleItem.create( wholesale_item_params )
 

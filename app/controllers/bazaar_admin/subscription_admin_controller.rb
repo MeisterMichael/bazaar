@@ -67,7 +67,7 @@ module BazaarAdmin
 			subscription_options[:shipping]					||= 0
 			subscription_options[:tax]							||= 0
 
-			offer = Bazaar::Offer.find( subscription_options.delete( :offer_id ) )
+			offer = BazaarCore::Offer.find( subscription_options.delete( :offer_id ) )
 
 			@subscription_service = BazaarCore.subscription_service_class.constantize.new( BazaarCore.subscription_service_config )
 			@subscription = @subscription_service.subscribe( user, offer, subscription_options )
@@ -86,7 +86,7 @@ module BazaarAdmin
 			authorize( @subscription )
 			@orders = @subscription.orders.order( created_at: :desc )
 
-			@transactions = Bazaar::Transaction.where( parent_obj: ( @subscription.orders.to_a + [ @subscription ] ) ).order( created_at: :desc )
+			@transactions = BazaarCore::Transaction.where( parent_obj: ( @subscription.orders.to_a + [ @subscription ] ) ).order( created_at: :desc )
 
 			set_page_meta( title: "#{@subscription.code} | Subscription" )
 		end
@@ -103,7 +103,7 @@ module BazaarAdmin
 		end
 
 		def index
-			authorize( Bazaar::Subscription )
+			authorize( BazaarCore::Subscription )
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
@@ -118,7 +118,7 @@ module BazaarAdmin
 		def new
 			@user = User.find( params[:user_id] )
 
-			@subscription = Bazaar::Subscription.new(
+			@subscription = BazaarCore::Subscription.new(
 				shipping_user_address: UserAddress.new(
 					user: @user,
 					first_name: @user.first_name,

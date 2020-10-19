@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Shipping Options
 		.col-xs-2
-			- if authorized?(Bazaar::ShippingOption, controller: BazaarAdmin::ShippingOptionAdminController, action: :create )
+			- if authorized?(BazaarCore::ShippingOption, controller: BazaarAdmin::ShippingOptionAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#shipping_option_admin_new_modal' } }
 					%i.fa.fa-plus-square
 					New

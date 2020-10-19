@@ -70,7 +70,7 @@
 
 					.form-group
 						= f.label :status
-						= f.collection_select :status, Bazaar::WholesaleProfile.statuses, :first, :first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::WholesaleProfile.statuses, :first, :first, {}, class: 'form-control'
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'

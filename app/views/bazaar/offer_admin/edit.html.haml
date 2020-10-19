@@ -65,17 +65,17 @@
 					.form-group
 						= f.label :status
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'Determines if this offer is active for purchase, and avaiable to be added be used in other admin tools.<br/><strong>Draft</strong> still being configured, and not yet ready to be used.<br/><strong>Active</strong> fully configured and ready for use.<br/><strong>Archived</strong> no longer available for use, but not permanently removed.<br/><strong>Trash</strong> queued up to be permanently deleted.' }
-						= f.collection_select :status, Bazaar::Offer.statuses, :first, humanize_first, {}, class: 'form-control'
+						= f.collection_select :status, BazaarCore::Offer.statuses, :first, humanize_first, {}, class: 'form-control'
 
 					.form-group
 						= f.label :availability
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'Determines the availability of this offer.<br/><strong>Backorder</strong> offers which are out of stock, puchases of such items pre-authorize payments and process them when the item has been restocked.<br/><strong>Pre Order</strong> offers have not yet been stocked, puchases of such items pre-authorize payments and process them when the item has been stocked.<br/><strong>Open Availability</strong> currently available to be purchased and fulfilled, without delay.' }
-						= f.collection_select :availability, Bazaar::Offer.availabilities, :first, humanize_first, {}, class: 'form-control'
+						= f.collection_select :availability, BazaarCore::Offer.availabilities, :first, humanize_first, {}, class: 'form-control'
 
 					.form-group
 						= f.label :product_id, "Product"
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The product brand that this offer is associated with/aggregated to.' }
-						= f.collection_select :product_id, Bazaar::Product.active.order(title: :asc), :id, :title, { include_blank: "-- Select Product --" }, { class: 'form-control', required: true }
+						= f.collection_select :product_id, BazaarCore::Product.active.order(title: :asc), :id, :title, { include_blank: "-- Select Product --" }, { class: 'form-control', required: true }
 
 					.form-group
 						= f.label :tags_csv, 'Tags'
@@ -113,7 +113,7 @@
 				%h4
 					Upsell Offers
 
-				= render 'upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.active.where( src_offer: @offer ), args: {}
+				= render 'upsell_offer_table', upsell_offers: BazaarCore::UpsellOffer.active.where( src_offer: @offer ), args: {}
 
 	.row
 		.col-xs-12

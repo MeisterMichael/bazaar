@@ -5,9 +5,9 @@ module BazaarAdmin
 		before_action :init_search_service, only: [:index]
 
 		def create
-			authorize( Bazaar::Offer )
+			authorize( BazaarCore::Offer )
 
-			@offer = Bazaar::Offer.new( offer_params )
+			@offer = BazaarCore::Offer.new( offer_params )
 			@offer.cart_title ||= @offer.title
 
 			@offer.offer_prices.new( price_as_money_string: params[:price_as_money], status: 'active', start_interval: 1, max_intervals: nil ) if params[:price_as_money]
@@ -41,7 +41,7 @@ module BazaarAdmin
 		end
 
 		def index
-			authorize( Bazaar::Offer )
+			authorize( BazaarCore::Offer )
 
 			sort_by = params[:sort_by] || 'title'
 			sort_dir = params[:sort_dir] || 'asc'
@@ -68,7 +68,7 @@ module BazaarAdmin
 
 		protected
 		def get_offer
-			@offer = Bazaar::Offer.find params[:id]
+			@offer = BazaarCore::Offer.find params[:id]
 		end
 
 		def offer_params
