@@ -7,7 +7,7 @@
       %th.text-right{ style: 'width: 100px' } Subtotal
   %tbody#prod_order_offers
     - order.order_offers.each do |order_offer|
-      = render 'bazaar/order_offer_admin/edit_row', f: f, order_offer: order_offer, args: {}
+      = render 'bazaar_admin/order_offer_admin/edit_row', f: f, order_offer: order_offer, args: {}
   %tbody
     %tr
       %td{ colspan: 4 }
@@ -24,7 +24,7 @@
 
   %tbody#discount_order_items
     - order.order_items.discount.each do |order_item|
-      = render 'bazaar/order_item_admin/edit_row', f: f, order_item: order_item, args: {}
+      = render 'bazaar_admin/order_item_admin/edit_row', f: f, order_item: order_item, args: {}
   %tbody
     %tr
       %td{ colspan: 4 }

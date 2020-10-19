@@ -21,7 +21,7 @@
 
 	.row
 		.col-xs-8
-			= render 'bazaar/shipment_admin/details'
+			= render 'bazaar_admin/shipment_admin/details'
 			.well.white-well
 				%h4 Skus
 
@@ -38,7 +38,7 @@
 							%tr
 								%td=shipment_sku.sku.code
 								%td=shipment_sku.quantity
-			= render 'bazaar/shipment_admin/logs_table'
+			= render 'bazaar_admin/shipment_admin/logs_table'
 			.well.white-well
 				%h4 Notes
 				- if @shipment.notes.present?
@@ -89,6 +89,6 @@
 					-# .form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
-= render 'bazaar/shipment_admin/copy_modal', shipment: @shipment, args: {}
-= render 'bazaar/shipment_admin/publish_modal', shipment: @shipment, args: {}
-= render 'bazaar/shipment_admin/status_modal', shipment: @shipment, args: {}
+= render 'bazaar_admin/shipment_admin/copy_modal', shipment: @shipment, args: {}
+= render 'bazaar_admin/shipment_admin/publish_modal', shipment: @shipment, args: {}
+= render 'bazaar_admin/shipment_admin/status_modal', shipment: @shipment, args: {}

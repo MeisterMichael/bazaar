@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Products
 		.col-xs-2.text-right
-			- if authorized?(Bazaar::Product, controller: Bazaar::ProductAdminController, action: :create )
+			- if authorized?(Bazaar::Product, controller: BazaarAdmin::ProductAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_product' } }
 					%i.fa.fa-plus-square
 					New

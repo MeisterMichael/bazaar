@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarAdmin
 	module DiscountSearchable
 		extend ActiveSupport::Concern
 

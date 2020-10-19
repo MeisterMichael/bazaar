@@ -18,7 +18,7 @@
 					.shipping-address-section
 						= f.fields_for :shipping_user_address do |shipping_user_address_form|
 							%h5 Shipping Information
-							= render 'bazaar/checkout/geo_address', f: shipping_user_address_form, address_attribute: :shipping_user_address, countries: get_shipping_countries, states: get_billing_states(  order.shipping_user_address.geo_country_id  ), args: {}
+							= render 'bazaar_admin/checkout/geo_address', f: shipping_user_address_form, address_attribute: :shipping_user_address, countries: get_shipping_countries, states: get_billing_states(  order.shipping_user_address.geo_country_id  ), args: {}
 
 							.form-group
 								%label
@@ -28,7 +28,7 @@
 					.billing-address-section.hide
 						= f.fields_for :billing_user_address do |billing_user_address_form|
 							%h5 Billing Information
-							= render 'bazaar/checkout/geo_address', f: billing_user_address_form, address_attribute: :billing_user_address, countries: get_billing_countries, states: get_billing_states(  order.billing_user_address.geo_country_id  ), args: {}
+							= render 'bazaar_admin/checkout/geo_address', f: billing_user_address_form, address_attribute: :billing_user_address, countries: get_billing_countries, states: get_billing_states(  order.billing_user_address.geo_country_id  ), args: {}
 
 
 				.modal-footer

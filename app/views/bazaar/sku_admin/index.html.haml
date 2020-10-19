@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Skus
 		.col-xs-2
-			- if authorized?(Bazaar::Sku, controller: Bazaar::SkuAdminController, action: :create )
+			- if authorized?(Bazaar::Sku, controller: BazaarAdmin::SkuAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_sku_modal' } }
 					%i.fa.fa-plus-square
 					New
@@ -57,19 +57,19 @@
 								.badge{ class: sku.status }
 									= sku.status
 							%td
-								- if authorized?(sku, controller: Bazaar::SkuAdminController, action: :edit ) || authorized?(sku, controller: Bazaar::SkuAdminController, action: :destroy )
+								- if authorized?(sku, controller: BazaarAdmin::SkuAdminController, action: :edit ) || authorized?(sku, controller: BazaarAdmin::SkuAdminController, action: :destroy )
 									.btn-group
 										%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
 											%i.fa.fa-cog
 											%b.caret
 										%ul.dropdown-menu
-											- if authorized?(sku, controller: Bazaar::SkuAdminController, action: :edit )
+											- if authorized?(sku, controller: BazaarAdmin::SkuAdminController, action: :edit )
 												%li
 													%a{ href: edit_sku_admin_path( sku.id ) }
 														%i.fa.fa-pencil
 														Edit
 												%li.divider
-											- if authorized?(sku, controller: Bazaar::SkuAdminController, action: :destroy )
+											- if authorized?(sku, controller: BazaarAdmin::SkuAdminController, action: :destroy )
 												%li
 													%a{ href: sku_admin_path( sku ), data: { method: 'delete', confirm: 'Are you sure?' } }
 														%i.fa.fa-trash-o

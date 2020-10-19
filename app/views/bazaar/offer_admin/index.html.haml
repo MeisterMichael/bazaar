@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Offers
 		.col-xs-2.text-right
-			- if authorized?(Bazaar::Offer, controller: Bazaar::OfferAdminController, action: :create )
+			- if authorized?(Bazaar::Offer, controller: BazaarAdmin::OfferAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_offer' } }
 					%i.fa.fa-plus-square
 					New

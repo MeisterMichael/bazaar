@@ -1,23 +1,6 @@
 Bazaar::Engine.routes.draw do
 
 	resources :cart_admin
-	resources :carts, only: :update
-
-	get '/cart' => 'carts#show'
-
-	resources :cart_offers, :path => "cart_offers", except: [ :index, :new, :edit, :update, :show ] do
-		get :create, on: :collection
-	end
-	resources :cart_offers, :path => "cart_items", except: [ :index, :new, :edit, :update, :show ] do
-		get :create, on: :collection
-	end
-
-	resources :checkout, only: [:new, :create, :index] do
-		post :calculate, on: :collection
-		post :confirm, on: :collection
-		get :confirm, on: :collection
-		get :state_input, on: :collection
-	end
 
 	resources :collection_admin
 	resources :collection_item_admin
@@ -25,9 +8,6 @@ Bazaar::Engine.routes.draw do
 	resources :discount_admin
 
 	resources :fulfillment_admin, only: [:create, :destroy]
-
-	# resources :geo_countries, only: [:index]
-	resources :geo_states, only: [:index]
 
 	resources :offer_admin
 	resources :offer_price_admin
@@ -47,10 +27,6 @@ Bazaar::Engine.routes.draw do
 
 	resources :order_item_admin, only: [:update,:create,:destroy]
 	resources :order_offer_admin, only: [:update,:create,:destroy]
-
-	resources :orders do
-		get :thank_you, on: :member, path: 'thank-you'
-	end
 
 	resources :product_admin do
 		get :preview, on: :member
@@ -95,21 +71,8 @@ Bazaar::Engine.routes.draw do
 	resources :warehouse_state_admin
 	resources :warehouse_sku_admin
 
-	resources :wholesale_checkout, only: [:create,:index] do
-		post :calculate, on: :collection
-		post :confirm, on: :collection
-		get :thank_you, on: :member, path: 'thank-you'
-	end
-
 	resources :wholesale_item_admin, only: [:create,:update,:destroy]
 	resources :wholesale_profile_admin, except: [:new]
-
-	resources :your_account, only: [:index]
-	resources :your_orders, only: [:index, :show]
-	resources :your_subscriptions, only: [:index, :show, :update, :destroy] do
-		put :update_discount, on: :member
-		get :edit_shipping_preferences, on: :member
-	end
 
 	resources :zendesk, only: [:index] do
 		get :customer, on: :collection

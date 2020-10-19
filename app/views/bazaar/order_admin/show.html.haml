@@ -9,7 +9,7 @@
 						%i.fa.fa-angle-left
 						Orders
 
-			- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update )
+			- if authorized?(@order, controller: BazaarAdmin::OrderAdminController, action: :update )
 				.pull-right
 					- if @order.review?
 						%a.btn.btn-primary{ href: accept_order_admin_path( @order ), data: { method: 'POST', toggle: 'tooltip' }, title: 'Change the status of the order, and any subscriptions, to the "Active" status.' }
@@ -63,7 +63,7 @@
 							%tr
 								%td
 									- if order_offer.subscription
-										- if authorized?(order_offer.subscription, controller: Bazaar::SubscriptionAdminController, action: :edit)
+										- if authorized?(order_offer.subscription, controller: BazaarAdmin::SubscriptionAdminController, action: :edit)
 											%a{ href: edit_subscription_admin_path( order_offer.subscription ) }
 												= order_offer.title
 												(#{order_offer.subscription.code})
@@ -170,13 +170,13 @@
 										%td.text-right{ style: 'width: 100px' }
 											%h5{ style: 'font-weight:bold;' }
 												= number_to_currency ( @transactions.approved.positive.to_a.sum(&:signed_amount) / 100.0 )
-						- if authorized?( @order, controller: Bazaar::OrderAdminController, action: :refund ) && @transactions.approved.to_a.sum(&:signed_amount) > 0
+						- if authorized?( @order, controller: BazaarAdmin::OrderAdminController, action: :refund ) && @transactions.approved.to_a.sum(&:signed_amount) > 0
 							.text-center
 								%a.btn.btn-success{ data: { toggle: :modal, target: '#refund_order' } }
 									%i.fa.fa-plus-square
 									Refund
 			.well.white-well
-				- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update )
+				- if authorized?(@order, controller: BazaarAdmin::OrderAdminController, action: :update )
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#edit_support_notes_order' } }
 							Edit
@@ -280,7 +280,7 @@
 
 			- if @order.respond_to?( :shipping_user_address ) && @order.shipping_user_address.present?
 				.well.white-well
-					- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update ) && not( @order.fulfilled? || @order.delivered? )
+					- if authorized?(@order, controller: BazaarAdmin::OrderAdminController, action: :update ) && not( @order.fulfilled? || @order.delivered? )
 						.pull-right
 							%a{ href: '#', data: { toggle: :modal, target: '#shipping_user_address_modal' } } Edit
 					%h5
@@ -292,7 +292,7 @@
 			= render 'fulfillment_tracking'
 
 
-= render 'bazaar/order_admin/edit_status_modal'
-= render 'bazaar/order_admin/refund_modal'
-= render 'bazaar/order_admin/support_notes_modal'
-= render 'bazaar/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_user_address' }, countries: get_shipping_countries, states: get_shipping_states( @order.shipping_user_address.geo_country_id )
+= render 'bazaar_admin/order_admin/edit_status_modal'
+= render 'bazaar_admin/order_admin/refund_modal'
+= render 'bazaar_admin/order_admin/support_notes_modal'
+= render 'bazaar_admin/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_user_address' }, countries: get_shipping_countries, states: get_shipping_states( @order.shipping_user_address.geo_country_id )

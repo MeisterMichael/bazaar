@@ -3,7 +3,7 @@
 	<meta charset="utf-8">
 	<!-- http://garden.zendesk.com -->
 	<link href="https://cdn.jsdelivr.net/bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
-	<%= stylesheet_link_tag "bazaar/zendesk", media: "all" %>
+	<%= stylesheet_link_tag "bazaar_admin/zendesk", media: "all" %>
 </head>
 <body>
 	<div id="content"></div>
@@ -43,6 +43,6 @@
 	<script>
 		var zendesk_query_string = "<%=@query_string%>"
 	</script>
-	<%= javascript_include_tag 'bazaar/zendesk' %>
+	<%= javascript_include_tag 'bazaar_admin/zendesk' %>
 </body>
 </html>

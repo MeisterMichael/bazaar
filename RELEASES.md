@@ -56,7 +56,7 @@
 
 == V2.1.2
 * bug fix to the thank you page token generation.
-* set all bazaar public controllers to use bazaar/application as the default layout
+* set all bazaar public controllers to use bazaar_admin/application as the default layout
 
 == V2.1.1
 * Fix to the discount service code, so it will calculate discounts despite order errors

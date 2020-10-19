@@ -101,6 +101,6 @@
 			.well.white-well
 				%h4
 					Offers
-				= render 'bazaar/offer_admin/offer_table', offers: @product.offers.order( title: :asc ), args: {}
+				= render 'bazaar_admin/offer_admin/offer_table', offers: @product.offers.order( title: :asc ), args: {}
 
 = render 'new_gallery_attachment', args: {}

@@ -42,7 +42,7 @@
 									= shipment.status.gsub(/_/,' ')
 
 					#order_offers_table
-						= render 'bazaar/order_admin/order_offers_table', f: f, order: @order, args: {}
+						= render 'bazaar_admin/order_admin/order_offers_table', f: f, order: @order, args: {}
 				.well.white-well
 					%h4
 						Customer Notes
@@ -74,7 +74,7 @@
 
 
 				.well.white-well
-					- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update ) && not( @order.fulfilled? || @order.delivered? )
+					- if authorized?(@order, controller: BazaarAdmin::OrderAdminController, action: :update ) && not( @order.fulfilled? || @order.delivered? )
 						.pull-right
 							%a{ href: '#', data: { toggle: :modal, target: '#shipping_user_address_modal' } } Edit
 					%h5
@@ -82,7 +82,7 @@
 					= raw @order.shipping_user_address.to_html
 
 
-= render 'bazaar/order_offer_admin/new_modal', order: @order, arg: {}
-= render 'bazaar/order_admin/edit_status_modal'
-= render 'bazaar/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_user_address' }, countries: get_shipping_countries, states: get_shipping_states( @order.shipping_user_address.geo_country_id )
-= render 'bazaar/order_admin/edit_address_modal', args: { title: 'Billing Address', attribute: 'billing_user_address' }, countries: get_billing_countries, states: get_shipping_states( @order.billing_user_address.geo_country_id )
+= render 'bazaar_admin/order_offer_admin/new_modal', order: @order, arg: {}
+= render 'bazaar_admin/order_admin/edit_status_modal'
+= render 'bazaar_admin/order_admin/edit_address_modal', args: { title: 'Shipping Address', attribute: 'shipping_user_address' }, countries: get_shipping_countries, states: get_shipping_states( @order.shipping_user_address.geo_country_id )
+= render 'bazaar_admin/order_admin/edit_address_modal', args: { title: 'Billing Address', attribute: 'billing_user_address' }, countries: get_billing_countries, states: get_shipping_states( @order.billing_user_address.geo_country_id )

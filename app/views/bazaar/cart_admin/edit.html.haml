@@ -97,7 +97,7 @@
 								Total
 						%tbody
 							- if @cart.order.present?
-								= render 'bazaar/order_admin/table_row', order: @cart.order, args: { controls: false }
+								= render 'bazaar_admin/order_admin/table_row', order: @cart.order, args: { controls: false }
 							- else
 								%tr
 									%td{ colspan: 5 } No Order

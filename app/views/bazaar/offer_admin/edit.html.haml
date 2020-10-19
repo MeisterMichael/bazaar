@@ -123,7 +123,7 @@
 				= render 'offer_items_table'
 
 
-= render 'bazaar/offer_sku_admin/new_modal', parent_obj: @offer, args: { apply: 'per_quantity' }
-= render 'bazaar/offer_price_admin/new_modal', parent_obj: @offer, args: {}
-= render 'bazaar/offer_schedule_admin/new_modal', parent_obj: @offer, args: {}
-= render 'bazaar/upsell_offer_admin/new_modal', args: { src_offer: @offer }
+= render 'bazaar_admin/offer_sku_admin/new_modal', parent_obj: @offer, args: { apply: 'per_quantity' }
+= render 'bazaar_admin/offer_price_admin/new_modal', parent_obj: @offer, args: {}
+= render 'bazaar_admin/offer_schedule_admin/new_modal', parent_obj: @offer, args: {}
+= render 'bazaar_admin/upsell_offer_admin/new_modal', args: { src_offer: @offer }

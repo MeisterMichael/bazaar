@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarAdmin
 	module SubscriptionSearchable
 		extend ActiveSupport::Concern
 

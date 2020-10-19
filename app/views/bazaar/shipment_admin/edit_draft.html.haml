@@ -18,7 +18,7 @@
 	= form_for @shipment, url: bazaar.shipment_admin_path( @shipment ) do |f|
 		.row
 			.col-xs-8
-				= render 'bazaar/shipment_admin/details'
+				= render 'bazaar_admin/shipment_admin/details'
 				.well.white-well
 					%h4 Skus
 
@@ -108,7 +108,7 @@
 							= f.submit 'Next: Save Shipping Method', class: 'btn btn-primary'
 
 
-= render 'bazaar/shipment_sku_admin/new_modal', shipment: @shipment, args: {}
+= render 'bazaar_admin/shipment_sku_admin/new_modal', shipment: @shipment, args: {}
 - if @shipment.draft?
-	= render 'bazaar/shipment_admin/publish_modal', shipment: @shipment, args: {}
-	= render 'bazaar/shipment_admin/calculate_modal', shipment: @shipment, args: {}
+	= render 'bazaar_admin/shipment_admin/publish_modal', shipment: @shipment, args: {}
+	= render 'bazaar_admin/shipment_admin/calculate_modal', shipment: @shipment, args: {}

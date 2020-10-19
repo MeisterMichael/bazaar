@@ -31,20 +31,20 @@
 		= number_to_currency ( order.total || 0 ) / 100.to_f
 	- if args[:controls]
 		%td
-			- if authorized?(order, controller: Bazaar::OrderAdminController, action: :edit ) || authorized?(order, controller: Bazaar::OrderAdminController, action: :destroy )
+			- if authorized?(order, controller: BazaarAdmin::OrderAdminController, action: :edit ) || authorized?(order, controller: BazaarAdmin::OrderAdminController, action: :destroy )
 				.btn-group
 					%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
 						%i.fa.fa-cog
 						%b.caret
 					%ul.dropdown-menu
-						- if authorized?(order, controller: Bazaar::OrderAdminController, action: :edit )
+						- if authorized?(order, controller: BazaarAdmin::OrderAdminController, action: :edit )
 							%li
 								%a{ href: bazaar.order_admin_path( order.id ) }
 									%i.fa.fa-pencil
 									Edit
 							%li.divider
 
-						- if authorized?(order, controller: Bazaar::OrderAdminController, action: :destroy )
+						- if authorized?(order, controller: BazaarAdmin::OrderAdminController, action: :destroy )
 							%li
 								%a{ href: bazaar.order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
 									%i.fa.fa-trash-o

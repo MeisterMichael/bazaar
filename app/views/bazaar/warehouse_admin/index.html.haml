@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Warehouses
 		.col-xs-2
-			- if authorized?(Bazaar::Warehouse, controller: Bazaar::WarehouseAdminController, action: :create )
+			- if authorized?(Bazaar::Warehouse, controller: BazaarAdmin::WarehouseAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_warehouse_modal' } }
 					%i.fa.fa-plus-square
 					New
@@ -49,19 +49,19 @@
 								.badge{ class: warehouse.status }
 									= warehouse.status
 							%td
-								- if authorized?(warehouse, controller: Bazaar::WarehouseAdminController, action: :edit ) || authorized?(warehouse, controller: Bazaar::WarehouseAdminController, action: :destroy )
+								- if authorized?(warehouse, controller: BazaarAdmin::WarehouseAdminController, action: :edit ) || authorized?(warehouse, controller: BazaarAdmin::WarehouseAdminController, action: :destroy )
 									.btn-group
 										%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
 											%i.fa.fa-cog
 											%b.caret
 										%ul.dropdown-menu
-											- if authorized?(warehouse, controller: Bazaar::WarehouseAdminController, action: :edit )
+											- if authorized?(warehouse, controller: BazaarAdmin::WarehouseAdminController, action: :edit )
 												%li
 													%a{ href: edit_warehouse_admin_path( warehouse.id ) }
 														%i.fa.fa-pencil
 														Edit
 												%li.divider
-											- if authorized?(warehouse, controller: Bazaar::WarehouseAdminController, action: :destroy )
+											- if authorized?(warehouse, controller: BazaarAdmin::WarehouseAdminController, action: :destroy )
 												%li
 													%a{ href: warehouse_admin_path( warehouse ), data: { method: 'delete', confirm: 'Are you sure?' } }
 														%i.fa.fa-trash-o

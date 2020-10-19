@@ -22,7 +22,7 @@
 
 					= f.fields_for :shipping_user_address do |shipping_user_address_form|
 
-						= render 'bazaar/geo_address/form', f: shipping_user_address_form, countries: get_shipping_countries, states: get_shipping_states( nil ), id: "new_user_subscription_modal", address_attribute: :shipping_user_address
+						= render 'bazaar_admin/geo_address/form', f: shipping_user_address_form, countries: get_shipping_countries, states: get_shipping_states( nil ), id: "new_user_subscription_modal", address_attribute: :shipping_user_address
 
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }

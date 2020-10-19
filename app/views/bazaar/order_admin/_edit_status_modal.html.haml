@@ -10,13 +10,13 @@
 				.modal-body{ style: 'text-align: center;' }
 					.form-group
 						=f.label :status
-						- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update )
+						- if authorized?(@order, controller: BazaarAdmin::OrderAdminController, action: :update )
 							= f.collection_select :status, Bazaar::Order.statuses, :first, :first, {}, class: 'form-control'
 						- else
 							=@order.statuses.gsub(/_/,' ')
 					.form-group
 						=f.label :payment_status
-						- if authorized?(@order, controller: Bazaar::OrderAdminController, action: :update )
+						- if authorized?(@order, controller: BazaarAdmin::OrderAdminController, action: :update )
 							= f.collection_select :payment_status, Bazaar::Order.payment_statuses, :first, :first, {}, class: 'form-control'
 						- else
 							=@order.payment_status.gsub(/_/,' ')

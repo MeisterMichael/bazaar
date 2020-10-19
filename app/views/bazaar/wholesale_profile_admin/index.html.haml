@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Wholesale Profiles
 		.col-xs-2
-			- if authorized?(Bazaar::WholesaleProfile, controller: Bazaar::WholesaleProfileAdminController, action: :create )
+			- if authorized?(Bazaar::WholesaleProfile, controller: BazaarAdmin::WholesaleProfileAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_wholesale_profile_modal' } }
 					%i.fa.fa-plus-square
 					New
@@ -54,4 +54,4 @@
 			= raw paginate @wholesale_profiles
 
 
-= render 'bazaar/wholesale_profile_admin/new_modal', args: {}
+= render 'bazaar_admin/wholesale_profile_admin/new_modal', args: {}

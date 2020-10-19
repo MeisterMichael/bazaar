@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Orders
 		.col-xs-2
-			-# if authorized?(Bazaar::Order, controller: Bazaar::OrderAdminController, action: :create )
+			-# if authorized?(Bazaar::Order, controller: BazaarAdmin::OrderAdminController, action: :create )
 				%a.btn.btn-success{ href: bazaar.new_order_admin_path() }
 					%i.fa.fa-plus-square
 					New
@@ -58,7 +58,7 @@
 							%td{ colspan: 6 }
 								\- No Orders Found -
 					- @orders.each do |order|
-						= render 'bazaar/order_admin/table_row', order: order, args: { controls: true }
+						= render 'bazaar_admin/order_admin/table_row', order: order, args: { controls: true }
 	.row
 		.col-xs-6
 			= raw paginate @orders

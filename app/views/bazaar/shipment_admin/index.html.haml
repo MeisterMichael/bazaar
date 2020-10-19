@@ -10,7 +10,7 @@
 					%small BATCH ID: #{@batch_id}
 
 		.col-xs-3.text-right
-			- if authorized?(Bazaar::Shipment, controller: Bazaar::ShipmentAdminController, action: :create )
+			- if authorized?(Bazaar::Shipment, controller: BazaarAdmin::ShipmentAdminController, action: :create )
 				- if (params[:features] || '').include?( 'new_modal' )
 					%a.btn.btn-success{ href: bazaar.new_shipment_admin_path() }
 						%i.fa.fa-plus-square

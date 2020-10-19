@@ -1,4 +1,4 @@
-module Bazaar
+module BazaarAdmin
 	module ProductSearchable
 		extend ActiveSupport::Concern
 

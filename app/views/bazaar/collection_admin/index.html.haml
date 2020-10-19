@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Collections
 		.col-xs-2
-			- if authorized?(Bazaar::Collection, controller: Bazaar::CollectionAdminController, action: :create )
+			- if authorized?(Bazaar::Collection, controller: BazaarAdmin::CollectionAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_modal' } }
 					%i.fa.fa-plus-square
 					New
@@ -50,13 +50,13 @@
 										%i.fa.fa-cog
 										%b.caret
 									%ul.dropdown-menu
-										- if authorized?(collection, controller: Bazaar::CollectionAdminController, action: :edit )
+										- if authorized?(collection, controller: BazaarAdmin::CollectionAdminController, action: :edit )
 											%li
 												%a{ href: edit_collection_admin_path( collection.id ) }
 													%i.fa.fa-pencil
 													Edit
 											%li.divider
-										- if authorized?(collection, controller: Bazaar::CollectionAdminController, action: :destroy )
+										- if authorized?(collection, controller: BazaarAdmin::CollectionAdminController, action: :destroy )
 											%li
 												%a{ href: collection_admin_path( collection ), data: { method: 'delete', confirm: 'Are you sure?' } }
 													%i.fa.fa-trash-o

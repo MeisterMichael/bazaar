@@ -1,8 +1,0 @@
-
-Thanks for your order!
-Order Number: #{@order.code}
-
-- @order.order_offers.each do |order_offer|
-	#{order_offer.quantity} x #{order_offer.title}   #{number_to_currency order_offer.subtotal.to_f / 100}
-
-Total: #{number_to_currency @order.total.to_f / 100}

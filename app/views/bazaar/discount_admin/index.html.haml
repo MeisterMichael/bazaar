@@ -6,7 +6,7 @@
 		.col-xs-10
 			%h2 Discounts
 		.col-xs-2
-			- if authorized?(Bazaar::Discount, controller: Bazaar::DiscountAdminController, action: :create )
+			- if authorized?(Bazaar::Discount, controller: BazaarAdmin::DiscountAdminController, action: :create )
 				%a.btn.btn-success{ data: { toggle: :modal, target: '#new_discount_modal' } }
 					%i.fa.fa-plus-square
 					New
@@ -89,19 +89,19 @@
 								.badge{ class: discount.status }
 									= discount.status
 							%td
-								- if authorized?(discount, controller: Bazaar::DiscountAdminController, action: :edit ) || authorized?(discount, controller: Bazaar::DiscountAdminController, action: :destroy )
+								- if authorized?(discount, controller: BazaarAdmin::DiscountAdminController, action: :edit ) || authorized?(discount, controller: BazaarAdmin::DiscountAdminController, action: :destroy )
 									.btn-group
 										%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
 											%i.fa.fa-cog
 											%b.caret
 										%ul.dropdown-menu
-											- if authorized?(discount, controller: Bazaar::DiscountAdminController, action: :edit )
+											- if authorized?(discount, controller: BazaarAdmin::DiscountAdminController, action: :edit )
 												%li
 													%a{ href: edit_discount_admin_path( discount.id ) }
 														%i.fa.fa-pencil
 														Edit
 												%li.divider
-											- if authorized?(discount, controller: Bazaar::DiscountAdminController, action: :destroy )
+											- if authorized?(discount, controller: BazaarAdmin::DiscountAdminController, action: :destroy )
 												%li
 													%a{ href: discount_admin_path( discount ), data: { method: 'delete', confirm: 'Are you sure?' } }
 														%i.fa.fa-trash-o

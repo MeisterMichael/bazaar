@@ -2,7 +2,7 @@
   %tr{ id: "order_offer_#{order_offer.id}_edit_row", data: { url: bazaar.order_offer_admin_path( order_offer ), update: 'order_offer', on: 'change' } }
     %td
       - if ( subscription = order_offer.subscription ).present?
-        - if authorized?(subscription, controller: Bazaar::SubscriptionAdminController, action: :edit )
+        - if authorized?(subscription, controller: BazaarAdmin::SubscriptionAdminController, action: :edit )
           %a{ href: edit_subscription_admin_path( subscription ) }
             = order_offer.title
             (#{subscription.code})
