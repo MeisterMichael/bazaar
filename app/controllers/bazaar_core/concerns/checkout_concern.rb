@@ -80,7 +80,7 @@ module BazaarCore
 					order_offer_attributes = order_offer_attributes.values if order_offer_attributes.is_a? Hash
 
 					order_offer_attributes.each do |order_offer|
-						order_offer[:offer]				= Bazaar::Offer.find_by( id: order_offer[:offer_id] )
+						order_offer[:offer]				= BazaarCore::Offer.find_by( id: order_offer[:offer_id] )
 						order_offer[:title]				= order_offer[:offer].title
 						order_offer[:price]				= order_offer[:offer].initial_price
 						order_offer[:subtotal]		= order_offer[:price].to_i * order_offer[:quantity].to_i

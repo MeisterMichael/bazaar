@@ -54,7 +54,7 @@ module BazaarCore
 
 			end
 
-			discount = Bazaar::Discount.find_by( args.delete(:discount_id) ) if args[:discount_id]
+			discount = BazaarCore::Discount.find_by( args.delete(:discount_id) ) if args[:discount_id]
 			discount ||= args[:discount]
 			discount = nil unless discount.try(:for_subscriptions?)
 
@@ -71,7 +71,7 @@ module BazaarCore
 			puts "current_period_end_at = #{start_at} + #{offer_schedule_interval_period} (#{offer.id}, #{interval})"
 			current_period_end_at = start_at + offer_schedule_interval_period
 
-			subscription = args[:subscription] || Bazaar::Subscription.new()
+			subscription = args[:subscription] || BazaarCore::Subscription.new()
 			subscription.attributes = {
 				user: user,
 				offer: offer,
@@ -259,7 +259,7 @@ module BazaarCore
 				else
 
 					# if no transaction was created, create one to log the error
-					transaction = Bazaar::Transaction.create(
+					transaction = BazaarCore::Transaction.create(
 						message: order.nested_errors.join(' * '),
 						parent_obj: subscriptions.first,
 						status: 'declined',

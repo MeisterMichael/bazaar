@@ -5,8 +5,8 @@ module BazaarCore
 
 		def calculate( obj, args = {} )
 
-			return self.calculate_order( obj, args ) if obj.is_a? Bazaar::Order
-			return self.calculate_cart( obj, args ) if obj.is_a? Bazaar::Cart
+			return self.calculate_order( obj, args ) if obj.is_a? BazaarCore::Order
+			return self.calculate_cart( obj, args ) if obj.is_a? BazaarCore::Cart
 
 		end
 
@@ -18,8 +18,8 @@ module BazaarCore
 
 		def recalculate( obj, args = {} )
 
-			return self.calculate_order( obj, args ) if obj.is_a? Bazaar::Order
-			return self.calculate_cart( obj, args ) if obj.is_a? Bazaar::Cart
+			return self.calculate_order( obj, args ) if obj.is_a? BazaarCore::Order
+			return self.calculate_cart( obj, args ) if obj.is_a? BazaarCore::Cart
 
 		end
 

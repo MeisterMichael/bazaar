@@ -103,7 +103,7 @@ module BazaarCore
 				order.provider_customer_payment_profile_reference ||= ( args[:orderReferenceId] || args[:billing_agreement_id] )
 				order.provider = self.provider_name
 
-				transaction = Bazaar::Transaction.create!(
+				transaction = BazaarCore::Transaction.create!(
 					parent_obj: order,
 					provider: provider_name,
 					amount: order.total,
@@ -115,7 +115,7 @@ module BazaarCore
 				order.payment_status = 'declined'
 				order.save!
 
-				if order.parent.is_a?( Bazaar::Subscription )
+				if order.parent.is_a?( BazaarCore::Subscription )
 					# raise Exception.new('Unable to process subscription rebills')
 					billing_agreement_id = order.provider_customer_payment_profile_reference
 
@@ -193,7 +193,7 @@ module BazaarCore
 						return false
 					end
 
-					subscription = recurring_order_offer.subscription ||= Bazaar::Subscription.create( status: 'trash', user: order.user, offer: recurring_order_offer.offer, shipping_address: order.shipping_address, billing_address: order.billing_address )
+					subscription = recurring_order_offer.subscription ||= BazaarCore::Subscription.create( status: 'trash', user: order.user, offer: recurring_order_offer.offer, shipping_address: order.shipping_address, billing_address: order.billing_address )
 
 					# To get the buyers full address if shipping/tax
 					# calculations are needed you can use the following
@@ -411,7 +411,7 @@ module BazaarCore
 
 				raise Exception.new( "charge_transaction must be an approved charge." ) unless charge_transaction.nil? || ( charge_transaction.charge? && charge_transaction.approved? )
 
-				transaction = Bazaar::Transaction.new( args )
+				transaction = BazaarCore::Transaction.new( args )
 				transaction.transaction_type	= 'refund'
 				transaction.provider			    = self.provider_name
 				transaction.currency          ||= charge_transaction.currency

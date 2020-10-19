@@ -41,7 +41,7 @@ module BazaarCore
 			args[:tax] ||= {}
 			args[:transaction] ||= {}
 
-			self.calculate_order_before( obj, args ) if obj.is_a? Bazaar::Order
+			self.calculate_order_before( obj, args ) if obj.is_a? BazaarCore::Order
 
 			shipping_response						= @shipping_service.calculate( obj, args[:shipping] )
 			discount_pre_tax_response		= @discount_service.calculate_pre_tax( obj, args[:discount] ) if apply_discount?( obj ) # calculate discounts pre-tax
@@ -49,7 +49,7 @@ module BazaarCore
 			discount_post_tax_response	= @discount_service.calculate_post_tax( obj, args[:discount] ) if apply_discount?( obj ) # calucate again after taxes
 			transaction_response				= @transaction_service.calculate( obj, args[:transaction] )
 
-			self.calculate_order_after( obj, args ) if obj.is_a? Bazaar::Order
+			self.calculate_order_after( obj, args ) if obj.is_a? BazaarCore::Order
 
 			{
 				shipping: shipping_response,
@@ -65,7 +65,7 @@ module BazaarCore
 		end
 
 		def create_order_transaction( order, attributes = {} )
-			transaction = Bazaar::Transaction.create({
+			transaction = BazaarCore::Transaction.create({
 				transaction_type: 'charge',
 				status: 'declined',
 				parent_obj_id: order.id,
@@ -233,7 +233,7 @@ module BazaarCore
 			args[:tax] ||= {}
 			args[:transaction] ||= {}
 
-			if obj.is_a? Bazaar::Order
+			if obj.is_a? BazaarCore::Order
 				obj.order_skus.each { |order_sku| order_sku.quantity = 0 }
 				self.calculate_order_before( obj, args )
 			end
@@ -244,7 +244,7 @@ module BazaarCore
 			discount_post_tax_response	= @discount_service.recalculate_post_tax( obj, args[:discount] ) if apply_discount?( obj ) # calucate again after taxes
 			transaction_response				= @transaction_service.recalculate( obj, args[:transaction] )
 
-			self.calculate_order_after( obj, args ) if obj.is_a? Bazaar::Order
+			self.calculate_order_after( obj, args ) if obj.is_a? BazaarCore::Order
 
 			{
 				shipping: shipping_response,
@@ -292,7 +292,7 @@ module BazaarCore
 		def calculate_order_items( order, args = {} )
 			order.order_offers.to_a.each do |order_offer|
 				item = order_offer.offer.product
-				item = Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first if order_offer.offer.recurring?
+				item = BazaarCore::SubscriptionPlan.where( offer: order_offer.offer ).first if order_offer.offer.recurring?
 				item = order_offer.subscription if order_offer.subscription_interval > 1
 
 				order_item = order.order_items.to_a.find{ |order_item| order_item.offer == order_offer.offer }

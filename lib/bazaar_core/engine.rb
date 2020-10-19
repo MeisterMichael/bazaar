@@ -124,13 +124,13 @@ module BazaarCore
 
 		self.order_email_from = "no-reply@#{ENV['APP_DOMAIN']}"
 
-		self.checkout_order_class_name = "Bazaar::CheckoutOrder"
-		self.wholesale_order_class_name = "Bazaar::WholesaleOrder"
-		self.wholesale_item_collections = [ 'Bazaar::Product.published.active' ]
+		self.checkout_order_class_name = "BazaarCore::CheckoutOrder"
+		self.wholesale_order_class_name = "BazaarCore::WholesaleOrder"
+		self.wholesale_item_collections = [ 'BazaarCore::Product.published.active' ]
 
 		self.admin_permit_additions = {}
 
-		self.discount_types = { 'House Coupon' => 'Bazaar::HouseCouponDiscount', 'Partner Coupon' => 'Bazaar::PartnerCouponDiscount', 'Promotion' => 'Bazaar::PromotionDiscount' }
+		self.discount_types = { 'House Coupon' => 'BazaarCore::HouseCouponDiscount', 'Partner Coupon' => 'BazaarCore::PartnerCouponDiscount', 'Promotion' => 'BazaarCore::PromotionDiscount' }
 
 		self.order_code_prefix = nil
 		self.order_code_postfix = nil
@@ -154,11 +154,11 @@ module BazaarCore
 
   class Engine < ::Rails::Engine
     isolate_namespace BazaarCore
-	config.generators do |g|
-		g.test_framework :rspec, :fixture => false
-		g.fixture_replacement :factory_girl, :dir => 'spec/factories'
-		g.assets false
-		g.helper false
-	end
+		config.generators do |g|
+			g.test_framework :rspec, :fixture => false
+			g.fixture_replacement :factory_girl, :dir => 'spec/factories'
+			g.assets false
+			g.helper false
+		end
   end
 end

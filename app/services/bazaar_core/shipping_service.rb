@@ -21,9 +21,9 @@ module BazaarCore
 		end
 
 		def calculate( obj, args = {} )
-			return self.calculate_order( obj, args ) if obj.is_a? Bazaar::Order
-			return self.calculate_cart( obj, args ) if obj.is_a? Bazaar::Cart
-			return self.calculate_shipment( obj, args ) if obj.is_a? Bazaar::Shipment
+			return self.calculate_order( obj, args ) if obj.is_a? BazaarCore::Order
+			return self.calculate_cart( obj, args ) if obj.is_a? BazaarCore::Cart
+			return self.calculate_shipment( obj, args ) if obj.is_a? BazaarCore::Shipment
 		end
 
 		def fetch_delivery_status( order, args = {} )
@@ -37,10 +37,10 @@ module BazaarCore
 		end
 
 		def find_rates( obj, args = {} )
-			return self.find_order_rates( obj, args ) if obj.is_a? Bazaar::Order
-			return self.find_cart_rates( obj, args ) if obj.is_a? Bazaar::Cart
-			return self.find_subscription_rates( obj, args ) if obj.is_a? Bazaar::Subscription
-			return self.find_shipment_rates( obj, args ) if obj.is_a? Bazaar::Shipment
+			return self.find_order_rates( obj, args ) if obj.is_a? BazaarCore::Order
+			return self.find_cart_rates( obj, args ) if obj.is_a? BazaarCore::Cart
+			return self.find_subscription_rates( obj, args ) if obj.is_a? BazaarCore::Subscription
+			return self.find_shipment_rates( obj, args ) if obj.is_a? BazaarCore::Shipment
 		end
 
 		def process( order, args = {} )
@@ -120,7 +120,7 @@ module BazaarCore
 
 			if rate.present?
 
-				if rate[:carrier_service].is_a? Bazaar::ShippingCarrierService
+				if rate[:carrier_service].is_a? BazaarCore::ShippingCarrierService
 					shipment.shipping_carrier_service = rate[:carrier_service]
 					shipment.carrier_service_level = rate[:carrier_service].service_name
 				end
@@ -144,9 +144,9 @@ module BazaarCore
 		end
 
 		def recalculate( obj, args = {} )
-			return self.calculate_order( obj, args ) if obj.is_a? Bazaar::Order
-			return self.calculate_cart( obj, args ) if obj.is_a? Bazaar::Cart
-			return self.calculate_shipment( obj, args ) if obj.is_a? Bazaar::Shipment
+			return self.calculate_order( obj, args ) if obj.is_a? BazaarCore::Order
+			return self.calculate_cart( obj, args ) if obj.is_a? BazaarCore::Cart
+			return self.calculate_shipment( obj, args ) if obj.is_a? BazaarCore::Shipment
 		end
 
 		protected
@@ -162,11 +162,11 @@ module BazaarCore
 		def find_shipment_rates( shipment, args = {} )
 			# @todo update order rate calculation to shipments rather than order
 			# find_order_rates( shipment.order, args )
-			find_address_rates( shipment.destination_user_address, shipment.shipment_skus.collect{ |shipment_sku| Bazaar::OrderItem.new( item: shipment_sku.sku, quantity: shipment_sku.quantity ) }, args )
+			find_address_rates( shipment.destination_user_address, shipment.shipment_skus.collect{ |shipment_sku| BazaarCore::OrderItem.new( item: shipment_sku.sku, quantity: shipment_sku.quantity ) }, args )
 		end
 
 		def find_subscription_rates( subscription, args = {} )
-			find_address_rates( subscription.shipping_user_address, [Bazaar::OrderOffer.new( subscription: subscription, offer: subscription.offer, subscription_interval: subscription.next_subscription_interval, quantity: subscription.quantity )], args )
+			find_address_rates( subscription.shipping_user_address, [BazaarCore::OrderOffer.new( subscription: subscription, offer: subscription.offer, subscription_interval: subscription.next_subscription_interval, quantity: subscription.quantity )], args )
 		end
 
 		def find_address_rates( geo_address, line_items, args = {} )
@@ -178,7 +178,7 @@ module BazaarCore
 				request_rates = request_address_rates( geo_address, line_items, args )
 
 				request_rates.collect do |rate|
-					carrier_service = Bazaar::ShippingCarrierService.create_with( name: rate[:name] ).find_or_create_by( service_name: rate[:name], service_code: rate[:code], carrier: rate[:carrier] )
+					carrier_service = BazaarCore::ShippingCarrierService.create_with( name: rate[:name] ).find_or_create_by( service_name: rate[:name], service_code: rate[:code], carrier: rate[:carrier] )
 				end
 
 				request_rates = request_rates.select{ |rate| @code_whitelist.include?( rate[:code] ) } if @code_whitelist.present?
@@ -188,7 +188,7 @@ module BazaarCore
 
 				rates = []
 				request_rates.collect do |rate|
-					carrier_service = Bazaar::ShippingCarrierService.create_with( name: rate[:name] ).find_or_create_by( service_name: rate[:name], service_code: rate[:code], carrier: rate[:carrier] )
+					carrier_service = BazaarCore::ShippingCarrierService.create_with( name: rate[:name] ).find_or_create_by( service_name: rate[:name], service_code: rate[:code], carrier: rate[:carrier] )
 
 					price = (rate[:price] * @multiplier_adjustment + @flat_adjustment).round()
 					label = carrier_service.shipping_option.try(:name) || @labels[rate[:name]] || rate[:name]

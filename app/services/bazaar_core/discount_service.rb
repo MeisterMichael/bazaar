@@ -10,14 +10,14 @@ module BazaarCore
 
 		def calculate_pre_tax( obj, args = {} )
 
-			return self.calculate_order_pre_tax( obj, args ) if obj.is_a? Bazaar::Order
-			return self.calculate_cart_pre_tax( obj, args ) if obj.is_a? Bazaar::Cart
+			return self.calculate_order_pre_tax( obj, args ) if obj.is_a? BazaarCore::Order
+			return self.calculate_cart_pre_tax( obj, args ) if obj.is_a? BazaarCore::Cart
 
 		end
 		def calculate_post_tax( obj, args = {} )
 
-			return self.calculate_order_post_tax( obj, args ) if obj.is_a? Bazaar::Order
-			return self.calculate_cart_post_tax( obj, args ) if obj.is_a? Bazaar::Cart
+			return self.calculate_order_post_tax( obj, args ) if obj.is_a? BazaarCore::Order
+			return self.calculate_cart_post_tax( obj, args ) if obj.is_a? BazaarCore::Cart
 
 		end
 
@@ -27,8 +27,8 @@ module BazaarCore
 			shipping_order_items	= order.order_items.select{ |order_item| order_item.shipping? }
 			tax_order_items			= order.order_items.select{ |order_item| order_item.tax? }
 
-			all_not_self_positive_status_orders = Bazaar::Order.positive_status.where.not( id: order.id )
-			all_discount_order_items = Bazaar::OrderItem.where( item: discount ).joins(:order)
+			all_not_self_positive_status_orders = BazaarCore::Order.positive_status.where.not( id: order.id )
+			all_discount_order_items = BazaarCore::OrderItem.where( item: discount ).joins(:order)
 
 			error_messages = []
 			error_messages << 'Invalid discount' if not( discount.active? ) || not( discount.in_progress? )
@@ -44,14 +44,14 @@ module BazaarCore
 
 		def recalculate_pre_tax( obj, args = {} )
 
-			return self.calculate_order_pre_tax( obj, args.merge( recalculate: true ) ) if obj.is_a? Bazaar::Order
-			return self.calculate_cart_pre_tax( obj, args ) if obj.is_a? Bazaar::Cart
+			return self.calculate_order_pre_tax( obj, args.merge( recalculate: true ) ) if obj.is_a? BazaarCore::Order
+			return self.calculate_cart_pre_tax( obj, args ) if obj.is_a? BazaarCore::Cart
 
 		end
 		def recalculate_post_tax( obj, args = {} )
 
-			return self.calculate_order_post_tax( obj, args ) if obj.is_a? Bazaar::Order
-			return self.calculate_cart_post_tax( obj, args ) if obj.is_a? Bazaar::Cart
+			return self.calculate_order_post_tax( obj, args ) if obj.is_a? BazaarCore::Order
+			return self.calculate_cart_post_tax( obj, args ) if obj.is_a? BazaarCore::Cart
 
 		end
 
@@ -72,7 +72,7 @@ module BazaarCore
 				order_user ||= User.find_by( email: order.email.downcase ) if order.email.present?
 
 				if order_user.present?
-					quantity_used = Bazaar::OrderOfferDiscount.where( order: order_user.orders.positive_status, discount: discount ).sum(:quantity).to_i
+					quantity_used = BazaarCore::OrderOfferDiscount.where( order: order_user.orders.positive_status, discount: discount ).sum(:quantity).to_i
 
 					quantity_remaining = discount.maximum_units_per_customer
 					quantity_remaining = quantity_remaining - quantity_used
@@ -105,8 +105,8 @@ module BazaarCore
 					order_offers.each do |order_offer|
 						keep = true
 
-						if ( subscription = order_offer.subscription ).is_a?( Bazaar::Subscription )
-							this_discount_order_items = Bazaar::OrderItem.discount.joins(:order).merge( subscription.orders.not_declined.where.not( id: order.id ) ).where( item: discount_item.discount )
+						if ( subscription = order_offer.subscription ).is_a?( BazaarCore::Subscription )
+							this_discount_order_items = BazaarCore::OrderItem.discount.joins(:order).merge( subscription.orders.not_declined.where.not( id: order.id ) ).where( item: discount_item.discount )
 
 							keep = false if discount_item.minimum_orders.to_i > 0 || discount_item.maximum_orders.to_i > 1
 							keep = keep || (this_discount_order_items.count >= discount_item.minimum_orders) if discount_item.minimum_orders.to_i > 0
@@ -129,11 +129,11 @@ module BazaarCore
 					end
 				end
 
-				if discount_item.applies_to.is_a?( Bazaar::Collection )
+				if discount_item.applies_to.is_a?( BazaarCore::Collection )
 
 					offers = []
 					discount_item.applies_to.items.each do |item|
-						if item.is_a? Bazaar::Offer
+						if item.is_a? BazaarCore::Offer
 							offers << item
 						elsif item.respond_to? :offer
 							offers << item.offer
@@ -145,7 +145,7 @@ module BazaarCore
 
 					order_offer_discounts = order_offer_discounts.select{ |order_offer_discount| offers.include?( order_offer_discount.offer ) }
 
-				elsif discount_item.applies_to.is_a? Bazaar::Offer
+				elsif discount_item.applies_to.is_a? BazaarCore::Offer
 
 					order_offer_discounts = order_offer_discounts.select{ |order_offer_discount| order_offer_discount.offer == discount_item.applies_to }
 
@@ -183,12 +183,12 @@ module BazaarCore
 		end
 
 		def calculate_order_discounts( order, args = {} )
-			Bazaar::PromotionDiscount.active.in_progress.each do |discount|
+			BazaarCore::PromotionDiscount.active.in_progress.each do |discount|
 				order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title )
 			end
 
-			Bazaar::Discount.pluck('distinct type').collect(&:constantize) if Rails.env.development?
-			discount = Bazaar::CouponDiscount.active.in_progress.where( 'lower(code) = ?', args[:code].downcase.strip ).first if args[:code].present?
+			BazaarCore::Discount.pluck('distinct type').collect(&:constantize) if Rails.env.development?
+			discount = BazaarCore::CouponDiscount.active.in_progress.where( 'lower(code) = ?', args[:code].downcase.strip ).first if args[:code].present?
 			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 		end
 
