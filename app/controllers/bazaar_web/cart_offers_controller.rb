@@ -9,7 +9,7 @@ module BazaarWeb
 		end
 
 		def create
-			@offer = Bazaar::Offer.active.find( params[:offer_id] ) if params[:offer_id]
+			@offer = BazaarCore::Offer.active.find( params[:offer_id] ) if params[:offer_id]
 			@offer ||= params[:item_type].constantize.find_by( id: params[:item_id] ).offer if params[:item_type]
 
 			if @cart.nil?

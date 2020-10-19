@@ -1,8 +1,8 @@
 
 module BazaarWeb
 	class CheckoutController < ApplicationController
-		include Bazaar::Concerns::CheckoutConcern
-		include Bazaar::Concerns::EcomConcern
+		include BazaarCore::Concerns::CheckoutConcern
+		include BazaarCore::Concerns::EcomConcern
 		layout 'bazaar_web/application'
 
 		helper_method :get_billing_countries
@@ -132,7 +132,7 @@ module BazaarWeb
 					@cart.update( order_id: @order.id, status: 'success' )
 
 					# transfer declined transactions from cart to order
-					# Bazaar::Transaction.where( parent_obj: @cart ).each do |transaction|
+					# BazaarCore::Transaction.where( parent_obj: @cart ).each do |transaction|
 					# 	transaction.update( parent_obj: @order )
 					# end
 				rescue Exception => e

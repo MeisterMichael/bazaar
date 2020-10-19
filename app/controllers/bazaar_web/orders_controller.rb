@@ -31,7 +31,7 @@ module BazaarWeb
 
 			@first_purchase_event = @order.properties['purchase_event_fired_at'].blank? || params[:force_purchase_event].present?
 
-			if @first_purchase_event && @order.is_a?( Bazaar::CheckoutOrder ) && not( @order.subscription_renewal? )
+			if @first_purchase_event && @order.is_a?( BazaarCore::CheckoutOrder ) && not( @order.subscription_renewal? )
 				add_page_event_data(
 					email: @order.email,
 					ecommerce: {

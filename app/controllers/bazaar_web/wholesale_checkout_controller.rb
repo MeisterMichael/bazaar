@@ -1,8 +1,8 @@
 
 module BazaarWeb
 	class WholesaleCheckoutController < ApplicationController
-		include Bazaar::Concerns::CheckoutConcern
-		include Bazaar::Concerns::EcomConcern
+		include BazaarCore::Concerns::CheckoutConcern
+		include BazaarCore::Concerns::EcomConcern
 		layout 'bazaar_web/application'
 
 		helper_method :get_billing_countries
@@ -197,7 +197,7 @@ module BazaarWeb
 			@order = BazaarCore.wholesale_order_class_name.constantize.new( order_attributes )
 			@order.email = @order.user.email if @order.email.blank?
 
-			@wholesale_profile = Bazaar::WholesaleProfile.find( current_user.wholesale_profile_id )
+			@wholesale_profile = BazaarCore::WholesaleProfile.find( current_user.wholesale_profile_id )
 
 			@order.order_offers.each do |order_offer|
 

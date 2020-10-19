@@ -1,7 +1,7 @@
 
 module BazaarWeb
 	class GeoStatesController < ApplicationController
-		include Bazaar::Concerns::EcomConcern
+		include BazaarCore::Concerns::EcomConcern
 
 		def index
 			@address_attribute = params[:address_attribute] || params[:addressAttribute] || params['address-attribute']

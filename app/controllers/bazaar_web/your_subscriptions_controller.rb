@@ -24,7 +24,7 @@ module BazaarWeb
 
 		def index
 			set_page_meta( title: "My Subscriptions" )
-			@subscriptions = Bazaar::Subscription.where( user: current_user ).order( next_charged_at: :desc ).page(params[:page]).per(5)
+			@subscriptions = BazaarCore::Subscription.where( user: current_user ).order( next_charged_at: :desc ).page(params[:page]).per(5)
 		end
 
 		def show
@@ -141,7 +141,7 @@ module BazaarWeb
 				return false
 			end
 
-			@discount = Bazaar::Discount.active.in_progress.find_by( code: params[:code].downcase.strip ) if params[:code].present?
+			@discount = BazaarCore::Discount.active.in_progress.find_by( code: params[:code].downcase.strip ) if params[:code].present?
 
 			if @discount.present? && @subscription.update( discount: @discount )
 
@@ -158,7 +158,7 @@ module BazaarWeb
 		private
 
 		def get_subscription
-			@subscription = Bazaar::Subscription.where( user: current_user ).find_by( code: params[:id] )
+			@subscription = BazaarCore::Subscription.where( user: current_user ).find_by( code: params[:id] )
 			raise ActionController::RoutingError.new( 'Not Found' ) unless @subscription.present?
 		end
 

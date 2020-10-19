@@ -1,5 +1,5 @@
 class BazaarMediaController < ApplicationController
-	include Bazaar::Concerns::MediaControllerConcern
+	include BazaarCore::Concerns::MediaControllerConcern
 
 	def index
 		@medias = BazaarMedia.published.order( title: :asc, created_at: :asc )
