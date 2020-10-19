@@ -6,7 +6,7 @@ require "bazaar_admin/version"
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = "bazaar"
-  s.version     = Bazaar::VERSION
+  s.version     = BazaarAdmin::VERSION
   s.authors     = ["Gk Parish-Philp", "Michael Ferguson"]
   s.email       = ["gk@groundswellenterprises.com"]
   s.homepage    = "http://www.groundswellenterprises.com"
