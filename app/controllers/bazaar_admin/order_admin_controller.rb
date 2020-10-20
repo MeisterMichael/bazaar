@@ -178,7 +178,7 @@ module BazaarAdmin
 		end
 
 		def thank_you
-			@order = Order.find_by( code: params[:id] )
+			@order = BazaarCore::Order.find_by( code: params[:id] )
 
 			render 'bazaar_admin/orders/thank_you'
 		end
@@ -273,7 +273,7 @@ module BazaarAdmin
 			end
 
 			def get_order
-				@order = Order.find_by( id: params[:id] )
+				@order = BazaarCore::Order.find_by( id: params[:id] )
 			end
 
 			def initialize_fraud_service

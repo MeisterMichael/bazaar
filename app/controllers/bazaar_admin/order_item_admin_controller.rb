@@ -136,7 +136,7 @@ module BazaarAdmin
 			end
 
 			def get_order
-				@order = Order.find_by( id: params[:order_id] )
+				@order = BazaarCore::Order.find_by( id: params[:order_id] )
 			end
 
 			def order_item_params
