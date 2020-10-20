@@ -3,7 +3,7 @@ module BazaarWeb
 		layout 'bazaar_web/application'
 
 		def thank_you
-			@order = Order.find_by( code: params[:id] )
+			@order = BazaarCore::Order.find_by( code: params[:id] )
 
 
 			begin
