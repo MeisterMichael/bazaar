@@ -12,7 +12,7 @@
 						#{@order.email}
 			= form_for @order.try(args[:attribute]), url: address_order_admin_path( @order, attribute: args[:attribute] ), method: :POST, html: {} do |f|
 				.modal-body
-					= render 'bazaar_admin/geo_address/form', f: f, countries: countries, states: states, id: "order_admin_modal_#{args[:attribute]}", address_attribute: args[:attribute].to_sym
+					= render 'bazaar_core/geo_address/form', f: f, countries: countries, states: states, id: "order_admin_modal_#{args[:attribute]}", address_attribute: args[:attribute].to_sym
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close
