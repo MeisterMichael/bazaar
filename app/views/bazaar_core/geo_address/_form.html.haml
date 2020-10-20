@@ -1,0 +1,55 @@
+.form-group
+	%label
+		%span First Name
+	= f.text_field :first_name, class: 'form-control', required: true
+	.help-block.with-errors
+
+.form-group
+	%label
+		%span Last Name
+	= f.text_field :last_name, class: 'form-control', required: true
+	.help-block.with-errors
+
+%span.geo-address-country-state-group{ data: { address_attribute: address_attribute } }
+	.form-group
+		%label
+			%span Country
+		= render 'bazaar_web/geo_address/country_input', f: f, countries: countries, args: {}
+		.help-block.with-errors
+
+
+	.form-group
+		%label
+			%span State
+		= render 'bazaar_web/geo_address/state_input', f: f, states: states, args: {}
+		.help-block.with-errors
+.form-group
+	%label
+		%span Address Line 1
+	= f.text_field :street, class: 'form-control', required: true
+	.help-block.with-errors
+
+.form-group
+	%label
+		%span Address Line 2
+		%small (optional)
+	= f.text_field :street2, class: 'form-control'
+	.help-block.with-errors
+
+.form-group
+	%label
+		%span City
+	= f.text_field :city, class: 'form-control', required: true
+	.help-block.with-errors
+
+.form-group
+	%label
+		%span Zip
+	= f.text_field :zip, class: 'form-control', "data-stripe" => "address_zip", required: true
+	.help-block.with-errors
+
+.form-group
+	%label
+		%span Phone Number
+	= f.telephone_field :phone, class: 'form-control telephone_formatted', required: true, placeholder: '+1'
+	.help-block.with-errors
