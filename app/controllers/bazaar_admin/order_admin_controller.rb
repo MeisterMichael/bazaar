@@ -112,7 +112,7 @@ module BazaarAdmin
 			refund_amount = ( params[:amount].to_f * 100 ).round
 
 			# check that refund amount doesn't exceed charges?
-			# amount_net = Transaction.approved.positive.where( parent: @order ).sum(:amount) - Transaction.approved.negative.where( parent: @order ).sum(:amount)
+			# amount_net = BazaarCore::Transaction.approved.positive.where( parent: @order ).sum(:amount) - BazaarCore::Transaction.approved.negative.where( parent: @order ).sum(:amount)
 
 			@order_service = BazaarCore.checkout_order_service_class.constantize.new
 
@@ -163,11 +163,11 @@ module BazaarAdmin
 
 			authorize( @order )
 
-			@transactions = Transaction.where( parent_obj: @order )
+			@transactions = BazaarCore::Transaction.where( parent_obj: @order )
 
 			@transaction_history = @transactions.to_a
-			@transaction_history = @transaction_history + Transaction.where( parent_obj: @order.cart ) if @order.cart
-			@transaction_history = @transaction_history + Transaction.where( parent_obj: @order.user, created_at: 1.week.ago..@order.created_at ) if @order.user
+			@transaction_history = @transaction_history + BazaarCore::Transaction.where( parent_obj: @order.cart ) if @order.cart
+			@transaction_history = @transaction_history + BazaarCore::Transaction.where( parent_obj: @order.user, created_at: 1.week.ago..@order.created_at ) if @order.user
 			@transaction_history = @transaction_history.sort_by(&:created_at).reverse
 
 			@shipments = @order.shipments.order( created_at: :desc )
@@ -186,7 +186,7 @@ module BazaarAdmin
 		def timeline
 			authorize( @order )
 
-			@transactions = Transaction.where( parent_obj: @order )
+			@transactions = BazaarCore::Transaction.where( parent_obj: @order )
 
 			@events = Bunyan::Event.where( target_obj: @order )
 			@events = @events.or( Bunyan::Event.where.not( user_id: nil ).where( user_id: @order.user_id, created_at: Time.at(0)..(@order.created_at + 10.minutes) ) )
