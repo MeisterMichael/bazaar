@@ -17,14 +17,14 @@
 		.form-group
 			%label
 				%span Country
-			= render 'bazaar_web/geo_address/country_input', f: billing_user_address_form, countries: get_billing_countries, args: {}
+			= render 'bazaar_core/geo_address/country_input', f: billing_user_address_form, countries: get_billing_countries, args: {}
 			.help-block.with-errors
 
 
 		.form-group
 			%label
 				%span State
-			= render 'bazaar_web/geo_address/state_input', f: billing_user_address_form, states: get_billing_states( @subscription.billing_user_address.geo_country_id ), args: {}
+			= render 'bazaar_core/geo_address/state_input', f: billing_user_address_form, states: get_billing_states( @subscription.billing_user_address.geo_country_id ), args: {}
 			.help-block.with-errors
 	.form-group
 		%label

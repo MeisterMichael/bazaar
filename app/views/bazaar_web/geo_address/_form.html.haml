@@ -14,14 +14,14 @@
 	.form-group
 		%label
 			%span Country
-		= render 'bazaar_web/geo_address/country_input', f: f, countries: countries, args: {}
+		= render 'bazaar_core/geo_address/country_input', f: f, countries: countries, args: {}
 		.help-block.with-errors
 
 
 	.form-group
 		%label
 			%span State
-		= render 'bazaar_web/geo_address/state_input', f: f, states: states, args: {}
+		= render 'bazaar_core/geo_address/state_input', f: f, states: states, args: {}
 		.help-block.with-errors
 .form-group
 	%label
