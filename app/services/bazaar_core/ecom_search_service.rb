@@ -129,7 +129,7 @@ module BazaarCore
 		end
 
 		def sku_search( term, filters = {}, options = {} )
-			skus = Sku.all
+			skus = BazaarCore::Sku.all
 
 			if term.present?
 				skus = skus.where( "code ILIKE :q OR name ILIKE :q OR description ILIKE :q", q: "%#{term.gsub('%','\\\\%')}%".downcase )
@@ -139,7 +139,7 @@ module BazaarCore
 		end
 
 		def subscription_search( term, filters = {}, options = {} )
-			subscriptions = Subscription.all
+			subscriptions = BazaarCore::Subscription.all
 
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%".downcase

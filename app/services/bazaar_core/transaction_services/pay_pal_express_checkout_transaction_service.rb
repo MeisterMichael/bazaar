@@ -157,7 +157,7 @@ module BazaarCore
 				# assumes :amount, and :charge_transaction
 				charge_transaction	= args.delete( :charge_transaction )
 				parent_obj					= args.delete( :order ) || args.delete( :parent )
-				charge_transaction	||= Transaction.where( parent_obj: parent_obj ).charge.approved.first if parent_obj.present?
+				charge_transaction	||= BazaarCore::Transaction.where( parent_obj: parent_obj ).charge.approved.first if parent_obj.present?
 				parent_obj					= charge_transaction.parent_obj
 
 				raise Exception.new('unable to find transaction') if charge_transaction.nil?

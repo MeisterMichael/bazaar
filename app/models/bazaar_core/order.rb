@@ -113,7 +113,7 @@ module BazaarCore
   				token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
 				token = "#{BazaarCore.order_code_prefix}#{token}"if BazaarCore.order_code_prefix.present?
 				token = "#{token}#{BazaarCore.order_code_postfix}"if BazaarCore.order_code_postfix.present?
-  				break token unless Order.exists?( code: token )
+  				break token unless BazaarCore::Order.exists?( code: token )
 			end
 		end
 

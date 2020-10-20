@@ -47,7 +47,7 @@ module BazaarCore
 
 						order.save
 
-						Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: charge.id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved' )
+						BazaarCore::Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: charge.id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved' )
 
 						return true
 					end
@@ -58,7 +58,7 @@ module BazaarCore
 
 					puts e
 					order.errors.add(:base, :processing_error, message: "cannot be nil")
-					# Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'declined' )
+					# BazaarCore::Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'declined' )
 
 				rescue Stripe::InvalidRequestError => e
 

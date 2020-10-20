@@ -122,10 +122,10 @@ module BazaarCore
 			self.price
 		end
 
-		# e.g. Product.record_search( category_name: 'Shirts', text: 'live amrap' )
-		# e.g. Product.record_search( category_id: 1, text: 'live amrap' )
-		# e.g. Product.record_search( text: 'live amrap' )
-		# e.g. Product.record_search( 'live amrap' )
+		# e.g. BazaarCore::Product.record_search( category_name: 'Shirts', text: 'live amrap' )
+		# e.g. BazaarCore::Product.record_search( category_id: 1, text: 'live amrap' )
+		# e.g. BazaarCore::Product.record_search( text: 'live amrap' )
+		# e.g. BazaarCore::Product.record_search( 'live amrap' )
 		def self.record_search( options = {} )
 			options = { text: options } if options.is_a? String
 			page = options.delete(:page)

@@ -77,7 +77,7 @@ module BazaarCore
 				token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
 				token = "#{BazaarCore.shipment_code_prefix}#{token}"if BazaarCore.shipment_code_prefix.present?
 				token = "#{token}#{BazaarCore.shipment_code_postfix}"if BazaarCore.shipment_code_postfix.present?
-				break token unless Shipment.exists?( code: token )
+				break token unless BazaarCore::Shipment.exists?( code: token )
 			end
 		end
 

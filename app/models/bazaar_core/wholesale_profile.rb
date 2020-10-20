@@ -18,7 +18,7 @@ module BazaarCore
 
 			quantity = options.delete(:quantity) || 0
 
-			WholesaleItem.unscoped.joins(:offer).where( wholesale_profile: self ).where( options ).where( '? >= bazaar_offers.min_quantity', quantity ).order( 'bazaar_offers.min_quantity desc' ).first.try(:price)
+			BazaarCore::WholesaleItem.unscoped.joins(:offer).where( wholesale_profile: self ).where( options ).where( '? >= bazaar_offers.min_quantity', quantity ).order( 'bazaar_offers.min_quantity desc' ).first.try(:price)
 		end
 
 		def items

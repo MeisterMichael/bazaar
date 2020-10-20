@@ -14,7 +14,7 @@ module BazaarCore
 		}
 
 		def get_usd_currency_rate( currency )
-			rate = Currency.where( code: currency ).last.try(:usd_conversion_rate)
+			rate = BazaarCore::Currency.where( code: currency ).last.try(:usd_conversion_rate)
 			rate ||= MARKETPLACE_CURRENCIES_CONVERSION_RATE[currency]
 
 			rate
