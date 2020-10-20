@@ -13,7 +13,7 @@ module BazaarWeb
 			@offer ||= params[:item_type].constantize.find_by( id: params[:item_id] ).offer if params[:item_type]
 
 			if @cart.nil?
-				@cart = Cart.create( ip: client_ip )
+				@cart = BazaarCore::Cart.create( ip: client_ip )
 				session[:cart_id] = @cart.id
 			end
 

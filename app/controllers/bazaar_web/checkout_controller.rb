@@ -257,7 +257,7 @@ module BazaarWeb
 		protected
 
 		def get_cart
-			@cart ||= Cart.find_by( id: session[:cart_id] )
+			@cart ||= BazaarCore::Cart.find_by( id: session[:cart_id] )
 		end
 
 		def get_order_attributes

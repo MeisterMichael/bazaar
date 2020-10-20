@@ -6,7 +6,7 @@ module BazaarWeb
 		before_action :get_cart
 
 		def show
-			@cart ||= Cart.new( ip: client_ip )
+			@cart ||= BazaarCore::Cart.new( ip: client_ip )
 
 			set_page_meta(
 				{
@@ -52,12 +52,12 @@ module BazaarWeb
 				redirect_back fallback_location: '/cart'
 			end
 
-			
+
 		end
 
 		private
 			def get_cart
-				@cart = Cart.find_by( id: session[:cart_id] )
+				@cart = BazaarCore::Cart.find_by( id: session[:cart_id] )
 			end
 
 	end
