@@ -12,7 +12,7 @@
 		.col-xs-4.text-right
 			ORDER # #{order.code}
 			%div
-				%a{ href: bazaar.your_order_path( order.code ) } Order Details
+				%a{ href: bazaar_web.your_order_path( order.code ) } Order Details
 	%div{ style: 'padding: 20px;margin: 10px -20px -20px -20px;background: #fff;' }
 		- order.order_offers.each do |order_offer|
 			= render 'bazaar_web/your_orders/order_offer', order_offer: order_offer, args: {}

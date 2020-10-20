@@ -1,21 +1,21 @@
 .container
 	.row
 		.col-xs-12.col-md-10
-			%a{ href: bazaar.your_account_index_path() } My Account
+			%a{ href: bazaar_web.your_account_index_path() } My Account
 			>
-			%a{ href: bazaar.your_subscriptions_path() } My Subscriptions
+			%a{ href: bazaar_web.your_subscriptions_path() } My Subscriptions
 			> Subscription Details
 			%h2 Subscription Details
 			%p
 				- if @subscription.active?
 					.pull-right
-						%a.btn.btn-danger{ href: bazaar.your_subscription_path( @subscription.code ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
+						%a.btn.btn-danger{ href: bazaar_web.your_subscription_path( @subscription.code ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
 							Cancel Subscription
-						%a.btn.btn-default{ href: bazaar.your_subscription_path( @subscription.code, subscription: { status: 'on_hold' } ) , data: { method: :put, confirm: 'Are you sure?' } }
+						%a.btn.btn-default{ href: bazaar_web.your_subscription_path( @subscription.code, subscription: { status: 'on_hold' } ) , data: { method: :put, confirm: 'Are you sure?' } }
 							Hold Subscription
 				- else
 					.pull-right
-						%a.btn.btn-default{ href: bazaar.your_subscription_path( @subscription.code, subscription: { status: 'active' } ) , data: { method: :put, confirm: 'Are you sure?' } }
+						%a.btn.btn-default{ href: bazaar_web.your_subscription_path( @subscription.code, subscription: { status: 'active' } ) , data: { method: :put, confirm: 'Are you sure?' } }
 							Resume Subscription
 				Subscribed on #{current_user.to_local_tz(@subscription.created_at).to_s( :basic_short )}
 				%span.horizontal-separator="|"

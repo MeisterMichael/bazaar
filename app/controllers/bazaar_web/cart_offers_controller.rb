@@ -58,9 +58,9 @@ module BazaarWeb
 				format.html {
 					if params[:buy_now]
 						if ( funnel = params[:funnel].to_s.gsub(/[^a-zA-Z0-9\-]/,'') ).present?
-							redirect_to bazaar.checkout_index_path( buy_now: 1, funnel: funnel )
+							redirect_to bazaar_web.checkout_index_path( buy_now: 1, funnel: funnel )
 						else
-							redirect_to bazaar.checkout_index_path( buy_now: 1 )
+							redirect_to bazaar_web.checkout_index_path( buy_now: 1 )
 						end
 					else
 						redirect_to '/cart'

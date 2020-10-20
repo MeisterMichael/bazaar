@@ -6,7 +6,7 @@
 					%h1.text-center
 						Nothing in Your Cart
 			- else
-				= form_tag bazaar.cart_path( @cart ), method: :patch do
+				= form_tag bazaar_web.cart_path( @cart ), method: :patch do
 					.table-responsive
 						%table.table.table-light.table-bordered
 							%thead
@@ -33,7 +33,7 @@
 											= text_field_tag :quantity, line_item.quantity, class: 'form-control'
 										%td.col-xs-2
 											= number_to_currency( line_item.subtotal / 100.to_f )
-											%a{ href: bazaar.cart_offer_path( line_item ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
+											%a{ href: bazaar_web.cart_offer_path( line_item ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
 												%i.fa.fa-trash
 												Remove
 
@@ -61,6 +61,6 @@
 									%span.grandTotal
 										$32.99
 					.checkBtnArea
-						%a.btn.btn-primary.btn-block{ href: bazaar.new_checkout_path, style: 'color:#fff;' }
+						%a.btn.btn-primary.btn-block{ href: bazaar_web.new_checkout_path, style: 'color:#fff;' }
 							Checkout
 							%i.fa.fa-arrow-circle-right

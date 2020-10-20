@@ -2,7 +2,7 @@
 .container
 	.row
 
-		= form_for @order, as: :order, url: bazaar.wholesale_checkout_index_path(), method: 'POST', html: { class: 'disable_submit_after_submit'} do |f|
+		= form_for @order, as: :order, url: bazaar_web.wholesale_checkout_index_path(), method: 'POST', html: { class: 'disable_submit_after_submit'} do |f|
 
 			= hidden_field_tag :from, 'confirm'
 

@@ -2,7 +2,7 @@
 .container
 	.row
 
-		= form_for @order, as: :order, url: bazaar.checkout_index_path(), method: 'POST', html: { class: 'disable_submit_after_submit'} do |f|
+		= form_for @order, as: :order, url: bazaar_web.checkout_index_path(), method: 'POST', html: { class: 'disable_submit_after_submit'} do |f|
 
 			- @order.order_offers.each do |order_offer|
 				= hidden_field_tag 'order[order_offers][][code]', order_offer.offer.code

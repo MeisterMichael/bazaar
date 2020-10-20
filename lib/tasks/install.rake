@@ -19,7 +19,7 @@ namespace :bazaar do
 		end
 
 		files = {
-			'bazaar.rb' => 'config/initializers',
+			'bazaar_web.rb' => 'config/initializers',
 		}
 
 		files.each do |source_file_path,destination_path|

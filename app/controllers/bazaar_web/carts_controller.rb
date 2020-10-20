@@ -47,7 +47,7 @@ module BazaarWeb
 			log_event( name: 'update_cart', value: @cart.subtotal, on: @cart, content: "updated cart quantities" )
 
 			if params[:checkout]
-				redirect_to bazaar.checkout_index_path( buy_now: 1 )
+				redirect_to bazaar_web.checkout_index_path( buy_now: 1 )
 			else
 				redirect_back fallback_location: '/cart'
 			end

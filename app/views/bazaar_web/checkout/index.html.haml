@@ -1,6 +1,6 @@
 
 .container
-	= form_for @order, as: :order, url: bazaar.confirm_checkout_index_path(), method: 'POST', as: :order, html: { class: 'stripe_form validate_form checkout_form' } do |f|
+	= form_for @order, as: :order, url: bazaar_web.confirm_checkout_index_path(), method: 'POST', as: :order, html: { class: 'stripe_form validate_form checkout_form' } do |f|
 		= render 'form', f: f, args: {}
 
 
