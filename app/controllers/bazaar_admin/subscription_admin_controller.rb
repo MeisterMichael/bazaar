@@ -181,7 +181,7 @@ module BazaarAdmin
 
 		def update
 			authorize( @subscription )
-			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first
+			@subscription = BazaarCore::Subscription.where( id: params[:id] ).includes( :user ).first
 			@subscription.attributes = subscription_params
 			@subscription.amount = @subscription.price * @subscription.quantity
 
@@ -204,7 +204,7 @@ module BazaarAdmin
 
 		def update_offer
 			authorize( @subscription )
-			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first
+			@subscription = BazaarCore::Subscription.where( id: params[:id] ).includes( :user ).first
 			@subscription.attributes = params.require( :subscription ).permit( :offer_id )
 			@subscription.price = @subscription.offer.price_for_interval( @subscription.next_subscription_interval )
 			@subscription.amount = @subscription.price * @subscription.quantity
@@ -231,7 +231,7 @@ module BazaarAdmin
 			end
 
 			def get_subscription
-				@subscription = Subscription.find_by( id: params[:id] )
+				@subscription = BazaarCore::Subscription.find_by( id: params[:id] )
 			end
 
 			def init_search_service

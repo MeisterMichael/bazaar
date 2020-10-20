@@ -139,7 +139,7 @@ module BazaarAdmin
 		end
 
 		def subscription_search( term, filters = {}, options = {} )
-			subscriptions = Subscription.all
+			subscriptions = BazaarCore::Subscription.all
 
 			if term.present?
 				query = "%#{term.gsub('%','\\\\%')}%".downcase
