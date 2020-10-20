@@ -19,7 +19,7 @@ module BazaarAdmin
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@carts = Cart.order( "#{sort_by} #{sort_dir}" )
+			@carts = BazaarCore::Cart.order( "#{sort_by} #{sort_dir}" )
 
 			if params[:status].present? && params[:status] != 'all'
 				@carts = eval "@carts.#{params[:status]}"
@@ -44,7 +44,7 @@ module BazaarAdmin
 			end
 
 			def get_cart
-				@cart = Cart.find_by( id: params[:id] )
+				@cart = BazaarCore::Cart.find_by( id: params[:id] )
 			end
 
 	end

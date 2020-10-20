@@ -6,7 +6,7 @@ module BazaarAdmin
 		def create
 			authorize( BazaarCore::WholesaleItem )
 
-			@wholesale_item = WholesaleItem.create( wholesale_item_params )
+			@wholesale_item = BazaarCore::WholesaleItem.create( wholesale_item_params )
 
 			if @wholesale_item.save
 
@@ -45,7 +45,7 @@ module BazaarAdmin
 			end
 
 			def get_wholesale_item
-				@wholesale_item = WholesaleItem.find_by( id: params[:id] )
+				@wholesale_item = BazaarCore::WholesaleItem.find_by( id: params[:id] )
 			end
 
 	end

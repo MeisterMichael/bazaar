@@ -8,7 +8,7 @@ module BazaarAdmin
 		def create
 			authorize( BazaarCore::Discount )
 
-			@discount = Discount.new( discount_params )
+			@discount = BazaarCore::Discount.new( discount_params )
 			@discount.status = 'draft'
 			@discount.start_at = Time.now
 			@discount.discount_items.new( discount_amount: 0 )
@@ -78,7 +78,7 @@ module BazaarAdmin
 			end
 
 			def get_discount
-				@discount = Discount.find( params[:id] )
+				@discount = BazaarCore::Discount.find( params[:id] )
 			end
 
 			def init_search_service

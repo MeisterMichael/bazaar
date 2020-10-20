@@ -6,7 +6,7 @@ module BazaarAdmin
 		def create
 			authorize( BazaarCore::WholesaleProfile )
 
-			@wholesale_profile = WholesaleProfile.create( wholesale_profile_params )
+			@wholesale_profile = BazaarCore::WholesaleProfile.create( wholesale_profile_params )
 
 			if @wholesale_profile.save
 
@@ -37,7 +37,7 @@ module BazaarAdmin
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@wholesale_profiles = WholesaleProfile.order( "#{sort_by} #{sort_dir}" )
+			@wholesale_profiles = BazaarCore::WholesaleProfile.order( "#{sort_by} #{sort_dir}" )
 
 			if params[:status].present? && params[:status] != 'all'
 				@wholesale_profiles = eval "@wholesale_profiles.#{params[:status]}"
@@ -82,7 +82,7 @@ module BazaarAdmin
 			end
 
 			def get_wholesale_profile
-				@wholesale_profile = WholesaleProfile.find_by( id: params[:id] )
+				@wholesale_profile = BazaarCore::WholesaleProfile.find_by( id: params[:id] )
 			end
 
 	end

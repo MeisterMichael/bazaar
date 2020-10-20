@@ -5,7 +5,7 @@ module BazaarAdmin
 		def create
 			authorize( BazaarCore::CollectionItem )
 
-			@collection_item = CollectionItem.new( model_params )
+			@collection_item = BazaarCore::CollectionItem.new( model_params )
 
 			if @collection_item.save
 				set_flash 'Collection Item Created'
@@ -32,7 +32,7 @@ module BazaarAdmin
 			end
 
 			def get_model
-				@collection_item = CollectionItem.find( params[:id] )
+				@collection_item = BazaarCore::CollectionItem.find( params[:id] )
 			end
 
 	end

@@ -5,7 +5,7 @@ module BazaarAdmin
 		def create
 			authorize( BazaarCore::Collection )
 
-			@collection = Collection.new( model_params )
+			@collection = BazaarCore::Collection.new( model_params )
 
 			if @collection.save
 				set_flash 'Collection Created'
@@ -35,7 +35,7 @@ module BazaarAdmin
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@collections = Collection.where.not( status: 'archived' )
+			@collections = BazaarCore::Collection.where.not( status: 'archived' )
 			@collections = @collections.order( sort_by => sort_dir )
 			@collections = @collections.page( params[:page] ).per( params[:per] )
 
@@ -65,7 +65,7 @@ module BazaarAdmin
 			end
 
 			def get_model
-				@collection = Collection.find( params[:id] )
+				@collection = BazaarCore::Collection.find( params[:id] )
 			end
 
 	end

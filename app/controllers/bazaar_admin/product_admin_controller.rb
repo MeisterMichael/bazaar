@@ -19,7 +19,7 @@ module BazaarAdmin
 		def create
 			authorize( BazaarCore::Product )
 
-			@product = Product.new( product_params )
+			@product = BazaarCore::Product.new( product_params )
 			@product.publish_at ||= Time.zone.now
 			@product.status = 'draft'
 
@@ -49,7 +49,7 @@ module BazaarAdmin
 
 			@product_category = @product.product_category
 
-			@related_products = Product.none
+			@related_products = BazaarCore::Product.none
 
 			@related_products = @product_category.products.published.where.not( id: @product.id ).limit(6) if @product_category.present?
 
@@ -80,7 +80,7 @@ module BazaarAdmin
 			@product.avatar_urls = params[:product][:avatar_urls] if params[:product].present? && params[:product][:avatar_urls].present?
 
 			if params[:product][:category_name].present?
-				@product.category_id = ProductCategory.where( name: params[:product][:category_name] ).first_or_create( status: 'active' ).id
+				@product.category_id = BazaarCore::ProductCategory.where( name: params[:product][:category_name] ).first_or_create( status: 'active' ).id
 			end
 
 			if @product.save
@@ -98,7 +98,7 @@ module BazaarAdmin
 			end
 
 			def get_product
-				@product = Product.friendly.find( params[:id] )
+				@product = BazaarCore::Product.friendly.find( params[:id] )
 			end
 
 			def init_search_service

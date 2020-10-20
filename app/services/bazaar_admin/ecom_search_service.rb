@@ -129,7 +129,7 @@ module BazaarAdmin
 		end
 
 		def sku_search( term, filters = {}, options = {} )
-			skus = Sku.all
+			skus = BazaarCore::Sku.all
 
 			if term.present?
 				skus = skus.where( "code ILIKE :q OR name ILIKE :q OR description ILIKE :q", q: "%#{term.gsub('%','\\\\%')}%".downcase )
