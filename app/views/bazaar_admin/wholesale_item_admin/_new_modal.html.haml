@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add Wholesale Offer
-			= form_for BazaarCore::WholesaleItem.new( wholesale_profile: @wholesale_profile ), url: bazaar.wholesale_item_admin_index_path do |f|
+			= form_for BazaarCore::WholesaleItem.new( wholesale_profile: @wholesale_profile ), url: bazaar_admin.wholesale_item_admin_index_path do |f|
 				.modal-body
 					= f.hidden_field :wholesale_profile_id
 					.form-group

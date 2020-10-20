@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add State
-			= form_for @warehouse.warehouse_states.new, url: bazaar.warehouse_state_admin_index_path do |f|
+			= form_for @warehouse.warehouse_states.new, url: bazaar_admin.warehouse_state_admin_index_path do |f|
 				= f.hidden_field :warehouse_id
 				.modal-body
 					.form-group

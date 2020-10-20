@@ -18,7 +18,7 @@
 		.col-xs-2
 
 
-	= form_for @warehouse_sku, url: bazaar.warehouse_sku_admin_path( @warehouse_sku ) do |f|
+	= form_for @warehouse_sku, url: bazaar_admin.warehouse_sku_admin_path( @warehouse_sku ) do |f|
 		= hidden_field_tag :redirect_to, @redirect_to
 
 		.form-group

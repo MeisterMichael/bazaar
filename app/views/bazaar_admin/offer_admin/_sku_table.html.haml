@@ -20,7 +20,7 @@
 					to
 					= offer_sku.end_interval
 			%td
-				%a{ href: bazaar.edit_sku_admin_path( offer_sku.sku ) }
+				%a{ href: bazaar_admin.edit_sku_admin_path( offer_sku.sku ) }
 					= offer_sku.sku.to_s
 				x #{offer_sku.quantity}
 			%td.text-right

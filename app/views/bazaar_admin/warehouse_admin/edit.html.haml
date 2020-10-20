@@ -15,7 +15,7 @@
 		.col-xs-2
 
 
-	= form_for @warehouse, url: bazaar.warehouse_admin_path( @warehouse ) do |f|
+	= form_for @warehouse, url: bazaar_admin.warehouse_admin_path( @warehouse ) do |f|
 		.row
 			.col-xs-8
 				.well.white-well
@@ -38,7 +38,7 @@
 									%td=shipment.shipment_skus.includes(:sku).collect{|shipment_sku| "#{shipment_sku.sku.code}x#{shipment_sku.quantity}" }.join(',')
 									%td=raw shipment.destination_user_address.try(:to_html)
 									%td
-										%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) } Edit
+										%a{ href: bazaar_admin.edit_shipment_admin_path( shipment.id ) } Edit
 					= raw paginate @shipments
 
 				.well.white-well
@@ -68,9 +68,9 @@
 									%td=warehouse_sku.quantity
 									%td=warehouse_sku.status
 									%td.text-right
-										%a.btn.btn-default{ href: bazaar.edit_warehouse_sku_admin_path( warehouse_sku ) }
+										%a.btn.btn-default{ href: bazaar_admin.edit_warehouse_sku_admin_path( warehouse_sku ) }
 											%i.fa.fa-edit
-										%a.btn.btn-danger{ href: bazaar.warehouse_sku_admin_path( warehouse_sku ), data: { method: :delete, confirm: 'Are you sure?' } }
+										%a.btn.btn-danger{ href: bazaar_admin.warehouse_sku_admin_path( warehouse_sku ), data: { method: :delete, confirm: 'Are you sure?' } }
 											%i.fa.fa-trash
 				.well.white-well
 					.pull-right
@@ -95,7 +95,7 @@
 								%tr
 									%td=warehouse_country.geo_country.name
 									%td.text-right
-										%a.btn.btn-danger{ href: bazaar.warehouse_country_admin_path( warehouse_country ), data: { method: :delete, confirm: 'Are you sure?' } }
+										%a.btn.btn-danger{ href: bazaar_admin.warehouse_country_admin_path( warehouse_country ), data: { method: :delete, confirm: 'Are you sure?' } }
 											%i.fa.fa-trash
 
 				.well.white-well
@@ -123,7 +123,7 @@
 										=warehouse_state.geo_state.name
 										(#{warehouse_state.geo_state.geo_country.name})
 									%td.text-right
-										%a.btn.btn-danger{ href: bazaar.warehouse_state_admin_path( warehouse_state ), data: { method: :delete, confirm: 'Are you sure?' } }
+										%a.btn.btn-danger{ href: bazaar_admin.warehouse_state_admin_path( warehouse_state ), data: { method: :delete, confirm: 'Are you sure?' } }
 											%i.fa.fa-trash
 
 

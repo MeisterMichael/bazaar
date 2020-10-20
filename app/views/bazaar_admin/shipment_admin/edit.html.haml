@@ -71,14 +71,14 @@
 
 				.form-group.text-right
 					- if @shipment.rejected?
-						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'pending' } ), data: { method: 'PUT' } }
+						%a.btn.btn-primary{ href: bazaar_admin.shipment_admin_path( @shipment.id, shipment: { status: 'pending' } ), data: { method: 'PUT' } }
 							Approve
 					- elsif @shipment.canceled?
 						%a.btn.btn-primary{ href: '#', data: { toggle: :modal, target: '#copy_modal' } } Copy
 					- elsif @shipment.not_shipped?
-						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'canceled' } ), data: { method: 'PUT' } }
+						%a.btn.btn-primary{ href: bazaar_admin.shipment_admin_path( @shipment.id, shipment: { status: 'canceled' } ), data: { method: 'PUT' } }
 							Cancel
-						%a.btn.btn-primary{ href: bazaar.shipment_admin_path( @shipment.id, shipment: { status: 'rejected' } ), data: { method: 'PUT' } }
+						%a.btn.btn-primary{ href: bazaar_admin.shipment_admin_path( @shipment.id, shipment: { status: 'rejected' } ), data: { method: 'PUT' } }
 							Reject
 
 				%div.text-right

@@ -13,14 +13,14 @@
 		%tr
 			%td
 				- if upsell_offer.offer
-					%a{ href: bazaar.edit_offer_admin_path( upsell_offer.offer.id ) }
+					%a{ href: bazaar_admin.edit_offer_admin_path( upsell_offer.offer.id ) }
 						= upsell_offer.offer.title
 					( #{ upsell_offer.offer.initial_price_formatted } )
 				- else
 					\-
 			%td
 				- if upsell_offer.full_price_offer
-					%a{ href: bazaar.edit_offer_admin_path( upsell_offer.full_price_offer.id ) }
+					%a{ href: bazaar_admin.edit_offer_admin_path( upsell_offer.full_price_offer.id ) }
 						= upsell_offer.full_price_offer.title
 					( #{ upsell_offer.full_price_offer.initial_price_formatted } )
 				- else

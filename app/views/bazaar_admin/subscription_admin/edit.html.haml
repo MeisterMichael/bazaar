@@ -11,14 +11,14 @@
 
 			.pull-right
 				- if defined?(Bunyan)
-					%a.btn.btn-default{ href: bazaar.timeline_subscription_admin_path( @subscription ) }
+					%a.btn.btn-default{ href: bazaar_admin.timeline_subscription_admin_path( @subscription ) }
 						View Timeline
 
 			%h2
 				%strong= @subscription.code
 				%small= @subscription.created_at.to_s( :short )
 			Plan:
-			%a{ href: bazaar.edit_offer_admin_path( @subscription.offer ) }= @subscription.offer.title
+			%a{ href: bazaar_admin.edit_offer_admin_path( @subscription.offer ) }= @subscription.offer.title
 			(
 			%a{ href: '#', data: { toggle: :modal, target: '#edit_subscription_offer_modal' } } Edit
 			)
@@ -233,7 +233,7 @@
 				%hr
 
 				.pull-right
-					%a{ href: bazaar.edit_shipping_carrier_service_subscription_admin_path( @subscription ) } Edit
+					%a{ href: bazaar_admin.edit_shipping_carrier_service_subscription_admin_path( @subscription ) } Edit
 				%h5 Shipping Method
 				- if @subscription.shipping_carrier_service.present?
 					%div= @subscription.shipping_carrier_service.shipping_option.try(:name) || @subscription.shipping_carrier_service.name

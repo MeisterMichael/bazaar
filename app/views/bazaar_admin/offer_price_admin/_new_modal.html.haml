@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add Sku to #{parent_obj.title}
-			= form_for BazaarCore::OfferPrice.new( parent_obj: parent_obj, price_as_money: args[:price_as_money] ), url: bazaar.offer_price_admin_index_path do |f|
+			= form_for BazaarCore::OfferPrice.new( parent_obj: parent_obj, price_as_money: args[:price_as_money] ), url: bazaar_admin.offer_price_admin_index_path do |f|
 				- if args[:replace_mode]
 					= hidden_field_tag :replace, args[:replace_mode]
 				= f.hidden_field :parent_obj_type

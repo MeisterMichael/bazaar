@@ -15,7 +15,7 @@
 		.col-xs-2
 
 
-	= form_for @shipment, url: bazaar.shipment_admin_path( @shipment ) do |f|
+	= form_for @shipment, url: bazaar_admin.shipment_admin_path( @shipment ) do |f|
 		.row
 			.col-xs-8
 				= render 'bazaar_admin/shipment_admin/details'
@@ -37,7 +37,7 @@
 									%td=shipment_sku.sku.code
 									%td=shipment_sku.quantity
 									%td.text-right
-										%a{ href: bazaar.shipment_sku_admin_path( shipment_sku.id ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
+										%a{ href: bazaar_admin.shipment_sku_admin_path( shipment_sku.id ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?' } }
 											%i.fa.fa-trash
 											Remove
 					%br

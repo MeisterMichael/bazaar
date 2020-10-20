@@ -4,7 +4,7 @@
 			%h1
 				New Transaction
 				%small=@transaction.parent_obj.to_s
-	= form_for @transaction, url: bazaar.transaction_admin_index_path(@transaction), as: :transaction, html: { class: 'form' } do |f|
+	= form_for @transaction, url: bazaar_admin.transaction_admin_index_path(@transaction), as: :transaction, html: { class: 'form' } do |f|
 		= hidden_field_tag :success_redirect_path, params[:success_redirect_path]
 		= hidden_field_tag :failure_redirect_path, params[:failure_redirect_path]
 		= f.hidden_field :parent_obj_type

@@ -15,7 +15,7 @@ module BazaarAdmin
 				set_flash @shipping_option.errors.full_messages, :danger
 			end
 
-			redirect_back fallback_location: bazaar.edit_shipping_option_admin_path( @shipping_option )
+			redirect_back fallback_location: bazaar_admin.edit_shipping_option_admin_path( @shipping_option )
 
 		end
 
@@ -47,7 +47,7 @@ module BazaarAdmin
 				set_flash @shipping_option.errors.full_messages, :danger
 			end
 
-			redirect_back fallback_location: bazaar.edit_shipping_option_admin_path( @shipping_option )
+			redirect_back fallback_location: bazaar_admin.edit_shipping_option_admin_path( @shipping_option )
 
 		end
 

@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Sku
-			= form_for BazaarCore::Sku.new(), url: bazaar.sku_admin_index_path do |f|
+			= form_for BazaarCore::Sku.new(), url: bazaar_admin.sku_admin_index_path do |f|
 				.modal-body
 					.form-group
 						= f.label :code

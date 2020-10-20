@@ -7,7 +7,7 @@
 			%h2 Orders
 		.col-xs-2
 			-# if authorized?(BazaarCore::Order, controller: BazaarAdmin::OrderAdminController, action: :create )
-				%a.btn.btn-success{ href: bazaar.new_order_admin_path() }
+				%a.btn.btn-success{ href: bazaar_admin.new_order_admin_path() }
 					%i.fa.fa-plus-square
 					New
 	.row{ style: 'margin-top: 0' }

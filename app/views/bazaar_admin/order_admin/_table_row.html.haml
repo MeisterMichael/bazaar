@@ -1,11 +1,11 @@
 %tr
 	%td
-		= link_to order.code, bazaar.order_admin_path( order.id )
+		= link_to order.code, bazaar_admin.order_admin_path( order.id )
 	%td
 		= order.created_at.to_s( :short )
 	- if args[:customer] != false
 		%td
-			%a{ href: bazaar.order_admin_path( order.id ) }
+			%a{ href: bazaar_admin.order_admin_path( order.id ) }
 				- if order.user.present? && order.user.full_name.try(:strip).present?
 					= order.user.full_name
 				- elsif order.billing_user_address.try(:full_name).try(:strip).present?
@@ -39,13 +39,13 @@
 					%ul.dropdown-menu
 						- if authorized?(order, controller: BazaarAdmin::OrderAdminController, action: :edit )
 							%li
-								%a{ href: bazaar.order_admin_path( order.id ) }
+								%a{ href: bazaar_admin.order_admin_path( order.id ) }
 									%i.fa.fa-pencil
 									Edit
 							%li.divider
 
 						- if authorized?(order, controller: BazaarAdmin::OrderAdminController, action: :destroy )
 							%li
-								%a{ href: bazaar.order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
+								%a{ href: bazaar_admin.order_admin_path( order ), data: { method: 'delete', confirm: 'Are you sure?' } }
 									%i.fa.fa-trash-o
 									Delete!

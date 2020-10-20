@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Calculate Shipment
-			= form_for BazaarCore::Shipment.new( warehouse_id: @shipment.warehouse_id, status: 'draft' ), url: bazaar.shipment_admin_index_path() do |f|
+			= form_for BazaarCore::Shipment.new( warehouse_id: @shipment.warehouse_id, status: 'draft' ), url: bazaar_admin.shipment_admin_index_path() do |f|
 				= hidden_field_tag :shipment_id, @shipment.id
 				= f.hidden_field :status
 				= f.hidden_field :shipping_carrier_service_id, value: nil

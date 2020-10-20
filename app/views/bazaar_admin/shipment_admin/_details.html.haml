@@ -18,14 +18,14 @@
 					.form-group.col-12.col-md-6
 						%label Order
 						%div
-							%a{ href: bazaar.order_admin_path( @shipment.order.id ) }
+							%a{ href: bazaar_admin.order_admin_path( @shipment.order.id ) }
 								= @shipment.order.code
 
 				- if @shipment.warehouse
 					.form-group.col-12.col-md-6
 						%label Warehouse
 						%div
-							%a{ href: bazaar.edit_warehouse_admin_path( @shipment.warehouse.id ) }
+							%a{ href: bazaar_admin.edit_warehouse_admin_path( @shipment.warehouse.id ) }
 								=@shipment.warehouse.name
 
 		.well.white-well

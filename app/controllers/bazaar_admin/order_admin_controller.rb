@@ -140,7 +140,7 @@ module BazaarAdmin
 
 			end
 
-			redirect_to bazaar.order_admin_path( @order )
+			redirect_to bazaar_admin.order_admin_path( @order )
 		end
 
 		def reject

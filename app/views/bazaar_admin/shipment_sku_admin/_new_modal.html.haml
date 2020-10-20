@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Shipment Sku
-			= form_for BazaarCore::ShipmentSku.new( shipment: shipment ), url: bazaar.shipment_sku_admin_index_path do |f|
+			= form_for BazaarCore::ShipmentSku.new( shipment: shipment ), url: bazaar_admin.shipment_sku_admin_index_path do |f|
 				= f.hidden_field :shipment_id
 				.modal-body
 					.form-group

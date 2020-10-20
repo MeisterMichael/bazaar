@@ -1,5 +1,5 @@
 = f.fields_for :order_items, order_item do |order_item_form|
-  %tr{ id: "order_item_#{order_item.id}_edit_row", data: { url: bazaar.order_item_admin_path( order_item ), update: 'order_item', on: 'change' } }
+  %tr{ id: "order_item_#{order_item.id}_edit_row", data: { url: bazaar_admin.order_item_admin_path( order_item ), update: 'order_item', on: 'change' } }
     %td
       - if ( subscription = order_item.subscription ).present? || ( subscription = order_item.item ).is_a?( BazaarCore::Subscription )
         - if authorized?(subscription, controller: BazaarAdmin::SubscriptionAdminController, action: :edit )
@@ -12,7 +12,7 @@
       - else
         = order_item.title
 
-      %a{ href: bazaar.order_item_admin_path( order_item ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?', remote: true } }
+      %a{ href: bazaar_admin.order_item_admin_path( order_item ), style: 'color: #f00;' , data: { method: :delete, confirm: 'Are you sure?', remote: true } }
         %i.fa.fa-trash
 
     %td

@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Collection
-			= form_for BazaarCore::Collection.new, url: bazaar.collection_admin_index_path, as: :collection do |f|
+			= form_for BazaarCore::Collection.new, url: bazaar_admin.collection_admin_index_path, as: :collection do |f|
 				.modal-body
 					.form-group
 						= f.label :title

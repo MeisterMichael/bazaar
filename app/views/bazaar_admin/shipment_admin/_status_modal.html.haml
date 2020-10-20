@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Shipment Status
-			= form_for @shipment, url: bazaar.shipment_admin_path( @shipment ) do |f|
+			= form_for @shipment, url: bazaar_admin.shipment_admin_path( @shipment ) do |f|
 				.modal-body
 					.form-group
 						= f.label :status

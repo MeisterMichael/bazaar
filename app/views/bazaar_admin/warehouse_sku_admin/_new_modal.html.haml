@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Add Country
-			= form_for @warehouse.warehouse_skus.new( quantity: 0, status: 'active' ), url: bazaar.warehouse_sku_admin_index_path do |f|
+			= form_for @warehouse.warehouse_skus.new( quantity: 0, status: 'active' ), url: bazaar_admin.warehouse_sku_admin_index_path do |f|
 				= f.hidden_field :warehouse_id
 				.modal-body
 					.form-group

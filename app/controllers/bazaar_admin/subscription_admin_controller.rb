@@ -77,7 +77,7 @@ module BazaarAdmin
 			else
 				@subscription.update( next_charged_at: 15.minutes.from_now ) # start the first charge now!
 
-				redirect_to bazaar.edit_subscription_admin_path( @subscription )
+				redirect_to bazaar_admin.edit_subscription_admin_path( @subscription )
 			end
 
 		end

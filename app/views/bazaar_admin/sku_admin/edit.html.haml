@@ -15,7 +15,7 @@
 		.col-xs-2
 
 
-	= form_for @sku, url: bazaar.sku_admin_path( @sku ) do |f|
+	= form_for @sku, url: bazaar_admin.sku_admin_path( @sku ) do |f|
 		.row
 			.col-xs-8
 				.well.white-well
@@ -66,7 +66,7 @@
 									%td=warehouse_sku.status
 									%td=warehouse_sku.priority
 									%td.text-right
-										%a.btn.btn-default{ href: bazaar.edit_warehouse_sku_admin_path( warehouse_sku ) }
+										%a.btn.btn-default{ href: bazaar_admin.edit_warehouse_sku_admin_path( warehouse_sku ) }
 											%i.fa.fa-edit
 
 
@@ -113,7 +113,7 @@
 								%tr
 									%td=sku_country.geo_country.name
 									%td.text-right
-										%a.btn.btn-danger{ href: bazaar.sku_country_admin_path( sku_country ), data: { method: :delete, confirm: 'Are you sure?' } }
+										%a.btn.btn-danger{ href: bazaar_admin.sku_country_admin_path( sku_country ), data: { method: :delete, confirm: 'Are you sure?' } }
 											%i.fa.fa-trash
 
 

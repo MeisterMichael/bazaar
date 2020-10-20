@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Upsell Offer
-			= form_for BazaarCore::UpsellOffer.new( args ), url: bazaar.upsell_offer_admin_index_path do |f|
+			= form_for BazaarCore::UpsellOffer.new( args ), url: bazaar_admin.upsell_offer_admin_index_path do |f|
 				= f.hidden_field :src_offer_id
 				= f.hidden_field :src_product_id
 				= f.hidden_field :status, value: 'active'

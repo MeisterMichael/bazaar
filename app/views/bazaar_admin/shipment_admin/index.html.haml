@@ -12,7 +12,7 @@
 		.col-xs-3.text-right
 			- if authorized?(BazaarCore::Shipment, controller: BazaarAdmin::ShipmentAdminController, action: :create )
 				- if (params[:features] || '').include?( 'new_modal' )
-					%a.btn.btn-success{ href: bazaar.new_shipment_admin_path() }
+					%a.btn.btn-success{ href: bazaar_admin.new_shipment_admin_path() }
 						%i.fa.fa-plus-square
 						New
 				- if (params[:features] || '').include?( 'batch_modal' )
@@ -65,18 +65,18 @@
 					- @shipments.each do |shipment|
 						%tr
 							%td
-								%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
+								%a{ href: bazaar_admin.edit_shipment_admin_path( shipment.id ) }
 									= shipment.code
 							%td
 								= shipment.created_at.to_s( :short )
 							%td
-								%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
+								%a{ href: bazaar_admin.edit_shipment_admin_path( shipment.id ) }
 									- if shipment.destination_user_address
 										= shipment.destination_user_address.full_name
 									- else
 										N/A
 							%td
-								%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
+								%a{ href: bazaar_admin.edit_shipment_admin_path( shipment.id ) }
 									- if shipment.destination_user_address
 										-# = shipment.destination_user_address.street
 										-# = shipment.destination_user_address.street2
@@ -100,7 +100,7 @@
 										%b.caret
 									%ul.dropdown-menu
 										%li
-											%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
+											%a{ href: bazaar_admin.edit_shipment_admin_path( shipment.id ) }
 												%i.fa.fa-pencil
 												Edit
 										-# %li.divider

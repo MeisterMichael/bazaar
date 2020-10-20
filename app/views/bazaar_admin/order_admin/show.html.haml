@@ -20,7 +20,7 @@
 							Reject
 
 					- if defined?(Bunyan)
-						%a.btn.btn-default{ href: bazaar.timeline_order_admin_path( @order ) }
+						%a.btn.btn-default{ href: bazaar_admin.timeline_order_admin_path( @order ) }
 							View Timeline
 
 
@@ -96,7 +96,7 @@
 								- @order.order_items.discount.each do |order_item|
 									- if order_item.item.code.present?
 										%div
-											%a{ href: bazaar.edit_discount_admin_path( order_item.item ) }=order_item.item.code
+											%a{ href: bazaar_admin.edit_discount_admin_path( order_item.item ) }=order_item.item.code
 
 							%td.text-right
 								%strong
@@ -222,7 +222,7 @@
 
 			.well.white-well
 				.pull-right
-					%a{ href: bazaar.shipment_admin_index_path( shipment: { user_id: @order.user_id, status: 'draft', email: @order.email, order_id: @order.id, destination_user_address_id: @order.shipping_user_address_id } ), data: { method: 'POST' } }
+					%a{ href: bazaar_admin.shipment_admin_index_path( shipment: { user_id: @order.user_id, status: 'draft', email: @order.email, order_id: @order.id, destination_user_address_id: @order.shipping_user_address_id } ), data: { method: 'POST' } }
 						New Shipment
 				%h4 Shipments
 				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
@@ -241,7 +241,7 @@
 						- @shipments.each do |shipment|
 							%tr
 								%td
-									%a{ href: bazaar.edit_shipment_admin_path( shipment.id ), style: 'display: block;font-weight: bold;' }
+									%a{ href: bazaar_admin.edit_shipment_admin_path( shipment.id ), style: 'display: block;font-weight: bold;' }
 										=shipment.code || 'N/A'
 									%small=current_user.to_local_tz(shipment.created_at).to_s( :short )
 								%td

@@ -3,7 +3,7 @@
 		.col-xs-12
 			%h1
 				New Shipment
-	= form_for @shipment, url: bazaar.shipment_admin_index_path(@shipment), as: :shipment, html: { class: 'form' } do |f|
+	= form_for @shipment, url: bazaar_admin.shipment_admin_index_path(@shipment), as: :shipment, html: { class: 'form' } do |f|
 		= f.hidden_field :order_id
 		= f.hidden_field :user_id
 		= f.hidden_field :email

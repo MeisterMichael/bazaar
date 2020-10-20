@@ -31,7 +31,7 @@ module BazaarAdmin
 				set_flash @shipping_carrier_service.errors.full_messages, :danger
 			end
 
-			redirect_back fallback_location: bazaar.edit_shipping_carrier_service_admin_path( @shipping_carrier_service )
+			redirect_back fallback_location: bazaar_admin.edit_shipping_carrier_service_admin_path( @shipping_carrier_service )
 
 		end
 

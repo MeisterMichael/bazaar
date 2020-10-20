@@ -19,7 +19,7 @@
 		.col-xs-12
 			= raw paginate @transactions
 
-	= form_tag bazaar.transaction_admin_index_path, method: :get, class: 'form-inline' do
+	= form_tag bazaar_admin.transaction_admin_index_path, method: :get, class: 'form-inline' do
 		.row
 			.col-xs-12
 				start:
@@ -56,7 +56,7 @@
 				= submit_tag 'Search', class: 'btn btn-primary'
 				= link_to 'Download CSV', { format: :csv, params: request.query_parameters }, class: 'btn btn-info'
 				&nbsp;&nbsp;
-				= link_to 'Clear', bazaar.transaction_admin_index_path, class: 'btn btn-default btn-xs'
+				= link_to 'Clear', bazaar_admin.transaction_admin_index_path, class: 'btn btn-default btn-xs'
 
 
 
@@ -67,23 +67,23 @@
 
 					%th
 						Provider
-						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'provider', sort_dir: 'asc' ) }
+						%a{ href: bazaar_admin.transaction_admin_index_path( sort_by: 'provider', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'provider', sort_dir: 'desc' ) }
+						%a{ href: bazaar_admin.transaction_admin_index_path( sort_by: 'provider', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 
 					%th
 						Reference
-						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'reference_code', sort_dir: 'asc' ) }
+						%a{ href: bazaar_admin.transaction_admin_index_path( sort_by: 'reference_code', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'reference_code', sort_dir: 'desc' ) }
+						%a{ href: bazaar_admin.transaction_admin_index_path( sort_by: 'reference_code', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 
 					%th
 						Amount
-						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'amount', sort_dir: 'asc' ) }
+						%a{ href: bazaar_admin.transaction_admin_index_path( sort_by: 'amount', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'amount', sort_dir: 'desc' ) }
+						%a{ href: bazaar_admin.transaction_admin_index_path( sort_by: 'amount', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 
 					%th
@@ -93,9 +93,9 @@
 
 					%th
 						Created
-						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
+						%a{ href: bazaar_admin.transaction_admin_index_path( sort_by: 'created_at', sort_dir: 'asc' ) }
 							%i.fa.fa-arrow-up
-						%a{ href: bazaar.transaction_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
+						%a{ href: bazaar_admin.transaction_admin_index_path( sort_by: 'created_at', sort_dir: 'desc' ) }
 							%i.fa.fa-arrow-down
 
 
@@ -126,7 +126,7 @@
 									= transaction.status
 							%td
 								- if transaction.parent_obj_type == 'BazaarCore::Order'
-									%a{ href: bazaar.order_admin_path( transaction.parent_obj_id ) }
+									%a{ href: bazaar_admin.order_admin_path( transaction.parent_obj_id ) }
 										= "Order #{transaction.parent_obj.code}"
 								- else
 									= "#{transaction.parent_obj_type}_#{transaction.parent_obj_id}"

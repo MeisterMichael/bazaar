@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					New Discount
-			= form_for BazaarCore::Discount.new, url: bazaar.discount_admin_index_path, as: :discount do |f|
+			= form_for BazaarCore::Discount.new, url: bazaar_admin.discount_admin_index_path, as: :discount do |f|
 				.modal-body
 					.form-group
 						= f.label :title

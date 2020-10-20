@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Update Offer
-			= form_for @subscription, url: bazaar.update_offer_subscription_admin_path( @subscription ) do |f|
+			= form_for @subscription, url: bazaar_admin.update_offer_subscription_admin_path( @subscription ) do |f|
 				.modal-body
 					.form-group.select2-form-group
 						= f.label :offer_id, 'Offer'

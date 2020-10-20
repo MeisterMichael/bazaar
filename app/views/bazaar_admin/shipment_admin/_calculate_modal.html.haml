@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Calculate Shipment
-			= form_for @shipment, url: bazaar.shipment_admin_path( @shipment ) do |f|
+			= form_for @shipment, url: bazaar_admin.shipment_admin_path( @shipment ) do |f|
 				= f.hidden_field :shipping_carrier_service_id, value: nil
 				= f.hidden_field :cost, value: nil
 				= f.hidden_field :carrier, value: nil

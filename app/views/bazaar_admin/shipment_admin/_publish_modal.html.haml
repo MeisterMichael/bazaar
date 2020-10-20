@@ -6,7 +6,7 @@
 					&times;
 				%h4.modal-title
 					Publish Shipment
-			= form_for @shipment, url: bazaar.shipment_admin_path( @shipment ) do |f|
+			= form_for @shipment, url: bazaar_admin.shipment_admin_path( @shipment ) do |f|
 				= f.hidden_field :status, value: 'pending'
 				.modal-body
 					.form-group
