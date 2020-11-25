@@ -27,7 +27,7 @@ module Bazaar
 			upsell_offers = upsell_offers.where( upsell_type: options[:upsell_type] ) if options[:upsell_type].present?
 
 			# limit upsell_offers to those from products/offers provided
-			upsell_offers = upsell_offers.where( src_product: products ).or( upsell_offers.where( src_offer: offers ) )
+			upsell_offers = upsell_offers.where( src_product: products, src_offer: nil ).or( upsell_offers.where( src_offer: offers ) )
 
 			offers = Bazaar::Offer.all
 
