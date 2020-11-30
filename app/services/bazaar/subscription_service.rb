@@ -210,16 +210,15 @@ module Bazaar
 			# process order
 			begin
 
-				if subscriptions.count == 1
-					transaction = @order_service.process( order, shipping: {
-						shipping_carrier_service_id: subscriptions.first.shipping_carrier_service_id,
-						fixed_price: subscriptions.first.shipping,
-					})
-				else
-					transaction = @order_service.process( order, shipping: {
-						shipping_carrier_service_id: subscriptions.collect(&:shipping_carrier_service_id).select(&:present?).first,
-					})
-				end
+				# if all subscriptions have fixed price shipping, then sum them up.
+				fixed_price_shipping = subscriptions.sum(&:shipping) unless subscriptions.select{|sub| sub.shipping.nil? }.present?
+
+				shipping_carrier_service_id = subscriptions.collect(&:shipping_carrier_service_id).select(&:present?).first
+
+				transaction = @order_service.process( order, shipping: {
+					shipping_carrier_service_id: shipping_carrier_service_id,
+					fixed_price: fixed_price_shipping,
+				})
 
 			rescue Exception => e
 
