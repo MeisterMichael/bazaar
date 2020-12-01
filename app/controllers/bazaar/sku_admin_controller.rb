@@ -76,7 +76,7 @@ module Bazaar
 		end
 
 		def sku_params
-			params.require(:sku).permit( :name, :description, :code, :status, :length, :width, :height, :shape, :weight, :sku_cost, :sku_value, :country_restriction_type, :state_restriction_type, :avatar_attachment )
+			params.require(:sku).permit( :name, :description, :code, :status, :length, :width, :height, :shape, :weight, :sku_cost, :sku_value, :country_restriction_type, :state_restriction_type, :avatar_attachment, :tags_csv )
 		end
 
 	end

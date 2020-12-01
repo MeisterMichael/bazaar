@@ -15,6 +15,8 @@ module Bazaar
 		has_many	:wholesale_items
 		has_many	:wholesale_profiles, through: :wholesale_items
 
+		acts_as_taggable_array_on :tags
+
 		has_one_attached :avatar_attachment
 
 		enum status: { 'trash' => -1, 'draft' => 0, 'active' => 100 }
@@ -23,6 +25,14 @@ module Bazaar
 		enum shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
 
 		money_attributes :sku_cost, :sku_value
+
+		def tags_csv
+			self.tags.join(',')
+		end
+
+		def tags_csv=(tags_csv)
+			self.tags = tags_csv.split(/,\s*/)
+		end
 
 		def to_s
 			if self.name.blank?
