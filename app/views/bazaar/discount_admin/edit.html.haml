@@ -60,6 +60,16 @@
 								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The maxium number of offer units that this discount can be applied to, on a per customer basis.  If the quantity they are purchasing is more than the remaining allotment available to them, the discount will be applied to only the quantity of items remaining (the most expensive first)' }
 								= f.number_field :maximum_units_per_customer, class: 'form-control', min: 1, step: 1
 
+							.form-group
+								= f.label :min_subscription_interval, "Minimum Qualifying Subscription Interval"
+								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The minimum interval that qualifies for this discount.' }
+								= f.number_field :min_subscription_interval, class: 'form-control', min: 1, step: 1
+
+							.form-group
+								= f.label :max_subscription_interval, "Maximum Qualifying Subscription Interval"
+								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The maximum interval that qualifies for this discount.' }
+								= f.number_field :max_subscription_interval, class: 'form-control', min: 1, step: 1
+
 							-# .form-group
 								= f.label :minimum_tax_subtotal, "Minimum Taxes"
 								= f.number_field :minimum_tax_subtotal_as_money, class: 'form-control', min: 0.00, step: 0.01

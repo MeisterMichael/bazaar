@@ -66,6 +66,8 @@ module Bazaar
 			discount_items = args[:discount_items] || discount.discount_items
 			amount = 0
 
+			return 0 if order.subscription_renewal? && discount.non_recurring_orders?
+
 			quantity_remaining = Float::INFINITY
 			if discount.maximum_units_per_customer.to_i > 0
 				order_user = order.user

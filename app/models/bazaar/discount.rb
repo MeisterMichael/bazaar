@@ -22,7 +22,7 @@ module Bazaar
 		validates :minimum_shipping_subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
 		validates :limit_per_customer, numericality: { greater_than_or_equal_to: 1 }, allow_blank: true
 		validates :limit_global, numericality: { greater_than_or_equal_to: 1 }, allow_blank: true
-		
+
 
 		def self.in_progress( args = {} )
 
@@ -72,6 +72,10 @@ module Bazaar
 			args[:now] ||= Time.now
 
 			( start_at.nil? || args[:now] > start_at ) && ( end_at.nil? || args[:now] < end_at )
+		end
+
+		def non_recurring_orders?
+			self.max_subscription_interval == 1 && self.min_subscription_interval == 1
 		end
 
 		def to_s
