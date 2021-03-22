@@ -57,13 +57,9 @@ module Bazaar
 				}
 				format.html {
 					if params[:buy_now]
-						if ( funnel = params[:funnel].to_s.gsub(/[^a-zA-Z0-9\-]/,'') ).present?
-							redirect_to bazaar.checkout_index_path( default_url_options.merge( buy_now: 1, funnel: funnel ) )
-						else
-							redirect_to bazaar.checkout_index_path( default_url_options.merge( buy_now: 1 ) )
-						end
+						redirect_to bazaar.checkout_index_path( checkout_options.merge( buy_now: 1 ) )
 					else
-						redirect_to bazaar.cart_path( default_url_options )
+						redirect_to bazaar.cart_path( checkout_options )
 					end
 				}
 			end
@@ -78,6 +74,18 @@ module Bazaar
 			log_event( { name:'remove_cart', on: @cart_offer.offer, content: "removed #{@cart_offer.offer} from their cart." } )
 
 			redirect_back fallback_location: '/admin'
+		end
+
+		protected
+		def checkout_options
+			options = default_url_options
+			options = options.merge( params[:checkout_options].try(:permit!) || {} )
+
+			if ( funnel = params[:funnel].to_s.gsub(/[^a-zA-Z0-9\-]/,'') ).present?
+				options[:funnel] = funnel
+			end
+
+			options
 		end
 	end
 end
