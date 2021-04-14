@@ -183,15 +183,15 @@
 					%hr
 
 					.form-group
-						= f.label :sku_cost
+						= f.label :sku_cost_as_money_string, "SKU Cost"
 						.input-group
 							%span.input-group-addon $
-							= f.number_field :sku_cost, class: 'form-control', step: 0.01
+							= f.number_field :sku_cost_as_money_string, class: 'form-control', step: 0.01
 					.form-group
-						= f.label :sku_value
+						= f.label :sku_value_as_money_string, 'SKU Value'
 						.input-group
 							%span.input-group-addon $
-							= f.number_field :sku_value, class: 'form-control', step: 0.01
+							= f.number_field :sku_value_as_money_string, class: 'form-control', step: 0.01
 
 					%hr
 
