@@ -24,7 +24,7 @@ module Bazaar
 
 		def destroy
 			authorize( @discount )
-			@discount.archive!
+			@discount.archived!
 			set_flash 'Discount archived'
 			redirect_to discount_discount_admin_index_path
 		end
