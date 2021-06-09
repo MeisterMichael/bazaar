@@ -209,8 +209,17 @@ module Bazaar
 			@upsell_offers = @upsell_service.find_at_checkout_offers_for_order( @order )
 			@first_upsell_offer = @upsell_offers.first
 
-			@order.subtotal = @order.order_offers.to_a.sum(&:subtotal)
-			@order.total = @order.subtotal
+
+			@order.shipping_user_address = UserAddress.new( geo_address: GeoAddress.new( geo_country: GeoCountry.new ) )
+			@order.billing_user_address = UserAddress.new( geo_address: GeoAddress.new( geo_country: GeoCountry.new ) )
+			@order.options = {
+				order: order_options,
+				transaction: transaction_options,
+				shipping: shipping_options,
+				discount: discount_options,
+			}
+
+			@order_service.calculate( @order, @order.options )
 
 			@cart.init_checkout!
 
