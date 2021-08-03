@@ -46,11 +46,19 @@ module Bazaar
 			end
 
 			def get_first_message_code( response )
-				response.messages.messages.collect(&:code).first
+				if response.respond_to?( :messages )
+					response.messages.messages.collect(&:code).first
+				else
+					response.class.name
+				end
 			end
 
 			def get_frist_message_text( response )
-				response.messages.messages.collect(&:text).first
+				if response.respond_to?( :messages )
+					response.messages.messages.collect(&:text).first
+				else
+					response.to_s
+				end
 			end
 
 			def get_response_success?( response )
