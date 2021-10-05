@@ -186,7 +186,9 @@ module Bazaar
 
 		def calculate_order_discounts( order, args = {} )
 			Bazaar::PromotionDiscount.active.in_progress.each do |discount|
-				order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title )
+				unless get_order_discount_errors( order, discount, args ).present?
+					order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title )
+				end
 			end
 
 			Bazaar::Discount.pluck('distinct type').collect(&:constantize) if Rails.env.development?
