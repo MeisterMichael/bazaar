@@ -37,6 +37,13 @@
 						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
 
 				.well.white-well
+					.form-group
+						%h4 Pricing
+					.form-group
+						= f.label :suggested_price_as_money_string, 'Suggested Price'
+						= f.number_field :suggested_price_as_money_string, class: 'form-control', min: 0.00, step: 0.01
+
+				.well.white-well
 					.pull-right
 						%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachment_modal' } } Add Gallery Image
 					.form-group
