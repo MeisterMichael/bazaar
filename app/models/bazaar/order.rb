@@ -4,6 +4,7 @@ module Bazaar
 
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include Bazaar::OrderSearchable if (Bazaar::OrderSearchable rescue nil)
+		include Bazaar::ApplicationOrderConcern if (Bazaar::ApplicationOrderConcern rescue nil)
 
 		enum status: { 'trash' => -99, 'rejected' => -5, 'failed' => -1, 'draft' => 0, 'pre_order' => 1, 'active' => 2, 'review' => 98, 'archived' => 99, 'hold_review' => 110 }
 		enum payment_status: { 'payment_failed' => -4, 'payment_canceled' => -3, 'declined' => -2, 'refunded' => -1, 'invoice' => 0, 'payment_method_captured' => 1, 'paid' => 2 }
