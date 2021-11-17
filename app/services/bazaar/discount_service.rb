@@ -215,6 +215,8 @@ module Bazaar
 
 		def calculate_order( order, discount_order_items, args = {} )
 
+			maximum_discount_amount = order.subtotal + order.tax + order.shipping
+
 			order.discount = 0
 
 			discount_order_items.each do |order_item|
@@ -229,7 +231,13 @@ module Bazaar
 
 			discount_order_items.each do |order_item|
 				discount_amount = calculate_discount_amount( order_item, order )
+
+				# if the discount amount is more than is avaible, truncate the amount
+				discount_amount = [maximum_discount_amount,discount_amount].min
+
 				order_item.subtotal = -discount_amount
+
+				maximum_discount_amount = maximum_discount_amount - discount_amount
 			end
 
 			order.discount = -discount_order_items.sum(&:subtotal)
