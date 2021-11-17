@@ -126,8 +126,7 @@ module Bazaar
 				transaction_type = 'charge'
 				result = true
 
-				# capture the payment method if first purchase... aka not renewal
-				if not( order.subscription_renewal? )
+				if require_capture_payment_method?( order, args )
 					transaction_type = 'preauth'
 					result = @transaction_service.capture_payment_method( order, args[:transaction] )
 					transaction_status = 'declined' unless result
@@ -321,6 +320,17 @@ module Bazaar
 					order_sku.quantity = order_sku.quantity + offer_sku.calculate_quantity( order_offer.quantity )
 				end
 			end
+		end
+
+		def require_capture_payment_method?( order, args = {} )
+			return true if order.total != 0
+
+			# capture the payment method if first purchase (aka not renewal)
+			# and has subscriptions.  If it doesn't have subscriptions, then no need
+			# to capture payment method for future use.
+			# @todo also skip capturing payment method if renewals are perpetually
+			# free?
+			not( order.subscription_renewal? ) && order.with_recurring_offers?
 		end
 
 		protected
