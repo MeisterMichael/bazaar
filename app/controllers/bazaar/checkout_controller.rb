@@ -3,6 +3,7 @@ module Bazaar
 	class CheckoutController < ApplicationController
 		include Bazaar::Concerns::CheckoutConcern
 		include Bazaar::Concerns::EcomConcern
+		include Bazaar::Concerns::ApplicationCheckoutConcern if (Bazaar::Concerns::ApplicationCheckoutConcern rescue nil)
 		layout 'bazaar/application'
 
 		helper_method :get_billing_countries
