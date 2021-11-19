@@ -1,9 +1,11 @@
 Bazaar::Engine.routes.draw do
 
 	resources :cart_admin
-	resources :carts, only: :update
 
 	get '/cart' => 'carts#show'
+	post '/cart' => 'carts#show'
+	patch '/cart' => 'carts#update'
+	resources :carts, only: :update
 
 	resources :cart_offers, :path => "cart_offers", except: [ :index, :new, :edit, :update, :show ] do
 		get :create, on: :collection

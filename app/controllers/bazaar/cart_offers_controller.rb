@@ -56,10 +56,10 @@ module Bazaar
 				format.json {
 				}
 				format.html {
-					if params[:buy_now]
+					if params[:buy_now].present? && not( params[:buy_now] == 'solo' && @cart.cart_offers.count > 1 )
 						redirect_to bazaar.checkout_index_path( checkout_options.merge( buy_now: 1 ) )
 					else
-						redirect_to bazaar.cart_path( checkout_options )
+						redirect_to bazaar.cart_path( checkout_options.merge( method: :get ) )
 					end
 				}
 			end

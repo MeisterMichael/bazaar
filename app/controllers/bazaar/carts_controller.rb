@@ -26,9 +26,12 @@ module Bazaar
 
 			log_event( on: @cart )
 
+			render 'show'
 		end
 
 		def update
+			return show() if params[:item_quantity].blank?
+
 			params[:item_quantity].each do |k, v|
 				cart_offer = @cart.cart_offers.find( k )
 				if v.to_i < 1
@@ -52,7 +55,7 @@ module Bazaar
 				redirect_back fallback_location: '/cart'
 			end
 
-			
+
 		end
 
 		private
