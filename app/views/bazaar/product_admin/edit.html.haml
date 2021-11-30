@@ -29,6 +29,10 @@
 						= f.text_field :title, class: 'form-control input-lg'
 
 					.form-group
+						= f.label :caption
+						= f.text_field :caption, class: 'form-control'
+
+					.form-group
 						= f.label :slug_pref, 'Slug'
 						= f.text_field :slug_pref, class: 'form-control', placeholder: @product.slug
 

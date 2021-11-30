@@ -90,7 +90,7 @@ module Bazaar
 
 		private
 			def product_params
-				params.require( :product ).permit( :title, :subtitle, :slug_pref, :category_id, :description, :content, :cart_description, :price, :price_as_money_string, :suggested_price, :suggested_price_as_money_string, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :publish_at, :tags, :tags_csv, :avatar, :avatar_attachment, :cover_image, :avatar_urls, :shopify_code, :size_info, :notes, :tax_code, :seq, :sku, :offer_id )
+				params.require( :product ).permit( :title, :subtitle, :caption, :slug_pref, :category_id, :description, :content, :cart_description, :price, :price_as_money_string, :suggested_price, :suggested_price_as_money_string, :status, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :publish_at, :tags, :tags_csv, :avatar, :avatar_attachment, :cover_image, :avatar_urls, :shopify_code, :size_info, :notes, :tax_code, :seq, :sku, :offer_id )
 			end
 
 			def get_product
