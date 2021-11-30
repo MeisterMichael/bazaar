@@ -323,7 +323,7 @@ module Bazaar
 		end
 
 		def require_capture_payment_method?( order, args = {} )
-			return true if order.total != 0
+			return true if order.total.to_i != 0
 
 			# capture the payment method if first purchase (aka not renewal)
 			# and has subscriptions.  If it doesn't have subscriptions, then no need
