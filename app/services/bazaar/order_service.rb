@@ -323,14 +323,30 @@ module Bazaar
 		end
 
 		def require_capture_payment_method?( order, args = {} )
-			return true if order.total.to_i != 0
+			# DO NOT require payment method capture if the order is a renewal, however
+			# DO require payment method capture if the order has a non-zero amount
+			# OR contains subscriptions that require a captured payment method
+			not( order.subscription_renewal? ) && ( order.total.to_i > 0 || has_renewals_that_require_capture_payment_method?( order, args ) )
+		end
 
-			# capture the payment method if first purchase (aka not renewal)
-			# and has subscriptions.  If it doesn't have subscriptions, then no need
-			# to capture payment method for future use.
-			# @todo also skip capturing payment method if renewals are perpetually
-			# free?
-			not( order.subscription_renewal? ) && order.with_recurring_offers?
+		def has_renewals_that_require_capture_payment_method?( order, args = {} )
+			# for now we assume that any order with recurring offers requires payment
+			# capture... until full solution can be implemented.
+			return order.with_recurring_offers?
+
+			# @todo determine if any subsiquent orders require payment capturing.
+			# shipping and other fees should be taken into account.
+
+			# # If any of the offers contain renewals with non-zero prices, then the
+			# # order would indeed require capture payment method
+			# non_zero_price_offers = []
+			# order.order_offers.to_a.select do |order_offer|
+			# 	offer = order_offer.offer
+			# 	if offer.offer_prices.active.where( 'price > 0' ).present?
+			# 		non_zero_price_offers << offer
+			# 	end
+			# end
+			# non_zero_price_offers.present?
 		end
 
 		protected
