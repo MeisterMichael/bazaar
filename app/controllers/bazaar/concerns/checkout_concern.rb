@@ -103,35 +103,35 @@ module Bazaar
 			end
 
 			def discount_options_params
-				(params.permit( :discount_options => [ :code ] )[:discount_options] || {}).to_h
+				(params.permit( :discount_options => (Bazaar.permit_discount_options || []) )[:discount_options] || {}).to_h
 			end
 
 			def order_options_params
-				(params.permit( :order_options => Bazaar.permit_order_options || [] )[:order_options] || {}).to_h
+				(params.permit( :order_options => (Bazaar.permit_order_options || []) )[:order_options] || {}).to_h
 			end
 
 			def shipping_options_params
-				(params.permit( :shipping_options => [ :rate_code, :rate_name, :shipping_carrier_service_id ] )[:shipping_options] || {}).to_h
+				(params.permit( :shipping_options => (Bazaar.permit_shipping_options || []) )[:shipping_options] || {}).to_h
 			end
 
 			def transaction_options_params
-				(params.permit( :transaction_options => [ :options, :service, :stripeToken, :credit_card => [ :card_number, :expiration, :card_code ], :pay_pal => [ :payment_id, :payer_id, :order_id, :payment_token ] ] )[:transaction_options] || {}).to_h
+				(params.permit( :transaction_options => (Bazaar.permit_transaction_options || []) )[:transaction_options] || {}).to_h
 			end
 
 			def discount_options
-				discount_options_params.merge({ ip: client_ip, ip_country: client_ip_country })
+				discount_options_params.merge({ ip: client_ip, ip_country: client_ip_country, current_user: current_user })
 			end
 
 			def order_options
-				order_options_params
+				order_options_params.merge({ current_user: current_user })
 			end
 
 			def shipping_options
-				shipping_options_params.merge({ ip: client_ip, ip_country: client_ip_country })
+				shipping_options_params.merge({ ip: client_ip, ip_country: client_ip_country, current_user: current_user })
 			end
 
 			def transaction_options
-				transaction_options_params.merge({ ip: client_ip, ip_country: client_ip_country })
+				transaction_options_params.merge({ ip: client_ip, ip_country: client_ip_country, current_user: current_user })
 			end
 
 		end

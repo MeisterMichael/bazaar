@@ -25,6 +25,9 @@ module Bazaar
 		mattr_accessor :fraud_service_config
 
 		mattr_accessor :permit_order_options
+		mattr_accessor :permit_discount_options
+		mattr_accessor :permit_transaction_options
+		mattr_accessor :permit_shipping_options
 
 		mattr_accessor :shipping_service_class
 		mattr_accessor :shipping_service_config
@@ -89,6 +92,9 @@ module Bazaar
 		self.fraud_service_config = {}
 
 		self.permit_order_options = [:tracking]
+		self.permit_discount_options = [:code]
+		self.permit_transaction_options = [ :options, :service, :stripeToken, :credit_card => [ :card_number, :expiration, :card_code ], :pay_pal => [ :payment_id, :payer_id, :order_id, :payment_token ] ]
+		self.permit_shipping_options = [ :rate_code, :rate_name, :shipping_carrier_service_id ]
 
 		self.shipping_service_class = "Bazaar::ShippingService"
 		self.shipping_service_config = {}
