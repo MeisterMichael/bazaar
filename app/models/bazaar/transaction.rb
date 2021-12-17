@@ -30,7 +30,7 @@ module Bazaar
 		end
 
 		def to_s
-			"#{slf.reference_code}: #{self.transaction_type} #{self.status} #{self.provider} #{self.amount.to_f / 100}"
+			"#{self.reference_code}: #{self.transaction_type} #{self.status} #{self.provider} #{self.amount.to_f / 100}"
 
 		end
 
