@@ -15,6 +15,8 @@ module Bazaar
 		helper_method :shipping_options
 
 		before_action :get_cart
+		before_action :calculate_update_cart_discount, only: [ :calculate ]
+		before_action :index_update_cart_discount, only: [ :index ]
 		before_action :validate_cart, only: [ :confirm, :create, :index, :calculate ]
 		before_action :initialize_services, only: [ :confirm, :create, :index, :calculate ]
 		before_action :get_user, only: [ :create ]
@@ -270,6 +272,23 @@ module Bazaar
 			@cart ||= Cart.find_by( id: session[:cart_id] )
 		end
 
+		def calculate_update_cart_discount
+
+			if @cart.respond_to?( :discount )
+				discount = nil
+
+				if ( discount_code = discount_options[:code].to_s ).present?
+					Bazaar::Discount.pluck('distinct type').collect(&:constantize) if Rails.env.development?
+					discount = Bazaar::CouponDiscount.active.in_progress.where( 'lower(code) = ?', discount_code.downcase ).first
+				end
+				@cart.update( discount: discount )
+			end
+		end
+
+		def index_update_cart_discount
+			calculate_update_cart_discount if discount_options[:code].present?
+		end
+
 		def get_order_attributes
 			attrs = super().merge( order_offers_attributes: [], user: @user )
 			attrs[:billing_user_address_attributes][:user] = @user
@@ -304,6 +323,10 @@ module Bazaar
 
 			@cart.cart_offers.each do |cart_offer|
 				@order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: cart_offer.quantity, title: cart_offer.offer.cart_title, tax_code: cart_offer.offer.tax_code )
+			end
+
+			if @cart.discount.present? && @cart.discount.active? && @cart.discount.in_progress?
+				@order.order_items.new( item: @cart.discount, order_item_type: 'discount', title: @cart.discount.title )
 			end
 
 		end

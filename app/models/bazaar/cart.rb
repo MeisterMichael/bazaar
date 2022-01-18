@@ -9,6 +9,7 @@ module Bazaar
 
 		belongs_to :order, required: false
 		belongs_to :user, required: false
+		belongs_to :discount, required: false
 
 		def to_s
 			"Cart \##{self.id}"

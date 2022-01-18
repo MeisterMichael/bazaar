@@ -190,10 +190,6 @@ module Bazaar
 					order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title )
 				end
 			end
-
-			Bazaar::Discount.pluck('distinct type').collect(&:constantize) if Rails.env.development?
-			discount = Bazaar::CouponDiscount.active.in_progress.where( 'lower(code) = ?', args[:code].downcase.strip ).first if args[:code].present?
-			order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title ) if discount.present?
 		end
 
 		def calculate_order_pre_tax( order, args = {} )
