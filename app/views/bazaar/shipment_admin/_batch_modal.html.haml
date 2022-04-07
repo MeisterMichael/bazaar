@@ -9,6 +9,9 @@
 			= form_tag batch_create_shipment_admin_index_path(), method: :post, multipart: true do |f|
 				.modal-body
 					.form-group
+						%label Batch Identifier
+						= text_field_tag :batch_id, "", class: 'form-control', placeholder: "Generate Automatically"
+					.form-group
 						= file_field_tag :file, class: 'form-element'
 					%a{ href: batch_template_shipment_admin_index_path( format: 'csv' ) } Template
 				.modal-footer
