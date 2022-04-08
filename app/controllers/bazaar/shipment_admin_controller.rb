@@ -87,6 +87,7 @@ module Bazaar
 				end
 
 				shipment = Bazaar::Shipment.new({
+					user: shipment_user,
 					dyanically_configured:		true,
 					# code: 										nil,
 					status:										'draft',
