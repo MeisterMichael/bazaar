@@ -48,6 +48,9 @@ module Bazaar
 					sku_i += 1
 				end
 
+				source_identifier	= shipment_row['EXTERNAL REFERENCE']
+				source_system			= shipment_row['EXTERNAL SOURCE']
+
 				state_field = shipment_row['REGION'] if shipment_row['REGION'].present?
 				state_field ||= shipment_row['STATE'] if shipment_row['STATE'].present?
 
@@ -89,6 +92,8 @@ module Bazaar
 				shipment = Bazaar::Shipment.new({
 					user: shipment_user,
 					dyanically_configured:		true,
+					source_identifier: 				source_identifier,
+					source_system: 						source_system,
 					# code: 										nil,
 					status:										'draft',
 					properties:								{
@@ -263,8 +268,12 @@ module Bazaar
 			@sort_by = params[:sort_by] || 'created_at'
 			@sort_dir = params[:sort_dir] || 'desc'
 
+			@source_systems = Bazaar::Shipment.order(source_system: :asc).pluck('distinct source_system')
+
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
+			filters[:source_system] = params[:source_system] if params[:source_system].present?
+			filters[:source_system] = nil if params[:source_system] == '-'
 
 			if ( @batch_id = filters[:batch_id] ).present?
 				@shipments = Bazaar::Shipment.all.where( "(properties::hstore -> 'BATCH_ID') = ?", @batch_id ).order( @sort_by => @sort_dir )

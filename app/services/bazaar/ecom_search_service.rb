@@ -122,7 +122,7 @@ module Bazaar
 				addresses = options[:addresses] || self.address_search( term )
 				users = options[:customers] || self.customer_search( term, {}, addresses: addresses )
 
-				shipments = shipments.where( "email ILIKE :q OR code ILIKE :q OR destination_address_id IN (:address_ids) OR user_id IN (:user_ids) OR order_id IN (:order_ids)", q: query, address_ids: addresses.select(:id), user_ids: users.select(:id), order_ids: orders.select(:id) )
+				shipments = shipments.where( "email ILIKE :q OR code ILIKE :q OR destination_address_id IN (:address_ids) OR user_id IN (:user_ids) OR order_id IN (:order_ids) OR source_identifier ILIKE :q OR source_system ILIKE :q", q: query, address_ids: addresses.select(:id), user_ids: users.select(:id), order_ids: orders.select(:id) )
 			end
 
 			return self.apply_options_and_filters( shipments, filters, options )

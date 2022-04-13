@@ -39,6 +39,8 @@
 				= link_to 'Clear', shipment_admin_index_path, class: 'btn btn-default'
 			= form_tag shipment_admin_index_path, method: :get, class: 'pull-right form-inline' do
 				= select_tag :status, options_from_collection_for_select( Bazaar::Shipment.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
+				- if @source_systems.count > 1
+					= select_tag :source_system, options_for_select(@source_systems.collect{|source_system| [(source_system || 'Internal'), (source_system || '-')] }, params[:source_system]), { prompt: "Source", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
 				= link_to 'Clear', shipment_admin_index_path, class: 'btn btn-default'
@@ -49,6 +51,8 @@
 				%thead
 					%th{ style: 'width: 9em' }
 						Code
+					%th{ style: 'width: 9em' }
+						Source Identifier
 					%th{ style: 'width: 10em' }
 						Created
 					%th{ style: 'width: 14em' }
@@ -67,6 +71,14 @@
 							%td
 								%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
 									= shipment.code
+							%td
+								- if shipment.source_identifier.present?
+									= shipment.source_identifier
+								- elsif shipment.order.present?
+									%a{ href: bazaar.order_admin_path( shipment.order.id ) }= shipment.order.code
+								- if shipment.source_system.present?
+									%br
+									%small{ style: 'font-weight: bold;' }= shipment.source_system
 							%td
 								= shipment.created_at.to_s( :short )
 							%td
