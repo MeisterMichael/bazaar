@@ -25,6 +25,14 @@
 						= f.text_field :fulfilled_by, class: 'form-control', readonly: true
 
 					.form-group
+						= f.label :source_system, 'Source System'
+						= f.text_field :source_system, class: 'form-control'
+
+					.form-group
+						= f.label :source_identifier, 'Source Identifier'
+						= f.text_field :source_identifier, class: 'form-control'
+
+					.form-group
 						= f.label :estimated_delivered_at
 						= f.text_field :estimated_delivered_at, value: current_user.to_local_tz( @shipment.estimated_delivered_at ), class: 'form-control datetimepicker'
 

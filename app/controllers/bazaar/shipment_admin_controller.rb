@@ -379,6 +379,8 @@ module Bazaar
 				:carrier,
 				:carrier_service_level,
 				:requested_service_level,
+				:source_system,
+				:source_identifier,
 				{
 					shipment_skus_attributes: [:sku_id,:quantity],
 					destination_user_address_attributes: [ :user_id, :phone, :zip, :geo_country_id, :geo_state_id, :state, :city, :street2, :street, :last_name, :first_name ],
