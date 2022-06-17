@@ -90,6 +90,7 @@ module Bazaar
 				end
 
 				shipment = Bazaar::Shipment.new({
+					email: shipment_email,
 					user: shipment_user,
 					dyanically_configured:		true,
 					source_identifier: 				source_identifier,
