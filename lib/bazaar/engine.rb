@@ -67,12 +67,15 @@ module Bazaar
 
 		mattr_accessor :order_code_prefix
 		mattr_accessor :order_code_postfix
+		mattr_accessor :order_code_generator_service_class
 
 		mattr_accessor :shipment_code_prefix
 		mattr_accessor :shipment_code_postfix
+		mattr_accessor :shipment_code_generator_service_class
 
 		mattr_accessor :subscription_code_prefix
 		mattr_accessor :subscription_code_postfix
+		mattr_accessor :subscription_code_generator_service_class
 
 		mattr_accessor :automated_fulfillment
 
@@ -143,6 +146,10 @@ module Bazaar
 
 		self.subscription_code_prefix = nil
 		self.subscription_code_postfix = nil
+
+		self.order_code_generator_service_class = nil
+		self.shipment_code_generator_service_class = nil
+		self.subscription_code_generator_service_class = nil
 
 		self.automated_fulfillment = false
 

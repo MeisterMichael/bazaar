@@ -111,10 +111,14 @@ module Bazaar
 
 		def generate_order_code
 			self.code = loop do
-  				token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
-				token = "#{Bazaar.order_code_prefix}#{token}"if Bazaar.order_code_prefix.present?
-				token = "#{token}#{Bazaar.order_code_postfix}"if Bazaar.order_code_postfix.present?
-  				break token unless Order.exists?( code: token )
+				if Bazaar.order_code_generator_service_class.present?
+					token = Bazaar.order_code_generator_service_class.constantize.generate_order_code( self )
+				else
+					token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
+					token = "#{Bazaar.order_code_prefix}#{token}"if Bazaar.order_code_prefix.present?
+					token = "#{token}#{Bazaar.order_code_postfix}"if Bazaar.order_code_postfix.present?
+				end
+				break token unless Order.exists?( code: token )
 			end
 		end
 

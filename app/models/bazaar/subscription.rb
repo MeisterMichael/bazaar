@@ -22,7 +22,7 @@ module Bazaar
 		has_many		:order_offers
 		has_many		:orders, through: :order_offers
 
-		before_create :generate_order_code
+		before_create :generate_subscription_code
 		before_create :initialize_timestamps
 		before_save :update_timestamps
 
@@ -145,12 +145,16 @@ module Bazaar
 
 		private
 
-		def generate_order_code
+		def generate_subscription_code
 			self.code = loop do
-  				token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
-				token = "#{Bazaar.subscription_code_prefix}#{token}"if Bazaar.order_code_prefix.present?
-				token = "#{token}#{Bazaar.subscription_code_postfix}"if Bazaar.order_code_postfix.present?
-  				break token unless Subscription.exists?( code: token )
+				if Bazaar.subscription_code_generator_service_class.present?
+					token = Bazaar.subscription_code_generator_service_class.constantize.generate_subscription_code( self )
+				else
+					token = SecureRandom.urlsafe_base64( 6 ).downcase.gsub(/_/,'-')
+					token = "#{Bazaar.subscription_code_prefix}#{token}"if Bazaar.subscription_code_prefix.present?
+					token = "#{token}#{Bazaar.subscription_code_postfix}"if Bazaar.subscription_code_postfix.present?
+				end
+				break token unless Subscription.exists?( code: token )
 			end
 		end
 
