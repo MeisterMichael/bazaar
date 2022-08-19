@@ -6,7 +6,7 @@ module Bazaar
 		belongs_to :src_offer, class_name: 'Bazaar::Offer', required: false
 		belongs_to :offer
 
-		enum upsell_type: { 'post_sale' => 1, 'at_checkout' => 2 } #, 'post_add_to_cart' => 3 }
+		enum upsell_type: { 'post_sale' => 1, 'at_checkout' => 2, 'exit_checkout' => 3 } #, 'post_add_to_cart' => 3 }
 		enum status: { 'trash' => -1, 'draft' => 0, 'active' => 1, 'archived' => 2 }
 
 		def product

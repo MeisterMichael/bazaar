@@ -5,6 +5,10 @@ module Bazaar
 			find_offers_for_order( order, options.merge( upsell_type: 'at_checkout' ) )
 		end
 
+		def find_exit_checkout_offers_for_order( order, options = {} )
+			find_offers_for_order( order, options.merge( upsell_type: 'exit_checkout' ) )
+		end
+
 		def find_post_sale_offers_for_order( order, options = {} )
 			find_offers_for_order( order, options.merge( upsell_type: 'post_sale' ) )
 		end

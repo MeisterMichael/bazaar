@@ -212,6 +212,9 @@ module Bazaar
 			@upsell_offers = @upsell_service.find_at_checkout_offers_for_order( @order )
 			@first_upsell_offer = @upsell_offers.first
 
+			@exit_upsell_offers = @upsell_service.find_exit_checkout_offers_for_order( @order )
+			@first_exit_upsell_offer = @exit_upsell_offers.first
+
 
 			@order.shipping_user_address = UserAddress.new( geo_address: GeoAddress.new( geo_country: GeoCountry.new ) )
 			@order.billing_user_address = UserAddress.new( geo_address: GeoAddress.new( geo_country: GeoCountry.new ) )

@@ -21,6 +21,21 @@
 							%label Source Product
 							%div=f.object.src_product.title
 					.form-group
+						= f.label :title
+						= f.text_field :title, class: 'form-control'
+					.form-group
+						= f.label :description
+						= f.text_field :description, class: 'form-control'
+					.form-group
+						= f.label :savings
+						= f.text_field :savings, class: 'form-control'
+					.form-group
+						= f.label :full_price
+						= f.text_field :full_price, class: 'form-control'
+					.form-group
+						= f.label :image_url
+						= f.text_field :image_url, class: 'form-control'
+					.form-group
 						= f.label :upsell_type
 						= f.collection_select :upsell_type, Bazaar::UpsellOffer.upsell_types, :first, humanize_first, {}, class: 'form-control'
 					.form-group
