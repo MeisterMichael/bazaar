@@ -34,7 +34,7 @@ module Bazaar
 		def edit
 			authorize( @upsell_offer )
 
-			set_page_meta( title: "#{@upsell_offer.name} | Upsell Offer Admin" )
+			set_page_meta( title: "Upsell Offer Admin" )
 		end
 
 		def update
@@ -44,10 +44,24 @@ module Bazaar
 
 			if @upsell_offer.save
 				set_flash "Upsell Offer Updated", :success
+				if @upsell_offer.src_offer.present?
+					redirect_to edit_offer_admin_path( @upsell_offer.src_offer )
+				elsif @upsell_offer.src_product.present?
+					redirect_to edit_product_admin_path( @upsell_offer.src_product )
+				end
 			else
 				set_flash @upsell_offer.errors.full_messages, :danger
+
+				if @upsell_offer.src_offer.present?
+					redirect_back fallback_location: edit_offer_admin_path( @upsell_offer.src_offer )
+				elsif @upsell_offer.src_product.present?
+					redirect_back fallback_location: edit_product_admin_path( @upsell_offer.src_product )
+				else
+					redirect_back fallback_location: admin_index_path()
+				end
 			end
-			redirect_back fallback_location: upsell_offer_admin_index_path()
+
+
 		end
 
 		protected

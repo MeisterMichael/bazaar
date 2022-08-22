@@ -28,5 +28,7 @@
 			%td
 				= upsell_offer.upsell_type.titleize
 			%td.text-right
+				%a.btn.btn-primary.btn-xs{ href: edit_upsell_offer_admin_path( upsell_offer ) }
+					Edit
 				%a.btn.btn-danger.btn-xs{ href: upsell_offer_admin_path( upsell_offer ), data: { method: :delete, confirm: 'Are you sure?' } }
 					%i.fa.fa-trash
