@@ -173,7 +173,7 @@ module Bazaar
 			order = generate_subscription_order( subscription, args = {} )
 			order.status = 'draft'
 
-			@order_service.calculate( order, shipping: { shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping } )
+			@order_service.calculate( order, shipping: get_shipping_options_from_subscription(subscription) )
 
 			order
 		end
@@ -183,7 +183,7 @@ module Bazaar
 			order = generate_subscriptions_order( subscriptions, args = {} )
 			order.status = 'draft'
 
-			@order_service.calculate( order, shipping: { shipping_carrier_service_id: subscriptions.collect(&:shipping_carrier_service_id).select(&:present?).first } )
+			@order_service.calculate( order, shipping: get_shipping_options_from_subscriptions(subscriptions) )
 
 			order
 		end
@@ -210,15 +210,7 @@ module Bazaar
 			# process order
 			begin
 
-				# if all subscriptions have fixed price shipping, then sum them up.
-				fixed_price_shipping = subscriptions.sum(&:shipping) unless subscriptions.select{|sub| sub.shipping.nil? }.present?
-
-				shipping_carrier_service_id = subscriptions.collect(&:shipping_carrier_service_id).select(&:present?).first
-
-				transaction = @order_service.process( order, shipping: {
-					shipping_carrier_service_id: shipping_carrier_service_id,
-					fixed_price: fixed_price_shipping,
-				})
+				transaction = @order_service.process( order, shipping: get_shipping_options_from_subscriptions(subscriptions))
 
 			rescue Exception => e
 
@@ -323,6 +315,24 @@ module Bazaar
 
 		def update_payment_profile( subscription, args = {} )
 			@order_service.transaction_service.update_subscription_payment_profile( subscription, args )
+		end
+
+
+
+		def get_shipping_options_from_subscription(subscription)
+			{ shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping }
+		end
+
+		def get_shipping_options_from_subscriptions(subscriptions)
+			# if all subscriptions have fixed price shipping, then sum them up.
+			fixed_price_shipping = subscriptions.sum(&:shipping) unless subscriptions.select{|sub| sub.shipping.nil? }.present?
+
+			shipping_carrier_service_id = subscriptions.collect(&:shipping_carrier_service_id).select(&:present?).first
+
+			{
+				shipping_carrier_service_id: shipping_carrier_service_id,
+				fixed_price: fixed_price_shipping,
+			}
 		end
 
 	end
