@@ -114,4 +114,17 @@
 					Offers
 				= render 'bazaar/offer_admin/offer_table', offers: @product.offers.order( title: :asc ), args: {}
 
+	.row
+		.col-xs-12#upsell_offers
+			.well.white-well
+				%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
+					%i.fa.fa-plus
+					Add
+				%h4
+					Upsell Offers
+
+				= render 'bazaar/offer_admin/upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.active.where( src_product: @product, src_offer: nil ), args: {}
+
+
 = render 'new_gallery_attachment', args: {}
+= render 'bazaar/upsell_offer_admin/new_modal', args: { src_product: @product }
