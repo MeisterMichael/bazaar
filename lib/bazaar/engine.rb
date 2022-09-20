@@ -83,6 +83,8 @@ module Bazaar
 
 		mattr_accessor :create_user_on_checkout
 
+		mattr_accessor :require_transaction_providers
+
 		self.disable_add_to_cart_authenticity_token_verification = false
 
 		self.discount_service_class = "Bazaar::DiscountService"
@@ -156,6 +158,8 @@ module Bazaar
 		self.store_path = 'store'
 
 		self.create_user_on_checkout = false
+
+		self.require_transaction_providers = false
 	end
 
 	# this function maps the vars from your app into your engine

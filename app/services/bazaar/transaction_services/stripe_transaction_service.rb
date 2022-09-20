@@ -6,6 +6,9 @@ module Bazaar
 
 			def initialize( args = {} )
 				raise Exception.new('add "gem \'stripe\'" to your Gemfile') unless defined?( Stripe )
+
+				@transaction_provider  = args[:transaction_provider]
+				raise Exception.new("TransactionProvider not found") unless @transaction_provider.present? || !Bazaar.require_transaction_providers
 				@provider_name = args[:provider_name] || 'Stripe'
 			end
 
@@ -47,7 +50,7 @@ module Bazaar
 
 						order.save
 
-						Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: charge.id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'approved' )
+						Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: charge.id, provider: @provider_name, transaction_provider: self.transaction_provider, merchant_identification: self.merchant_identification, amount: order.total, currency: order.currency, status: 'approved' )
 
 						return true
 					end
@@ -58,7 +61,7 @@ module Bazaar
 
 					puts e
 					order.errors.add(:base, :processing_error, message: "cannot be nil")
-					# Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: @provider_name, amount: order.total, currency: order.currency, status: 'declined' )
+					# Transaction.create( parent: order, transaction_type: 'charge', reference: charge.id, provider: @provider_name, transaction_provider: self.transaction_provider, merchant_identification: self.merchant_identification, amount: order.total, currency: order.currency, status: 'declined' )
 
 				rescue Stripe::InvalidRequestError => e
 
@@ -80,6 +83,14 @@ module Bazaar
 
 			def provider_name
 				@provider_name
+			end
+
+			def transaction_provider
+				@transaction_provider
+			end
+
+			def merchant_identification
+				@transaction_provider.try(:merchant_identification)
 			end
 
 			def refund( args = {} )

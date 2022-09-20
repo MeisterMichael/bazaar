@@ -10,6 +10,8 @@ module Bazaar
 		belongs_to :parent_obj, polymorphic: true, required: false # subscription, order
 		belongs_to :billing_address, class_name: 'GeoAddress', required: false
 		belongs_to :billing_user_address, class_name: 'UserAddress', required: false #, required: false
+		belongs_to	:transaction_provider, required: false
+		belongs_to	:merchant_identification, required: false
 
 		money_attributes :amount, :signed_amount
 

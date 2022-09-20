@@ -24,6 +24,9 @@ module Bazaar
 				@api_key	= args[:TRANSACTION_API_KEY] || ENV['AUTHORIZE_DOT_NET_TRANSACTION_API_KEY']
 				@gateway	= ( args[:GATEWAY] || ENV['AUTHORIZE_DOT_NET_GATEWAY'] || :sandbox ).to_sym
 				@enable_debug = not( Rails.env.production? ) || ENV['AUTHORIZE_DOT_NET_DEBUG'] == '1' || @gateway == :sandbox
+
+				@transaction_provider  = args[:transaction_provider]
+				raise Exception.new("TransactionProvider not found") unless @transaction_provider.present? || !Bazaar.require_transaction_providers
 				@provider_name = args[:provider_name] || "#{PROVIDER_NAME}-#{@api_login}"
 			end
 
@@ -38,6 +41,8 @@ module Bazaar
 
 				order.payment_status = 'payment_method_captured'
 				order.provider = @provider_name
+				order.transaction_provider = self.transaction_provider
+				order.merchant_identification = self.merchant_identification
 				order.provider_customer_profile_reference = profiles[:customer_profile_reference]
 				order.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
 
@@ -76,6 +81,8 @@ module Bazaar
 				return false if profiles == false
 
 				order.provider = @provider_name
+				order.transaction_provider = self.transaction_provider
+				order.merchant_identification = self.merchant_identification
 				order.provider_customer_profile_reference = profiles[:customer_profile_reference]
 				order.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
 				order.save
@@ -87,6 +94,8 @@ module Bazaar
 					customer_profile_reference: profiles[:customer_profile_reference],
 					customer_payment_profile_reference: profiles[:customer_payment_profile_reference],
 					provider: @provider_name,
+					transaction_provider: self.transaction_provider,
+					merchant_identification: self.merchant_identification,
 					amount: order.total,
 					currency: order.currency,
 					status: 'declined',
@@ -209,6 +218,14 @@ module Bazaar
 				@provider_name
 			end
 
+			def transaction_provider
+				@transaction_provider
+			end
+
+			def merchant_identification
+				@transaction_provider.try(:merchant_identification)
+			end
+
 			def refund( args = {} )
 				# assumes :amount, and :charge_transaction
 				charge_transaction	= args.delete( :charge_transaction )
@@ -280,6 +297,8 @@ module Bazaar
 				transaction = Bazaar::Transaction.new( args )
 				transaction.transaction_type	= 'refund'
 				transaction.provider					= @provider_name
+				transaction.transaction_provider = self.transaction_provider
+				transaction.merchant_identification = self.merchant_identification
 				transaction.currency					||= charge_transaction.currency
 				transaction.parent_obj				||= charge_transaction.parent_obj
 
@@ -398,6 +417,8 @@ module Bazaar
 				}
 
 				subscription.provider = @provider_name
+				subscription.transaction_provider = self.transaction_provider
+				subscription.merchant_identification = self.merchant_identification
 				subscription.provider_customer_profile_reference = payment_profile[:customer_profile_reference]
 				subscription.provider_customer_payment_profile_reference = payment_profile[:customer_payment_profile_reference]
 				subscription.properties = subscription.properties.merge( new_properties )

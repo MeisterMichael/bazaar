@@ -72,6 +72,8 @@ module Bazaar
 				parent_obj_type: order.class.base_class.name,
 				billing_address_id: order.billing_address_id,
 				provider: order.provider,
+				transaction_provider: order.transaction_provider,
+				merchant_identification: order.merchant_identification,
 				currency: order.currency,
 				amount: order.total,
 				message: order.nested_errors.join('. '),

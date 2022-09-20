@@ -15,6 +15,8 @@ module Bazaar
 		belongs_to 	:shipping_address, class_name: 'GeoAddress'
 		belongs_to 	:billing_user_address, class_name: 'UserAddress', required: false #
 		belongs_to 	:shipping_user_address, class_name: 'UserAddress', required: false #
+		belongs_to	:transaction_provider, required: false
+		belongs_to	:merchant_identification, required: false
 
 		has_many :offer_prices, as: :parent_obj
 		has_many :offer_schedules, as: :parent_obj

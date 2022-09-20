@@ -39,6 +39,8 @@ module Bazaar
 				args[:shipping_address]				||= order.shipping_address
 				args[:currency]								||= order.currency
 				args[:provider]								||= order.provider
+				args[:transaction_provider]		||= order.transaction_provider
+				args[:merchant_identification]||= order.merchant_identification
 				args[:provider_customer_profile_reference] ||= order.provider_customer_profile_reference
 				args[:provider_customer_payment_profile_reference] ||= order.provider_customer_payment_profile_reference
 				args[:shipping_carrier_service_id] = order.order_items.shipping.first.try(:item_id)
@@ -90,6 +92,8 @@ module Bazaar
 				currency: args[:currency],
 				discount: discount,
 				provider: args[:provider],
+				transaction_provider: args[:transaction_provider],
+				merchant_identification: args[:merchant_identification],
 				provider_customer_profile_reference: args[:provider_customer_profile_reference],
 				provider_customer_payment_profile_reference: args[:provider_customer_payment_profile_reference],
 				payment_profile_expires_at: args[:payment_profile_expires_at],

@@ -18,7 +18,10 @@ module Bazaar
 
 				@store_name = args[:store_name] || ENV['AMAZON_PAY_STORE_NAME']
 
+				@transaction_provider  = args[:transaction_provider]
+				raise Exception.new("TransactionProvider not found") unless @transaction_provider.present? || !Bazaar.require_transaction_providers
 				@provider_name  = args[:provider_name] || DEFAULT_PROVIDER_NAME
+
 				@sandbox_mode   = Rails.env.development?
 				@sandbox_mode   = (ENV['AMAZON_PAY_SANDBOX'] == '1') unless ENV['AMAZON_PAY_SANDBOX'].blank?
 				@sandbox_mode   = args[:sandbox] if args.has_key? :sandbox
@@ -37,6 +40,8 @@ module Bazaar
 
 			def capture_payment_method( order, args = {} )
 				order.provider = self.provider_name
+				order.transaction_provider = self.transaction_provider
+				order.merchant_identification = self.merchant_identification
 				order.payment_status = 'declined'
 				order.save
 
@@ -102,6 +107,8 @@ module Bazaar
 
 				order.provider_customer_payment_profile_reference ||= ( args[:orderReferenceId] || args[:billing_agreement_id] )
 				order.provider = self.provider_name
+				order.transaction_provider = self.transaction_provider
+				order.merchant_identification = self.merchant_identification
 
 				transaction = Bazaar::Transaction.create!(
 					parent_obj: order,
@@ -401,6 +408,14 @@ module Bazaar
 				@provider_name
 			end
 
+			def transaction_provider
+				@transaction_provider
+			end
+
+			def merchant_identification
+				@transaction_provider.try(:merchant_identification)
+			end
+
 			def refund( args = {} )
 
 				# assumes :amount, and :charge_transaction
@@ -414,6 +429,8 @@ module Bazaar
 				transaction = Bazaar::Transaction.new( args )
 				transaction.transaction_type	= 'refund'
 				transaction.provider			    = self.provider_name
+				transaction.transaction_provider = self.transaction_provider
+				transaction.merchant_identification = self.merchant_identification
 				transaction.currency          ||= charge_transaction.currency
 				transaction.parent_obj        ||= charge_transaction.parent_obj
 				transaction.amount            = charge_transaction.amount unless transaction.amount != 0

@@ -15,6 +15,8 @@ module Bazaar
 				@client_secret	= args[:client_secret] || ENV['PAYPAL_EXPRESS_CHECKOUT_CLIENT_SECRET']
 				@mode			= args[:mode] || ENV['PAYPAL_EXPRESS_CHECKOUT_MODE'] || 'sandbox' # or 'live'
 
+				@transaction_provider  = args[:transaction_provider]
+				raise Exception.new("TransactionProvider not found") unless @transaction_provider.present? || !Bazaar.require_transaction_providers
 				@provider_name	= args[:provider_name] || PROVIDER_NAME
 
 				if @mode == 'sandbox'
@@ -30,6 +32,8 @@ module Bazaar
 
 			def capture_payment_method( order, args = {} )
 				order.provider = @provider_name
+				order.transaction_provider = self.transaction_provider
+				order.merchant_identification = self.merchant_identification
 				order.payment_status = 'declined'
 				order.save
 				log_event( user: user, on: order, name: 'error', content: "Unable to process capture with PayPal" )
@@ -49,6 +53,8 @@ module Bazaar
 
 				# order.payment_status = 'payment_method_captured'
 				order.provider = @provider_name
+				order.transaction_provider = self.transaction_provider
+				order.merchant_identification = self.merchant_identification
 
 				order.provider_customer_profile_reference = pay_pal_payer_id
 				order.provider_customer_payment_profile_reference = pay_pal_order_id
@@ -61,6 +67,8 @@ module Bazaar
 					customer_profile_reference: pay_pal_payer_id,
 					customer_payment_profile_reference: pay_pal_payment_id,
 					provider: @provider_name,
+					transaction_provider: self.transaction_provider,
+					merchant_identification: self.merchant_identification,
 					amount: order.total,
 					currency: order.currency,
 					status: 'declined'
@@ -150,6 +158,14 @@ module Bazaar
 
 			def provider_name
 				@provider_name
+			end
+
+			def transaction_provider
+				@transaction_provider
+			end
+
+			def merchant_identification
+				@transaction_provider.try(:merchant_identification)
 			end
 
 			def refund( args = {} )
