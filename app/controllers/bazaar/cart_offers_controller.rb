@@ -12,10 +12,7 @@ module Bazaar
 			@offer = Bazaar::Offer.active.find( params[:offer_id] ) if params[:offer_id]
 			@offer ||= params[:item_type].constantize.find_by( id: params[:item_id] ).offer if params[:item_type]
 
-			if @cart.nil?
-				@cart = Cart.create( ip: client_ip )
-				session[:cart_id] = @cart.id
-			end
+			get_or_create_bazaar_cart
 
 			@cart.email = params[:email] if params[:email].present?
 			@cart.first_name = params[:first_name] if params[:first_name].present?

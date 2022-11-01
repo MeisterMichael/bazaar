@@ -14,7 +14,7 @@ module Bazaar
 		helper_method :order_options
 		helper_method :shipping_options
 
-		before_action :get_cart
+		before_action :get_bazaar_cart
 		before_action :calculate_update_cart_discount, only: [ :calculate ]
 		before_action :index_update_cart_discount, only: [ :index ]
 		before_action :validate_cart, only: [ :confirm, :create, :index, :calculate ]
@@ -122,8 +122,7 @@ module Bazaar
 			if ( @order.pre_order? && @order.payment_method_captured? ) || ( @order.active? && @order.paid? )
 				order_is_pre_order = @order.pre_order?
 
-				session[:cart_count] = 0
-				session[:cart_id] = nil
+				clear_bazaar_cart()
 
 				begin
 					# if current user exists, update it's address info with the
@@ -270,10 +269,6 @@ module Bazaar
 
 
 		protected
-
-		def get_cart
-			@cart ||= Cart.find_by( id: session[:cart_id] )
-		end
 
 		def calculate_update_cart_discount
 
