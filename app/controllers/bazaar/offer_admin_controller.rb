@@ -4,6 +4,51 @@ module Bazaar
 		before_action :get_offer, except: [:index,:new,:create]
 		before_action :init_search_service, only: [:index]
 
+
+		def copy
+
+			has_many_relations = [[:offer_prices, :parent_obj], [:offer_schedules, :parent_obj], [:offer_skus, :parent_obj]]
+			has_many_attached_relations = []
+			has_one_attached_relations = [:avatar_attachment]
+
+
+			original = Bazaar::Offer.find params[:id]
+
+
+			copy = original.dup
+			copy.attributes = offer_params
+			copy.save!
+
+
+			has_many_relations.each do |row|
+				relation_name = row.first
+				foreign_key = row.second
+				original.try(relation_name).each do |ogrelation|
+					ogrelation.dup.update( foreign_key => copy )
+				end
+			end
+
+			has_many_attached_relations.each do |relation_name|
+				original.try(relation_name).each do |ogrelation|
+					copy.try(relation_name).attach( ogrelation.blob )
+				end
+			end
+
+			has_one_attached_relations.each do |relation_name|
+				copy.try(relation_name).attach( original.try(relation_name).blob ) if original.try(relation_name).attached?
+			end
+
+
+			if not( copy.errors.present? )
+				set_flash "Offer created!"
+				redirect_to edit_offer_admin_path( copy )
+			else
+				set_flash "An error occured while trying to create the offer", :error, copy
+				redirect_back fallback_location: '/admin'
+			end
+		end
+
+
 		def create
 			authorize( Bazaar::Offer )
 

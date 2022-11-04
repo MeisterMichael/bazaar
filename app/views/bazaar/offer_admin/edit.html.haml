@@ -13,6 +13,8 @@
 				%small= current_user.to_local_tz(@offer.created_at).to_s( :short )
 
 		.col-xs-2
+			%a.btn.btn-success.pull-right{ href: '#copy_offer_modal', data: { toggle: :modal, target: '#copy_offer_modal' } }
+				Copy
 
 
 	= form_for @offer, url: offer_admin_path( @offer ) do |f|
@@ -123,6 +125,7 @@
 				= render 'offer_items_table'
 
 
+= render 'copy_modal', offer: @offer, options: {}
 = render 'bazaar/offer_sku_admin/new_modal', parent_obj: @offer, args: { apply: 'per_quantity' }
 = render 'bazaar/offer_price_admin/new_modal', parent_obj: @offer, args: {}
 = render 'bazaar/offer_schedule_admin/new_modal', parent_obj: @offer, args: {}
