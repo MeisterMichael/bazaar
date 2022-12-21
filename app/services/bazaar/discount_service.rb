@@ -186,7 +186,10 @@ module Bazaar
 
 		def calculate_order_discounts( order, args = {} )
 			Bazaar::PromotionDiscount.active.in_progress.each do |discount|
-				unless get_order_discount_errors( order, discount, args ).present?
+				# Do not apply the same discount twice
+				discount_order_item = order.order_items.to_a.find{ |order_item| order_item.discount? && order_item == discount }
+
+				unless discount_order_item.present? || get_order_discount_errors( order, discount, args ).present?
 					order.order_items.new( item: discount, order_item_type: 'discount', title: discount.title )
 				end
 			end
