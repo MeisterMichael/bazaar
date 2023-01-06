@@ -150,7 +150,7 @@ module Bazaar
 				# create order
 				offer = subscription.offer
 
-				interval = subscription.next_subscription_interval
+				interval = args[:interval] || subscription.next_subscription_interval
 				price = subscription.price_for_interval( interval )
 				order.order_offers.new(
 					offer: offer,
