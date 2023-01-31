@@ -129,8 +129,30 @@ module Bazaar
 					# billing address, if not already set
 					update_order_user_address( @order )
 
+				rescue Exception => e
+					if Rails.env.development?
+						puts ex.message
+						puts ex.backtrace
+					end
+					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				end
+
+				begin
+
 					@fraud_service.post_processing( @order )
 
+				rescue Exception => e
+					if Rails.env.development?
+						puts ex.message
+						puts ex.backtrace
+					end
+					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
+				end
+
+
+				begin
+
+					# Update cart to completed status
 					@cart.update( order_id: @order.id, status: 'success' )
 
 					# transfer declined transactions from cart to order
