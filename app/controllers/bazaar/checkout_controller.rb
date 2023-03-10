@@ -13,6 +13,7 @@ module Bazaar
 		helper_method :discount_options
 		helper_method :order_options
 		helper_method :shipping_options
+		helper_method :log_event
 
 		before_action :get_bazaar_cart
 		before_action :calculate_update_cart_discount, only: [ :calculate ]
