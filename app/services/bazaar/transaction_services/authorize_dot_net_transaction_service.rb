@@ -176,6 +176,22 @@ module Bazaar
 
 			def process_transaction( transaction, args = {} )
 
+				credit_card_info = args[:credit_card]
+				if credit_card_info.present? && transaction.parent_obj.present?
+
+					profiles = get_order_customer_profile( transaction.parent_obj, credit_card: credit_card_info )
+					if profiles == false
+						transaction.status = 'declined'
+						transaction.message = "Unable to create customer profile"
+						transaction.save
+						return false
+					end
+
+					transaction.customer_profile_reference = profiles[:customer_profile_reference]
+					transaction.customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
+
+				end
+
 				anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 
 				request = AuthorizeNet::API::CreateTransactionRequest.new
