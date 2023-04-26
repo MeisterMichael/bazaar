@@ -82,7 +82,22 @@ module Bazaar
 				rate = shipment.rates.find{ |rate| rate[:selected] }
 
 				if rate.present?
-					shipping_order_item = order.order_items.new( item: rate[:carrier_service], price: rate[:price], subtotal: rate[:price], title: (rate[:label] || rate[:name]), order_item_type: 'shipping', tax_code: '11000', properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] } )
+					shipping_order_item_attributes = {
+						item: rate[:carrier_service],
+						price: rate[:price],
+						subtotal: rate[:price],
+						title: (rate[:label] || rate[:name]),
+						order_item_type: 'shipping',
+						tax_code: '11000',
+						properties: { 'name' => rate[:name], 'code' => rate[:code], 'carrier' => rate[:carrier] }
+					}
+
+					# Find the existing shipping item and use it if it exists, otherwise
+					# create a new  one.
+					shipping_order_item = order.order_items.to_a.select(&:shipping?).first
+					shipping_order_item ||= order.order_items.new( shipping_order_item_attributes )
+					shipping_order_item.attributes = shipping_order_item_attributes
+
 					order.shipping += rate[:price]
 				end
 			end
