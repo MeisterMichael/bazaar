@@ -45,7 +45,8 @@ module Bazaar
 			session[:cart_count] ||= 0
 			session[:cart_count] += params[:quantity].to_i
 
-			log_event( { name:'add_cart', on: @offer, content: "added #{@offer} to their cart." } )
+
+			log_event( { name:'add_cart', on: @offer, content: "added #{@offer} to their cart.", page_params: CGI.unescape( request.query_parameters.merge({ "cart_offer_id" => cart_offer.id, "cart_id" => @cart.id, "quantity" => cart_offer.quantity, "offer_id" => cart_offer.offer_id }).to_query ) } )
 
 			respond_to do |format|
 				format.js {
