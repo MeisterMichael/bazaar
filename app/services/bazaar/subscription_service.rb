@@ -13,7 +13,7 @@ module Bazaar
 
 		def subscribe_ordered_plans( order, args = {} )
 			# will only create subscriptions for active orders
-			raise Exception.new('Can only create subscriptions for active orders') unless order.active?
+			raise Exception.new('Can only create subscriptions for active orders') unless order.active? || order.review?
 
 			order.order_offers.each do |order_offer|
 				if order_offer.offer.recurring? && ( order_offer.subscription.nil? || order_offer.subscription.trash? )
