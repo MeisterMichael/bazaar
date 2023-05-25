@@ -80,7 +80,7 @@ module Bazaar
 			if @fraud_service.hold_for_review( @order )
 
 				set_flash "Order has been held for review.", :success
-				log_event( name: 'hold_review', on: @order, content: "order held for review #{@order.code}", category: 'ecom' )
+				log_event( name: 'hold_review', on: @order, content: "order held for review #{@order.code}", category: 'ecom', user: @order.user )
 
 			end
 
