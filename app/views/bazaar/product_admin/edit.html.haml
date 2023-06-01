@@ -40,6 +40,12 @@
 						= f.label :description
 						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
 
+					- if @product.respond_to? :medical_disclaimer
+						.form-group
+							= f.label :medical_disclaimer
+							= f.text_area :medical_disclaimer, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
+
+
 				= render 'custom_fields', f: f, options: {}
 
 				.well.white-well
