@@ -132,8 +132,8 @@ module Bazaar
 
 				rescue Exception => e
 					if Rails.env.development?
-						puts ex.message
-						puts ex.backtrace
+						puts e.message
+						puts e.backtrace
 					end
 					NewRelic::Agent.notice_error(e) if defined?( NewRelic )
 				end
