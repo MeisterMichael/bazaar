@@ -92,7 +92,7 @@ Bazaar::Engine.routes.draw do
 
 	resources :transaction_admin
 
-	resources :upsell_offer_admin, only: [:create,:update,:destroy,:edit]
+	resources :upsell_offer_admin, only: [:create,:index,:update,:destroy,:edit]
 
 	resources :warehouse_admin
 	resources :warehouse_country_admin

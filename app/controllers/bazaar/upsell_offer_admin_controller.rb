@@ -26,7 +26,20 @@ module Bazaar
 		end
 
 		def index
-			@upsell_offers = Bazaar::UpsellOffer.where( status: ['active','draft'] ).order( name: :asc ).page( params[:page] ).per( 10 )
+			@upsell_offers = Bazaar::UpsellOffer.all
+
+			if params[:status].present?
+				@upsell_offers = @upsell_offers.where( status: params[:status] ) 
+			else
+				@upsell_offers = @upsell_offers.where( status: ['active','draft'] )
+			end
+
+			@upsell_offers = @upsell_offers.where( upsell_type: params[:upsell_type] ) if params[:upsell_type].present?
+
+			@upsell_offers = @upsell_offers.joins('LEFT JOIN "bazaar_products" ON "bazaar_products"."id" = "bazaar_upsell_offers"."src_product_id"')
+			@upsell_offers = @upsell_offers.joins('LEFT JOIN "bazaar_offers" ON "bazaar_offers"."id" = "bazaar_upsell_offers"."src_offer_id"')
+
+			@upsell_offers = @upsell_offers.order( "COALESCE(bazaar_products.slug,bazaar_offers.code)" ).page( params[:page] ).per( 10 )
 
 			set_page_meta( title: "Upsell Offer Admin" )
 		end
