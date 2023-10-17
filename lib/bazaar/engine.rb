@@ -4,8 +4,6 @@
 
 module Bazaar
 
-
-	class << self
 		mattr_accessor :origin_address
 		mattr_accessor :warehouse_address
 		mattr_accessor :nexus_addresses
@@ -160,7 +158,7 @@ module Bazaar
 		self.create_user_on_checkout = false
 
 		self.require_transaction_providers = false
-	end
+
 
 	# this function maps the vars from your app into your engine
      def self.configure( &block )

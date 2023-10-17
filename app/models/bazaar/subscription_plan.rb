@@ -2,7 +2,7 @@ module Bazaar
 	class SubscriptionPlan < ApplicationRecord
 
 
-		include Pulitzer::Concerns::URLConcern
+		include Pulitzer::Concerns::UrlConcern
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include SwellId::Concerns::PolymorphicIdentifiers
 		include Bazaar::ProductSearchable if (Bazaar::ProductSearchable rescue nil)

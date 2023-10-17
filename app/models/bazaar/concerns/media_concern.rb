@@ -5,7 +5,7 @@ module Bazaar
 			extend ActiveSupport::Concern
 
 			included do
-				include Pulitzer::Concerns::URLConcern
+				include Pulitzer::Concerns::UrlConcern
 				include FriendlyId
 
 				belongs_to :user
