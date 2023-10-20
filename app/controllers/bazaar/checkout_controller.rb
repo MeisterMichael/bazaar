@@ -181,7 +181,7 @@ module Bazaar
 
 				begin
 					@expiration = 30.minutes.from_now.to_i
-					@thank_you_url = bazaar.thank_you_order_path( @order.code, default_url_options.merge( format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate( code: @order.code, id: @order.id, expiration: @expiration ), from: 'checkout', funnel: params[:funnel].to_s.gsub(/[^a-zA-Z0-9\-]/,'') ) )
+					@thank_you_url = bazaar.thank_you_order_path( @order.code, default_url_options.merge( format: :html, t: @expiration.to_i, d: Rails.application.message_verifier('order.id').generate({ code: @order.code, id: @order.id, expiration: @expiration }), from: 'checkout', funnel: params[:funnel].to_s.gsub(/[^a-zA-Z0-9\-]/,'') ) )
 
 					if order_is_pre_order
 						log_event( user: @order.user, name: 'pre_order', category: 'ecom', value: @order.total, on: @order, content: "placed a pre-order for $#{@order.total/100.to_f}." )

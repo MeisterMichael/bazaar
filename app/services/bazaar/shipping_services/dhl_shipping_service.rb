@@ -4,7 +4,7 @@ module Bazaar
 
 	module ShippingServices
 
-		class DHLShippingService < Bazaar::ShippingService
+		class DhlShippingService < Bazaar::ShippingService
 
 			# https://api.dhlglobalmail.com/docs/v1/track.html
 			JSON_TRACKING_ENDPOINT = 'https://api.dhlglobalmail.com/v1/mailitems/track'
