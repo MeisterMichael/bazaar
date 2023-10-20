@@ -10,7 +10,7 @@
 						shipments
 			%h2
 				%strong= @shipment.destination_address.to_s
-				%small= current_user.to_local_tz(@shipment.created_at).to_s( :short )
+				%small= current_user.to_local_tz(@shipment.created_at).to_fs( :short )
 
 		.col-xs-2
 

@@ -52,7 +52,7 @@
 								= sku.code
 
 							%td
-								= current_user.to_local_tz(sku.created_at).to_s( :short )
+								= current_user.to_local_tz(sku.created_at).to_fs( :short )
 							%td
 								.badge{ class: sku.status }
 									= sku.status

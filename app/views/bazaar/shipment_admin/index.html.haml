@@ -80,7 +80,7 @@
 									%br
 									%small{ style: 'font-weight: bold;' }= shipment.source_system
 							%td
-								= shipment.created_at.to_s( :short )
+								= shipment.created_at.to_fs( :short )
 							%td
 								%a{ href: bazaar.edit_shipment_admin_path( shipment.id ) }
 									- if shipment.destination_user_address

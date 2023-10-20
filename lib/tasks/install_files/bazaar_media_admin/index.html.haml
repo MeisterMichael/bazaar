@@ -55,7 +55,7 @@
 									%i.fa.fa-clipboard
 
 							%td
-								= media.publish_at.to_s( :slashed_time )
+								= media.publish_at.to_fs( :slashed_time )
 							%td
 								= media.category.try( :name )
 							%td

@@ -45,7 +45,7 @@ module Bazaar
 
 			@providers = Bazaar::Transaction.where.not( provider: nil ).pluck( :provider ).uniq
 
-			@transactions = Bazaar::Transaction.order( "#{sort_by} #{sort_dir}" )
+			@transactions = Bazaar::Transaction.order( Arel.sql("#{sort_by} #{sort_dir}") )
 
 			start_date = params[:start_date]
 			end_date = params[:end_date] || Time.now.end_of_day

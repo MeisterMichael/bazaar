@@ -7,7 +7,7 @@
 			> Order Details
 			%h2 Order Details
 			%p
-				Ordered on #{current_user.to_local_tz(@order.created_at).to_s( :basic_short )}
+				Ordered on #{current_user.to_local_tz(@order.created_at).to_fs( :basic_short )}
 				%span.horizontal-separator="|"
 				Order# #{@order.code}
 	.row

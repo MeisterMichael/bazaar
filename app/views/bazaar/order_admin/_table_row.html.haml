@@ -2,7 +2,7 @@
 	%td
 		= link_to order.code, bazaar.order_admin_path( order.id )
 	%td
-		= order.created_at.to_s( :short )
+		= order.created_at.to_fs( :short )
 	- if args[:customer] != false
 		%td
 			%a{ href: bazaar.order_admin_path( order.id ) }

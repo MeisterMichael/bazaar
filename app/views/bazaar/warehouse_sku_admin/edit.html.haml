@@ -13,7 +13,7 @@
 					= @warehouse_sku.warehouse.name
 					\-
 					= @warehouse_sku.sku.to_s
-				%small= current_user.to_local_tz(@warehouse_sku.created_at).to_s( :short )
+				%small= current_user.to_local_tz(@warehouse_sku.created_at).to_fs( :short )
 
 		.col-xs-2
 

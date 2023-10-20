@@ -9,7 +9,7 @@
 						Wholesale Profiles
 			%h2
 				%strong= @wholesale_profile.title
-				%small= current_user.to_local_tz(@wholesale_profile.created_at).to_s( :short )
+				%small= current_user.to_local_tz(@wholesale_profile.created_at).to_fs( :short )
 
 	= form_for @wholesale_profile, url: wholesale_profile_admin_path( @wholesale_profile ) do |f|
 		.row
@@ -47,7 +47,7 @@
 								%tr
 									%td{ colspan: 3 }
 										\- No Wholesale Items Found -
-							= f.fields_for :wholesale_items, @wholesale_profile.wholesale_items.joins(:offer).order( item_type: :asc, item_id: :asc ).order('bazaar_offers.min_quantity asc') do |item_form|
+							= f.fields_for :wholesale_items, @wholesale_profile.wholesale_items.joins(:offer).order( item_type: :asc, item_id: :asc ).order(Arel.sql('bazaar_offers.min_quantity asc')) do |item_form|
 								%tr
 									%td
 										.form-group

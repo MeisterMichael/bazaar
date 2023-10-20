@@ -11,7 +11,7 @@
 			%h5{ style: 'margin:0;' } Delivered
 			%div Your package was delivered.
 		- elsif order_offer.order.fulfilled?
-			%h5{ style: 'margin:0;' } Shipped #{current_user.to_local_tz(order_offer.order.fulfilled_at).to_s( :basic_shorter )}
+			%h5{ style: 'margin:0;' } Shipped #{current_user.to_local_tz(order_offer.order.fulfilled_at).to_fs( :basic_shorter )}
 			%div Your package was shipped
 	.col-xs-3
 		- if order_offer.offer.try( :avatar ).present?

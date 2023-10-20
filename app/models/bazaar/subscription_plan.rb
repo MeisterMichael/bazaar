@@ -149,7 +149,7 @@ module Bazaar
 		protected
 
 			def set_avatar
-				self.avatar = self.avatar_attachment.service_url if self.avatar_attachment.attached?
+				self.avatar = self.avatar_attachment.url if self.avatar_attachment.attached?
 			end
 
 		private

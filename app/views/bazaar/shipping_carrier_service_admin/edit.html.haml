@@ -10,7 +10,7 @@
 						Shipping Carrier Service
 			%h2
 				%strong= @shipping_carrier_service.name
-				%small= @shipping_carrier_service.created_at.to_s( :short )
+				%small= @shipping_carrier_service.created_at.to_fs( :short )
 		.col-xs-2
 
 	= form_for @shipping_carrier_service, url: shipping_carrier_service_admin_path( @shipping_carrier_service ) do |f|

@@ -10,7 +10,7 @@
 						#{@upsell_offer.src_offer.title}
 			%h2
 				%strong= @upsell_offer.offer.title
-				%small= current_user.to_local_tz(@upsell_offer.created_at).to_s( :short )
+				%small= current_user.to_local_tz(@upsell_offer.created_at).to_fs( :short )
 
 		.col-xs-2
 

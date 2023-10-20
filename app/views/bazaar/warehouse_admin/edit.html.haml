@@ -10,7 +10,7 @@
 						Warehouses
 			%h2
 				%strong= @warehouse.name
-				%small= current_user.to_local_tz(@warehouse.created_at).to_s( :short )
+				%small= current_user.to_local_tz(@warehouse.created_at).to_fs( :short )
 
 		.col-xs-2
 
@@ -34,7 +34,7 @@
 										\- No Shipments -
 							- @shipments.each do |shipment|
 								%tr
-									%td=current_user.to_local_tz(shipment.created_at).to_s( :short )
+									%td=current_user.to_local_tz(shipment.created_at).to_fs( :short )
 									%td=shipment.shipment_skus.includes(:sku).collect{|shipment_sku| "#{shipment_sku.sku.code}x#{shipment_sku.quantity}" }.join(',')
 									%td=raw shipment.destination_user_address.try(:to_html)
 									%td

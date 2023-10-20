@@ -11,11 +11,11 @@
 			%h2
 				- if @shipment.code
 					%strong= @shipment.code
-					%small= current_user.to_local_tz(@shipment.created_at).to_s( :short )
+					%small= current_user.to_local_tz(@shipment.created_at).to_fs( :short )
 				- else
 					%strong
 						\##{@shipment.id}
-					%small= current_user.to_local_tz(@shipment.created_at).to_s( :short )
+					%small= current_user.to_local_tz(@shipment.created_at).to_fs( :short )
 
 		.col-xs-2
 

@@ -51,7 +51,7 @@
 							%td
 								= offer.status
 							%td
-								= current_user.to_local_tz(offer.created_at).to_s( :short )
+								= current_user.to_local_tz(offer.created_at).to_fs( :short )
 							%td
 								.btn-group
 									%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }

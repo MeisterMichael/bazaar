@@ -19,7 +19,7 @@ module Bazaar
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@carts = Cart.order( "#{sort_by} #{sort_dir}" )
+			@carts = Cart.order( Arel.sql("#{sort_by} #{sort_dir}") )
 
 			if params[:status].present? && params[:status] != 'all'
 				@carts = eval "@carts.#{params[:status]}"

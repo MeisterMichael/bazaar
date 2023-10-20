@@ -43,7 +43,7 @@
 						%tr
 							%td
 								= link_to shipping_option.name, edit_shipping_option_admin_path( shipping_option )
-							%td=current_user.to_local_tz(shipping_option.created_at).to_s( :short )
+							%td=current_user.to_local_tz(shipping_option.created_at).to_fs( :short )
 							%td
 								.badge{ class: shipping_option.status }
 									= shipping_option.status

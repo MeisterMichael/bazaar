@@ -10,7 +10,7 @@
 						Shipping Options
 			%h2
 				%strong= @shipping_option.name
-				%small= @shipping_option.created_at.to_s( :short )
+				%small= @shipping_option.created_at.to_fs( :short )
 		.col-xs-2
 
 	= form_for @shipping_option, url: shipping_option_admin_path( @shipping_option ) do |f|

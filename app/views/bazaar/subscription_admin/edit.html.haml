@@ -16,7 +16,7 @@
 
 			%h2
 				%strong= @subscription.code
-				%small= @subscription.created_at.to_s( :short )
+				%small= @subscription.created_at.to_fs( :short )
 			Plan:
 			%a{ href: bazaar.edit_offer_admin_path( @subscription.offer ) }= @subscription.offer.title
 			(
@@ -68,7 +68,7 @@
 						- @transactions.each do |transaction|
 							%tr
 								%td
-									=current_user.to_local_tz(transaction.created_at).to_s( :short )
+									=current_user.to_local_tz(transaction.created_at).to_fs( :short )
 								%td
 									= transaction.transaction_type
 								%td

@@ -14,7 +14,7 @@
 						#{@offer_price.parent_obj.title}
 			%h2
 				%strong Offer Price
-				%small= current_user.to_local_tz(@offer_price.created_at).to_s( :short )
+				%small= current_user.to_local_tz(@offer_price.created_at).to_fs( :short )
 
 		.col-xs-2
 

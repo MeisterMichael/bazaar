@@ -119,7 +119,7 @@
 							%td
 								= transaction.properties['credit_card_ending_in']
 							%td
-								= transaction.created_at.to_s( :slashed_time )
+								= transaction.created_at.to_fs( :slashed_time )
 
 							%td
 								.badge{ class: transaction.status }

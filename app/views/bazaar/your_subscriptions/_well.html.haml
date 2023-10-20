@@ -2,7 +2,7 @@
 	.row
 		.col-xs-3
 			SUBSCRIBED
-			%div= current_user.to_local_tz(subscription.created_at).to_s( :basic_short )
+			%div= current_user.to_local_tz(subscription.created_at).to_fs( :basic_short )
 		.col-xs-3
 			SHIP TO
 			%div= subscription.shipping_user_address.full_name

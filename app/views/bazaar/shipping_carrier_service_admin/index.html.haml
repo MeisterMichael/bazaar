@@ -52,7 +52,7 @@
 								= link_to shipping_carrier_service.name, edit_shipping_carrier_service_admin_path( shipping_carrier_service )
 							%td=shipping_carrier_service.service_code
 							%td=shipping_carrier_service.carrier
-							%td=current_user.to_local_tz(shipping_carrier_service.created_at).to_s( :short )
+							%td=current_user.to_local_tz(shipping_carrier_service.created_at).to_fs( :short )
 							%td
 								.badge{ class: shipping_carrier_service.status }
 									= shipping_carrier_service.status

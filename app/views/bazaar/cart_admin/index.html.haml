@@ -55,7 +55,7 @@
 								= number_to_currency cart.subtotal / 100.to_f
 
 							%td
-								= link_to cart.created_at.to_s( :short ), edit_cart_admin_path( cart.id )
+								= link_to cart.created_at.to_fs( :short ), edit_cart_admin_path( cart.id )
 							%td
 								= cart.cart_offers.count
 							%td

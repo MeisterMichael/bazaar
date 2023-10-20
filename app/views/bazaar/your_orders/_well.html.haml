@@ -2,7 +2,7 @@
 	.row
 		.col-xs-3
 			ORDER PLACED
-			%div= current_user.to_local_tz(order.created_at).to_s( :basic_short )
+			%div= current_user.to_local_tz(order.created_at).to_fs( :basic_short )
 		.col-xs-2
 			TOTAL
 			%div= number_to_currency order.total / 100.0

@@ -44,7 +44,7 @@
 									= warehouse.geo_address.to_html
 
 							%td
-								= current_user.to_local_tz(warehouse.created_at).to_s( :short )
+								= current_user.to_local_tz(warehouse.created_at).to_fs( :short )
 							%td
 								.badge{ class: warehouse.status }
 									= warehouse.status

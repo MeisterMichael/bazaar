@@ -13,6 +13,6 @@
 						\- No Logs -
 			- @shipment.shipment_logs.order( created_at: :desc ).each do |shipment_log|
 				%tr
-					%td=current_user.to_local_tz(shipment_log.created_at).to_s( :short )
+					%td=current_user.to_local_tz(shipment_log.created_at).to_fs( :short )
 					%td=shipment_log.subject
 					%td=shipment_log.details

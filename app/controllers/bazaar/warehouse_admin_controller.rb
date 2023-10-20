@@ -37,9 +37,9 @@ module Bazaar
 			authorize( @warehouse )
 
 			@shipments = @warehouse.shipments.order( created_at: :desc ).page(params[:page]).per(10)
-			@warehouse_countries = @warehouse.warehouse_countries.includes(:geo_country).order('geo_countries.name ASC')
-			@warehouse_states = @warehouse.warehouse_states.includes(:geo_state).merge( GeoState.includes(:geo_country) ).order('geo_countries.name ASC, geo_states.name ASC')
-			@warehouse_skus = @warehouse.warehouse_skus.includes(:sku).order('bazaar_skus.code ASC')
+			@warehouse_countries = @warehouse.warehouse_countries.includes(:geo_country).order(Arel.sql('geo_countries.name ASC'))
+			@warehouse_states = @warehouse.warehouse_states.includes(:geo_state).merge( GeoState.includes(:geo_country) ).order(Arel.sql('geo_countries.name ASC, geo_states.name ASC'))
+			@warehouse_skus = @warehouse.warehouse_skus.includes(:sku).order(Arel.sql('bazaar_skus.code ASC'))
 
 			set_page_meta( title: "#{@warehouse.name} | Warehouse Admin" )
 		end

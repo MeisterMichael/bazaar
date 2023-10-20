@@ -10,7 +10,7 @@
 						Discounts
 			%h2{ style: 'margin-bottom: 0;' }
 				%strong= @discount.title
-				%small= current_user.to_local_tz(@discount.created_at).to_s( :short )
+				%small= current_user.to_local_tz(@discount.created_at).to_fs( :short )
 			%div
 				= @discount.class.name.demodulize.titleize
 		.col-xs-2

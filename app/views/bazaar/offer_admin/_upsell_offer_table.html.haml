@@ -9,7 +9,7 @@
 		%tr
 			%td{ colspan: 4 }
 				\- No Offers Found -
-	- upsell_offers.joins(:offer).order( 'bazaar_offers.title asc' ).each do |upsell_offer|
+	- upsell_offers.joins(:offer).order( Arel.sql('bazaar_offers.title asc') ).each do |upsell_offer|
 		%tr
 			%td
 				- if upsell_offer.offer

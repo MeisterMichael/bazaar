@@ -11,7 +11,7 @@
 						Products
 			%h2
 				%strong= @product.title
-				%small= current_user.to_local_tz(@product.created_at).to_s( :short )
+				%small= current_user.to_local_tz(@product.created_at).to_fs( :short )
 
 		.col-xs-2.text-right
 			%a.btn.btn-primary{ href: preview_product_admin_path( @product.id ), target: '_new' }
@@ -75,8 +75,8 @@
 						- @product.gallery_attachments.each do |image|
 							.col-xs-6.col-sm-3
 								.well
-									%a{ href: image.service_url, target: '_preview_image' }
-										%img.img.img-responsive.center-block{:src => image.service_url }
+									%a{ href: image.url, target: '_preview_image' }
+										%img.img.img-responsive.center-block{:src => image.url }
 									.text-center{ style: 'margin-bottom: -14px;' }
 										%a{ href: pulitzer.attachment_path( image.id, object_class: @product.class.base_class.name, object_id: @product.id, attribute: :gallery_attachments ), data: { method: :delete } }
 											%i.fa.fa-trash

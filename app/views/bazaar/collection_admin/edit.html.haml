@@ -10,7 +10,7 @@
 						Collections
 			%h2{ style: 'margin-bottom: 0;' }
 				%strong= @collection.title
-				%small= current_user.to_local_tz(@collection.created_at).to_s( :short )
+				%small= current_user.to_local_tz(@collection.created_at).to_fs( :short )
 		.col-xs-2
 
 

@@ -26,7 +26,7 @@
 
 			%h2
 				%strong= @order.code
-				%small=current_user.to_local_tz(@order.created_at).to_s( :short )
+				%small=current_user.to_local_tz(@order.created_at).to_fs( :short )
 
 	.row
 		.col-xs-12.col-sm-8
@@ -200,7 +200,7 @@
 						- @transaction_history.each do |transaction|
 							%tr
 								%td
-									=current_user.to_local_tz(transaction.created_at).to_s( :short )
+									=current_user.to_local_tz(transaction.created_at).to_fs( :short )
 								%td
 									= transaction.transaction_type
 								%td
@@ -243,7 +243,7 @@
 								%td
 									%a{ href: bazaar.edit_shipment_admin_path( shipment.id ), style: 'display: block;font-weight: bold;' }
 										=shipment.code || 'N/A'
-									%small=current_user.to_local_tz(shipment.created_at).to_s( :short )
+									%small=current_user.to_local_tz(shipment.created_at).to_fs( :short )
 								%td
 									= shipment.status
 								%td
@@ -261,7 +261,7 @@
 							- shipment.shipment_logs.order( created_at: :desc ).each do |shipment_log|
 								%tr
 									%td{ colspan: 6, style: 'padding-left: 4em;' }
-										#{current_user.to_local_tz(shipment_log.created_at).to_s( :short )} |
+										#{current_user.to_local_tz(shipment_log.created_at).to_fs( :short )} |
 										#{shipment_log.subject} | #{shipment_log.details}
 										(#{shipment_log.carrier_status})
 

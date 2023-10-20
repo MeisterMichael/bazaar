@@ -69,10 +69,10 @@
 							%td
 								= subscription.offer.title.truncate(40)
 							%td
-								= current_user.to_local_tz(subscription.created_at).to_s(:short)
+								= current_user.to_local_tz(subscription.created_at).to_fs(:short)
 							%td
 								- if subscription.next_charged_at.present?
-									= current_user.to_local_tz(subscription.next_charged_at).to_s(:short)
+									= current_user.to_local_tz(subscription.next_charged_at).to_fs(:short)
 								- else
 									\-
 							%td

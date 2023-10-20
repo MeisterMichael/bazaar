@@ -44,7 +44,7 @@ module Bazaar
 			# limit upsell_offers to qualified offers
 			upsell_offers = upsell_offers.merge( offers )
 
-			upsell_offers.order('RANDOM()')
+			upsell_offers.order(Arel.sql('RANDOM()'))
 		end
 
 		def has_at_checkout_offers_for_order?( order, options = {} )

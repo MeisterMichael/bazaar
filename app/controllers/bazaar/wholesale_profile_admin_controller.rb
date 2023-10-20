@@ -37,7 +37,7 @@ module Bazaar
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
-			@wholesale_profiles = WholesaleProfile.order( "#{sort_by} #{sort_dir}" )
+			@wholesale_profiles = WholesaleProfile.order( Arel.sql("#{sort_by} #{sort_dir}") )
 
 			if params[:status].present? && params[:status] != 'all'
 				@wholesale_profiles = eval "@wholesale_profiles.#{params[:status]}"

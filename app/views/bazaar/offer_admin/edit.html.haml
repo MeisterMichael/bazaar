@@ -10,7 +10,7 @@
 						Offers
 			%h2
 				%strong= @offer.title
-				%small= current_user.to_local_tz(@offer.created_at).to_s( :short )
+				%small= current_user.to_local_tz(@offer.created_at).to_fs( :short )
 
 		.col-xs-2
 			%a.btn.btn-success.pull-right{ href: '#copy_offer_modal', data: { toggle: :modal, target: '#copy_offer_modal' } }

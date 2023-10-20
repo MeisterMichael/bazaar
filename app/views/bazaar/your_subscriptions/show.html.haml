@@ -17,7 +17,7 @@
 					.pull-right
 						%a.btn.btn-default{ href: bazaar.your_subscription_path( @subscription.code, subscription: { status: 'active' } ) , data: { method: :put, confirm: 'Are you sure?' } }
 							Resume Subscription
-				Subscribed on #{current_user.to_local_tz(@subscription.created_at).to_s( :basic_short )}
+				Subscribed on #{current_user.to_local_tz(@subscription.created_at).to_fs( :basic_short )}
 				%span.horizontal-separator="|"
 				Subscription# #{@subscription.code}
 				- if @subscription.failed?
@@ -76,10 +76,10 @@
 								Edit
 						- if @subscription.active?
 							%p
-								Next interval starts on #{current_user.to_local_tz(@subscription.next_charged_at).to_s( :basic_short )}
+								Next interval starts on #{current_user.to_local_tz(@subscription.next_charged_at).to_fs( :basic_short )}
 								- if @subscription.active?
 									%p
-										Next interval starts on #{current_user.to_local_tz(@subscription.next_charged_at).to_s( :basic_short )}
+										Next interval starts on #{current_user.to_local_tz(@subscription.next_charged_at).to_fs( :basic_short )}
 										%a{ href: '#', data: { toggle: :modal, target: '#update_next_interval_modal' } }
 											Edit
 	.row

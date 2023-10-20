@@ -46,8 +46,8 @@ module Bazaar
 			authorize( @sku )
 
 			@shipments = @sku.shipments.order( created_at: :desc ).page(params[:page]).per(10)
-			@sku_countries = @sku.sku_countries.includes(:geo_country).order('geo_countries.name ASC')
-			@warehouse_skus = @sku.warehouse_skus.includes(:warehouse).order('bazaar_warehouses.name ASC')
+			@sku_countries = @sku.sku_countries.includes(:geo_country).order(Arel.sql('geo_countries.name ASC'))
+			@warehouse_skus = @sku.warehouse_skus.includes(:warehouse).order(Arel.sql('bazaar_warehouses.name ASC'))
 			@offers = @sku.offer_skus.active.collect{|offer_sku|offer_sku.parent_obj}.uniq.sort_by{|offer| offer.title }
 
 

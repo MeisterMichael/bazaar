@@ -71,10 +71,10 @@
 								= discount.class.name.demodulize.titleize
 							%td
 								- if discount.start_at.present?
-									= current_user.to_local_tz(discount.start_at).to_s( :short )
+									= current_user.to_local_tz(discount.start_at).to_fs( :short )
 							%td
 								- if discount.end_at.present?
-									= current_user.to_local_tz(discount.end_at).to_s( :short )
+									= current_user.to_local_tz(discount.end_at).to_fs( :short )
 								- else
 									\-
 							%td
