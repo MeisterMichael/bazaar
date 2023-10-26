@@ -6,7 +6,7 @@ module Bazaar
 
 	module ShippingServices
 
-		class UPSShippingService < Bazaar::ShippingService
+		class UpsShippingService < Bazaar::ShippingService
 
 			def initialize( args = {} )
 
