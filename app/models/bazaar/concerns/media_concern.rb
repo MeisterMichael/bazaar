@@ -10,7 +10,7 @@ module Bazaar
 
 				belongs_to :user
 				belongs_to :managed_by, class_name: 'User', optional: true
-				belongs_to :category, optional: true
+				belongs_to :category, optional: true, :class_name => "Pulitzer::Category"
 				belongs_to :parent, optional: true
 
 				enum status: { 'draft' => 0, 'active' => 1, 'archive' => 100, 'trash' => -50 }
