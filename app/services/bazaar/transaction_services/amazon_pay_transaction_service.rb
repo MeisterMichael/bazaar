@@ -83,10 +83,10 @@ module Bazaar
 
 			def get_client( obj, args = {} )
 				return AmazonPay::Client.new(
-					@merchant_id,
-					@access_key,
-					@secret_key,
-					@client_options
+					ENV['AMAZON_PAY_MERCHANT_ID'],
+					ENV['AMAZON_PAY_ACCESS_KEY'],
+					ENV['AMAZON_PAY_SECRET_KEY'],
+					**@client_options
 				)
 			end
 
