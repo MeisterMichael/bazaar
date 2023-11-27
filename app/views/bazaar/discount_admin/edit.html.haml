@@ -26,13 +26,13 @@
 					.form-group
 						= f.label :title
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A descriptive title for internal use.' }
-						= f.text_field :title, class: 'form-control input-lg'
+						= f.text_field :title, class: 'form-control input-lg', required: true
 
 					- if @discount.is_a? Bazaar::CouponDiscount
 						.form-group
 							= f.label :code
 							%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The value customers enter into the coupon field at checkout to have this discount applied to their order.  Codes are case insensitive, meaning that capitalization of characters does not make it distinct in the eyes of the system.' }
-							= f.text_field :code, class: 'form-control', style: 'text-transform: lowercase;'
+							= f.text_field :code, class: 'form-control', style: 'text-transform: lowercase;', required: true
 
 
 					.form-group

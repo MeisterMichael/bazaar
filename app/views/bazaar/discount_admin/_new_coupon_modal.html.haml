@@ -1,11 +1,11 @@
-#new_discount_modal.modal.fade
+#new_coupon_discount_modal.modal.fade
 	.modal-dialog
 		.modal-content
 			.modal-header
 				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
 					&times;
 				%h4.modal-title
-					New Discount
+					New Coupon
 			= form_for Bazaar::Discount.new, url: bazaar.discount_admin_index_path, as: :discount do |f|
 				.modal-body
 					.form-group
@@ -16,7 +16,14 @@
 					.form-group
 						= f.label :type
 						-# %i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A descriptive title for internal use.' }
-						= f.select :type, Bazaar.discount_types.select{|key,klass| not( klass.constantize <= Bazaar::CouponDiscount ) }.collect{|key,klass| [key,klass] }, {}, { class: 'form-control' }
+						= f.select :type, Bazaar.discount_types.select{|key,klass| klass.constantize <= Bazaar::CouponDiscount }.collect{|key,klass| [key,klass] }, {}, { class: 'form-control' }
+
+					.form-group
+						= f.label :code
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The value customers enter into the coupon field at checkout to have this discount applied to their order.  Codes are case insensitive, meaning that capitalization of characters does not make it distinct in the eyes of the system.' }
+						= f.text_field :code, class: 'form-control', style: 'text-transform: lowercase;', required: true
+
+
 
 					.form-group
 						= f.label :description
