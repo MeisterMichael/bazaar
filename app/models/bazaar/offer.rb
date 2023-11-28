@@ -27,7 +27,7 @@ module Bazaar
 
 		accepts_nested_attributes_for :offer_prices, :offer_schedules, :offer_skus
 
-		money_attributes :initial_price
+		money_attributes :initial_price, :suggested_price
 
 		acts_as_taggable_array_on :tags
 
