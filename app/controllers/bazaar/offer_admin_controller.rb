@@ -121,7 +121,7 @@ module Bazaar
 		end
 
 		def init_search_service
-			@search_service = EcomSearchService.new
+			@search_service = Bazaar.search_service_class.constantize.new( Bazaar.search_service_config )
 		end
 	end
 end

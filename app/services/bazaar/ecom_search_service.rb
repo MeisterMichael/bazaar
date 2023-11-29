@@ -2,6 +2,9 @@ module Bazaar
 
 	class EcomSearchService
 
+		def initialize( args = {} )
+		end
+
 		def search( term, filters = {}, options = {} )
 
 			addresses = self.address_search( term, filters[:address] || {}, options )
