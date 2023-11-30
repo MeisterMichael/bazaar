@@ -97,6 +97,13 @@ module Bazaar
 			@offers = @search_service.offer_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
 
 			set_page_meta( title: "Offers" )
+
+			respond_to do |format|
+				format.json {
+				}
+				format.html {
+				}
+			end
 		end
 
 		def update
