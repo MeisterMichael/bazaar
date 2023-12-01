@@ -88,7 +88,7 @@
 					%h4
 						Default Offer
 					.form-group
-						= f.collection_select :offer_id, @product.offers.active, :id, :title, {}, class: 'form-control'
+						= f.collection_select :offer_id, @product.offers.active, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id }, format: 'json' ) }
 
 					%hr
 
