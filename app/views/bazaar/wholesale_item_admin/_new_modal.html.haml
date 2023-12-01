@@ -1,3 +1,5 @@
+:css
+	#new_wholesale_item_modal .select2.select2-container { width: 100% !important; }
 #new_wholesale_item_modal.modal.fade
 	.modal-dialog
 		.modal-content
@@ -11,7 +13,8 @@
 					= f.hidden_field :wholesale_profile_id
 					.form-group
 						= f.label :offer_id, 'Offer'
-						= f.collection_select :offer_id, Bazaar::Offer.active.order(title: :asc), :id, Proc.new{ |item| "#{item.title} (#{item.initial_price_formatted})" }, { prompt: false }, class: 'form-control', required: true
+						%div
+							= f.collection_select :offer_id, Bazaar::Offer.active.order(title: :asc), :id, Proc.new{ |item| "#{item.title} (#{item.initial_price_formatted})" }, { prompt: false }, class: 'form-control select-2-ajax', required: true, data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { wholesale: true }, format: 'json' ) }
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close
