@@ -126,6 +126,10 @@ module Bazaar
 			self.tags = tags_csv.split(/,\s*/)
 		end
 
+		def title_with_price
+			"#{self.title} ( #{self.offer_prices.active.order(start_interval: :asc).collect{|op| op.price_formatted}.join(' / ')} )"
+		end
+
 		def to_s
 			title
 		end
