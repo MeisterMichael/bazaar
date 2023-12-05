@@ -41,11 +41,11 @@
 					.form-group
 						= f.label :full_price_offer_id, "Full Price Offer"
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The full price equivalent offer, which can be used to calculate the amount of saving the upsell offer provides.' }
-						= f.collection_select :full_price_offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
+						= f.collection_select :full_price_offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: {}, format: 'json' ) }
 					.form-group
 						= f.label :offer_id, "Upsell Offer"
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The offer you want to be made as an upsell.' }
-						= f.collection_select :offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control'
+						= f.collection_select :offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: {}, format: 'json' ) }
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close
