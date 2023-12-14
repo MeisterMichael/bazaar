@@ -49,7 +49,7 @@
 					.form-group
 						= f.label :disclaimer, 'Disclaimer'
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The disclaimer displayed publically to customers at checkout (and possibly elswhere).' }
-						= f.text_area :disclaimer, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @offer.class.base_class.name, object_id: @offer.id }.to_json }
+						= f.text_area :disclaimer, class: 'form-control'
 
 
 				.well.white-well
