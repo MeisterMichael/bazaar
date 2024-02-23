@@ -71,9 +71,9 @@ module Bazaar
 
 			def discount_params
 				params.require( :discount ).permit(
-					:type, :start_at, :end_at, :status, :title, :code, :description, :availability, :maximum_units_per_customer, :minimum_prod_subtotal_as_money, :minimum_tax_subtotal_as_money, :minimum_shipping_subtotal_as_money, :min_subscription_interval, :max_subscription_interval, :limit_per_customer, :limit_global,
+					:type, :tags, :tags_csv, :start_at, :end_at, :status, :title, :code, :description, :availability, :maximum_units_per_customer, :minimum_prod_subtotal_as_money, :minimum_tax_subtotal_as_money, :minimum_shipping_subtotal_as_money, :min_subscription_interval, :max_subscription_interval, :limit_per_customer, :limit_global,
 					first_discount_item_attributes: [ :id, :discount_type, :discount_amount_as_money, :maximum_orders, :minimum_orders, :order_item_type, :applies_to_polymorphic_id ],
-					discount_items_attributes: [ :id, :discount_type, :discount_amount_as_money, :maximum_orders, :minimum_orders, :order_item_type, :applies_to_polymorphic_id ]
+					discount_items_attributes: [ :id, :discount_type, :tags, :tags_csv, :discount_amount_as_money, :maximum_orders, :minimum_orders, :order_item_type, :applies_to_polymorphic_id ]
 				)
 			end
 

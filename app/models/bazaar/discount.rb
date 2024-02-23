@@ -15,6 +15,8 @@ module Bazaar
 
 		money_attributes :minimum_prod_subtotal, :minimum_tax_subtotal, :minimum_shipping_subtotal
 
+		acts_as_taggable_array_on :tags
+
 		accepts_nested_attributes_for :discount_items, allow_destroy: true
 
 		validates :minimum_prod_subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }, allow_blank: false
@@ -76,6 +78,14 @@ module Bazaar
 
 		def non_recurring_orders?
 			self.max_subscription_interval == 1 && self.min_subscription_interval == 1
+		end
+
+		def tags_csv
+			self.tags.join(',')
+		end
+
+		def tags_csv=(tags_csv)
+			self.tags = tags_csv.split(/,\s*/)
 		end
 
 		def to_s
