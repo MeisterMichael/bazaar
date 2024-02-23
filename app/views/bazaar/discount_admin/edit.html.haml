@@ -105,7 +105,7 @@
 									= di_form.label :discount_amount, "Discount Amount"
 									%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'Either a percent or dollar amount, depending upon the selected calculation method.' }
 									- if di_form.object.percent?
-										= di_form.number_field :discount_amount_as_money, value: di_form.object.discount_amount, class: 'form-control', min: 0.01, step: 0.01
+										= di_form.number_field :discount_amount_as_money, value: di_form.object.discount_amount, class: 'form-control', min: 0.0, step: 0.01
 									- else
 										= di_form.number_field :discount_amount_as_money, class: 'form-control', min: 0.01, step: 0.01
 
