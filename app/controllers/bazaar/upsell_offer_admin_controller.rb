@@ -83,7 +83,7 @@ module Bazaar
 		end
 
 		def upsell_offer_params
-			params.require(:upsell_offer).permit( :src_offer_id, :src_product_id, :offer_id, :full_price_offer_id, :upsell_type, :status, :title, :description, :savings, :full_price, :image_url )
+			params.require(:upsell_offer).permit( :src_offer_id, :src_product_id, :offer_id, :full_price_offer_id, :upsell_type, :status, :title, :description, :supplemental_disclaimer, :savings, :full_price, :image_url )
 		end
 
 	end
