@@ -75,7 +75,17 @@ module Bazaar
 
 			log_event( { name:'remove_cart', on: @cart_offer.offer, content: "removed #{@cart_offer.offer} from their cart." } )
 
-			redirect_back fallback_location: '/admin'
+
+			respond_to do |format|
+				format.js {
+				}
+				format.json {
+				}
+				format.html {
+					redirect_back fallback_location: '/admin'
+				}
+			end
+			
 		end
 
 		protected
