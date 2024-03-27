@@ -37,6 +37,10 @@ module Bazaar
 				cart_offer = @cart.cart_offers.create( offer: @offer, quantity: params[:quantity].to_i )
 			end
 
+			if params[:remove_offer_id].present? && ( remove_cart_offer = @cart.cart_offers.find_by( offer_id: params[:remove_offer_id] ) ).present?
+				remove_cart_offer.destroy
+			end
+
 			cart_offer_price = @offer.initial_price
 			cart_offer.update( price: cart_offer_price, subtotal: cart_offer_price * cart_offer.quantity )
 
