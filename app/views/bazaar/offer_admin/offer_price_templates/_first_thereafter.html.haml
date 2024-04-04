@@ -1,0 +1,21 @@
+.row
+	.col-xs-12.col-lg-3
+		.form-group
+			%label Initial Price
+			%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+			= hidden_field_tag "offer_config[offer_prices][0][id]", @offer.offer_prices.active.where( start_interval: 1 ).first.try(:id)
+			= hidden_field_tag "offer_config[offer_prices][0][start_interval]", 1
+			= hidden_field_tag "offer_config[offer_prices][0][max_intervals]", 1
+			= number_field_tag "offer_config[offer_prices][0][price_as_money_string]", @offer.offer_prices.active.where( start_interval: 1 ).first.try(:price_as_money_string), class: 'form-control', min: 0.00, step: 0.01, required: true
+	.col-xs-12.col-lg-3
+		.form-group
+			%label Thereafter Price
+			%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+			= hidden_field_tag "offer_config[offer_prices][1][id]", @offer.offer_prices.active.where( start_interval: 2 ).first.try(:id)
+			= hidden_field_tag "offer_config[offer_prices][1][start_interval]", 2
+			= number_field_tag "offer_config[offer_prices][1][price_as_money_string]", @offer.offer_prices.active.where( start_interval: 2 ).first.try(:price_as_money_string), class: 'form-control', min: 0.00, step: 0.01, required: false, placeholder: 'Same as Initial Price'
+	.col-xs-12.col-lg-3
+		.form-group
+			= f.label :suggested_price_as_money_string, 'Suggested Price'
+			%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+			= f.number_field :suggested_price_as_money_string, class: 'form-control', min: 0.00, step: 0.01

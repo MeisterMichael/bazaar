@@ -1,0 +1,62 @@
+- offer_skus = @offer.offer_skus.active.order(id: :asc)
+- skus = @offer.offer_skus.active.order(id: :asc).collect(&:sku).uniq
+
+.row
+	.col-xs-12.col-lg-3
+		%label Initial Quantity
+		%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+	.col-xs-12.col-lg-3
+		%label Thereafter Quantity
+		%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+	.col-xs-12.col-lg-6
+		%label Sku
+		%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+
+
+
+- (0..6).each do |i|
+	- initial_offer_sku = offer_skus.where( sku: skus[i], start_interval: 1 ).first if skus[i].present?
+	- therefater_offer_sku = offer_skus.where( sku: skus[i], start_interval: 2 ).first if skus[i].present?
+
+	= hidden_field_tag "offer_config[offer_skus][#{i*2}][id]", initial_offer_sku.try(:id)
+	= hidden_field_tag "offer_config[offer_skus][#{i*2+1}][id]", therefater_offer_sku.try(:id)
+
+	= hidden_field_tag "offer_config[offer_skus][#{i*2}][start_interval]", 1
+	= hidden_field_tag "offer_config[offer_skus][#{i*2}][max_intervals]", 1
+	= hidden_field_tag "offer_config[offer_skus][#{i*2+1}][start_interval]", 2
+	.row.offer_sku_template_first_thereafter{ id: "offer_sku_template_first_thereafter_#{i}", data: { index: i, next: "#offer_sku_template_first_thereafter_#{i+1}" }, class: (i > ([skus.count - 1,0].max) ? 'hidden' : 'open') }
+		.col-xs-12.col-lg-3
+			.form-group
+				-# %label Initial Quantity
+				-# %i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+				= number_field_tag "offer_config[offer_skus][#{i*2}][quantity]", initial_offer_sku.try(:quantity) || (i == 0 ? 1 : 0), class: 'form-control offer_sku_template_first_thereafter_quantity', min: 0, step: 1, required: false
+		.col-xs-12.col-lg-3
+			.form-group
+				-# %label Thereafter Quantity
+				-# %i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+				- if therefater_offer_sku.blank? && initial_offer_sku.try(:max_intervals) == 1
+					= number_field_tag "offer_config[offer_skus][#{i*2+1}][quantity]", 0, class: 'form-control offer_sku_template_first_thereafter_quantity', min: 0, step: 1, required: false, placeholder: 'Same as Initial Quantity'
+				- else
+					= number_field_tag "offer_config[offer_skus][#{i*2+1}][quantity]", therefater_offer_sku.try(:quantity), class: 'form-control offer_sku_template_first_thereafter_quantity', min: 0, step: 1, required: false, placeholder: 'Same as Initial Quantity'
+		.col-xs-12.col-lg-6
+			.form-group
+				-# %label Sku
+				-# %i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+				= select_tag "offer_config[offer_skus][#{i*2}][sku_id]", options_from_collection_for_select(Bazaar::Sku.active.order(code: :asc), :id, :to_s, skus[i].try(:id)), class: 'form-control offer_sku_template_first_thereafter_sku_id', :include_blank => (i != 0), required: false
+.row
+	.col-xs-12
+		.text-center
+			%a.btn.btn-default.btn-sm{ href: '#', onclick: "$('.offer_sku_template_first_thereafter:not(.open):not(.hidden):last select').val('');$('.offer_sku_template_first_thereafter:not(.open):not(.hidden):last input').val('0');$('.offer_sku_template_first_thereafter:not(.open):not(.hidden):last').addClass('hidden');return false;", style: '' } -
+			%a.btn.btn-default.btn-sm{ href: '#', onclick: "$('.offer_sku_template_first_thereafter.hidden:first').removeClass('hidden');return false;", style: '' } +
+
+-# :javascript
+	$('.offer_sku_template_first_thereafter .offer_sku_template_first_thereafter_quantity').change(function(){
+		$input = $(this)
+		$row = $(this).parents('.offer_sku_template_first_thereafter')
+
+		if ( ($input.val() || 0) >= 1 ) {
+			$row.addClass('open')
+		} else {
+			$row.removeClass('open')
+		}
+	})

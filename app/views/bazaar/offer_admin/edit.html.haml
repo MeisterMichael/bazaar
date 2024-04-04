@@ -22,20 +22,7 @@
 			.col-xs-8
 				.well.white-well
 					.form-group
-						%h4 Internal Descriptors
-					.form-group
-						= f.label :title
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A title for internal reference.' }
-						= f.text_field :title, class: 'form-control'
-
-					.form-group
-						= f.label :description
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A description for internal reference.' }
-						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @offer.class.base_class.name, object_id: @offer.id }.to_json }
-
-				.well.white-well
-					.form-group
-						%h4 Public Descriptors
+						%h4 Cart Details
 					.form-group
 						= f.label :cart_title, 'Title'
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The title displayed publically to customers, in the cart, order and at checkout.' }
@@ -46,21 +33,44 @@
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The discription displayed publically to customers at checkout.' }
 						= f.text_area :cart_description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 100, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @offer.class.base_class.name, object_id: @offer.id }.to_json }
 
-					.form-group
-						= f.label :disclaimer, 'Disclaimer'
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The disclaimer displayed publically to customers at checkout (and possibly elswhere).' }
-						= f.text_area :disclaimer, class: 'form-control'
+					.row
+						.col-xs-12
+							.form-group
+								= f.label :disclaimer, 'Disclaimer'
+								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The disclaimer displayed publically to customers at checkout (and possibly elswhere).' }
+								= f.text_area :disclaimer, class: 'form-control'
+						-# .col-xs-12.col-lg-4
+							.form-group
+								= f.label :suggested_price_as_money_string, 'Suggested Price'
+								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+								= f.number_field :suggested_price_as_money_string, class: 'form-control', min: 0.00, step: 0.01
 
-
-				.well.white-well
-					.form-group
-						%h4 Price Options
-					.form-group
-						= f.label :suggested_price_as_money_string, 'Suggested Price'
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
-						= f.number_field :suggested_price_as_money_string, class: 'form-control', min: 0.00, step: 0.01
+				-# if ( not(@has_orders) || params[:edit_view] == '1' ) && @offer_price_template.present? && @offer_sku_template.present? && @offer_schedule_template.present?
+				- if @offer_price_template.present? && @offer_sku_template.present? && @offer_schedule_template.present?
+					.well.white-well
+						.form-group
+							%h4 Purchasing Details
+						- if not(@has_orders) || params[:edit_view] == '1'
+							- if @offer_price_template.present?
+								= render "bazaar/offer_admin/offer_price_templates/#{@offer_price_template}", f: f, args: {}
+							- if @offer_sku_template.present?
+								= render "bazaar/offer_admin/offer_sku_templates/#{@offer_sku_template}", f: f, args: {}
+							- if @offer_schedule_template.present?
+								= render "bazaar/offer_admin/offer_schedule_templates/#{@offer_schedule_template}", f: f, args: {}
+						- else
+							- if @offer_price_template.present?
+								= render "bazaar/offer_admin/offer_price_templates/#{@offer_price_template}_readonly", f: f, args: {}
+							- if @offer_sku_template.present?
+								= render "bazaar/offer_admin/offer_sku_templates/#{@offer_sku_template}_readonly", f: f, args: {}
+							- if @offer_schedule_template.present?
+								= render "bazaar/offer_admin/offer_schedule_templates/#{@offer_schedule_template}_readonly", f: f, args: {}
+						%p NOTE: Offer pricing, skus and schedule cannot be edited once an offer has been purchased.
 
 				= render 'custom_body', f: f, args: {}
+
+
+				= render 'custom_settings', f: f, args: {}
+
 
 
 			.col-xs-4
@@ -68,37 +78,14 @@
 					%h4
 						Offer Settings
 					.form-group
+						= f.label :title, 'Title (Internal Use)'
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A title for internal reference.' }
+						= f.text_field :title, class: 'form-control'
+
+					.form-group
 						= f.label :code
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'An internal reference code for this offer.' }
 						= f.text_field :code, class: 'form-control'
-
-					.form-group
-						= f.label :min_quantity, 'Minimum Quantity'
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The minimum quantity of this offer that can be purchased.  Currently used by wholesale for providing bulk purchase discounts.' }
-						= f.number_field :min_quantity, class: 'form-control', min: 0, step: 1
-
-					.form-group
-						= f.label :status
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'Determines if this offer is active for purchase, and avaiable to be added be used in other admin tools.<br/><strong>Draft</strong> still being configured, and not yet ready to be used.<br/><strong>Active</strong> fully configured and ready for use.<br/><strong>Archived</strong> no longer available for use, but not permanently removed.<br/><strong>Trash</strong> queued up to be permanently deleted.' }
-						= f.collection_select :status, Bazaar::Offer.statuses, :first, humanize_first, {}, class: 'form-control'
-
-					.form-group
-						= f.label :availability
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'Determines the availability of this offer.<br/><strong>Backorder</strong> offers which are out of stock, puchases of such items pre-authorize payments and process them when the item has been restocked.<br/><strong>Pre Order</strong> offers have not yet been stocked, puchases of such items pre-authorize payments and process them when the item has been stocked.<br/><strong>Open Availability</strong> currently available to be purchased and fulfilled, without delay.' }
-						= f.collection_select :availability, Bazaar::Offer.availabilities, :first, humanize_first, {}, class: 'form-control'
-
-					.form-group
-						= f.label :product_id, "Product"
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The product brand that this offer is associated with/aggregated to.' }
-						= f.collection_select :product_id, Bazaar::Product.active.order(title: :asc), :id, :title, { include_blank: "-- Select Product --" }, { class: 'form-control', required: true }
-
-					.form-group
-						= f.label :tags_csv, 'Tags'
-						= f.text_field :tags_csv, class: 'form-control'
-
-					%hr
-
-					= render 'custom_settings', f: f, args: {}
 
 					.form-group
 						= f.label :avatar_attachment, "Avatar"
@@ -113,8 +100,35 @@
 										%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
 							.col-xs-6
 								= f.file_field :avatar_attachment
+					- if @offer.code.include? 'wholesale'
+						.row
+							.col-xs-12.col-lg-6
+								.form-group
+									= f.label :min_quantity, 'Minimum Quantity'
+									%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The minimum quantity of this offer that can be purchased.  Currently used by wholesale for providing bulk purchase discounts.' }
+									= f.number_field :min_quantity, class: 'form-control', min: 0, step: 1
 
-					%hr
+					.row
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :status
+								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'Determines if this offer is active for purchase, and avaiable to be added be used in other admin tools.<br/><strong>Draft</strong> still being configured, and not yet ready to be used.<br/><strong>Active</strong> fully configured and ready for use.<br/><strong>Archived</strong> no longer available for use, but not permanently removed.<br/><strong>Trash</strong> queued up to be permanently deleted.' }
+								= f.collection_select :status, Bazaar::Offer.statuses, :first, humanize_first, {}, class: 'form-control'
+						.col-xs-12.col-lg-6
+
+							.form-group
+								= f.label :availability
+								%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'Determines the availability of this offer.<br/><strong>Backorder</strong> offers which are out of stock, puchases of such items pre-authorize payments and process them when the item has been restocked.<br/><strong>Pre Order</strong> offers have not yet been stocked, puchases of such items pre-authorize payments and process them when the item has been stocked.<br/><strong>Open Availability</strong> currently available to be purchased and fulfilled, without delay.' }
+								= f.collection_select :availability, Bazaar::Offer.availabilities, :first, humanize_first, {}, class: 'form-control'
+
+					.form-group
+						= f.label :product_id, "Product"
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The product brand that this offer is associated with/aggregated to.' }
+						= f.collection_select :product_id, Bazaar::Product.active.order(title: :asc), :id, :title, { include_blank: "-- Select Product --" }, { class: 'form-control', required: true }
+
+					.form-group
+						= f.label :tags_csv, 'Tags'
+						= f.text_field :tags_csv, class: 'form-control'
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'

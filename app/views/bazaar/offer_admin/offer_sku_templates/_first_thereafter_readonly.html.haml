@@ -1,0 +1,41 @@
+- offer_skus = @offer.offer_skus.active.order(id: :asc)
+- skus = @offer.offer_skus.active.order(id: :asc).collect(&:sku).uniq
+
+.row
+	.col-xs-12.col-lg-3
+		%label Initial Quantity
+		%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+	.col-xs-12.col-lg-3
+		%label Thereafter Quantity
+		%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+	.col-xs-12.col-lg-6
+		%label Sku
+		%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: '' }
+
+
+
+- skus.each do |sku|
+	- initial_offer_sku = offer_skus.where( sku: sku, start_interval: 1 ).first
+	- therefater_offer_sku = offer_skus.where( sku: sku, start_interval: 2 ).first
+
+	.row
+		.col-xs-12.col-lg-3
+			.form-group
+				.form-control{ readonly: true }
+					- if initial_offer_sku.present?
+						= initial_offer_sku.try(:quantity) || 0
+		.col-xs-12.col-lg-3
+			.form-group
+				
+				- if therefater_offer_sku.present?
+					.form-control{ readonly: true }
+						= therefater_offer_sku.try(:quantity)
+				- elsif initial_offer_sku.present? && initial_offer_sku.max_intervals.nil?
+					.form-control{ readonly: true }
+						= initial_offer_sku.try(:quantity)
+				- else
+					.form-control{ readonly: true }=0
+		.col-xs-12.col-lg-6
+			.form-group
+				.form-control{ readonly: true }
+					= sku.to_s

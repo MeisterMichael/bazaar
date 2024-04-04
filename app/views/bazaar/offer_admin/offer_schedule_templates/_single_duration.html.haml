@@ -1,0 +1,11 @@
+= hidden_field_tag "offer_config[offer_schedules][0][start_interval]", 1
+.row
+	.col-xs-12
+		%label="Every"
+	.col-xs-12.col-lg-3
+		.form-group
+			= number_field_tag "offer_config[offer_schedules][0][interval_value]", @offer.offer_schedules.active.for_interval( 1 ).first.try(:interval_value) || 4, class: 'form-control', min: 0, step: 1
+	.col-xs-12.col-lg-3
+		.form-group
+			= select_tag "offer_config[offer_schedules][0][interval_unit]", options_for_select( ['months', 'weeks', 'days'], @offer.offer_schedules.active.for_interval( 1 ).first.try(:interval_unit)) || 'weeks', class: 'form-control'
+			-# = f.select :interval_unit, ['months', 'weeks', 'days']
