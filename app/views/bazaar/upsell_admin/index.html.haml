@@ -47,10 +47,17 @@
 						%tr
 							%td
 								- if upsell.image_url.present?
-									%img{ src: upsell.image_url, style: 'width: 50px;' }
+									%a{ href: edit_upsell_admin_path( upsell ) }
+										%img{ src: upsell.image_url, style: 'width: 50px;' }
 							%td
 								- if upsell.offer.present?
-									= link_to (upsell.title.presence || 'N/A'), edit_upsell_admin_path( upsell )
+									%strong
+										= link_to (upsell.title.presence || 'N/A'), edit_upsell_admin_path( upsell )
+								%div{ style: 'opacity: 0.6;margin-top: 5px;' }
+									- if upsell.savings.present?
+										%small.badge Savings: #{upsell.savings}
+									- if upsell.savings.present?
+										%small.badge Full Price: #{upsell.full_price}
 
 							%td
 								- if upsell.offer.present?
@@ -79,3 +86,7 @@
 														%i.fa.fa-pencil
 														Edit
 												%li.divider
+												%li
+													%a{ href: upsell_admin_path( upsell.id ), data: { method: 'delete', confirm: 'Are you sure?' } }
+														%i.fa.fa-trash-o
+														Delete!

@@ -3,7 +3,7 @@
 .container-fluid
 	.row
 		.col-xs-10
-			= link_to 'Back', upsell_admin_index_path
+			= link_to 'Upsells', upsell_admin_index_path
 			%h2
 				%strong= @upsell.offer.title
 				%small= current_user.to_local_tz(@upsell.created_at).to_fs( :short )
@@ -17,3 +17,29 @@
 				= render 'form', f: f
 				.form-group
 					= f.submit 'Update', class: 'btn btn-primary'
+			.col-xs-12.col-lg-4
+				%h3 Actively Used By
+				- if (upsell_offers = Bazaar::UpsellOffer.active.where( upsell: @upsell ).where.not( src_product: nil )).present?
+					%h4 Products (#{upsell_offers.count})
+					%ul
+						- upsell_offers.each do |upsell_offer|
+							%li
+								%a{ href: edit_product_admin_path( upsell_offer.src_product ) }
+									= upsell_offer.src_product.title
+									(#{upsell_offer.upsell_type})
+				- else
+
+					%h4 Products (0)
+
+				
+				- if (upsell_offers = Bazaar::UpsellOffer.active.where( upsell: @upsell ).where.not( src_offer: nil )).present?
+
+					%h4 Offers (#{upsell_offers.count})
+					%ul
+						- upsell_offers.each do |upsell_offer|
+							%li
+								%a{ href: edit_offer_admin_path( upsell_offer.src_offer ) }
+									= upsell_offer.src_offer.title
+									(#{upsell_offer.upsell_type})
+				- else
+					%h4 Offers (0)

@@ -11,5 +11,9 @@ module Bazaar
 			self.offer.product
 		end
 
+		def to_s
+			"#{self.title} (#{self.offer.try(:code)}) #{self.savings}"
+		end
+
 	end
 end

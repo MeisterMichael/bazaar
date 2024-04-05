@@ -9,7 +9,7 @@
 		%tr
 			%td{ colspan: 4 }
 				\- No Offers Found -
-	- upsell_offers.joins(:offer).order( Arel.sql('bazaar_offers.title asc') ).each do |upsell_offer|
+	- upsell_offers.joins(:upsell).merge(Bazaar::Upsell.joins(:offer)).order( Arel.sql('bazaar_offers.title asc') ).each do |upsell_offer|
 		%tr
 			%td
 				- if upsell_offer.offer
@@ -28,7 +28,7 @@
 			%td
 				= upsell_offer.upsell_type.titleize
 			%td.text-right
-				%a.btn.btn-primary.btn-xs{ href: edit_upsell_offer_admin_path( upsell_offer ) }
+				%a.btn.btn-primary.btn-xs{ href: edit_upsell_admin_path( upsell_offer.upsell ) }
 					Edit
 				%a.btn.btn-danger.btn-xs{ href: upsell_offer_admin_path( upsell_offer ), data: { method: :delete, confirm: 'Are you sure?' } }
 					%i.fa.fa-trash
