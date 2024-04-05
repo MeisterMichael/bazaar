@@ -1,0 +1,42 @@
+
+
+.form-group
+	= f.label :title
+	= f.text_field :title, class: 'form-control'
+.form-group
+	= f.label :description
+	= f.text_area :description, class: 'form-control'
+.form-group
+	= f.label :offer_id, "Upsell Offer"
+	%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The offer you want to be made as an upsell.' }
+	= f.collection_select :offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: {}, format: 'json' ) }, required: true
+
+.row
+	.col-xs-12.col-lg-4
+		.form-group
+			= f.label :savings
+			= f.text_field :savings, class: 'form-control'
+	.col-xs-12.col-lg-4
+		.form-group
+			= f.label :full_price
+			= f.text_field :full_price, class: 'form-control'
+	.col-xs-12.col-lg-4
+		.form-group
+			= f.label :upsell_type
+			= f.collection_select :upsell_type, Bazaar::UpsellOffer.upsell_types, :first, humanize_first, { include_blank: true }, class: 'form-control'
+
+.row
+	.col-xs-12.col-lg-8
+		.form-group
+			= f.label :image_url
+			= f.text_field :image_url, class: 'form-control'
+	.col-xs-12.col-lg-4.text-center
+		- if f.object.image_url.present?
+			%img.img.img-fluid.img-relative{ src: f.object.image_url, style: 'width: 75%' }
+.form-group
+	= f.label :supplemental_disclaimer
+	= f.text_area :supplemental_disclaimer, class: 'form-control'
+.form-group
+	= f.label :full_price_offer_id, "Full Price Offer"
+	%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The full price equivalent offer, which can be used to calculate the amount of saving the upsell offer provides.' }
+	= f.collection_select :full_price_offer_id, Bazaar::Offer.active.order( title: :asc ), :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: {}, format: 'json' ) }

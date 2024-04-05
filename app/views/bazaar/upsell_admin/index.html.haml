@@ -1,0 +1,81 @@
+
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			%h2 Upsells
+		.col-xs-2
+			= link_to 'New', new_upsell_admin_path, class: 'btn btn-default'
+	.row{ style: 'margin-top: 0' }
+		.col-xs-6
+			= raw paginate @upsells
+			= "(#{pluralize @upsells.total_count, 'Offer'})"
+		.col-xs-6
+			= form_tag upsell_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= select_tag :status, options_from_collection_for_select( Bazaar::Upsell.statuses, :first, :first, params[:status] ), { prompt: "-- All Statuses --", class: 'form-control' }
+				= select_tag :upsell_type, options_from_collection_for_select( Bazaar::Upsell.upsell_types, :first, :first, params[:upsell_type] ), { prompt: "-- All Types --", class: 'form-control' }
+				-# = text_field_tag :q, params[:q], class: 'form-control'
+				= submit_tag 'Search', class: 'btn btn-primary'
+				= link_to 'Clear', upsell_admin_index_path, class: 'btn btn-default'
+
+
+	.row
+		.col-xs-12
+			%table.table.table-light.table-bordered
+				%thead
+					%th{ style: 'width: 70px;' }
+						Image
+					%th
+						Title
+					%th
+						Offer
+					%th{ style: 'width: 150px;' }
+						Type
+					%th{ style: 'width: 150px;' }
+						Created
+					%th{ style: 'width: 100px;' }
+						Status
+					%th{ style: 'width: 6em' }
+				%tbody
+					- if @upsells.blank?
+						%tr
+							%td{ colspan: 7 }
+								\- No Offers Found -
+					- @upsells.each do |upsell|
+
+						%tr
+							%td
+								- if upsell.image_url.present?
+									%img{ src: upsell.image_url, style: 'width: 50px;' }
+							%td
+								- if upsell.offer.present?
+									= link_to (upsell.title.presence || 'N/A'), edit_upsell_admin_path( upsell )
+
+							%td
+								- if upsell.offer.present?
+									= link_to upsell.offer.title, edit_offer_admin_path( upsell.offer )
+								- else
+									N/A
+
+							%td
+								= upsell.upsell_type
+
+							%td
+								= current_user.to_local_tz(upsell.created_at).to_fs( :short )
+							%td
+								.badge{ class: upsell.status }
+									= upsell.status
+							%td
+								- if authorized?(upsell, controller: Bazaar::UpsellAdminController, action: :edit ) || authorized?(upsell, controller: Bazaar::UpsellAdminController, action: :destroy )
+									.btn-group
+										%button.btn.btn-mini.btn-default.dropdown-toggle{ data: { toggle: :dropdown } }
+											%i.fa.fa-cog
+											%b.caret
+										%ul.dropdown-menu
+											- if authorized?(upsell, controller: Bazaar::UpsellAdminController, action: :edit )
+												%li
+													%a{ href: edit_upsell_admin_path( upsell.id ) }
+														%i.fa.fa-pencil
+														Edit
+												%li.divider

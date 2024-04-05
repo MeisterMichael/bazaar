@@ -1,0 +1,18 @@
+
+
+.container-fluid
+	.row
+		.col-xs-10
+			= link_to 'Back', upsell_admin_index_path
+			%h2
+				%strong New Upsell
+
+		.col-xs-2
+
+
+	= form_for @upsell, url: bazaar.upsell_admin_index_path() do |f|
+		.row
+			.col-xs-8
+				= render 'form', f: f
+				.form-group
+					= f.submit 'Create', class: 'btn btn-primary'
