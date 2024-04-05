@@ -19,9 +19,9 @@ module Bazaar
 			self.upsell.try(:full_price_offer) || Bazaar::Offer.where(id: self.attributes[:full_price_offer_id]).first
 		end
 
-		def upsell_type
-			self.upsell.try(:upsell_type) || self.attributes[:upsell_type]
-		end
+		# def upsell_type
+		# 	self.upsell.try(:upsell_type) || self.attributes[:upsell_type]
+		# end
 
 		def title
 			self.upsell.try(:title) || self.attributes[:title]
