@@ -8,7 +8,7 @@ class UpsellMigration < ActiveRecord::Migration[7.1]
     create_table :bazaar_upsells do |t|
       t.belongs_to "offer"
       t.belongs_to "full_price_offer"
-      t.integer "upsell_type", default: 1
+      t.integer "upsell_type", default: nil
       t.integer "status", default: 0
       t.string "title"
       t.string "description"
