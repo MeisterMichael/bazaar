@@ -54,6 +54,8 @@
 									%strong
 										= link_to (upsell.title.presence || 'N/A'), edit_upsell_admin_path( upsell )
 								%div{ style: 'opacity: 0.6;margin-top: 5px;' }
+
+									%small.badge Uses: #{Bazaar::UpsellOffer.where(upsell: upsell).active.count }
 									- if upsell.savings.present?
 										%small.badge Savings: #{upsell.savings}
 									- if upsell.savings.present?

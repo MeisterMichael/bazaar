@@ -16,7 +16,7 @@
 			.col-xs-8
 				= render 'form', f: f
 				.form-group
-					= f.submit 'Update', class: 'btn btn-primary'
+					= f.submit 'Update', class: 'btn btn-primary', data: { confirm: 'Updating this record, will impact all Upsells actively using this data (see "Actively Used By" section). Are you sure?' }
 			.col-xs-12.col-lg-4
 				%h3 Actively Used By
 				- if (upsell_offers = Bazaar::UpsellOffer.active.where( upsell: @upsell ).where.not( src_product: nil )).present?
