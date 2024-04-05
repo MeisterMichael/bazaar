@@ -32,7 +32,7 @@
 						= therefater_offer_sku.try(:quantity)
 				- elsif initial_offer_sku.present? && initial_offer_sku.max_intervals.nil?
 					.form-control{ readonly: true }
-						= initial_offer_sku.try(:quantity)
+						\...
 				- else
 					.form-control{ readonly: true }=0
 		.col-xs-12.col-lg-6
