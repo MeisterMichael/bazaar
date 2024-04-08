@@ -10,6 +10,8 @@ class UpsellMigration < ActiveRecord::Migration[7.1]
       t.belongs_to "full_price_offer"
       t.integer "upsell_type", default: nil
       t.integer "status", default: 0
+      t.string "internal_title"
+      t.text "internal_description"
       t.string "title"
       t.string "description"
       t.string "savings"
@@ -17,8 +19,8 @@ class UpsellMigration < ActiveRecord::Migration[7.1]
       t.string "image_url"
       t.string "disclaimer"
       t.string "supplemental_disclaimer"
+      t.text "tags", default: [], array: true
       t.timestamps
-      t.index ["offer_id"], name: "index_bazaar_upsells_on_offer_id"
       t.index ["status", "offer_id"], name: "index_bazaar_upsells_on_status_and_offer_id"
       t.index ["status"], name: "index_bazaar_upsells_on_status"
       t.index ["upsell_type"], name: "index_bazaar_upsells_on_upsell_type"

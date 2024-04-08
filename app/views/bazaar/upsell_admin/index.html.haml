@@ -28,9 +28,11 @@
 						Image
 					%th
 						Title
+					%th{ style: 'width: 70px;' }
+						Uses
 					%th
 						Offer
-					%th{ style: 'width: 150px;' }
+					-# %th{ style: 'width: 150px;' }
 						Type
 					%th{ style: 'width: 150px;' }
 						Created
@@ -52,22 +54,19 @@
 							%td
 								- if upsell.offer.present?
 									%strong
-										= link_to (upsell.title.presence || 'N/A'), edit_upsell_admin_path( upsell )
-								%div{ style: 'opacity: 0.6;margin-top: 5px;' }
+										= link_to (upsell.internal_title.presence || upsell.title.presence || 'N/A'), edit_upsell_admin_path( upsell )
+								%div{ style: 'opacity: 0.6;margin-top: 5px;font-size: 0.9em;' }
+									= upsell.internal_description.try(:truncate, 150)
 
-									%small.badge Uses: #{Bazaar::UpsellOffer.where(upsell: upsell).active.count }
-									- if upsell.savings.present?
-										%small.badge Savings: #{upsell.savings}
-									- if upsell.savings.present?
-										%small.badge Full Price: #{upsell.full_price}
-
+							%td
+								= Bazaar::UpsellOffer.where(upsell: upsell).active.count
 							%td
 								- if upsell.offer.present?
 									= link_to upsell.offer.title, edit_offer_admin_path( upsell.offer )
 								- else
 									N/A
 
-							%td
+							-# %td
 								= upsell.upsell_type
 
 							%td
