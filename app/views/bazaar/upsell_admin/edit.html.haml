@@ -5,7 +5,7 @@
 		.col-xs-10
 			= link_to 'Upsells', upsell_admin_index_path
 			%h2
-				%strong= @upsell.offer.title
+				%strong= @upsell.internal_title
 				%small= current_user.to_local_tz(@upsell.created_at).to_fs( :short )
 
 		.col-xs-2
@@ -20,26 +20,41 @@
 			.col-xs-12.col-lg-4
 				%h3 Actively Used By
 				- if (upsell_offers = Bazaar::UpsellOffer.active.where( upsell: @upsell ).where.not( src_product: nil )).present?
-					%h4 Products (#{upsell_offers.count})
+					%h4
+						Products (#{upsell_offers.count})
+						%a{ href: '#new_src_product_upsell_offer_modal', data: { target: '#new_src_product_upsell_offer_modal', toggle: 'modal' } } +
 					%ul
 						- upsell_offers.each do |upsell_offer|
-							%li
-								%a{ href: edit_product_admin_path( upsell_offer.src_product ) }
+							%li{ style: 'margin-bottom: 0.2em;' }
+								%a{ href: edit_product_admin_path( upsell_offer.src_product ), style: 'min-width: calc(100% - 2em);;display: inline-block' }
 									= upsell_offer.src_product.title
 									(#{upsell_offer.upsell_type})
+								%a.btn.btn-danger.btn-xs{ href: upsell_offer_admin_path( upsell_offer ), data: { method: :delete, confirm: 'Are you sure?' } }
+									%i.fa.fa-trash
 				- else
 
-					%h4 Products (0)
+					%h4
+						Products (0)
+						%a{ href: '#new_src_product_upsell_offer_modal', data: { target: '#new_src_product_upsell_offer_modal', toggle: 'modal' } } +
 
 				
 				- if (upsell_offers = Bazaar::UpsellOffer.active.where( upsell: @upsell ).where.not( src_offer: nil )).present?
 
-					%h4 Offers (#{upsell_offers.count})
+					%h4
+						Offers (#{upsell_offers.count})
+						%a{ href: '#new_src_offer_upsell_offer_modal', data: { target: '#new_src_offer_upsell_offer_modal', toggle: 'modal' } } +
 					%ul
 						- upsell_offers.each do |upsell_offer|
-							%li
-								%a{ href: edit_offer_admin_path( upsell_offer.src_offer ) }
+							%li{ style: 'margin-bottom: 0.2em;' }
+								%a{ href: edit_offer_admin_path( upsell_offer.src_offer ), style: 'min-width: calc(100% - 2em);;display: inline-block' }
 									= upsell_offer.src_offer.title
 									(#{upsell_offer.upsell_type})
+								%a.btn.btn-danger.btn-xs{ href: upsell_offer_admin_path( upsell_offer ), data: { method: :delete, confirm: 'Are you sure?' } }
+									%i.fa.fa-trash
 				- else
-					%h4 Offers (0)
+					%h4
+						Offers (0)
+						%a{ href: '#new_src_offer_upsell_offer_modal', data: { target: '#new_src_offer_upsell_offer_modal', toggle: 'modal' } } +
+
+= render 'bazaar/upsell_offer_admin/new_src_product_modal', args: { upsell: @upsell }
+= render 'bazaar/upsell_offer_admin/new_src_offer_modal', args: { upsell: @upsell }
