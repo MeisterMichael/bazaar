@@ -2,8 +2,7 @@
 %table.table.table-light.table-bordered{ style: 'margin:0;' }
 	%thead
 		%th Title
-		%th Offers
-		%th Type
+		%th{ style: 'width: 9em' } Type
 		%th{ style: 'width: 6em' }
 	- if upsell_offers.count == 0
 		%tr
@@ -12,22 +11,20 @@
 	- upsell_offers.joins(:upsell).merge(Bazaar::Upsell.joins(:offer)).order( Arel.sql('bazaar_offers.title asc') ).each do |upsell_offer|
 		%tr
 			%td
-				%a{ href: edit_upsell_admin_path( upsell_offer.upsell ) }
-					= upsell_offer.try(:upsell).to_s.presence || "N/A"
-			%td
-				- if upsell_offer.offer
-					%a{ href: bazaar.edit_offer_admin_path( upsell_offer.offer.id ) }
-						= upsell_offer.offer.title
-					( #{ upsell_offer.offer.initial_price_formatted } )
-				- else
-					\-
-				%br
-				- if upsell_offer.full_price_offer
-					%a{ href: bazaar.edit_offer_admin_path( upsell_offer.full_price_offer.id ) }
-						= upsell_offer.full_price_offer.title
-					( #{ upsell_offer.full_price_offer.initial_price_formatted } )
-				- else
-					\-
+				%a{ href: edit_upsell_admin_path( upsell_offer.upsell ), style: 'font-weight: bold;' }
+					= upsell_offer.try(:upsell).try(:internal_title).presence || "N/A"
+				%div{ style: 'font-size: 12px;opacity: 0.7' }
+					= upsell_offer.try(:upsell).try(:internal_description) || '-'
+					-# if upsell_offer.offer
+						%a{ href: bazaar.edit_offer_admin_path( upsell_offer.offer.id ), style: 'display: inline-block;margin: 0 0 1rem 0;padding: 0.3em 0.5em;background: #e0e0e0;border-radius: 100px;' }
+							Offer:
+							= upsell_offer.offer.title
+							( #{ upsell_offer.offer.initial_price_formatted } )
+					-# if upsell_offer.full_price_offer
+						%a{ href: bazaar.edit_offer_admin_path( upsell_offer.full_price_offer.id ), style: 'display: inline-block;margin: 0 0 1rem 0;padding: 0.3em 0.5em;background: #e0e0e0;border-radius: 100px;' }
+							Full Price Offer:
+							= upsell_offer.full_price_offer.title
+							( #{ upsell_offer.full_price_offer.initial_price_formatted } )
 			%td
 				= upsell_offer.upsell_type.try(:titleize)
 			%td.text-right

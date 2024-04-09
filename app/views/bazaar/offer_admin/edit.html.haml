@@ -66,6 +66,15 @@
 								= render "bazaar/offer_admin/offer_schedule_templates/#{@offer_schedule_template}_readonly", f: f, args: {}
 						%p NOTE: Offer pricing, skus and schedule cannot be edited once an offer has been purchased.
 
+				.well.white-well
+					%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
+						%i.fa.fa-plus
+						Add
+					%h4
+						Upsell Offers
+
+					= render 'upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.active.where( src_offer: @offer ), args: {}
+
 				= render 'custom_body', f: f, args: {}
 
 
@@ -132,17 +141,6 @@
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
-
-	.row
-		.col-xs-12#upsell_offers
-			.well.white-well
-				%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
-					%i.fa.fa-plus
-					Add
-				%h4
-					Upsell Offers
-
-				= render 'upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.active.where( src_offer: @offer ), args: {}
 
 	.row
 		.col-xs-12
