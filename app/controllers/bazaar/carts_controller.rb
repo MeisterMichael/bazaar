@@ -32,14 +32,19 @@ module Bazaar
 			return show() if params[:item_quantity].blank?
 
 			params[:item_quantity].each do |k, v|
+
 				cart_offer = @cart.cart_offers.find( k )
-				if v.to_i < 1
+
+				quantity = v.to_i
+				quantity = [ quantity, cart_offer.offer.per_cart_limit ].min if cart_offer.offer.try(:per_cart_limit).present?
+
+				if quantity < 1
 					@cart.update subtotal: @cart.subtotal - ( cart_offer.price * cart_offer.quantity )
 					session[:cart_count] = session[:cart_count] - cart_offer.quantity
 					cart_offer.destroy
 				else
-					delta = cart_offer.quantity - v.to_i
-					cart_offer.update( quantity: v, subtotal: cart_offer.price * v.to_i )
+					delta = cart_offer.quantity - quantity
+					cart_offer.update( quantity: quantity, subtotal: cart_offer.price * quantity )
 					session[:cart_count] = session[:cart_count] - delta
 					@cart.update subtotal: @cart.subtotal - ( cart_offer.price * delta )
 				end

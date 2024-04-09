@@ -343,7 +343,10 @@ module Bazaar
 			@order = Bazaar.checkout_order_class_name.constantize.new( get_order_attributes )
 
 			@cart.cart_offers.each do |cart_offer|
-				@order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: cart_offer.quantity, title: cart_offer.offer.cart_title, tax_code: cart_offer.offer.tax_code )
+				quantity = cart_offer.quantity
+				quantity = [ quantity, cart_offer.offer.per_cart_limit ].min if cart_offer.offer.try(:per_cart_limit).present?
+
+				@order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: quantity, title: cart_offer.offer.cart_title, tax_code: cart_offer.offer.tax_code )
 			end
 
 			if @cart.discount.present? && @cart.discount.active? && @cart.discount.in_progress?

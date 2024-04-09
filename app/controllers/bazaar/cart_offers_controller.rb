@@ -23,18 +23,20 @@ module Bazaar
 			end
 
 
-			params[:quantity] ||= 1
+			quantity = params[:quantity].to_i if params[:quantity].present?
+			quantity ||= 1
+			quantity = [ quantity, @offer.per_cart_limit ].min if @offer.try(:per_cart_limit).present?
 
 			cart_offer = @cart.cart_offers.where( offer: @offer ).last
 			if cart_offer.present?
 
 				if params[:replace_offer].present?
-					cart_offer.update( quantity: params[:quantity] )
+					cart_offer.update( quantity: quantity )
 				else
-					cart_offer.increment!( :quantity, params[:quantity].to_i )
+					cart_offer.increment!( :quantity, quantity )
 				end
 			else
-				cart_offer = @cart.cart_offers.create( offer: @offer, quantity: params[:quantity].to_i )
+				cart_offer = @cart.cart_offers.create( offer: @offer, quantity: quantity )
 			end
 
 			if params[:remove_offer_id].present? && ( remove_cart_offer = @cart.cart_offers.find_by( offer_id: params[:remove_offer_id] ) ).present?
@@ -47,7 +49,7 @@ module Bazaar
 			@cart.update subtotal: @cart.cart_offers.sum( :subtotal )
 
 			session[:cart_count] ||= 0
-			session[:cart_count] += params[:quantity].to_i
+			session[:cart_count] += quantity
 
 
 			log_event( { name:'add_cart', on: @offer, content: "added #{@offer} to their cart.", page_params: CGI.unescape( request.query_parameters.merge({ "cart_offer_id" => cart_offer.id, "cart_id" => @cart.id, "quantity" => cart_offer.quantity, "offer_id" => cart_offer.offer_id }).to_query ) } )
