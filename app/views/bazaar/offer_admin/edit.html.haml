@@ -78,7 +78,7 @@
 				= render 'custom_body', f: f, args: {}
 
 
-				= render 'custom_settings', f: f, args: {}
+				
 
 
 
@@ -141,12 +141,15 @@
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
+			.col-xs-12
+				%h2 Advanced Options
+				= render 'custom_settings', f: f, args: {}
 
 	.row
 		.col-xs-12
 			.well.white-well#offer_items
 				%h4
-					Order Configuration
+					Order Schedule
 				= render 'offer_items_table'
 
 
