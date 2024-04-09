@@ -1,8 +1,8 @@
 
 %table.table.table-light.table-bordered{ style: 'margin:0;' }
 	%thead
-		%th Title
 		%th{ style: 'width: 9em' } Type
+		%th Upsell
 		%th{ style: 'width: 6em' }
 	- if upsell_offers.count == 0
 		%tr
@@ -10,6 +10,8 @@
 				\- No Offers Found -
 	- upsell_offers.joins(:upsell).merge(Bazaar::Upsell.joins(:offer)).order( Arel.sql('bazaar_offers.title asc') ).each do |upsell_offer|
 		%tr
+			%td
+				= upsell_offer.upsell_type.try(:titleize)
 			%td
 				%a{ href: edit_upsell_admin_path( upsell_offer.upsell ), style: 'font-weight: bold;' }
 					= upsell_offer.try(:upsell).try(:internal_title).presence || "N/A"
@@ -25,8 +27,6 @@
 							Full Price Offer:
 							= upsell_offer.full_price_offer.title
 							( #{ upsell_offer.full_price_offer.initial_price_formatted } )
-			%td
-				= upsell_offer.upsell_type.try(:titleize)
 			%td.text-right
 				%a.btn.btn-primary.btn-xs{ href: edit_upsell_admin_path( upsell_offer.upsell ) }
 					Edit
