@@ -135,9 +135,7 @@
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The product brand that this offer is associated with/aggregated to.' }
 						= f.collection_select :product_id, Bazaar::Product.active.order(title: :asc), :id, :title, { include_blank: "-- Select Product --" }, { class: 'form-control', required: true }
 
-					.form-group
-						= f.label :tags_csv, 'Tags'
-						= f.text_field :tags_csv, class: 'form-control'
+					= render 'bazaar/offer_admin/tag_settings', f: f, args: {}
 
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
