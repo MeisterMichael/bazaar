@@ -27,14 +27,15 @@
 					.form-group
 						= f.label :title
 						= f.text_field :title, class: 'form-control input-lg'
-
-					.form-group
-						= f.label :caption
-						= f.text_field :caption, class: 'form-control'
-
-					.form-group
-						= f.label :slug_pref, 'Slug'
-						= f.text_field :slug_pref, class: 'form-control', placeholder: @product.slug
+					.row
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :caption
+								= f.text_field :caption, class: 'form-control'
+						.col-xs-12.col-lg-6
+							.form-group
+								= f.label :slug_pref, 'Slug'
+								= f.text_field :slug_pref, class: 'form-control', placeholder: @product.slug
 
 					.form-group
 						= f.label :description
@@ -48,13 +49,6 @@
 
 				= render 'custom_fields', f: f, options: {}
 
-				.well.white-well
-					.form-group
-						%h4 Pricing
-					.form-group
-						= f.label :suggested_price_as_money_string, 'Suggested Price'
-						= f.number_field :suggested_price_as_money_string, class: 'form-control', min: 0.00, step: 0.01
-
 				#upsell_offers
 					.well.white-well
 						%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
@@ -66,49 +60,34 @@
 						= render 'bazaar/offer_admin/upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.active.where( src_product: @product, src_offer: nil ), args: {}
 
 
-				.well.white-well
-					.pull-right
-						%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachment_modal' } } Add Gallery Image
-					.form-group
-						%h4 Gallery
-					.row
-						.col-xs-6.col-sm-3
-							.well
-								.text-center{ style: 'margin-top: -16px;line-height: 16px;' } Default Image
-								- if @product.avatar
-									%a{ href: @product.avatar, target: '_preview_image' }
-										%img.img.img-responsive.center-block#product_avatar_img{:src => @product.avatar }
-								- else
-									%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
-								.text-center{ style: 'margin-bottom: -14px;' }
-									= f.file_field :avatar_attachment
-
-						- @product.gallery_attachments.each do |image|
-							.col-xs-6.col-sm-3
-								.well
-									%a{ href: image.url, target: '_preview_image' }
-										%img.img.img-responsive.center-block{:src => image.url }
-									.text-center{ style: 'margin-bottom: -14px;' }
-										%a{ href: pulitzer.attachment_path( image.id, object_class: @product.class.base_class.name, object_id: @product.id, attribute: :gallery_attachments ), data: { method: :delete } }
-											%i.fa.fa-trash
-											delete
-
 			.col-xs-4
 				.well.white-well
-
 					%h4
-						Default Offer
+						Product Image
+						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The public facing image used to reference this product.' }
 					.form-group
-						= f.collection_select :offer_id, @product.offers.active, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id }, format: 'json' ) }
+						.row
+							.col-xs-6{ style: 'max-width: 100px;' }
+								%div{ style: 'border: 1px solid #ccc;background: #fff;margin-bottom: 5px;' }
+									- if @product.avatar.present?
+										%a{ href: @product.avatar, target: '_preview_image' }
+											%img.img.img-responsive.center-block#product_avatar_img{:src => @product.avatar }
+									- else
+										%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
+							.col-xs-6
+								= f.file_field :avatar_attachment
 
-					%hr
+					%h4 Suggested Price
+					.form-group
+						-# = f.label :suggested_price_as_money_string, 'Suggested Price'
+						= f.number_field :suggested_price_as_money_string, class: 'form-control', min: 0.00, step: 0.01
 
 					%h4
 						Publishing Settings
 					.form-group
 						= f.label :status
 						= f.collection_select :status, Bazaar::Product.statuses, :first, :first, {}, class: 'form-control'
-					.form-group
+					-# .form-group
 						= f.label :availability
 						= f.collection_select :availability, Bazaar::Product.availabilities, :first, :first, {}, class: 'form-control'
 					.form-group
@@ -120,6 +99,11 @@
 					.form-group
 						= f.label :tags_csv, 'Tags:'
 						= f.text_field :tags_csv, placeholder: 'Separate tags with commas', class: 'form-control'
+
+					%h4
+						Default Offer
+					.form-group
+						= f.collection_select :offer_id, @product.offers.active, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id }, format: 'json' ) }
 
 					%hr
 
