@@ -36,7 +36,21 @@ module Bazaar
 					cart_offer.increment!( :quantity, quantity )
 				end
 			else
-				cart_offer = @cart.cart_offers.create( offer: @offer, quantity: quantity )
+				cart_offer = @cart.cart_offers.new(
+					offer: @offer,
+					quantity: quantity
+				)
+
+				if cart_offer.respond_to?( :source_obj_type ) && cart_offer.respond_to?( :source_obj_id ) && params[:source_obj_type].present? && params[:source_obj_id].present?
+					crypt = ActiveSupport::MessageEncryptor.new(Rails.application.secrets.secret_key_base[0..31], Rails.application.secrets.secret_key_base)
+					cart_offer.source_obj_id = crypt.decrypt_and_verify(params[:source_obj_id])
+					cart_offer.source_obj_type = crypt.decrypt_and_verify(params[:source_obj_type])
+				end
+
+				cart_offer.source_referrer = request.referrer if cart_offer.respond_to? :source_referrer
+				cart_offer.source_medium = params[:source_medium] || 'add_to_cart' if cart_offer.respond_to? :source_medium
+				cart_offer.save
+
 			end
 
 			if params[:remove_offer_id].present? && ( remove_cart_offer = @cart.cart_offers.find_by( offer_id: params[:remove_offer_id] ) ).present?

@@ -346,7 +346,12 @@ module Bazaar
 				quantity = cart_offer.quantity
 				quantity = [ quantity, cart_offer.offer.per_cart_limit ].min if cart_offer.offer.try(:per_cart_limit).present?
 
-				@order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: quantity, title: cart_offer.offer.cart_title, tax_code: cart_offer.offer.tax_code )
+				order_offer = @order.order_offers.new( offer: cart_offer.offer, price: cart_offer.price, subtotal: cart_offer.subtotal, quantity: quantity, title: cart_offer.offer.cart_title, tax_code: cart_offer.offer.tax_code )
+
+				order_offer.source_obj = cart_offer.source_obj if order_offer.respond_to?( :source_obj ) && cart_offer.respond_to?( :source_obj )
+				order_offer.source_referrer = cart_offer.source_referrer if order_offer.respond_to?( :source_referrer ) && cart_offer.respond_to?( :source_referrer )
+				order_offer.source_medium = cart_offer.source_medium if order_offer.respond_to?( :source_medium ) && cart_offer.respond_to?( :source_medium )
+
 			end
 
 			if @cart.discount.present? && @cart.discount.active? && @cart.discount.in_progress?
