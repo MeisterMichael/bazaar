@@ -34,13 +34,33 @@ module Bazaar
 		def update
 			authorize( @offer_sku )
 
-			@offer_sku.attributes = offer_sku_params
+			@new_offer_sku = Bazaar::OfferSku.new(
+				parent_obj_type: @offer_sku.parent_obj_type,
+				parent_obj_id: @offer_sku.parent_obj_id,
+				start_interval: @offer_sku.start_interval,
+				max_intervals: @offer_sku.max_intervals,
+				quantity: @offer_sku.quantity,
+				shipping_exemptions: @offer_sku.shipping_exemptions,
+				status: @offer_sku.status,
+				properties: @offer_sku.properties,
+			)
+
+			@offer_sku.status = 'trash'
+			@new_offer_sku.attributes = offer_sku_params
+
 			if @offer_sku.save
-				set_flash "Offer Sku Updated", :success
+
+				if @new_offer_sku.save
+					set_flash "Offer Sku Updated", :success
+				else
+					set_flash @new_offer_sku.errors.full_messages, :danger
+				end
+
 			else
 				set_flash @offer_sku.errors.full_messages, :danger
 			end
-			redirect_back fallback_location: sku_admin_index_path()
+
+			redirect_to edit_offer_admin_path( @new_offer_sku.parent_obj )
 		end
 
 		protected
