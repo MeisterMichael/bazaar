@@ -40,7 +40,7 @@ module Bazaar
 				start_interval: @offer_sku.start_interval,
 				max_intervals: @offer_sku.max_intervals,
 				quantity: @offer_sku.quantity,
-				shipping_exemptions: @offer_sku.shipping_exemptions,
+				shipping_calculation_exemptions: @offer_sku.shipping_calculation_exemptions,
 				status: @offer_sku.status,
 				properties: @offer_sku.properties,
 			)
@@ -48,19 +48,21 @@ module Bazaar
 			@offer_sku.status = 'trash'
 			@new_offer_sku.attributes = offer_sku_params
 
-			if @offer_sku.save
+			if @new_offer_sku.save
 
-				if @new_offer_sku.save
+				if @offer_sku.save
 					set_flash "Offer Sku Updated", :success
+					redirect_to edit_offer_admin_path( @new_offer_sku.parent_obj )
 				else
-					set_flash @new_offer_sku.errors.full_messages, :danger
+					set_flash @offer_sku.errors.full_messages, :danger
+					redirect_to edit_offer_sku_admin_path( @new_offer_sku.parent_obj )
 				end
 
 			else
-				set_flash @offer_sku.errors.full_messages, :danger
+				set_flash @new_offer_sku.errors.full_messages, :danger
+				redirect_to edit_offer_sku_admin_path( @new_offer_sku.parent_obj )
 			end
 
-			redirect_to edit_offer_admin_path( @new_offer_sku.parent_obj )
 		end
 
 		protected
@@ -69,7 +71,7 @@ module Bazaar
 		end
 
 		def offer_sku_params
-			params.require(:offer_sku).permit( :parent_obj_id, :parent_obj_type, :sku_id, :shipping_exemptions, :quantity, :start_interval, :max_intervals, :apply )
+			params.require(:offer_sku).permit( :parent_obj_id, :parent_obj_type, :sku_id, :shipping_calculation_exemptions, :quantity, :start_interval, :max_intervals, :apply )
 		end
 
 	end

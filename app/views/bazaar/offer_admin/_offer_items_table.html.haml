@@ -102,7 +102,7 @@
 							
 							%a{ href: edit_offer_sku_admin_path( offer_sku ) }
 								= offer_sku.quantity
-								%small ( #{offer_sku.shipping_exemptions} exemptions )
+								%small ( #{offer_sku.shipping_calculation_exemptions} exemptions )
 							%a.btn.btn-danger.btn-xs{ href: offer_sku_admin_path( offer_sku ), data: { method: :delete, confirm: 'Are you sure?' } }
 								%i.fa.fa-trash
 					- left += (100.0 / skus.count.to_f)

@@ -239,6 +239,7 @@ module Bazaar
 				shipment_sku = shipment.shipment_skus.to_a.select{|shipment_sku| shipment_sku.sku == order_sku.sku }
 				shipment_sku ||= shipment.shipment_skus.new( sku: order_sku.sku )
 				shipment_sku.quantity = order_sku.quantity
+				shipment_sku.shipping_exceptions = order_sku.shipping_exceptions
 			end
 
 		end

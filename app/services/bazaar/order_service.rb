@@ -320,6 +320,7 @@ module Bazaar
 					order_sku = order_offer.order.order_skus.to_a.find{ |order_sku| order_sku.sku == offer_sku.sku }
 					order_sku ||= order_offer.order.order_skus.new( sku: offer_sku.sku, quantity: 0 )
 					order_sku.quantity = order_sku.quantity + offer_sku.calculate_quantity( order_offer.quantity )
+					order_sku.shipping_calculation_exemptions = order_sku.shipping_calculation_exemptions + offer_sku.calculate_shipping_calculation_exemptions( order_offer.quantity )
 				end
 			end
 		end
