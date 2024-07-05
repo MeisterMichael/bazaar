@@ -99,7 +99,10 @@
 				- skus.each_with_index do |sku,index|
 					- @offer.offer_skus.active.where( sku: sku ).each do |offer_sku|
 						.offer-item-column-cell.offer-item-sku-column-cell.text-right{ style: "width: #{(100.0 / skus.count.to_f)}%;left:#{left}%;top: #{(offer_sku.start_interval-1) * 3}em;height: #{( offer_sku.max_intervals_with_infinity == Float::INFINITY ? (max_start_interval - offer_sku.start_interval + 1) : offer_sku.max_intervals ) * 3 }em;" }
-							= offer_sku.quantity
+							
+							%a{ href: edit_offer_sku_admin_path( offer_sku ) }
+								= offer_sku.quantity
+								%small ( #{offer_sku.shipping_exemptions} exemptions )
 							%a.btn.btn-danger.btn-xs{ href: offer_sku_admin_path( offer_sku ), data: { method: :delete, confirm: 'Are you sure?' } }
 								%i.fa.fa-trash
 					- left += (100.0 / skus.count.to_f)
