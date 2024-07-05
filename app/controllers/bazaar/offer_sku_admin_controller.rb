@@ -27,6 +27,10 @@ module Bazaar
 			end
 		end
 
+		def edit
+			authorize( @offer_sku )
+		end
+
 		def update
 			authorize( @offer_sku )
 
@@ -45,7 +49,7 @@ module Bazaar
 		end
 
 		def offer_sku_params
-			params.require(:offer_sku).permit( :parent_obj_id, :parent_obj_type, :sku_id, :quantity, :start_interval, :max_intervals, :apply )
+			params.require(:offer_sku).permit( :parent_obj_id, :parent_obj_type, :sku_id, :shipping_exemptions, :quantity, :start_interval, :max_intervals, :apply )
 		end
 
 	end

@@ -8,6 +8,8 @@ module Bazaar
 		enum status: { 'trash' => -1, 'active' => 1 }
 		enum apply: { 'per_quantity' => 1, 'per_order' => 2 }
 
+		validates :shipping_exemptions, allow_nil: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: :quantity }, allow_blank: true
+
 		def calculate_quantity( qty )
 			if self.per_quantity?
 				qty * self.quantity
