@@ -42,7 +42,7 @@
 										Delete!
 								= cif.object.item.to_s
 								.pull-left{ style: 'margin-right: 1em;'}
-									= cif.number_field :seq, class: 'form-control', style: "width: 5em;text-align: right;", max: @collection.collection_items.count
+									= cif.number_field :seq, class: 'form-control collection-item-seq', style: "width: 5em;text-align: right;", max: @collection.collection_items.count
 
 						-# @collection.collection_items.order(seq: :asc).each do |collection_item|
 							.form-group.collection-item{ style: "order: #{collection_item.seq};width: 100%;"}
@@ -53,7 +53,7 @@
 								= collection_item.item.to_s
 								.pull-left{ style: 'margin-right: 1em;'}
 									= hidden_field_tag 'collection_items[][id]', collection_item.id
-									= number_field_tag 'collection_items[][seq]', collection_item.seq, class: 'form-control', style: "width: 5em;text-align: right;", onchange: '', max: @collection.collection_items.count
+									= number_field_tag 'collection_items[][seq]', collection_item.seq, class: 'form-control collection-item-seq', style: "width: 5em;text-align: right;", onchange: '', max: @collection.collection_items.count
 			.col-xs-4
 				.well.white-well
 					%h4
@@ -89,7 +89,16 @@
 
 		this_val = parseInt($(input).val())
 
-		collection_items = $('.form-group.collection-item').sort(function(a,b){ parseInt( $('[type=number]',a).val() ) > parseInt( $('[type=number]',b).val() ) ? 1 : -1 })
+		collection_items = $('.form-group.collection-item').sort(function(a,b){
+			var a_seq = parseInt( $('.collection-item-seq',a).val() );
+			var b_seq = parseInt( $('.collection-item-seq',b).val() );
+			console.log(a_seq,b_seq);
+			return ( a_seq < b_seq ? -1 : ( a_seq > b_seq ? 1 : 0 ) );
+		})
+
+		collection_items.each(function(i,v){
+			console.log(i,v,$('.collection-item-seq',v).val())
+		})
 
 		collection_items = jQuery.grep(collection_items, function(value) {
 			return value != form_group;
@@ -99,11 +108,11 @@
 
 		console.log('collection_items',collection_items)
 		$(collection_items).each(function(i,collection_item){
-			console.log('collection_item',collection_item)
+			// console.log('collection_item',collection_item)
 			existing_order = parseInt($(collection_item).css('order'))
 
 			$(collection_item).css('order',i+1)
-			$('[type=number]',collection_item).val(i+1)
+			$('.collection-item-seq',collection_item).val(i+1)
 		})
 		
 	})
