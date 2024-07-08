@@ -1,4 +1,4 @@
-#new_collection_item_modal.modal.fade
+#new_collection_item_bazaar_media_modal.modal.fade
 	.modal-dialog
 		.modal-content
 			.modal-header
@@ -10,8 +10,8 @@
 				= f.hidden_field :collection_id
 				.modal-body
 					.form-group
-						= f.label :item_polymorphic_id, "Offer"
-						= f.collection_select :item_polymorphic_id, Bazaar::Offer.active.where.not( id: @collection.collection_items.where( item_type: 'Bazaar::Offer' ).select( :item_id ) ).order( title: :asc ), :polymorphic_id, :title, {}, class: 'form-control'
+						= f.label :item_polymorphic_id, "Shop Page"
+						= f.collection_select :item_polymorphic_id, BazaarMedia.active.where.not( id: @collection.collection_items.where( item_type: 'BazaarMedia' ).select( :item_id ) ).order( title: :asc ), :polymorphic_id, :title, {}, class: 'form-control'
 
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }

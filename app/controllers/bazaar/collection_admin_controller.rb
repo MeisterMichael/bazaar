@@ -58,9 +58,9 @@ module Bazaar
 		protected
 
 			def model_params
-				params.require( :discount ).permit(
+				params.require( :collection ).permit(
 					:title, :status, :collection_type, :availability,
-					collection_items_attributes: [ :item_type, :item_id ],
+					collection_items_attributes: [ :id, :item_polymorphic_id, :item_id, :item_type, :seq ],
 				)
 			end
 

@@ -23,20 +23,37 @@
 					= f.text_field :title, class: 'form-control input-lg'
 
 				.pull-right
-					%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_item_modal' } }
+					%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_item_offer_modal' } }
 						%i.fa.fa-plus-square
-						New
+						New Offer
+					%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_item_bazaar_media_modal' } }
+						%i.fa.fa-plus-square
+						New Shop Page
 				%h4{ style: 'margin-bottom: 1.5em;' } Items
 				- if @collection.collection_items.blank?
 					%div None
 				- else
-					- @collection.collection_items.each do |collection_item|
-						.form-group
-							.pull-right
-								%a{ href: collection_item_admin_path( collection_item ), data: { method: 'delete', confirm: 'Are you sure?' } }
-									%i.fa.fa-trash-o
-									Delete!
-							= collection_item.item.to_s
+					%div{ style: "align-items: center;display: flex;justify-content: center;flex-flow: column;"}
+						= f.fields_for :collection_items, @collection.collection_items.order(seq: :asc) do |cif|
+							.form-group.collection-item{ style: "order: #{cif.object.seq};width: 100%;"}
+								.pull-right
+									%a{ href: collection_item_admin_path( cif.object ), data: { method: 'delete', confirm: 'Are you sure?' } }
+										%i.fa.fa-trash-o
+										Delete!
+								= cif.object.item.to_s
+								.pull-left{ style: 'margin-right: 1em;'}
+									= cif.number_field :seq, class: 'form-control', style: "width: 5em;text-align: right;", max: @collection.collection_items.count
+
+						-# @collection.collection_items.order(seq: :asc).each do |collection_item|
+							.form-group.collection-item{ style: "order: #{collection_item.seq};width: 100%;"}
+								.pull-right
+									%a{ href: collection_item_admin_path( collection_item ), data: { method: 'delete', confirm: 'Are you sure?' } }
+										%i.fa.fa-trash-o
+										Delete!
+								= collection_item.item.to_s
+								.pull-left{ style: 'margin-right: 1em;'}
+									= hidden_field_tag 'collection_items[][id]', collection_item.id
+									= number_field_tag 'collection_items[][seq]', collection_item.seq, class: 'form-control', style: "width: 5em;text-align: right;", onchange: '', max: @collection.collection_items.count
 			.col-xs-4
 				.well.white-well
 					%h4
@@ -61,4 +78,32 @@
 
 
 
-= render "bazaar/collection_item_admin/new_modal"
+= render "bazaar/collection_item_admin/new_bazaar_media_modal"
+= render "bazaar/collection_item_admin/new_offer_modal"
+
+:javascript
+	$('.form-group.collection-item input').change(function(){
+		console.log('boot')
+		input = this
+		form_group = $(input).parents('.form-group.collection-item')[0]
+
+		this_val = parseInt($(input).val())
+
+		collection_items = $('.form-group.collection-item').sort(function(a,b){ parseInt( $('[type=number]',a).val() ) > parseInt( $('[type=number]',b).val() ) ? 1 : -1 })
+
+		collection_items = jQuery.grep(collection_items, function(value) {
+			return value != form_group;
+		});
+
+		collection_items.splice(this_val-1, 0, form_group)
+
+		console.log('collection_items',collection_items)
+		$(collection_items).each(function(i,collection_item){
+			console.log('collection_item',collection_item)
+			existing_order = parseInt($(collection_item).css('order'))
+
+			$(collection_item).css('order',i+1)
+			$('[type=number]',collection_item).val(i+1)
+		})
+		
+	})
