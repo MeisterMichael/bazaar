@@ -3,6 +3,7 @@ module Bazaar
 
 		include SwellId::Concerns::PolymorphicIdentifiers
 		include Bazaar::CollectionSearchable if (Bazaar::CollectionSearchable rescue nil)
+		include FriendlyId
 
 		has_many :collection_items
 
@@ -12,8 +13,22 @@ module Bazaar
 
 		accepts_nested_attributes_for :collection_items, allow_destroy: true
 
+		friendly_id :slugger, use: [ :slugged, :history ]
+		attr_accessor	:slug_pref
+
 		def items
 			collection_items.collect(&:item)
+		end
+
+
+		protected
+		def slugger
+			if self.slug_pref.present?
+				self.slug = nil # friendly_id 5.0 only updates slug if slug field is nil
+				return self.slug_pref
+			else
+				return self.title
+			end
 		end
 
 	end

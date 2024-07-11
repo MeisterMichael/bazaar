@@ -46,6 +46,7 @@ module Bazaar
 			authorize( @collection )
 
 			@collection.attributes = model_params
+			@collection.slug = nil if params[:collection][:slug_pref].present?
 
 			if @collection.save
 				set_flash "Collection Updated", :success
@@ -59,7 +60,7 @@ module Bazaar
 
 			def model_params
 				params.require( :collection ).permit(
-					:title, :status, :collection_type, :availability,
+					:title, :status, :collection_type, :availability, :slug_pref,
 					collection_items_attributes: [ :id, :item_polymorphic_id, :item_id, :item_type, :seq ],
 				)
 			end

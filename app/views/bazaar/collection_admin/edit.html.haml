@@ -22,6 +22,10 @@
 					%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'A descriptive title for internal use.' }
 					= f.text_field :title, class: 'form-control input-lg'
 
+				.form-group
+					= f.label :slug_pref, 'Slug'
+					= f.text_field :slug_pref, class: 'form-control', placeholder: @collection.slug
+
 				.pull-right
 					%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_item_offer_modal' } }
 						%i.fa.fa-plus-square
