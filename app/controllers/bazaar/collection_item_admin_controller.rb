@@ -24,9 +24,7 @@ module Bazaar
 		def destroy
 			authorize( @collection_item )
 
-			if @collection_item.save
-
-				@collection_item.collection.collection_items.where( "seq >= ?", @collection_item.seq ).where.not( id: @collection_item.id ).update_all( "seq = seq + 1" )
+			if @collection_item.delete
 
 				resequnce
 
