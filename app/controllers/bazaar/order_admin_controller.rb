@@ -80,7 +80,7 @@ module Bazaar
 			if @fraud_service.hold_for_review( @order )
 
 				set_flash "Order has been held for review.", :success
-				log_event( name: 'hold_review', on: @order, content: "order held for review #{@order.code}", category: 'ecom', user: current_user )
+				log_event( name: 'hold_review', on: @order, content: "order held for review #{@order.code}", category: 'ecom', user: @order.user )
 
 			end
 
@@ -136,7 +136,7 @@ module Bazaar
 				# OrderMailer.refund( @transaction ).deliver_now # send emails on a cron
 				set_flash "Refund successful", :success
 
-				log_event( user: current_user, name: 'refund', value: -@transactions.sum(&:amount), on: @order, content: "refunded #{@transactions.sum(&:amount_as_money)} on order #{@order.code}" )
+				log_event( user: @order.user, name: 'refund', value: -@transactions.sum(&:amount), on: @order, content: "refunded #{@transactions.sum(&:amount_as_money)} on order #{@order.code}" )
 
 			end
 
