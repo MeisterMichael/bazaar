@@ -27,7 +27,7 @@ module Bazaar
 						end
 
 						define_method "#{money_attribute_name}_as_money=" do |decimal_value|
-							if decimal_value.nil?
+							if decimal_value.blank?
 								self.try("#{money_attribute_name}=", nil )
 							else
 								self.try("#{money_attribute_name}=", (decimal_value.to_f * 100.0).round )
@@ -43,7 +43,7 @@ module Bazaar
 						end
 
 						define_method "#{money_attribute_name}_as_money_string=" do |decimal_value|
-							if decimal_value.nil?
+							if decimal_value.blank?
 								self.try("#{money_attribute_name}=", nil )
 							else
 								self.try("#{money_attribute_name}=", (decimal_value.to_f * 100.0).round )
