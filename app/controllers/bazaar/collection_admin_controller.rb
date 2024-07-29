@@ -66,7 +66,7 @@ module Bazaar
 			end
 
 			def get_model
-				@collection = Collection.find( params[:id] )
+				@collection = Collection.friendly.find( params[:id] )
 			end
 
 	end
