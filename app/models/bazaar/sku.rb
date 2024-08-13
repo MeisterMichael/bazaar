@@ -26,6 +26,24 @@ module Bazaar
 
 		money_attributes :sku_cost, :sku_value
 
+
+
+		def gtins_csv
+			self.gtins.join(',')
+		end
+
+		def gtins_csv=(gtins_csv)
+			self.gtins = gtins_csv.split(/,\s*/)
+		end
+
+		def mpns_csv
+			self.mpns.join(',')
+		end
+
+		def mpns_csv=(mpns_csv)
+			self.mpns = mpns_csv.split(/,\s*/)
+		end
+
 		def tags_csv
 			self.tags.join(',')
 		end

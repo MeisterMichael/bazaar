@@ -44,6 +44,23 @@ module Bazaar
 			"product_#{self.id}"
 		end
 
+
+		def gtins_csv
+			self.gtins.join(',')
+		end
+
+		def gtins_csv=(gtins_csv)
+			self.gtins = gtins_csv.split(/,\s*/)
+		end
+
+		def mpns_csv
+			self.mpns.join(',')
+		end
+
+		def mpns_csv=(mpns_csv)
+			self.mpns = mpns_csv.split(/,\s*/)
+		end
+
 		def page_event_data
 			data = {
 				id: bazaar_uid,
