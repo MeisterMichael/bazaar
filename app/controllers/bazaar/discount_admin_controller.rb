@@ -47,7 +47,13 @@ module Bazaar
 			@filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
 			@discounts = @search_service.discount_search( params[:q], @filters, page: params[:page], order: { sort_by => sort_dir } )
 
-			set_page_meta( title: "Discounts" )
+			respond_to do |format|
+				format.json {
+				}
+				format.html {
+					set_page_meta( title: "Discounts" )
+				}
+			end
 		end
 
 		def update

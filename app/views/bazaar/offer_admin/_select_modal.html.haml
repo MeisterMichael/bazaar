@@ -1,0 +1,35 @@
+-# .form-group
+	%input.select-modal-input{ type: 'text', name: 'offer_label', id: 'test_offer_id', data: { target: '#offer_select_modal', toggle: 'modal', label: 'Boo', filters: { status: 'active', 'filters[wholesale]': 'false' }.to_json } }
+
+-# .form-group
+	%input.select-modal-input{ type: 'text', name: 'offer_label', id: 'test_offer_id2', data: { target: '#offer_select_modal', toggle: 'modal', label: 'Bib', filters: { status: 'active' }.to_json }, readonly: 'readonly' }
+
+#offer_select_modal.select-modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Select Offer
+
+			.modal-body{style: 'padding-bottom: 0'}
+				= form_tag bazaar.offer_admin_index_path, remote: true, method: 'get' do |f|
+					-# = hidden_field_tag :status, 'active'
+					-# = hidden_field_tag 'filters[wholesale]', 'false'
+					.filters
+					.form-group
+						.input-group
+							= text_field_tag :q, '', class: 'form-control'
+							.input-group-btn
+								= submit_tag 'Search', class: 'btn btn-primary'
+
+			.modal-body{style: 'padding-top: 0'}
+				.form-group.results
+
+			.modal-footer
+				%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+					Close
+				= submit_tag 'Choose', class: 'btn btn-primary choose'
+				.pull-left
+					= submit_tag 'Clear', class: 'btn btn-secondary clear'

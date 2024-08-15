@@ -1,0 +1,26 @@
+
+.select-modal-input {
+	display: none;
+}
+.select-modal .results {
+	min-height: 10em;
+}
+.select-modal .results label input {
+	margin-right: 1em;
+}
+.select-modal .results label {
+	display: block;
+	width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.select-modal-input-control {
+	display: block;
+	width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-weight: normal;
+}
