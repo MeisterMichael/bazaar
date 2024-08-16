@@ -21,6 +21,7 @@ module Bazaar
 		has_many 	:order_items, dependent: :destroy, validate: true
 		has_many 	:order_offers, dependent: :destroy, validate: true
 		has_many 	:order_skus, dependent: :destroy, validate: true
+		has_many 	:order_logs
 		has_many	:shipments
 		has_many	:transactions, as: :parent_obj
 
