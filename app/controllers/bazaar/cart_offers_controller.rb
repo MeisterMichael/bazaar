@@ -49,6 +49,7 @@ module Bazaar
 
 				cart_offer.source_referrer = request.referrer if cart_offer.respond_to? :source_referrer
 				cart_offer.source_medium = params[:source_medium] || 'add_to_cart' if cart_offer.respond_to? :source_medium
+				cart_offer.promotion_id = params[:promotion_id] if params[:promotion_id].present? && cart_offer.respond_to?(:promotion_id)
 				cart_offer.save
 
 			end
