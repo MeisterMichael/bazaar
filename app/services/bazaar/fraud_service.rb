@@ -97,6 +97,10 @@ module Bazaar
 			end
 		end
 
+		def valid_order_request?( args = {} )
+			return true
+		end
+
 	end
 
 end

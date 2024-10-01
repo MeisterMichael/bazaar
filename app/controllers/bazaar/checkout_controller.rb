@@ -90,6 +90,28 @@ module Bazaar
 
 			@order.source = 'Consumer Checkout'
 
+			if @order_service.fraud_service.present? && not( @order_service.fraud_service.valid_order_request?( { order: @order, request: request, cookies: cookies } ) )
+				@order.status = 'failed'
+				@order.errors.add( :base, :processing_error, message: 'An error occured during transaction processing.  Please contact support for assistance.' )
+				log_event( user: @order.user, on: @order, name: 'invalid_order_request', message: "order failed fraud_service.valid_order_request" )
+				#raise Exception.new 'An error occured during transaction processing.  Please contact support for assistance.'
+
+				respond_to do |format|
+					format.js {
+						render :create
+					}
+					format.json {
+						render :create
+					}
+					format.html {
+						set_flash @order.nested_errors, :danger
+						redirect_back fallback_location: '/checkout'
+					}
+				end
+
+				return
+			end
+
 			begin
 				@order.options = {
 					order: order_options,
