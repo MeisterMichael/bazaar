@@ -11,7 +11,7 @@ module Bazaar
 
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
 			filters[:status] = params[:status] if params[:status].present?
-			@products = @search_service.product_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
+			@products = @search_service.product_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir }, mode: params[:search_mode] )
 
 			set_page_meta( title: "Products" )
 		end

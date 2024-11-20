@@ -279,7 +279,7 @@ module Bazaar
 			if ( @batch_id = filters[:batch_id] ).present?
 				@shipments = Bazaar::Shipment.all.where( "(properties::hstore -> 'BATCH_ID') = ?", @batch_id ).order( @sort_by => @sort_dir )
 			else
-				@shipments = @search_service.shipment_search( params[:q], filters, page: params[:page], order: { @sort_by => @sort_dir } )
+				@shipments = @search_service.shipment_search( params[:q], filters, page: params[:page], order: { @sort_by => @sort_dir }, mode: params[:search_mode] )
 			end
 
 			set_page_meta( title: "Shipments" )

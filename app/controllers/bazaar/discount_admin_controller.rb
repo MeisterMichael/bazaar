@@ -45,7 +45,7 @@ module Bazaar
 			@filters[:type] ||= Bazaar.discount_types.values.first
 			@filters.delete(:type) if @filters[:type] == 'all'
 			@filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
-			@discounts = @search_service.discount_search( params[:q], @filters, page: params[:page], order: { sort_by => sort_dir } )
+			@discounts = @search_service.discount_search( params[:q], @filters, page: params[:page], order: { sort_by => sort_dir }, mode: params[:search_mode] )
 
 			respond_to do |format|
 				format.json {

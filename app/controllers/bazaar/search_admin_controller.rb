@@ -4,7 +4,7 @@ module Bazaar
 		def index
 
 			filters = ( params[:filters] || [] ).select{ |filter| not( filter.nil? ) }
-			@users = @search_service.user_search( params[:q], filters, page: params[:page], sort_by => sort_dir )
+			@users = @search_service.user_search( params[:q], filters, page: params[:page], sort_by => sort_dir, mode: params[:search_mode] )
 		end
 
 		private

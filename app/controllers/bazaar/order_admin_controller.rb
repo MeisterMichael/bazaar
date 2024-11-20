@@ -102,7 +102,7 @@ module Bazaar
 			filters[:not_archived] = true if params[:q].blank? # don't show archived, unless searching
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
 			filters[ params[:payment_status] ] = true if params[:payment_status].present? && params[:payment_status] != 'all'
-			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir } )
+			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir }, mode: params[:search_mode] )
 
 			set_page_meta( title: "Orders" )
 		end
