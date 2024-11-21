@@ -15,6 +15,7 @@
 			= raw paginate @orders
 		.col-xs-7
 			= form_tag order_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= hidden_field_tag :search_mode, params[:search_mode]
 				= select_tag :status, options_from_collection_for_select( Bazaar::Order.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
 				= select_tag :payment_status, options_from_collection_for_select( Bazaar::Order.payment_statuses, :first, :first, params[:payment_status] ), { prompt: "Payment Status", class: 'form-control' }
 				= select_tag :type, options_for_select([ ['All Order Types', 'Bazaar::Order'], ['Checkout Orders', 'Bazaar::CheckoutOrder'], ['Fulfillment Orders', 'Bazaar::FulfillmentOrder'], ['Wholesale Orders', 'Bazaar::WholesaleOrder'] ], @type_filter), { class: 'form-control' }

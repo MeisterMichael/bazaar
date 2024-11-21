@@ -38,6 +38,7 @@
 				= submit_tag 'Search', class: 'btn btn-primary'
 				= link_to 'Clear', shipment_admin_index_path, class: 'btn btn-default'
 			= form_tag shipment_admin_index_path, method: :get, class: 'pull-right form-inline' do
+				= hidden_field_tag :search_mode, params[:search_mode]
 				= select_tag :status, options_from_collection_for_select( Bazaar::Shipment.statuses, :first, :first, params[:status] ), { prompt: "Status", class: 'form-control' }
 				- if @source_systems.count > 1
 					= select_tag :source_system, options_for_select(@source_systems.collect{|source_system| [(source_system || 'Internal'), (source_system || '-')] }, params[:source_system]), { prompt: "Source", class: 'form-control' }
