@@ -24,6 +24,8 @@ $ ->
 					$stateSelect.val( $stateSelect.data('stateSelectVal-'+options.geo_country_id) )
 
 					$stateFormGroup.removeClass('geo-address-geo-state-input').addClass('geo-address-geo-state-select')
+
+					$stateSelect.data('states',data.states)
 				else
 					$stateSelect.attr('disabled','disabled').removeClass('hidden').addClass('hidden').attr('data-validate','false')
 					$stateInput.removeAttr('disabled').removeClass('hidden').attr('data-validate','true')
