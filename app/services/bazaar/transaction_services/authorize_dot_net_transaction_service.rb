@@ -681,8 +681,11 @@ module Bazaar
 
 					end
 
+					if get_response_success?( response ) && customer_profile_id.present? && customer_payment_profile_id.present?
 
-					return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
+						return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
+
+					end
 
 				elsif get_response_success?( response )
 
