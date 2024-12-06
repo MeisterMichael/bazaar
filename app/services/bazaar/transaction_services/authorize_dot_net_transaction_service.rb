@@ -685,6 +685,10 @@ module Bazaar
 
 						return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
 
+					else
+
+						errors.add( :base, 'We are unable to process your transaction.  Please verify your address, payment information and try again.') if errors
+
 					end
 
 				elsif get_response_success?( response )
