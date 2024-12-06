@@ -20,7 +20,7 @@
 				= select_tag :type, options_for_select([ ['All Order Types', 'Bazaar::Order'], ['Checkout Orders', 'Bazaar::CheckoutOrder'], ['Fulfillment Orders', 'Bazaar::FulfillmentOrder'], ['Wholesale Orders', 'Bazaar::WholesaleOrder'] ], @type_filter), { class: 'form-control' }
 				= select_tag :renewal, options_for_select([ ['Only Renewals', '1'], ['Exclude Renewals', '0'] ], @renewal_filter), { prompt: 'Renewal Filters', class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
-				= select_tag :search_mode, options_for_select([ ['Search Mode: Elastic', 'elastic'], ['Search Mode: Standard', 'standard'] ], @search_mode), { prompt: 'Renewal Filters', class: 'form-control' }
+				= select_tag :search_mode, options_for_select([ ['Search Mode: Elastic', 'elastic'], ['Search Mode: Standard', 'standard'] ], @search_mode), { prompt: 'Search Mode', class: 'form-control' }
 				= submit_tag 'Search', class: 'btn btn-primary'
 				= link_to 'Clear', order_admin_index_path, class: 'btn btn-default'
 

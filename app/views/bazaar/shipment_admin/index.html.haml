@@ -43,7 +43,7 @@
 					= select_tag :source_system, options_for_select(@source_systems.collect{|source_system| [(source_system || 'Internal'), (source_system || '-')] }, params[:source_system]), { prompt: "Source", class: 'form-control' }
 				= text_field_tag :q, params[:q], class: 'form-control'
 				= submit_tag 'Search', class: 'btn btn-primary'
-				= select_tag :search_mode, options_for_select([ ['Search Mode: Elastic', 'elastic'], ['Search Mode: Standard', 'standard'] ], @search_mode), { prompt: 'Renewal Filters', class: 'form-control' }
+				= select_tag :search_mode, options_for_select([ ['Search Mode: Elastic', 'elastic'], ['Search Mode: Standard', 'standard'] ], @search_mode), { prompt: 'Search Mode', class: 'form-control' }
 				= link_to 'Clear', shipment_admin_index_path, class: 'btn btn-default'
 
 	.row
