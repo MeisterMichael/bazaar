@@ -276,10 +276,12 @@ module Bazaar
 			filters[:source_system] = params[:source_system] if params[:source_system].present?
 			filters[:source_system] = nil if params[:source_system] == '-'
 
+			@search_mode = params[:search_mode] || 'elastic'
+
 			if ( @batch_id = filters[:batch_id] ).present?
 				@shipments = Bazaar::Shipment.all.where( "(properties::hstore -> 'BATCH_ID') = ?", @batch_id ).order( @sort_by => @sort_dir )
 			else
-				@shipments = @search_service.shipment_search( params[:q], filters, page: params[:page], order: { @sort_by => @sort_dir }, mode: params[:search_mode] )
+				@shipments = @search_service.shipment_search( params[:q], filters, page: params[:page], order: { @sort_by => @sort_dir }, mode: @search_mode )
 			end
 
 			set_page_meta( title: "Shipments" )
