@@ -202,7 +202,7 @@ module Bazaar
 
 				transaction.reference_code = transaction_response.try(:transId)
 
-				puts "response.to_xml" if @enable_debug
+				puts "response.to_xml - create_transaction charge" if @enable_debug
 				puts response.to_xml if @enable_debug
 
 				# process response
@@ -343,7 +343,7 @@ module Bazaar
 				request.transactionRequest.transactionType = AuthorizeNet::API::TransactionTypeEnum::RefundTransaction
 
 				response = anet_transaction.create_transaction( request )
-				puts "response.to_xml" if @enable_debug
+				puts "response.to_xml - create_transaction refund" if @enable_debug
 				puts response.to_xml if @enable_debug
 
 				if get_first_message_code( response ) == CANNOT_REFUND_CHARGE
@@ -363,7 +363,7 @@ module Bazaar
 
 						response = anet_transaction.create_transaction(request)
 
-						puts "response.to_xml" if @enable_debug
+						puts "response.to_xml - create_transaction void" if @enable_debug
 						puts response.to_xml if @enable_debug
 					else
 						# OR create a refund that is unlinked to the transaction
@@ -401,7 +401,7 @@ module Bazaar
 					transaction.parent_obj.update payment_status: 'refunded'
 
 				else
-					puts "response.to_xml" if @enable_debug
+					puts "response.to_xml - create_transaction report error" if @enable_debug
 					puts response.to_xml if @enable_debug
 
 					NewRelic::Agent.notice_error(Exception.new( "Authorize.net Transaction Error: #{get_first_message_code( response )} - #{get_frist_message_text( response )}" )) if defined?( NewRelic )
@@ -482,21 +482,19 @@ module Bazaar
 					payment_token = payment_data.dig(:paymentMethodData,:tokenizationData,:token)
 					payment_token_type = payment_data.dig(:paymentMethodData,:tokenizationData,:type)
 
-					meta_data = {
-						'credit_card_ending_in' => payment_data.dig(:paymentMethodData,:info,:cardDetails),
-						'credit_card_brand' => payment_data.dig(:paymentMethodData,:info,:cardNetwork),
-					}
-
-					details = {
-						token: payment_token,
-						token_type: payment_token_type,
-						results: args[:google_pay],
-					}
 
 					payment_details = {
-						type: 'google_pay',
-						meta_data: meta_data,
-						details: details,
+						type: 'opaque_data',
+						meta_data: {
+						'credit_card_ending_in' => payment_data.dig(:paymentMethodData,:info,:cardDetails),
+						'credit_card_brand' => payment_data.dig(:paymentMethodData,:info,:cardNetwork),
+						},
+						details: {
+							token: payment_token,
+							token_type: payment_token_type,
+							results: args[:google_pay],
+							data_descriptor: 'COMMON.GOOGLE.INAPP.PAYMENT', #'COMMON.APPLE.INAPP.PAYMENT'
+						},
 					}
 
 					if payment_token.blank?
@@ -584,13 +582,12 @@ module Bazaar
 					anet_payment_profile.payment	= anet_payment
 					anet_payment_profile.billTo		= anet_billing_address
 
-				elsif payment_details[:type] == 'google_pay'
+				elsif payment_details[:type] == 'opaque_data'
 
 					anet_payment = AuthorizeNet::API::PaymentType.new(AuthorizeNet::API::OpaqueDataType.new)
 					anet_payment.creditCard = nil
 					anet_payment.opaqueData = AuthorizeNet::API::OpaqueDataType.new
-					anet_payment.opaqueData.dataDescriptor = 'COMMON.GOOGLE.INAPP.PAYMENT'
-					# anet_payment.opaqueData.dataValue = payment_details[:details][:token]
+					anet_payment.opaqueData.dataDescriptor = payment_details[:details][:data_descriptor]
 					anet_payment.opaqueData.dataValue = Base64.strict_encode64(payment_details[:details][:token])
 
 					anet_payment_profile = AuthorizeNet::API::CustomerPaymentProfileType.new
@@ -633,13 +630,15 @@ module Bazaar
 
 				# recover a customer profile if it already exists.
 				if get_first_message_code( response ) == ERROR_DUPLICATE_CUSTOMER_PROFILE
-					puts "response.to_xml" if @enable_debug
+					puts "response.to_xml create_customer_profile" if @enable_debug
 					puts response.to_xml if @enable_debug
 
 					anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 
 
 					profile_id = get_frist_message_text( response ).match( /(\d{4,})/)[1]
+
+					puts "response.to_xml profile_id #{profile_id}" if @enable_debug
 
 					request = AuthorizeNet::API::GetCustomerProfileRequest.new
 					request.customerProfileId = profile_id.to_s
@@ -657,7 +656,7 @@ module Bazaar
 
 
 					response = anet_transaction.create_customer_payment_profile( request )
-					puts "response.to_xml" if @enable_debug
+					puts "response.to_xml - create_customer_payment_profile duplicate" if @enable_debug
 					puts response.to_xml if @enable_debug
 					customer_payment_profile_id = response.customerPaymentProfileId
 
@@ -677,7 +676,7 @@ module Bazaar
 						request.paymentProfile = anet_payment_profile
 
 						response = anet_transaction.update_customer_payment_profile( request )
-						puts "response.to_xml" if @enable_debug
+						puts "response.to_xml - create_customer_profile duplicate final error" if @enable_debug
 						puts response.to_xml if @enable_debug
 
 					end
@@ -693,7 +692,7 @@ module Bazaar
 					return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
 
 				else
-					puts "response.to_xml" if @enable_debug
+					puts "response.to_xml create_customer_profile final error" if @enable_debug
 					puts response.to_xml if @enable_debug
 
 					log_event( user: user, name: 'transaction_failed', content: "Authorize.net (#{@provider_name}) Payment Profile Error: #{get_first_message_code( response )} - #{get_frist_message_text( response )}" )
