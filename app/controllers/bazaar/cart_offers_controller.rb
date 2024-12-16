@@ -27,30 +27,30 @@ module Bazaar
 			quantity ||= 1
 			quantity = [ quantity, @offer.per_cart_limit ].min if @offer.try(:per_cart_limit).present?
 
-			cart_offer = @cart.cart_offers.where( offer: @offer ).last
-			if cart_offer.present?
+			@cart_offer = @cart.cart_offers.where( offer: @offer ).last
+			if @cart_offer.present?
 
 				if params[:replace_offer].present?
-					cart_offer.update( quantity: quantity )
+					@cart_offer.update( quantity: quantity )
 				else
-					cart_offer.increment!( :quantity, quantity )
+					@cart_offer.increment!( :quantity, quantity )
 				end
 			else
-				cart_offer = @cart.cart_offers.new(
+				@cart_offer = @cart.cart_offers.new(
 					offer: @offer,
 					quantity: quantity
 				)
 
-				if cart_offer.respond_to?( :source_obj_type ) && cart_offer.respond_to?( :source_obj_id ) && params[:source_obj_type].present? && params[:source_obj_id].present?
+				if @cart_offer.respond_to?( :source_obj_type ) && @cart_offer.respond_to?( :source_obj_id ) && params[:source_obj_type].present? && params[:source_obj_id].present?
 					crypt = ActiveSupport::MessageEncryptor.new(Rails.application.secrets.secret_key_base[0..31], Rails.application.secrets.secret_key_base)
-					cart_offer.source_obj_id = crypt.decrypt_and_verify(params[:source_obj_id])
-					cart_offer.source_obj_type = crypt.decrypt_and_verify(params[:source_obj_type])
+					@cart_offer.source_obj_id = crypt.decrypt_and_verify(params[:source_obj_id])
+					@cart_offer.source_obj_type = crypt.decrypt_and_verify(params[:source_obj_type])
 				end
 
-				cart_offer.source_referrer = request.referrer if cart_offer.respond_to? :source_referrer
-				cart_offer.source_medium = params[:source_medium] || 'add_to_cart' if cart_offer.respond_to? :source_medium
-				cart_offer.promotion_id = params[:promotion_id] if params[:promotion_id].present? && cart_offer.respond_to?(:promotion_id)
-				cart_offer.save
+				@cart_offer.source_referrer = request.referrer if @cart_offer.respond_to? :source_referrer
+				@cart_offer.source_medium = params[:source_medium] || 'add_to_cart' if @cart_offer.respond_to? :source_medium
+				@cart_offer.promotion_id = params[:promotion_id] if params[:promotion_id].present? && @cart_offer.respond_to?(:promotion_id)
+				@cart_offer.save
 
 			end
 
@@ -59,7 +59,7 @@ module Bazaar
 			end
 
 			cart_offer_price = @offer.initial_price
-			cart_offer.update( price: cart_offer_price, subtotal: cart_offer_price * cart_offer.quantity )
+			@cart_offer.update( price: cart_offer_price, subtotal: cart_offer_price * @cart_offer.quantity )
 
 			@cart.update subtotal: @cart.cart_offers.sum( :subtotal )
 
@@ -67,7 +67,7 @@ module Bazaar
 			session[:cart_count] += quantity
 
 
-			log_event( { name:'add_cart', on: @offer, content: "added #{@offer} to their cart.", page_params: CGI.unescape( request.query_parameters.merge({ "cart_offer_id" => cart_offer.id, "cart_id" => @cart.id, "quantity" => cart_offer.quantity, "offer_id" => cart_offer.offer_id }).to_query ) } )
+			log_event( { name:'add_cart', on: @offer, content: "added #{@offer} to their cart.", page_params: CGI.unescape( request.query_parameters.merge({ "cart_offer_id" => @cart_offer.id, "cart_id" => @cart.id, "quantity" => @cart_offer.quantity, "offer_id" => @cart_offer.offer_id }).to_query ) } )
 
 			respond_to do |format|
 				format.js {
