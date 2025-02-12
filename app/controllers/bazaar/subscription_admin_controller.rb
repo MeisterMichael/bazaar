@@ -107,10 +107,11 @@ module Bazaar
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
+			@search_mode = params[:search_mode] || 'standard'
 
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
-			@subscriptions = @search_service.subscription_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir }, mode: params[:search_mode] )
+			@subscriptions = @search_service.subscription_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir }, mode: @search_mode )
 
 			set_page_meta( title: "Subscriptions" )
 		end

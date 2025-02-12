@@ -9,9 +9,11 @@ module Bazaar
 			sort_by = params[:sort_by] || 'seq'
 			sort_dir = params[:sort_dir] || 'asc'
 
+			@search_mode = params[:search_mode] || 'standard'
+
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
 			filters[:status] = params[:status] if params[:status].present?
-			@products = @search_service.product_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir }, mode: params[:search_mode] )
+			@products = @search_service.product_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir }, mode: @search_mode )
 
 			set_page_meta( title: "Products" )
 		end

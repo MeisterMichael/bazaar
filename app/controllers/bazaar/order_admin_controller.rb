@@ -94,6 +94,7 @@ module Bazaar
 			sort_by = params[:sort_by] || 'created_at'
 			sort_dir = params[:sort_dir] || 'desc'
 
+			@search_mode = params[:search_mode] || 'elastic'
 
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
 			filters[:renewal] = @renewal_filter = params[:renewal]
@@ -102,7 +103,7 @@ module Bazaar
 			filters[:not_archived] = true if params[:q].blank? # don't show archived, unless searching
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
 			filters[ params[:payment_status] ] = true if params[:payment_status].present? && params[:payment_status] != 'all'
-			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir }, mode: params[:search_mode] )
+			@orders = @search_service.order_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir }, mode: @search_mode )
 
 			set_page_meta( title: "Orders" )
 		end
@@ -186,7 +187,7 @@ module Bazaar
 		def timeline
 			authorize( @order )
 
-			@transactions = Transaction.where( parent_obj: @order )
+			@transactions = Bazaar::Transaction.where( parent_obj: @order )
 
 			@events = Bunyan::Event.where( target_obj: @order )
 			@events = @events.or( Bunyan::Event.where.not( user_id: nil ).where( user_id: @order.user_id, created_at: Time.at(0)..(@order.created_at + 10.minutes) ) )

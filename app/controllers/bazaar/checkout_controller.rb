@@ -374,6 +374,10 @@ module Bazaar
 				order_offer.source_referrer = cart_offer.source_referrer if order_offer.respond_to?( :source_referrer ) && cart_offer.respond_to?( :source_referrer )
 				order_offer.source_medium = cart_offer.source_medium if order_offer.respond_to?( :source_medium ) && cart_offer.respond_to?( :source_medium )
 
+				order_offer.upsell_offer_id = cart_offer.upsell_offer_id if order_offer.respond_to?( :upsell_offer_id ) && cart_offer.respond_to?( :upsell_offer_id )
+				order_offer.upsell_id = cart_offer.upsell_id if order_offer.respond_to?( :upsell_id ) && cart_offer.respond_to?( :upsell_id )
+				order_offer.bazaar_media_relation_id = cart_offer.bazaar_media_relation_id if order_offer.respond_to?( :bazaar_media_relation_id ) && cart_offer.respond_to?( :bazaar_media_relation_id )
+
 			end
 
 			if @cart.discount.present? && @cart.discount.active? && @cart.discount.in_progress?
