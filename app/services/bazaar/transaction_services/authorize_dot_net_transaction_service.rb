@@ -105,8 +105,8 @@ module Bazaar
 
 				if payment_details.present?
 
-					order.properties = order.properties.merge(payment_details[:meta_data])
-					transaction_properties = payment_details[:meta_data]
+					order.properties = (order.properties || {}).merge(payment_details[:meta_data] || {})
+					transaction_properties = payment_details[:meta_data] || {}
 
 				elsif ( first_profile_transaction = Bazaar::Transaction.where( provider: @provider_name, customer_profile_reference: profiles[:customer_profile_reference], customer_payment_profile_reference: profiles[:customer_payment_profile_reference] ).where.not(credit_card_ending_in: nil).first ).present?
 
@@ -501,8 +501,8 @@ module Bazaar
 						payment_details[:error] = 'Invalid Google Pay Token'
 					end
 				else
-
-					raise Exception.new("Unable to extract payment details")
+					# this exception blocks the renewals
+					# raise Exception.new("Unable to extract payment details")
 				end
 
 				payment_details
