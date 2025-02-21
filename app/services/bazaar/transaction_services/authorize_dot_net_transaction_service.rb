@@ -103,7 +103,7 @@ module Bazaar
 
 				transaction_properties = {}
 
-				if payment_details.present?
+				if payment_details.present? && payment_details[:meta_data].present?
 
 					order.properties = (order.properties || {}).merge(payment_details[:meta_data] || {})
 					transaction_properties = payment_details[:meta_data] || {}
@@ -117,6 +117,9 @@ module Bazaar
 
 					order.properties = order.properties.merge(new_properties)
 					transaction_properties = new_properties
+				else
+
+					transaction_properties = {}
 
 				end
 
