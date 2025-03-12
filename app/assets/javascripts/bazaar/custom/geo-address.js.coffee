@@ -35,4 +35,8 @@ $ ->
 
 				$form.data('bs.validator').update() if $form.data('bs.validator')
 
+				$stateInput.trigger('bazaar.country_state_update_complete')
+				$stateSelect.trigger('bazaar.country_state_update_complete')
+				$countryInput.trigger('bazaar.country_state_update_complete')
+
 		$countryInput.change()
