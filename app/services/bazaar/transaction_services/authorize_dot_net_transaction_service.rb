@@ -134,7 +134,7 @@ module Bazaar
 
 				transaction.save
 
-				process_transaction( transaction, payment_details )
+				process_transaction_payment_details( transaction, payment_details )
 
 				# process response
 				if transaction.approved?
@@ -171,9 +171,13 @@ module Bazaar
 				return false
 			end
 
-			def process_transaction( transaction, payment_details, args = {} )
+			def process_transaction( transaction, args = {} )
+				process_transaction_payment_details( transaction, nil, args )
+			end
 
-				if payment_details[:error].blank? && transaction.parent_obj.present?
+			def process_transaction_payment_details( transaction, payment_details, args = {} )
+
+				if payment_details.present? && payment_details[:error].blank? && transaction.parent_obj.present?
 
 					profiles = get_order_customer_profile( transaction.parent_obj, payment_details )
 					if profiles == false
