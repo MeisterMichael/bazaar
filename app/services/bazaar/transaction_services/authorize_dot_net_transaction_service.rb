@@ -565,8 +565,10 @@ module Bazaar
 					return false
 				end
 
+				payment_details_type = nil
 
 				if payment_details[:type] == 'credit_card'
+					payment_details_type = payment_details[:type]
 
 					# VALIDATE Credit card expirey
 					if payment_details[:expires_at].nil?
@@ -590,6 +592,7 @@ module Bazaar
 					anet_payment_profile.billTo		= anet_billing_address
 
 				elsif payment_details[:type] == 'opaque_data'
+					payment_details_type = payment_details[:type]
 
 					anet_payment = AuthorizeNet::API::PaymentType.new(AuthorizeNet::API::OpaqueDataType.new)
 					anet_payment.creditCard = nil
@@ -660,7 +663,7 @@ module Bazaar
 					request = AuthorizeNet::API::CreateCustomerPaymentProfileRequest.new
 					request.customerProfileId = customer_profile_id
 					request.paymentProfile = anet_payment_profile
-					request.validationMode = AuthorizeNet::API::ValidationModeEnum::LiveMode
+					request.validationMode = AuthorizeNet::API::ValidationModeEnum::LiveMode if payment_details_type == 'opaque_data'
 
 
 					response = anet_transaction.create_customer_payment_profile( request )
@@ -682,7 +685,7 @@ module Bazaar
 						request = AuthorizeNet::API::UpdateCustomerPaymentProfileRequest.new
 						request.customerProfileId = customer_profile_id
 						request.paymentProfile = anet_payment_profile
-						request.validationMode = AuthorizeNet::API::ValidationModeEnum::LiveMode
+						request.validationMode = AuthorizeNet::API::ValidationModeEnum::LiveMode if payment_details_type == 'opaque_data'
 
 						response = anet_transaction.update_customer_payment_profile( request )
 						puts "response.to_xml - create_customer_profile duplicate final error" if @enable_debug
