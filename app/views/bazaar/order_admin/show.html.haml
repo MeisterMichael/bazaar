@@ -276,7 +276,7 @@
 					%tbody
 						- unless @order.order_logs.present?
 							%tr
-								%td{ colspan: 3 } - No Shipments -
+								%td{ colspan: 3 } - No Logs -
 						- @order.order_logs.order(created_at: :desc, id: :desc).each do |order_log|
 							%tr
 								%td
