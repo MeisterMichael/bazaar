@@ -265,6 +265,31 @@
 										#{shipment_log.subject} | #{shipment_log.details}
 										(#{shipment_log.carrier_status})
 
+			.well.white-well
+				%h4 Order Logs
+				%table.table.table-light.table-bordered{ style: 'margin: 0;' }
+					%thead
+						%tr
+							%th{ style: 'width: 15em' } Date
+							%th{} Subject
+							%th{ style: 'width: 8em' } Source
+					%tbody
+						- unless @order.order_logs.present?
+							%tr
+								%td{ colspan: 3 } - No Shipments -
+						- @order.order_logs.order(created_at: :desc, id: :desc).each do |order_log|
+							%tr
+								%td
+									= current_user.to_local_tz(order_log.created_at).to_s
+								%td
+									= order_log.subject
+								%td
+									= order_log.source || '-'
+							- if order_log.details.present?
+								%tr
+									%td{ colspan: 3, style: 'padding-left: 4em;' }
+										= order_log.details
+
 		.col-xs-12.col-sm-4
 			- if @order.user.present?
 				= render 'customer_section'
