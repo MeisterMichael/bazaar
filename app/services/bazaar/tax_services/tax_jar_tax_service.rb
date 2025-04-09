@@ -73,12 +73,18 @@ module Bazaar
 					end
 
 				rescue Taxjar::Error::NotFound => e
+					e_order_log = OrderLog.new( order: order, subject: e.message, source: 'TaxJarTaxService#calculate_order', details: "#{e.message.to_s}\n#{(e.backtrace || []).join("\n")}" )
+					e_order_log.save if order.persisted?
+					order.order_logs << e_order_log
 
 					begin
 
 						tax_jar_order = @client.create_order( order_info )
 
 					rescue Exception => e
+						e_order_log = OrderLog.new( order: order, subject: e.message, source: 'TaxJarTaxService#calculate_order', details: "#{e.message.to_s}\n#{(e.backtrace || []).join("\n")}" )
+						e_order_log.save if order.persisted?
+						order.order_logs << e_order_log
 
 						NewRelic::Agent.notice_error(e, custom_params: { 'email' => order.email, 'order_code'	=> order.code } ) if defined?( NewRelic )
 						puts e
@@ -126,6 +132,9 @@ module Bazaar
 				begin
 					tax_for_order = @client.tax_for_order( order_info )
 				rescue Taxjar::Error::NotFound => ex
+					ex_order_log = OrderLog.new( order: order, subject: ex.message, source: 'TaxJarTaxService#calculate_order', details: "#{ex.message.to_s}\n#{(ex.backtrace || []).join("\n")}" )
+					ex_order_log.save if order.persisted?
+					order.order_logs << ex_order_log
 
 					NewRelic::Agent.notice_error(ex) if defined?( NewRelic )
 					puts ex
@@ -133,11 +142,22 @@ module Bazaar
 
 				rescue Taxjar::Error::BadRequest => ex
 
+					ex_order_log = OrderLog.new( order: order, subject: ex.message, source: 'TaxJarTaxService#calculate_order', details: "#{ex.message.to_s}\n#{(ex.backtrace || []).join("\n")}" )
+					ex_order_log.save if order.persisted?
+					order.order_logs << ex_order_log
+
+
 					if ex.message.include?( 'isn\'t a valid postal code' )
 						order.billing_address.errors.add :zip, :invalid, message: "#{order_info[:to_zip]} is not a valid zip/postal code"
+						order.errors.add :base, :processing_error, message: "#{order_info[:to_zip]} is not a valid zip/postal code"
+						return order
+					elsif ex.message.include?( 'is not used within from_state' )
+						order.billing_address.errors.add :zip, :invalid, message: "#{order_info[:from_zip]} is not a valid zip/postal code within #{order_info[:from_state]}"
+						order.errors.add :base, :processing_error, message: "the billing zip/postal code is not valid"
 						return order
 					elsif ex.message.include?( 'is not used within to_state' )
-						order.billing_address.errors.add :zip, :invalid, message: "#{order_info[:to_zip]} is not a valid zip/postal code within #{order_info[:to_state]}"
+						order.shipping_address.errors.add :zip, :invalid, message: "#{order_info[:to_zip]} is not a valid zip/postal code within #{order_info[:to_state]}"
+						order.errors.add :base, :processing_error, message: "the shipping zip/postal code is not valid"
 						return order
 					else
 						NewRelic::Agent.notice_error(ex) if defined?( NewRelic )
