@@ -271,6 +271,7 @@
 					%thead
 						%tr
 							%th{ style: 'width: 15em' } Date
+							%th{ style: 'width: 15em' } Type
 							%th{} Subject
 							%th{ style: 'width: 8em' } Source
 					%tbody
@@ -281,6 +282,8 @@
 							%tr
 								%td
 									= current_user.to_local_tz(order_log.created_at).to_s
+								%td
+									= order_log.log_type
 								%td
 									= order_log.subject
 								%td
