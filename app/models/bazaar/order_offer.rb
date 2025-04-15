@@ -4,6 +4,8 @@ module Bazaar
 
 		belongs_to :offer
 		belongs_to :order
+		belongs_to :subscription_offer, required: false, validate: true
+		belongs_to :subscription_period, required: false, validate: true
 		belongs_to :subscription, required: false, validate: true
 		belongs_to :source_obj, required: false, polymorphic: true
 		belongs_to :upsell_offer, required: false
