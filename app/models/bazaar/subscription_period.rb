@@ -8,6 +8,8 @@ module Bazaar
 		has_many :order_offers
 		has_many :orders, through: :order_offers
 
+		has_many :subscription_logs
+
 		enum status: { 'failed' => -100, 'pending' => 0, 'success' => 100 }
 
 	end

@@ -12,6 +12,7 @@ module Bazaar
 		belongs_to :upsell, required: false
 
 		has_many :order_offer_discounts
+		has_many :subscription_logs
 
 		money_attributes :subtotal, :price, :tax
 
