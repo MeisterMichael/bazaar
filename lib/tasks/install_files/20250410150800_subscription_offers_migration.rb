@@ -81,6 +81,7 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 			t.integer :estimated_discount, default: nil
 			t.integer :estimated_subtotal, default: nil
 			t.integer :estimated_total, default: nil
+			t.integer :estimated_interval, default: nil
 			t.timestamp :estimate_update_at, default: nil
 		end
 
