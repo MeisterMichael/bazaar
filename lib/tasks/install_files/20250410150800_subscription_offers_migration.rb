@@ -19,10 +19,6 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 			# will be next executed.
 			t.integer :next_subscription_interval, default: 1
 
-			# The last interval that this subscription offer
-			# will be executed on.
-			t.integer :last_subscription_interval, default: nil
-
 			t.json :properties, default: {}
 
 			t.timestamp :canceled_at, default: nil # when canceled
