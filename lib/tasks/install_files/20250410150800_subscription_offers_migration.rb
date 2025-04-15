@@ -33,7 +33,7 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 		end
 
 
-		create_table :bazaar_subscription_timeline do |t|
+		create_table :bazaar_subscription_interval_records do |t|
 			t.belongs_to :subscription
 			t.belongs_to :order, default: nil # the successful order
 			t.integer :subscription_interval, default: 1
@@ -67,7 +67,7 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 
 		change_table :bazaar_order_offers do |t|
 			t.belongs_to :subscription_offer, default: nil
-			t.belongs_to :subscription_history, default: nil
+			t.belongs_to :subscription_interval_record, default: nil
 			t.integer :offer_interval, default: nil
 		end
 
