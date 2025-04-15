@@ -3,6 +3,7 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 
 		# drop_table :bazaar_subscription_plans
 		# drop_table :bazaar_subscription_prices
+		drop_table :bazaar_subscription_logs
 
 		create_table :bazaar_subscription_offers do |t|
 			t.belongs_to :subscription
@@ -52,10 +53,15 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 		end
 
 
-		create_table :bazaar_subscription_log do |t|
-			t.belongs_to :subscription_period
+		create_table :bazaar_subscription_logs do |t|
+			t.belongs_to :subscription
+			t.belongs_to :subscription_period, default: nil
 			t.belongs_to :subscription_offer, default: nil
+			t.belongs_to :order, default: nil
+			t.belongs_to :order_offer, default: nil
+
 			t.integer :offer_interval, default: nil
+			t.integer :subscription_interval, default: nil
 
 			t.string :event_type # cancel, restore, failed, error, success
 			t.string :subject
@@ -65,6 +71,8 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 			t.json :properties, default: {}
 
 			t.timestamps
+			t.index [:offer_interval,:subscription_id,:subscription_period_id]
+			t.index [:subscription_interval,:subscription_id,:subscription_period_id]
 		end
 
 		change_table :bazaar_subscriptions do |t|
