@@ -29,7 +29,7 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 		end
 
 
-		create_table :bazaar_subscription_interval_records do |t|
+		create_table :bazaar_subscription_periods do |t|
 			t.belongs_to :subscription
 			t.belongs_to :order, default: nil # the successful order
 			t.integer :subscription_interval, default: 1
@@ -42,6 +42,8 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 
 			t.json :properties, default: {}
 
+			t.timestamp :start_at, default: nil
+			t.timestamp :end_at, default: nil
 			t.timestamp :last_failed_at, default: nil
 			t.timestamp :canceled_at, default: nil # when canceled
 			t.timestamp :suceeded_at, default: nil
@@ -59,11 +61,13 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 			t.integer :estimated_subtotal, default: nil
 			t.integer :estimated_total, default: nil
 			t.timestamp :estimate_update_at, default: nil
+
+
 		end
 
 		change_table :bazaar_order_offers do |t|
 			t.belongs_to :subscription_offer, default: nil
-			t.belongs_to :subscription_interval_record, default: nil
+			t.belongs_to :subscription_period, default: nil
 			t.integer :offer_interval, default: nil
 		end
 
