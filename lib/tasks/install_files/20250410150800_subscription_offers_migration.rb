@@ -38,20 +38,33 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 
 			t.integer :failed_count, default: 0
 
-			t.text :canceled_reason, default: nil
-
 			t.json :properties, default: {}
 
 			t.timestamp :start_at, default: nil
 			t.timestamp :end_at, default: nil
-			t.timestamp :last_failed_at, default: nil
-			t.timestamp :canceled_at, default: nil # when canceled
+			t.timestamp :next_period_start_at, default: nil
 			t.timestamp :suceeded_at, default: nil
 			t.timestamps
 
 			t.index [:subscription_id,:subscription_interval], unique: true
 			t.index [:status,:subscription_id]
 			t.index [:order_id,:subscription_id]
+		end
+
+
+		create_table :bazaar_subscription_log do |t|
+			t.belongs_to :subscription_period
+			t.belongs_to :subscription_offer, default: nil
+			t.integer :offer_interval, default: nil
+
+			t.string :event_type # cancel, restore, failed, error, success
+			t.string :subject
+			t.string :reason
+			t.text :details
+
+			t.json :properties, default: {}
+
+			t.timestamps
 		end
 
 		change_table :bazaar_subscriptions do |t|
@@ -61,8 +74,6 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 			t.integer :estimated_subtotal, default: nil
 			t.integer :estimated_total, default: nil
 			t.timestamp :estimate_update_at, default: nil
-
-
 		end
 
 		change_table :bazaar_order_offers do |t|
