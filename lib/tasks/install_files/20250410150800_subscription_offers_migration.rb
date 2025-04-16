@@ -14,11 +14,11 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 			t.integer :quantity, default: 1
 
 			# The next offer interval to process
-			t.integer :next_offer_interval, default: 1
+			# t.integer :next_offer_interval, default: 1
 
 			# The interval in which this subscription offer
 			# will be next executed.
-			t.integer :next_subscription_interval, default: 1
+			t.integer :next_subscription_interval, default: nil
 
 			t.json :properties, default: {}
 
@@ -43,7 +43,7 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 
 			t.timestamp :start_at, default: nil
 			t.timestamp :end_at, default: nil
-			t.timestamp :next_period_start_at, default: nil
+			# t.timestamp :next_period_start_at, default: nil
 			t.timestamp :suceeded_at, default: nil
 			t.timestamps
 
@@ -51,7 +51,6 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 			t.index [:status,:subscription_id]
 			t.index [:order_id,:subscription_id]
 		end
-
 
 		create_table :bazaar_subscription_logs do |t|
 			t.belongs_to :subscription
