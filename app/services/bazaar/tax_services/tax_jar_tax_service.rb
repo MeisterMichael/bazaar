@@ -73,9 +73,9 @@ module Bazaar
 					end
 
 				rescue Taxjar::Error::NotFound => e
-					e_order_log = OrderLog.new( order: order, subject: e.message, source: 'TaxJarTaxService#calculate_order', details: "#{e.message.to_s}\n#{(e.backtrace || []).join("\n")}" )
-					e_order_log.save if order.persisted?
-					order.order_logs << e_order_log
+					# e_order_log = OrderLog.new( order: order, subject: e.message, source: 'TaxJarTaxService#calculate_order', details: "#{e.message.to_s}\n#{(e.backtrace || []).join("\n")}" )
+					# e_order_log.save if order.persisted?
+					# order.order_logs << e_order_log
 
 					begin
 
