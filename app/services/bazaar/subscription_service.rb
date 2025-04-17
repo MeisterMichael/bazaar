@@ -231,6 +231,13 @@ module Bazaar
 					log_event( name: 'subscription_failed', category: 'ecom', on: subscription, content: "subscription #{subscription.code} failed to renew due to: #{subscription.failed_message}" )
 				end
 
+				order.subscription_periods.where( subscription: subscriptions ).each do |subscription_period|
+					subscription_period.update(
+						status: 'failed',
+						failed_count: subscription_period.orders.failed.count,
+					)
+				end
+
 				raise e
 
 			end
@@ -277,6 +284,14 @@ module Bazaar
 					subscription.save
 				end
 
+				order.subscription_periods.where( subscription: subscriptions ).each do |subscription_period|
+					subscription_period.update(
+						status: 'failed',
+						failed_count: subscription_period.orders.failed.count,
+					)
+				end
+
+
 				order.errors.add(:base, :processing_error, message: 'Transaction failed') if !transaction || not( transaction.approved? )
 
 			else
@@ -304,6 +319,17 @@ module Bazaar
 					subscription.save
 
 				end
+
+				order.subscription_periods.where( subscription: subscriptions ).each do |subscription_period|
+					subscription_period.update(
+						status: 'success',
+						suceeded_at: Time.now,
+						start_at: subscription.current_period_start_at,
+						end_at: subscription.current_period_end_at,
+					)
+				end
+
+				order.subscription_offers.where( subscription: subscriptions ).update_all('next_subscription_interval = next_subscription_interval + 1')
 
 			end
 
