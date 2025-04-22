@@ -34,7 +34,8 @@ module Bazaar
 		def subscribe( user, offer, args = {} )
 			start_at = args[:start_at] || Time.now
 			quantity = args[:quantity] || 1
-			interval = args[:interval] || 1
+			subscription_interval = args[:subscription_interval] || 1 # @TODO
+			offer_interval = args[:offer_interval] || 1 # @TODO
 
 			if (order = args[:order]).present?
 
@@ -66,16 +67,16 @@ module Bazaar
 			discount = nil unless discount.try(:for_subscriptions?)
 
 			args[:price]		||= args[:amount] / quantity if args[:amount]
-			args[:price]		||= offer.price_for_interval( interval )
+			args[:price]		||= offer.price_for_interval( offer_interval )
 
 			args[:amount]		||= args[:price] * quantity
 
 			args[:currency]		||= 'USD'
-			offer_schedule_interval_period	= offer.interval_period_for_interval( interval )
-			offer_schedule_interval_value		= offer.interval_value_for_interval( interval )
-			offer_schedule_interval_unit		= offer.interval_unit_for_interval( interval )
+			offer_schedule_interval_period		= offer.interval_period_for_interval( offer_interval )
+			offer_schedule_interval_value		= offer.interval_value_for_interval( offer_interval )
+			offer_schedule_interval_unit		= offer.interval_unit_for_interval( offer_interval )
 
-			puts "current_period_end_at = #{start_at} + #{offer_schedule_interval_period} (#{offer.id}, #{interval})"
+			puts "current_period_end_at = #{start_at} + #{offer_schedule_interval_period} (#{offer.id}, #{offer_interval})"
 			current_period_end_at = start_at + offer_schedule_interval_period
 
 			subscription = args[:subscription] || Subscription.new()
@@ -109,6 +110,30 @@ module Bazaar
 				tax: args[:tax],
 			}
 
+			subscription_period = Bazaar::SubscriptionPeriod.new(
+				subscription: subscription,
+				subscription_interval: subscription_interval,
+				status: 'active',
+			)
+
+			subscription_offer = Bazaar::SubscriptionOffer.new(
+				subscription: subscription,
+				offer: offer,
+				status: 'active',
+				quantity: quantity,
+				next_subscription_interval: subscription_interval + 1, #@TODO - how do we calculate this?
+			)
+
+			subscription_offer_period = Bazaar::SubscriptionOfferPeriod.new
+			subscription_offer_period.subscription = subscription
+			subscription_offer_period.offer = offer
+			subscription_offer_period.subscription_offer = subscription_offer
+			subscription_offer_period.subscription_period = subscription_period
+			subscription_offer_period.offer_interval = offer_interval
+			subscription_offer_period.subscription_interval = subscription_interval
+
+			subscription.subscription_offers << subscription_offer
+
 			subscription.billing_address ||= subscription.billing_user_address.try(:geo_address)
 			subscription.shipping_address ||= subscription.shipping_user_address.try(:geo_address)
 
@@ -120,10 +145,11 @@ module Bazaar
 			end
 
 			subscription.save!
+			subscription_offer.save!
 
-			log_event( user: user, name: 'subscribed', category: 'ecom', on: subscription, content: "started a subscription #{subscription.code} to #{offer.title}" )
+			log_event( user: user, name: 'subscribed', category: 'ecom', on: subscription_offer, content: "started a subscription #{subscription.code} to #{offer.title}" )
 
-			subscription
+			subscription_offer_period
 		end
 
 		def generate_subscription_order( subscription, args = {} )
@@ -153,20 +179,43 @@ module Bazaar
 
 			subscriptions.each do |subscription|
 				# create order
-				offer = subscription.offer
+				# offer = subscription.offer
 
-				interval = args[:interval] || subscription.next_subscription_interval
-				price = subscription.price_for_interval( interval )
-				order.order_offers.new(
-					offer: offer,
+				subscription_interval = subscription.next_subscription_interval
+				subscription_period = subscription.subscription_periods.where( subscription_interval: subscription_interval ).first
+				subscription_period ||= Bazaar::SubscriptionPeriod.new(
 					subscription: subscription,
-					price: price,
-					subtotal: price * subscription.quantity,
-					quantity: subscription.quantity,
-					title: offer.cart_title,
-					tax_code: offer.tax_code,
-					subscription_interval: interval
+					subscription_interval: subscription_interval,
+					status: 'pending',
+					# start_at: nil,
+					# end_at: nil,
+					# next_period_start_at: nil,
+					# suceeded_at: nil,
 				)
+
+				subscription.subscription_offers.each do |subscription_offer|
+					next unless subscription_offer.next_subscription_interval == subscription_interval
+					
+					offer = subscription_offer.offer
+					offer_interval = subscription_offer.next_offer_interval
+	
+					price = offer.price_for_interval( offer_interval )
+
+					order_offer = order.order_offers.new(
+						offer: offer,
+						subscription: subscription,
+						subscription_offer: subscription_offer,
+						subscription_period: subscription_period,
+						price: price,
+						subtotal: price * subscription.quantity,
+						quantity: subscription.quantity,
+						title: offer.cart_title,
+						tax_code: offer.tax_code,
+						subscription_interval: subscription_interval
+						offer_interval: offer_interval,
+					)
+				end
+
 
 				# apply the subscription discount to new orders, but only the first one.
 				if ( discount = subscription.discount ).present?
