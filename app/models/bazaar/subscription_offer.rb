@@ -10,7 +10,7 @@ module Bazaar
 
 		has_many :subscription_logs
 
-		enum status: { 'canceled' => -100, 'draft' => 0, 'active' => 100 }
+		enum status: { 'trash' => -200, 'canceled' => -100, 'draft' => 0, 'active' => 100 }
 
 
 

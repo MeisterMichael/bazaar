@@ -24,6 +24,7 @@ module Bazaar
 		has_many :subscription_logs
 		has_many :subscription_offers
 		has_many :offers, through: :subscription_offers
+		has_many :subscription_periods
 
 		has_many		:order_offers
 		has_many		:orders, through: :order_offers

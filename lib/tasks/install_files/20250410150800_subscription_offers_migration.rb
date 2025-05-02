@@ -10,7 +10,7 @@ class SubscriptionOffersMigration < ActiveRecord::Migration[7.1]
 			t.belongs_to :offer
 			# t.belongs_to :parent, default: nil # copied or merged from
 
-			t.integer :status, default: 1 # canceled, draft, active
+			t.integer :status, default: 1 # trash, canceled, draft, active
 			t.integer :quantity, default: 1
 
 			# The next offer interval to process
