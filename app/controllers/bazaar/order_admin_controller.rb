@@ -81,7 +81,7 @@ module Bazaar
 
 				set_flash "Order has been held for review.", :success
 				log_event( name: 'hold_review', on: @order, content: "order held for review #{@order.code}", category: 'ecom', user: @order.user )
-
+				Bazaar::OrderMailer.hold_for_review(@order).deliver_now
 			end
 
 			redirect_back fallback_location: '/admin'
