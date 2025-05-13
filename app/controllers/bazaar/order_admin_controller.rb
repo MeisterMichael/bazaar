@@ -134,7 +134,9 @@ module Bazaar
 
 				@order.shipments.update_all( status: 'canceled' ) if params[:cancel_fullfillment]
 
-				Bazaar::OrderMailer.refund( @transaction ).deliver_now rescue nil
+				@transactions.select(&:approved?).select(&:negative?).each do |transaction|
+					Bazaar::OrderMailer.refund( transaction ).deliver_now
+				end
 				set_flash "Refund successful", :success
 
 				log_event( user: @order.user, name: 'refund', value: -@transactions.sum(&:amount), on: @order, content: "refunded #{@transactions.sum(&:amount_as_money)} on order #{@order.code}" )
