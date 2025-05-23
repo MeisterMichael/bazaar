@@ -21,6 +21,11 @@ module Bazaar
 		has_many :offer_prices, as: :parent_obj
 		has_many :offer_schedules, as: :parent_obj
 
+		# has_many :subscription_logs
+		has_many :subscription_offers
+		has_many :offers, through: :subscription_offers
+		# has_many :subscription_periods
+
 		has_many		:order_offers
 		has_many		:orders, through: :order_offers
 
