@@ -25,5 +25,13 @@ module Bazaar
 			mail to: email, from: Bazaar.order_email_from, subject: subject
 		end
 
+		def hold_for_review( order )
+			@order = order
+
+			subject = "Your order is being reviewed"
+
+			mail to: @order.email, from: Bazaar.order_email_from, subject: subject
+		end
+
 	end
 end

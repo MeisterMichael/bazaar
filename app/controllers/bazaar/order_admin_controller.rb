@@ -81,7 +81,7 @@ module Bazaar
 
 				set_flash "Order has been held for review.", :success
 				log_event( name: 'hold_review', on: @order, content: "order held for review #{@order.code}", category: 'ecom', user: @order.user )
-
+				Bazaar::OrderMailer.hold_for_review(@order).deliver_now
 			end
 
 			redirect_back fallback_location: '/admin'
@@ -134,7 +134,9 @@ module Bazaar
 
 				@order.shipments.update_all( status: 'canceled' ) if params[:cancel_fullfillment]
 
-				# OrderMailer.refund( @transaction ).deliver_now # send emails on a cron
+				@transactions.select(&:approved?).select(&:negative?).each do |transaction|
+					Bazaar::OrderMailer.refund( transaction ).deliver_now
+				end
 				set_flash "Refund successful", :success
 
 				log_event( user: @order.user, name: 'refund', value: -@transactions.sum(&:amount), on: @order, content: "refunded #{@transactions.sum(&:amount_as_money)} on order #{@order.code}" )

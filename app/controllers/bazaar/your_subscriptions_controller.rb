@@ -110,6 +110,7 @@ module Bazaar
 						log_event( name: 'reactivate_subscription', category: 'ecom', on: @subscription, content: "reactivated suscription #{@subscription.code}" )
 					else
 						log_event( name: 'cancel_subscription', category: 'ecom', on: @subscription, content: "cancelled suscription #{@subscription.code}" )
+						Bazaar::SubscriptionMailer.cancel_subscription( @subscription ).deliver_now
 					end
 				else
 					log_event( name: 'update_subscription', category: 'ecom', on: @subscription, content: "updated suscription #{@subscription.code}: #{@subscription.changes.collect{|attribute,changes| "#{attribute} changed from '#{changes.first}' to '#{changes.last}'" }.join(', ')}." )

@@ -187,7 +187,11 @@ module Bazaar
 			@subscription.amount = @subscription.price * @subscription.quantity
 
 			if @subscription.save
-				log_event( { name: 'cancel_subscription', user: @subscription.user, category: 'ecom', on: @subscription, content: "canceled #{@subscription.user}'s subscription." } ) if @subscription.saved_changes[:status].present? && @subscription.canceled?
+				
+				if @subscription.saved_changes[:status].present? && @subscription.canceled?
+					log_event( { name: 'cancel_subscription', user: @subscription.user, category: 'ecom', on: @subscription, content: "canceled #{@subscription.user}'s subscription." } )
+					Bazaar::SubscriptionMailer.cancel_subscription( @subscription ).deliver_now
+				end
 				set_flash "Subscription updated successfully", :success
 
 			else

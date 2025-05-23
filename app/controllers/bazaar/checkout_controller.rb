@@ -191,7 +191,7 @@ module Bazaar
 				end
 
 				begin
-					OrderMailer.receipt( @order ).deliver_now if Bazaar.enable_checkout_order_mailer
+					Bazaar::OrderMailer.receipt( @order ).deliver_now if Bazaar.enable_checkout_order_mailer
 					#OrderMailer.notify_admin( @order ).deliver_now
 				rescue Exception => e
 					if Rails.env.development?
