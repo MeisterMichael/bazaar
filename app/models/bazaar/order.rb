@@ -25,6 +25,10 @@ module Bazaar
 		has_many	:shipments
 		has_many	:transactions, as: :parent_obj
 
+		has_many 	:subscriptions, through: :order_offers
+		has_many 	:subscription_offers, through: :order_offers
+		# has_many 	:subscription_periods, through: :order_offers
+		has_many 	:subscription_logs
 
 		has_one 	:cart, dependent: :destroy
 
