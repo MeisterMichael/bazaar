@@ -8,7 +8,7 @@ module Bazaar
 		has_many :order_offers
 		has_many :orders, through: :order_offers
 
-		# has_many :subscription_logs
+		has_many :subscription_logs
 
 		enum status: { 'trash' => -200, 'canceled' => -100, 'draft' => 0, 'active' => 100 }
 
