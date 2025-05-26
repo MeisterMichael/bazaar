@@ -107,6 +107,13 @@ module Bazaar
 			subscription.billing_address ||= subscription.billing_user_address.try(:geo_address)
 			subscription.shipping_address ||= subscription.shipping_user_address.try(:geo_address)
 
+			subscription.subscription_offers.new(
+				offer: offer,
+				statu: 'active',
+				quantity: quantity,
+				next_subscription_interval: 1,
+			)
+
 			if subscription.respond_to? :properties
 				subscription.properties = {
 					'credit_card_ending_in'	=> args[:credit_card_ending_in],
