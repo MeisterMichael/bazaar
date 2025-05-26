@@ -148,20 +148,45 @@ module Bazaar
 
 			subscriptions.each do |subscription|
 				# create order
-				offer = subscription.offer
 
-				interval = args[:interval] || subscription.next_subscription_interval
-				price = subscription.price_for_interval( interval )
-				order.order_offers.new(
-					offer: offer,
-					subscription: subscription,
-					price: price,
-					subtotal: price * subscription.quantity,
-					quantity: subscription.quantity,
-					title: offer.cart_title,
-					tax_code: offer.tax_code,
-					subscription_interval: interval
-				)
+				subscription_interval = args[:interval] || subscription.next_subscription_interval
+
+				if subscription.subscription_offers.blank?
+					offer = subscription.offer
+
+					interval = args[:interval] || subscription.next_subscription_interval
+					price = subscription.price_for_interval( interval )
+					order.order_offers.new(
+						offer: offer,
+						subscription: subscription,
+						price: price,
+						subtotal: price * subscription.quantity,
+						quantity: subscription.quantity,
+						title: offer.cart_title,
+						tax_code: offer.tax_code,
+						subscription_interval: interval
+					)
+				else
+					subscription.subscription_offers.each do |subscription_offer|
+						offer = subscription.offer
+
+						offer_interval = args[:offer_interval] || subscription_offer.next_offer_interval
+
+						price = subscription_offer.offer.price_for_interval( offer_interval )
+						order.order_offers.new(
+							offer: offer,
+							subscription: subscription,
+							price: price,
+							subtotal: price * subscription_offer.quantity,
+							quantity: subscription_offer.quantity,
+							title: offer.cart_title,
+							tax_code: offer.tax_code,
+							subscription_interval: subscription_interval,
+							offer_interval: offer_interval,
+							subscription_offer: subscription_offer,
+						)
+					end
+				end
 
 				# apply the subscription discount to new orders, but only the first one.
 				if ( discount = subscription.discount ).present?
