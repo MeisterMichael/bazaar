@@ -206,11 +206,14 @@ module Bazaar
 		def update_offer
 			authorize( @subscription )
 			@subscription = Subscription.where( id: params[:id] ).includes( :user ).first
-			@subscription.attributes = params.require( :subscription ).permit( :offer_id )
-			@subscription.price = @subscription.offer.price_for_interval( @subscription.next_subscription_interval )
-			@subscription.amount = @subscription.price * @subscription.quantity
 
-			if @subscription.save
+			subscription_options = params.require( :subscription ).permit( :offer_id )
+			offer = Bazaar::Offer.find( subscription_options.delete( :offer_id ) )
+
+			@subscription_service = Bazaar.subscription_service_class.constantize.new( Bazaar.subscription_service_config )
+			@subscription = @subscription_service.subscription_change_offer( @subscription, offer, subscription_options )
+
+			if @subscription.errors.blank?
 				set_flash "Subscription Offer updated successfully", :success
 
 			else

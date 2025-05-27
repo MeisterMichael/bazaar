@@ -128,6 +128,63 @@ module Bazaar
 			subscription
 		end
 
+		def subscription_change_offer( subscription, offer, args = {} )
+
+			subscription_offer = subscription.subscription_offers.where( offer: subscription.offer ).first
+			subscription_offer = subscription.subscription_offers.first if subscription.subscription_offers.count == 1
+
+			if subscription_offer.present?
+				subscription_offer_change_offer( subscription_offer, offer, args )
+				if subscription.subscription_offers.count == 1
+					subscription.offer = offer
+					subscription.save!
+				end
+			else
+				raise Exception.new('Subscription does not have the appropriate subscription offer.')
+			end
+
+			subscription
+		end
+
+		def subscription_offer_change_offer( subscription_offer, offer, args = {} )
+
+			subscription = subscription_offer.subscription
+
+			subscription.offer = offer if subscription_offer.offer == subscription.offer
+
+			old_offer = subscription_offer.offer
+			subscription_offer.offer = offer
+			subscription_offer.save!
+
+			subscription_recalculate( subscription )
+			subscription.save!
+
+			log_event( user: subscription.user, name: 'subscription_offer_changed', category: 'ecom', on: subscription_offer, content: "changed a subscription #{subscription.code} offer from '#{old_offer.title}' to '#{offer.title}'" )
+
+			subscription
+		end
+
+		def subscription_recalculate( subscription )
+
+			if subscription.subscription_offers.blank?
+
+				subscription.price = subscription.offer.price_for_interval( subscription.next_subscription_interval )
+				subscription.amount = subscription.price * subscription.quantity
+
+			else
+				subscription.price = 0
+				subscription.amount = 0
+
+				subscription.subscription_offers.each do |subscription_offer|
+
+					price = subscription_offer.offer.price_for_interval( subscription_offer.next_offer_interval )
+					subscription.price = subscription.price + price
+					subscription.amount = subscription.amount + price * subscription_offer.quantity
+
+				end
+			end
+		end
+
 		def generate_subscription_order( subscription, args = {} )
 			generate_subscriptions_order( [subscription], args )
 		end
