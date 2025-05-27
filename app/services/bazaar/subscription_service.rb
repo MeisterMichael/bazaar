@@ -131,7 +131,7 @@ module Bazaar
 		def subscription_change_offer( subscription, offer, args = {} )
 
 			subscription_offer = subscription.subscription_offers.where( offer: subscription.offer ).first
-			subscription_offer = subscription.subscription_offers.first if subscription.subscription_offers.count == 1
+			subscription_offer = subscription.subscription_offers.first if subscription_offer.blank? && subscription.subscription_offers.count == 1
 
 			if subscription_offer.present?
 				subscription_offer_change_offer( subscription_offer, offer, args )
