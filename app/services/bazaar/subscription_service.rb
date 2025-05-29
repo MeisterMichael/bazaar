@@ -183,6 +183,22 @@ module Bazaar
 
 				end
 			end
+
+			if subscription.respond_to? :estimated_total
+				order = calculate_subscription_order( subscription )
+
+				subscription.estimated_tax = order.tax
+				subscription.estimated_shipping = order.shipping
+				subscription.estimated_discount = order.discount
+				subscription.estimated_subtotal = order.subtotal
+				subscription.estimated_total = order.total
+				# subscription.estimated_interval = order.tax
+				subscription.estimate_update_at = Time.now
+
+			end
+
+			
+
 		end
 
 		def generate_subscription_order( subscription, args = {} )
