@@ -30,13 +30,13 @@
 				%h4 Offers
 				%table.table.table-light.table-bordered{ style: 'margin:0;' }
 					%thead
-						%th &nbsp;
+						%th{ style: 'width: 3em;' } &nbsp;
 						%th Title
-						%th Created
-						%th Canceled
-						%th Quantity
-						%th Status
-						%th &nbsp;
+						%th{ style: 'width: 6em;' } Quantity
+						%th{ style: 'width: 9em;' } Created
+						%th{ style: 'width: 9em;' } Canceled
+						%th{ style: 'width: 6em;' } Status
+						%th{ style: 'width: 4em;' } &nbsp;
 					%tbody
 						- if @subscription.subscription_offers.blank?
 							%tr
@@ -47,11 +47,11 @@
 								%td=(index + 1)
 								%td
 									%a{ href: bazaar.edit_offer_admin_path( subscription_offer.offer ) }= subscription_offer.offer.title
+								%td= subscription_offer.quantity
 								%td= current_user.to_local_tz(subscription_offer.created_at).to_fs( :short )
 								%td
 									- if subscription_offer.canceled_at.present?
 										= current_user.to_local_tz(subscription_offer.canceled_at).to_fs( :short )
-								%td= subscription_offer.quantity
 								%td= subscription_offer.status
 								%td
 									- if subscription_offer.active?
