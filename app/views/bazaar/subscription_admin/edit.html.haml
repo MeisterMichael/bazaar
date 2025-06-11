@@ -33,6 +33,7 @@
 						%th{ style: 'width: 3em;' } &nbsp;
 						%th Title
 						%th{ style: 'width: 6em;' } Quantity
+						%th{ style: 'width: 6em;' } Next Interval
 						%th{ style: 'width: 9em;' } Created
 						%th{ style: 'width: 9em;' } Canceled
 						%th{ style: 'width: 6em;' } Status
@@ -47,7 +48,11 @@
 								%td=(index + 1)
 								%td
 									%a{ href: bazaar.edit_offer_admin_path( subscription_offer.offer ) }= subscription_offer.offer.title
+									%br
+									%small
+										code: #{subscription_offer.offer.code}
 								%td= subscription_offer.quantity
+								%td= subscription_offer.next_subscription_interval
 								%td= current_user.to_local_tz(subscription_offer.created_at).to_fs( :short )
 								%td
 									- if subscription_offer.canceled_at.present?
@@ -177,6 +182,10 @@
 						= f.label :next_charged_at, 'Next Charge'
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The date and time that this subscription will next be charged.' }
 						= f.text_field :next_charged_at, value: current_user.to_local_tz( @subscription.next_charged_at ), class: 'datetimepicker form-control'
+					.form-group
+						= f.label :next_charged_at, 'Next Interval'
+						.form-control.disabled{ disabled: :disabled }=@subscription.next_subscription_interval
+
 
 					.form-group
 						= f.label :quantity, 'Quantity'
