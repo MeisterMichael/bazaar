@@ -27,9 +27,10 @@ module Bazaar
 		end
 
 		def subscribe( user, offer, args = {} )
-			start_at = args[:start_at] || Time.now
-			quantity = args[:quantity] || 1
-			interval = args[:interval] || 1
+			start_at 					= args[:start_at] || Time.now
+			quantity 					= args[:quantity] || 1
+			interval 					= args[:interval] || 1
+			next_subscription_interval	= args[:next_subscription_interval] || 1
 
 			if (order = args[:order]).present?
 
@@ -107,13 +108,6 @@ module Bazaar
 			subscription.billing_address ||= subscription.billing_user_address.try(:geo_address)
 			subscription.shipping_address ||= subscription.shipping_user_address.try(:geo_address)
 
-			subscription.subscription_offers.new(
-				offer: offer,
-				statu: 'active',
-				quantity: quantity,
-				next_subscription_interval: 1,
-			)
-
 			if subscription.respond_to? :properties
 				subscription.properties = {
 					'credit_card_ending_in'	=> args[:credit_card_ending_in],
@@ -123,9 +117,35 @@ module Bazaar
 
 			subscription.save!
 
-			log_event( user: user, name: 'subscribed', category: 'ecom', on: subscription, content: "started a subscription #{subscription.code} to #{offer.title}" )
+			subscribe_subscription_offer( subscription, offer, {
+				quantity: quantity,
+				interval: interval,
+				next_subscription_interval: next_subscription_interval,
+			} )
 
 			subscription
+		end
+
+		def subscribe_subscription_offer( subscription, offer, args = {} )
+			quantity 					= args[:quantity] || 1
+			interval 					= args[:interval] || 1
+			next_subscription_interval	= args[:next_subscription_interval] || 1
+			status 						= args[:status] || 'active'
+
+			subscription_offer = subscription.subscription_offers.new(
+				offer: offer,
+				status: status,
+				quantity: quantity,
+				next_subscription_interval: next_subscription_interval,
+			)
+
+			subscription_recalculate( subscription )
+
+			subscription.save!
+
+			log_event( user: subscription.user, name: 'subscribed', category: 'ecom', on: subscription, content: "started a subscription #{subscription.code} to #{offer.title}" )
+
+			subscription_offer
 		end
 
 		def subscription_change_offer( subscription, offer, args = {} )
@@ -154,6 +174,7 @@ module Bazaar
 
 			old_offer = subscription_offer.offer
 			subscription_offer.offer = offer
+			subscription_offer.quantity = args[:quantity] if args[:quantity].present?
 			subscription_offer.save!
 
 			subscription_recalculate( subscription )
@@ -175,7 +196,7 @@ module Bazaar
 				subscription.price = 0
 				subscription.amount = 0
 
-				subscription.subscription_offers.each do |subscription_offer|
+				subscription.subscription_offers.active.each do |subscription_offer|
 
 					price = subscription_offer.offer.price_for_interval( subscription_offer.next_offer_interval )
 					subscription.price = subscription.price + price
@@ -247,24 +268,26 @@ module Bazaar
 						subscription_interval: interval
 					)
 				else
-					subscription.subscription_offers.each do |subscription_offer|
-						offer = subscription.offer
+					subscription.subscription_offers.to_a.each do |subscription_offer|
+						if subscription_offer.active? && subscription_offer.next_subscription_interval <= subscription_interval
+							offer = subscription.offer
 
-						offer_interval = args[:offer_interval] || subscription_offer.next_offer_interval
+							offer_interval = args[:offer_interval] || subscription_offer.next_offer_interval
 
-						price = subscription_offer.offer.price_for_interval( offer_interval )
-						order.order_offers.new(
-							offer: offer,
-							subscription: subscription,
-							price: price,
-							subtotal: price * subscription_offer.quantity,
-							quantity: subscription_offer.quantity,
-							title: offer.cart_title,
-							tax_code: offer.tax_code,
-							subscription_interval: subscription_interval,
-							offer_interval: offer_interval,
-							subscription_offer: subscription_offer,
-						)
+							price = subscription_offer.offer.price_for_interval( offer_interval )
+							order.order_offers.new(
+								offer: offer,
+								subscription: subscription,
+								price: price,
+								subtotal: price * subscription_offer.quantity,
+								quantity: subscription_offer.quantity,
+								title: offer.cart_title,
+								tax_code: offer.tax_code,
+								subscription_interval: subscription_interval,
+								offer_interval: offer_interval,
+								subscription_offer: subscription_offer,
+							)
+						end
 					end
 				end
 

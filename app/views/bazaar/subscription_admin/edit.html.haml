@@ -17,11 +17,27 @@
 			%h2
 				%strong= @subscription.code
 				%small= @subscription.created_at.to_fs( :short )
-			Plan:
-			%a{ href: bazaar.edit_offer_admin_path( @subscription.offer ) }= @subscription.offer.title
-			(
-			%a{ href: '#', data: { toggle: :modal, target: '#edit_subscription_offer_modal' } } Edit
-			)
+			- if @subscription.subscription_offers.present?
+				%ul
+				- @subscription.subscription_offers.order(id: :asc).each_with_index do |subscription_offer, index|
+					%li
+						Offer #{index + 1}:
+						%a{ href: bazaar.edit_offer_admin_path( subscription_offer.offer ) }= subscription_offer.offer.title
+						x
+						#{subscription_offer.quantity}
+
+						[#{subscription_offer.status}]
+						- if subscription_offer.active?
+							(
+							%a{ href: '#', data: { toggle: :modal, target: "#edit_subscription_offer_#{subscription_offer.id}_modal" } } Edit
+							)
+				%a{ href: '#', data: { toggle: :modal, target: "#new_subscription_offer_modal" } } Add Offer
+			- else
+				Plan:
+				%a{ href: bazaar.edit_offer_admin_path( @subscription.offer ) }= @subscription.offer.title
+				(
+				%a{ href: '#', data: { toggle: :modal, target: '#edit_subscription_offer_modal' } } Edit
+				)
 
 	.row
 		.col-xs-8
@@ -164,19 +180,12 @@
 								-# = f.select :billing_interval_unit, ['months', 'weeks', 'days'], {}, class: 'form-control', style: ''
 								.form-control.disabled{ disabled: :disabled }
 									#{@subscription.interval_unit_for_interval( @subscription.next_subscription_interval )}
-
 					.form-group
-						%a.pull-right{ href: '#', data: { toggle: :modal, target: '#new_offer_price_modal' } } Customize
-						= label_tag :next_renewal_price, "Next Renewal Price"
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The per unit price that will be used to on the next subscription renewal order.' }
-						.form-control{ disabled: :disabled }
-							#{number_to_currency( @subscription.price_as_money_for_interval( @subscription.next_subscription_interval ) )}
-					.form-group
+						-# %a.pull-right{ href: '#', data: { toggle: :modal, target: '#new_offer_price_modal' } } Customize
 						= label_tag :next_renewal_price, "Next Renewal Subtotal"
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The total (before taxes, shipping and discounts) to be charged on the next subscription renewal order.' }
 						.form-control{ disabled: :disabled }
-							#{number_to_currency( @subscription.price_as_money_for_interval( @subscription.next_subscription_interval ) * @subscription.quantity )}
-
+							#{@subscription.estimated_subtotal_formatted}
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
@@ -247,3 +256,6 @@
 = render 'bazaar/offer_price_admin/new_modal', parent_obj: @subscription, args: { start_interval: @subscription.next_subscription_interval, price_as_money: @subscription.price_as_money_for_interval( @subscription.next_subscription_interval ), replace_mode: 'duplicate_start_intervals' }
 = render 'bazaar/offer_schedule_admin/new_modal', parent_obj: @subscription, args: { start_interval: @subscription.next_subscription_interval, interval_value: @subscription.interval_value_for_interval( @subscription.next_subscription_interval ), interval_unit: @subscription.interval_unit_for_interval( @subscription.next_subscription_interval ), replace_mode: 'duplicate_start_intervals' }
 = render 'bazaar/subscription_admin/edit_offer_modal', args: {}
+- @subscription.subscription_offers.each do |subscription_offer|
+	= render 'bazaar/subscription_offer_admin/edit_modal', subscription_offer: subscription_offer, args: {}
+= render 'bazaar/subscription_offer_admin/new_modal', subscription: @subscription, args: {}

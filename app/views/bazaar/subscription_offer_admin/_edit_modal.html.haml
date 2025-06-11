@@ -1,0 +1,27 @@
+.modal.fade{ id: "edit_subscription_offer_#{subscription_offer.id}_modal" }
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Update Offer
+			= form_for subscription_offer, url: bazaar.subscription_offer_admin_path( subscription_offer ) do |f|
+				.modal-body
+					.form-group.select2-form-group
+						= f.label :offer_id, 'Offer'
+						%div
+							= f.collection_select :offer_id, Bazaar::Offer.recurring.active.or(Bazaar::Offer.where( id: subscription_offer.offer_id )), :id, :title, {}, class: 'form-control select-2-ajax', style: 'width: 100%', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { recurring: 'true' }, format: 'json' ) }
+					.form-group
+						= f.label :quantity
+						= f.number_field :quantity, class: 'form-control'
+				.modal-footer
+					- if subscription_offer.subscription.subscription_offers.active.count > 1
+						.pull-left
+							%a.btn.btn-danger{ href: subscription_offer_admin_path( subscription_offer ), data: { method: 'delete', confirm: 'Are you sure?' } }
+								%i.fa.fa-trash-o
+								Delete
+
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Update', class: 'btn btn-primary'
