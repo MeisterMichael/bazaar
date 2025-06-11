@@ -17,22 +17,7 @@
 			%h2
 				%strong= @subscription.code
 				%small= @subscription.created_at.to_fs( :short )
-			- if @subscription.subscription_offers.present?
-				%ul
-				- @subscription.subscription_offers.order(id: :asc).each_with_index do |subscription_offer, index|
-					%li
-						Offer #{index + 1}:
-						%a{ href: bazaar.edit_offer_admin_path( subscription_offer.offer ) }= subscription_offer.offer.title
-						x
-						#{subscription_offer.quantity}
-
-						[#{subscription_offer.status}]
-						- if subscription_offer.active?
-							(
-							%a{ href: '#', data: { toggle: :modal, target: "#edit_subscription_offer_#{subscription_offer.id}_modal" } } Edit
-							)
-				%a{ href: '#', data: { toggle: :modal, target: "#new_subscription_offer_modal" } } Add Offer
-			- else
+			- unless @subscription.subscription_offers.present?
 				Plan:
 				%a{ href: bazaar.edit_offer_admin_path( @subscription.offer ) }= @subscription.offer.title
 				(
@@ -41,6 +26,38 @@
 
 	.row
 		.col-xs-8
+			.well.white-well
+				%h4 Offers
+				%table.table.table-light.table-bordered{ style: 'margin:0;' }
+					%thead
+						%th &nbsp;
+						%th Title
+						%th Created
+						%th Canceled
+						%th Quantity
+						%th Status
+						%th &nbsp;
+					%tbody
+						- if @subscription.subscription_offers.blank?
+							%tr
+								%td{ colspan: 6 }
+									\- No Offers Found -
+						- @subscription.subscription_offers.order(id: :asc).each_with_index do |subscription_offer, index|
+							%tr{ style: ( subscription_offer.active? ? '' : 'opacity: 0.7' ) }
+								%td=index
+								%td
+									%a{ href: bazaar.edit_offer_admin_path( subscription_offer.offer ) }= subscription_offer.offer.title
+								%td= current_user.to_local_tz(subscription_offer.created_at).to_fs( :short )
+								%td
+									- if subscription_offer.canceled_at.present?
+										= current_user.to_local_tz(subscription_offer.canceled_at).to_fs( :short )
+								%td= subscription_offer.quantity
+								%td= subscription_offer.status
+								%td
+									- if subscription_offer.active?
+										%a{ href: '#', data: { toggle: :modal, target: "#edit_subscription_offer_#{subscription_offer.id}_modal" } } Edit
+				.text-center{ style: 'margin-top: 0.5em;' }
+					%a.btn.btn-default.btn-xs{ href: '#', data: { toggle: :modal, target: "#new_subscription_offer_modal" } } Add Offer
 
 			.well.white-well
 				%h4 Orders
