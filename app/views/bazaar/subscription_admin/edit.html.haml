@@ -182,12 +182,8 @@
 						= f.label :next_charged_at, 'Next Charge'
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The date and time that this subscription will next be charged.' }
 						= f.text_field :next_charged_at, value: current_user.to_local_tz( @subscription.next_charged_at ), class: 'datetimepicker form-control'
-					.form-group
-						= f.label :next_charged_at, 'Next Interval'
-						.form-control.disabled{ disabled: :disabled }=@subscription.next_subscription_interval
 
-
-					.form-group
+					-# .form-group
 						= f.label :quantity, 'Quantity'
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The number of units of the subscribed offer that will be added to the next subscription renewal order.' }
 						= f.number_field :quantity, class: 'form-control', min: 1
@@ -206,14 +202,42 @@
 								-# = f.select :billing_interval_unit, ['months', 'weeks', 'days'], {}, class: 'form-control', style: ''
 								.form-control.disabled{ disabled: :disabled }
 									#{@subscription.interval_unit_for_interval( @subscription.next_subscription_interval )}
-					.form-group
-						-# %a.pull-right{ href: '#', data: { toggle: :modal, target: '#new_offer_price_modal' } } Customize
-						= label_tag :next_renewal_price, "Next Renewal Subtotal"
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The total (before taxes, shipping and discounts) to be charged on the next subscription renewal order.' }
-						.form-control{ disabled: :disabled }
-							#{@subscription.estimated_subtotal_formatted}
+
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
+
+			.well.white-well
+				%h4 Next Renewal
+				.form-group
+					%label='Interval'
+					.form-control.disabled{ disabled: :disabled }=@subscription.next_subscription_interval
+
+				.form-group
+					-# %a.pull-right{ href: '#', data: { toggle: :modal, target: '#new_offer_price_modal' } } Customize
+					= label_tag :next_renewal_price, "Estimated Subtotal"
+					%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The total (before taxes, shipping and discounts) to be charged on the next subscription renewal order.' }
+					.form-control{ disabled: :disabled }
+						#{@subscription.estimated_subtotal_formatted}
+				.row
+					.col-xs-12.col-lg-6
+						.form-group
+							= label_tag :next_renewal_price, "Estimated Tax"
+							.form-control{ disabled: :disabled }
+								#{@subscription.estimated_tax_formatted}
+					.col-xs-12.col-lg-6
+						.form-group
+							= label_tag :next_renewal_price, "Estimated Shipping"
+							.form-control{ disabled: :disabled }
+								#{@subscription.estimated_shipping_formatted}
+				.form-group
+					= label_tag :next_renewal_price, "Estimated Discount"
+					.form-control{ disabled: :disabled }
+						#{@subscription.estimated_discount_formatted}
+				.form-group
+					= label_tag :next_renewal_price, "Estimated Total"
+					%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The total (including taxes, shipping and discounts) to be charged on the next subscription renewal order.' }
+					.form-control{ disabled: :disabled }
+						#{@subscription.estimated_total_formatted}
 
 			.well.white-well
 				.pull-right
