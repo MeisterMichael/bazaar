@@ -348,13 +348,24 @@ module Bazaar
 					email: user_attributes[:email].downcase,
 				}
 
-				attributes[:first_name]	= user_attributes[:billing_user_address_attributes][:first_name]	if user_attributes[:first_name].blank? && user_attributes[:billing_user_address_attributes].present?
-				attributes[:last_name]	= user_attributes[:billing_user_address_attributes][:last_name]	if user_attributes[:last_name].blank? && user_attributes[:billing_user_address_attributes].present?
+				if user_attributes[:billing_user_address_attributes].present?
+					attributes[:first_name]	= user_attributes[:billing_user_address_attributes][:first_name]
+					attributes[:last_name]	= user_attributes[:billing_user_address_attributes][:last_name]
+					end
 
-				attributes[:first_name]	= user_attributes[:shipping_user_address_attributes][:first_name]	if user_attributes[:first_name].blank? && user_attributes[:shipping_user_address_attributes].present?
-				attributes[:last_name]	= user_attributes[:shipping_user_address_attributes][:last_name]	if user_attributes[:last_name].blank? && user_attributes[:shipping_user_address_attributes].present?
+				if attributes[:first_name].blank? && attributes[:last_name].blank? && user_attributes[:shipping_user_address_attributes].present?
+					attributes[:first_name]	= user_attributes[:shipping_user_address_attributes][:first_name]
+					attributes[:last_name]	= user_attributes[:shipping_user_address_attributes][:last_name]
+				end
 
 				@user = User.create_with( first_name: attributes[:first_name], last_name: attributes[:last_name] ).find_or_create_by( email: attributes[:email] )
+			end
+
+			if @user.present? && @user.first_name.blank? && @user.last_name.blank? && attributes.present?
+				@user.update(
+					first_name: attributes[:first_name],
+					last_name: attributes[:last_name],
+				)
 			end
 
 			@user
