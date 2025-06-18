@@ -28,6 +28,8 @@ module Bazaar
 				@transaction_provider  = args[:transaction_provider]
 				raise Exception.new("TransactionProvider not found") unless @transaction_provider.present? || !Bazaar.require_transaction_providers
 				@provider_name = args[:provider_name] || "#{PROVIDER_NAME}-#{@api_login}"
+
+				@encodeOpaqueDataValue = args[:ENCODE_OPAQUE_DATA_VALUE] || ENV['AUTHORIZE_DOT_NET_ENCODE_OPAQUE_DATA_VALUE']
 			end
 
 			def capture_payment_method( order, args = {} )
@@ -594,11 +596,21 @@ module Bazaar
 				elsif payment_details[:type] == 'opaque_data'
 					payment_details_type = payment_details[:type]
 
-					anet_payment = AuthorizeNet::API::PaymentType.new(AuthorizeNet::API::OpaqueDataType.new)
+					opaqueDataDescriptor = payment_details[:details][:data_descriptor]
+					opaqueDataValue = payment_details[:details][:token]
+					opaqueDataValue = Base64.strict_encode64( opaqueDataValue ) if @encodeOpaqueDataValue
+					opaqueDataKey = nil
+
+					# OpaqueDataType.new(dataDescriptor = nil, dataValue = nil, dataKey = nil)
+					opaqueData = AuthorizeNet::API::OpaqueDataType.new(
+						opaqueDataDescriptor, # dataDescriptor
+						opaqueDataValue, # dataValue
+						opaqueDataKey # dataKey
+					)
+
+					anet_payment = AuthorizeNet::API::PaymentType.new(opaqueData)
 					anet_payment.creditCard = nil
-					anet_payment.opaqueData = AuthorizeNet::API::OpaqueDataType.new
-					anet_payment.opaqueData.dataDescriptor = payment_details[:details][:data_descriptor]
-					anet_payment.opaqueData.dataValue = Base64.strict_encode64(payment_details[:details][:token])
+					anet_payment.opaqueData = opaqueData
 
 					anet_payment_profile = AuthorizeNet::API::CustomerPaymentProfileType.new
 					anet_payment_profile.payment	= anet_payment
