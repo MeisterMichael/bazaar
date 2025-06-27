@@ -24,7 +24,7 @@
 					%th
 						Customer
 					%th{ style: 'width: 15em' }
-						Plan
+						Offers
 					%th{ style: 'width: 8em' }
 						Created
 						%a{ href: subscription_admin_index_path( status: params[:status], q: params[:q], sort_by: 'created_at', sort_dir: 'asc' ) }
@@ -67,7 +67,10 @@
 								- else
 									= (subscription.user.try(:email) || 'N/A')
 							%td
-								= subscription.offer.title.truncate(40)
+								- if subscription.subscription_offers.present?
+									= raw subscription.subscription_offers.active.joins(:offer).pluck('bazaar_offers.title').join(",<br/>").presence
+								- else
+									= subscription.offer.title
 							%td
 								= current_user.to_local_tz(subscription.created_at).to_fs(:short)
 							%td
