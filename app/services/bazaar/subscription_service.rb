@@ -43,6 +43,7 @@ module Bazaar
 				args[:merchant_identification]||= order.merchant_identification
 				args[:provider_customer_profile_reference] ||= order.provider_customer_profile_reference
 				args[:provider_customer_payment_profile_reference] ||= order.provider_customer_payment_profile_reference
+				args[:provider_customer_payment_profile_options] ||= order.provider_customer_payment_profile_options
 				args[:shipping_carrier_service_id] = order.order_items.shipping.first.try(:item_id)
 
 				args[:discount] = order.order_items.discount.first.try(:item)
@@ -96,6 +97,7 @@ module Bazaar
 				merchant_identification: args[:merchant_identification],
 				provider_customer_profile_reference: args[:provider_customer_profile_reference],
 				provider_customer_payment_profile_reference: args[:provider_customer_payment_profile_reference],
+				provider_customer_payment_profile_options: args[:provider_customer_payment_profile_options],
 				payment_profile_expires_at: args[:payment_profile_expires_at],
 				amount: args[:amount],
 				price: args[:price],
@@ -142,6 +144,7 @@ module Bazaar
 				provider: subscriptions.first.provider,
 				provider_customer_profile_reference: subscriptions.first.provider_customer_profile_reference,
 				provider_customer_payment_profile_reference: subscriptions.first.provider_customer_payment_profile_reference,
+				provider_customer_payment_profile_options: subscriptions.first.provider_customer_payment_profile_options,
 			)
 
 			discounts = []
