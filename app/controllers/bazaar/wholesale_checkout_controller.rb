@@ -90,7 +90,7 @@ module Bazaar
 
 				@fraud_service.mark_for_review( @order ) if @fraud_service.suspicious?( @order )
 
-				WholesaleOrderMailer.receipt( @order ).deliver_now if Bazaar.enable_wholesale_order_mailer
+				Bazaar::WholesaleOrderMailer.receipt( @order ).deliver_now if Bazaar.enable_wholesale_order_mailer
 
 				log_event( user: @order.user, name: 'wholesale_purchase', category: 'ecom', value: @order.total, on: @order, content: "placed a wholesale order for $#{@order.total/100.to_f}." )
 

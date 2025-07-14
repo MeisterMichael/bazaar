@@ -28,6 +28,8 @@ module Bazaar
 				@transaction_provider  = args[:transaction_provider]
 				raise Exception.new("TransactionProvider not found") unless @transaction_provider.present? || !Bazaar.require_transaction_providers
 				@provider_name = args[:provider_name] || "#{PROVIDER_NAME}-#{@api_login}"
+
+				@encodeOpaqueDataValue = not( args[:ENCODE_OPAQUE_DATA_VALUE].to_s == 'false' || ENV['AUTHORIZE_DOT_NET_ENCODE_OPAQUE_DATA_VALUE'].to_s == 'false' )
 			end
 
 			def capture_payment_method( order, args = {} )
@@ -85,6 +87,8 @@ module Bazaar
 				order.merchant_identification = self.merchant_identification
 				order.provider_customer_profile_reference = profiles[:customer_profile_reference]
 				order.provider_customer_payment_profile_reference = profiles[:customer_payment_profile_reference]
+				order.provider_customer_payment_profile_options['payment_mechanism'] = profiles[:payment_mechanism]
+				order.provider_customer_payment_profile_options['payment_source'] = profiles[:payment_source]
 				order.save
 
 				transaction = Bazaar::Transaction.new(
@@ -94,6 +98,10 @@ module Bazaar
 					customer_profile_reference: profiles[:customer_profile_reference],
 					customer_payment_profile_reference: profiles[:customer_payment_profile_reference],
 					provider: @provider_name,
+					customer_payment_profile_options: {
+						'payment_mechanism' => profiles[:payment_mechanism],
+						'payment_source' => profiles[:payment_source],
+					},
 					transaction_provider: self.transaction_provider,
 					merchant_identification: self.merchant_identification,
 					amount: order.total,
@@ -202,6 +210,15 @@ module Bazaar
 				request.transactionRequest.profile = AuthorizeNet::API::CustomerProfilePaymentType.new
 				request.transactionRequest.profile.customerProfileId = transaction.customer_profile_reference
 				request.transactionRequest.profile.paymentProfile = AuthorizeNet::API::PaymentProfile.new(transaction.customer_payment_profile_reference)
+
+				if transaction.customer_payment_profile_options['payment_mechanism'] == 'opaque_data'
+					setting = AuthorizeNet::API::SettingType.new
+					setting.settingName  = AuthorizeNet::API::SettingNameEnum::RecurringBilling
+					setting.settingValue = "true"
+
+					request.transactionRequest.transactionSettings = AuthorizeNet::API::Settings.new
+					request.transactionRequest.transactionSettings.settings = [ setting ]
+				end
 
 				response = anet_transaction.create_transaction(request)
 
@@ -439,6 +456,8 @@ module Bazaar
 				subscription.provider_customer_payment_profile_reference = payment_profile[:customer_payment_profile_reference]
 				subscription.properties = subscription.properties.merge( payment_details[:meta_data] )
 				subscription.payment_profile_expires_at	= payment_details[:expires_at] if subscription.respond_to?(:payment_profile_expires_at)
+				subscription.provider_customer_payment_profile_options['payment_mechanism'] = payment_profile[:payment_mechanism]
+				subscription.provider_customer_payment_profile_options['payment_source'] = payment_profile[:payment_source]
 
 				subscription.save
 
@@ -492,6 +511,7 @@ module Bazaar
 
 					payment_details = {
 						type: 'opaque_data',
+						source: 'google_pay',
 						meta_data: {
 						'credit_card_ending_in' => payment_data.dig(:paymentMethodData,:info,:cardDetails),
 						'credit_card_brand' => payment_data.dig(:paymentMethodData,:info,:cardNetwork),
@@ -523,8 +543,14 @@ module Bazaar
 
 					return payment_profile if payment_profile && order.nested_errors.blank?
 
+				elsif order.provider_customer_profile_reference.present?
+					return {
+						customer_profile_reference: order.provider_customer_profile_reference,
+						customer_payment_profile_reference: order.provider_customer_payment_profile_reference,
+						payment_mechanism: order.provider_customer_payment_profile_options['payment_mechanism'],
+						payment_source: order.provider_customer_payment_profile_options['payment_source'],
+					}
 				else
-					return { customer_profile_reference: order.provider_customer_profile_reference, customer_payment_profile_reference: order.provider_customer_payment_profile_reference } if order.provider_customer_profile_reference.present?
 
 					raise Exception.new( 'cannot create payment profile without valid payment info' )
 
@@ -535,6 +561,10 @@ module Bazaar
 
 
 			def request_payment_profile( user, billing_address, payment_details, args={} )
+				base_payment_profile = {}
+				base_payment_profile[:payment_mechanism] = payment_details[:type] if payment_details && payment_details[:type]
+				base_payment_profile[:payment_source] = payment_details[:source] if payment_details && payment_details[:source]
+
 				anet_transaction = AuthorizeNet::API::Transaction.new(@api_login, @api_key, :gateway => @gateway )
 				errors = args[:errors]
 
@@ -594,11 +624,21 @@ module Bazaar
 				elsif payment_details[:type] == 'opaque_data'
 					payment_details_type = payment_details[:type]
 
-					anet_payment = AuthorizeNet::API::PaymentType.new(AuthorizeNet::API::OpaqueDataType.new)
+					opaqueDataDescriptor = payment_details[:details][:data_descriptor]
+					opaqueDataValue = payment_details[:details][:token]
+					opaqueDataValue = Base64.strict_encode64( opaqueDataValue ) if @encodeOpaqueDataValue
+					opaqueDataKey = nil
+
+					# OpaqueDataType.new(dataDescriptor = nil, dataValue = nil, dataKey = nil)
+					opaqueData = AuthorizeNet::API::OpaqueDataType.new(
+						opaqueDataDescriptor, # dataDescriptor
+						opaqueDataValue, # dataValue
+						opaqueDataKey # dataKey
+					)
+
+					anet_payment = AuthorizeNet::API::PaymentType.new(opaqueData)
 					anet_payment.creditCard = nil
-					anet_payment.opaqueData = AuthorizeNet::API::OpaqueDataType.new
-					anet_payment.opaqueData.dataDescriptor = payment_details[:details][:data_descriptor]
-					anet_payment.opaqueData.dataValue = Base64.strict_encode64(payment_details[:details][:token])
+					anet_payment.opaqueData = opaqueData
 
 					anet_payment_profile = AuthorizeNet::API::CustomerPaymentProfileType.new
 					anet_payment_profile.payment	= anet_payment
@@ -695,7 +735,7 @@ module Bazaar
 
 					if get_response_success?( response ) && customer_profile_id.present? && customer_payment_profile_id.present?
 
-						return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
+						return base_payment_profile.merge({ customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id })
 
 					else
 
@@ -708,7 +748,7 @@ module Bazaar
 					customer_payment_profile_id = response.customerPaymentProfileIdList.numericString.first
 					customer_profile_id = response.customerProfileId
 
-					return { customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id }
+					return base_payment_profile.merge({ customer_profile_reference: customer_profile_id, customer_payment_profile_reference: customer_payment_profile_id })
 
 				else
 					puts "response.to_xml create_customer_profile final error" if @enable_debug
