@@ -30,7 +30,7 @@ module Bazaar
 			start_at 					= args[:start_at] || Time.now
 			quantity 					= args[:quantity] || 1
 			interval 					= args[:interval] || 1
-			next_subscription_interval	= args[:next_subscription_interval] || 1
+			next_subscription_interval	= args[:next_subscription_interval] || 2
 
 			if (order = args[:order]).present?
 
@@ -131,7 +131,7 @@ module Bazaar
 		def subscribe_subscription_offer( subscription, offer, args = {} )
 			quantity 					= args[:quantity] || 1
 			interval 					= args[:interval] || 1
-			next_subscription_interval	= args[:next_subscription_interval] || 1
+			next_subscription_interval	= args[:next_subscription_interval] || 2
 			status 						= args[:status] || 'active'
 
 			subscription_offer = subscription.subscription_offers.new(
