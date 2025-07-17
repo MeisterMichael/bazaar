@@ -18,7 +18,10 @@ module Bazaar
 			order.order_offers.each do |order_offer|
 				if order_offer.offer.recurring? && ( order_offer.subscription.nil? || order_offer.subscription.trash? )
 
-					order_offer.subscription = self.subscribe( order.user, order_offer.offer, args.merge( quantity: order_offer.quantity, order: order, subscription: order_offer.subscription, interval: order_offer.subscription_interval ) )
+					order_offer.subscription_offer = self.subscribe_for_subscription_offer( order.user, order_offer.offer, args.merge( quantity: order_offer.quantity, order: order, subscription: order_offer.subscription, interval: order_offer.subscription_interval ) )
+					order_offer.subscription = order_offer.subscription_offer.subscription
+					order_offer.offer_interval = 1
+					
 					order_offer.save
 
 				end
@@ -27,6 +30,12 @@ module Bazaar
 		end
 
 		def subscribe( user, offer, args = {} )
+			subscription_offer = subscribe_for_subscription_offer( user, offer, args )
+
+			subscription_offer.subscription
+		end
+
+		def subscribe_for_subscription_offer( user, offer, args = {} )
 			start_at 					= args[:start_at] || Time.now
 			quantity 					= args[:quantity] || 1
 			interval 					= args[:interval] || 1
@@ -119,13 +128,13 @@ module Bazaar
 
 			subscription.save!
 
-			subscribe_subscription_offer( subscription, offer, {
+			subscription_offer = subscribe_subscription_offer( subscription, offer, {
 				quantity: quantity,
 				interval: interval,
 				next_subscription_interval: next_subscription_interval,
 			} )
 
-			subscription
+			subscription_offer
 		end
 
 		def subscribe_subscription_offer( subscription, offer, args = {} )
