@@ -429,6 +429,12 @@ module Bazaar
 						subscription.billing_interval_unit	= subscription.interval_unit_for_interval( subscription_interval )
 					end
 
+					order.order_offers.where( subscription: subscription ).each do |order_offer|
+						order_offer.subscription_offer.update(
+							next_subscription_interval: subscription.next_subscription_interval,
+						)
+					end
+
 					# update the subscriptions next date
 					update_next_charged_at( subscription )
 
