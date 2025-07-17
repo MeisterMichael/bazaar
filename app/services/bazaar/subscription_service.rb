@@ -18,10 +18,10 @@ module Bazaar
 			order.order_offers.each do |order_offer|
 				if order_offer.offer.recurring? && ( order_offer.subscription.nil? || order_offer.subscription.trash? )
 
-					order_offer.subscription_offer = self.subscribe_for_subscription_offer( order.user, order_offer.offer, args.merge( quantity: order_offer.quantity, order: order, subscription: order_offer.subscription, interval: order_offer.subscription_interval ) )
+					order_offer.offer_interval = order_offer.offer_interval || 1
+					order_offer.subscription_offer = self.subscribe_for_subscription_offer( order.user, order_offer.offer, args.merge( quantity: order_offer.quantity, order: order, subscription: order_offer.subscription, interval: order_offer.offer_interval ) )
 					order_offer.subscription = order_offer.subscription_offer.subscription
-					order_offer.offer_interval = 1
-					
+
 					order_offer.save
 
 				end
