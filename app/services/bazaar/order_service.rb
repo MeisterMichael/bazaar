@@ -316,7 +316,9 @@ module Bazaar
 			order.order_skus = []
 			order.order_offers.each do |order_offer|
 
-				order_offer.offer.offer_skus.active.for_interval( order_offer.offer_interval ).each do |offer_sku|
+				offer_interval = order_offer.offer_interval || 1
+
+				order_offer.offer.offer_skus.active.for_interval( offer_interval ).each do |offer_sku|
 					order_sku = order_offer.order.order_skus.to_a.find{ |order_sku| order_sku.sku == offer_sku.sku }
 					order_sku ||= order_offer.order.order_skus.new( sku: offer_sku.sku, quantity: 0 )
 					order_sku.quantity = order_sku.quantity + offer_sku.calculate_quantity( order_offer.quantity )
