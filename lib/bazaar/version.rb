@@ -1,3 +1,3 @@
 module Bazaar
-  VERSION = "6.0.6"
+  VERSION = "6.1.1"
 end
