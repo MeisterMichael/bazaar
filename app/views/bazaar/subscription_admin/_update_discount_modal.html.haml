@@ -12,7 +12,7 @@
 				.modal-body
 					.form-group.select2-form-group
 						= f.label :discount_id, "Discount"
-						= f.collection_select :discount_id, Bazaar::Discount.active.in_progress.order( Arel.sql('lower(code) ASC') ), :id, :code, { include_blank: '-- None -- ' }, class: 'form-control select-2-basic'
+						= f.collection_select :discount_id, Bazaar::HouseCouponDiscount.active.in_progress.order( Arel.sql('lower(code) ASC') ), :id, :code, { include_blank: '-- None -- ' }, class: 'form-control select-2-basic'
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close
