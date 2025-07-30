@@ -15,9 +15,9 @@
 							= number_field_tag :amount, @transactions.approved.where.not( transaction_type: 'preauth' ).to_a.sum(&:signed_amount) / 100.0, min: 0.01, step: 0.01, class: 'form-control', placeholder: '0.00'
 
 					.form-group
-							%label
-								= check_box_tag :returned, false
-								Returned?
+						%label
+							= check_box_tag :returned, false
+							Returned?
 
 					- if not( @order.fulfilled? || @order.delivered? || @order.fulfillment_canceled? )
 						.form-group
