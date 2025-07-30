@@ -21,6 +21,11 @@ module Bazaar
 		has_many :offer_prices, as: :parent_obj
 		has_many :offer_schedules, as: :parent_obj
 
+		has_many :subscription_logs
+		has_many :subscription_offers
+		has_many :offers, through: :subscription_offers
+		# has_many :subscription_periods
+
 		has_many		:order_offers
 		has_many		:orders, through: :order_offers
 
@@ -31,7 +36,7 @@ module Bazaar
 		accepts_nested_attributes_for :billing_address, :shipping_address, :user
 		accepts_nested_user_address_attributes_for [:billing_user_address,:billing_address,:user_id], [:shipping_user_address,:shipping_address,:user_id]
 
-		money_attributes :amount, :price
+		money_attributes :amount, :price, :estimated_tax, :estimated_shipping, :estimated_discount, :estimated_subtotal, :estimated_total
 
 		validates	:user, presence: true, allow_blank: false, unless: :trash?
 		validates	:amount, presence: true, allow_blank: false, unless: :trash?

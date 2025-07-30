@@ -90,6 +90,8 @@ Bazaar::Engine.routes.draw do
 		patch :update_offer, on: :member
 	end
 
+	resources :subscription_offer_admin
+
 	resources :transaction_admin
 
 	resources :upsell_admin

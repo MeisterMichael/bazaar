@@ -14,14 +14,16 @@ module Bazaar
 				}
 			)
 
-			add_page_event_data(
-				ecommerce: {
-					add: {
-						actionField: {},
-						products: @cart.cart_offers.collect{|cart_offer| cart_offer.offer.page_event_data.merge( quantity: cart_offer.quantity ) }
+			if @cart.cart_offers.present?
+				add_page_event_data(
+					ecommerce: {
+						add: {
+							actionField: {},
+							products: @cart.cart_offers.collect{|cart_offer| cart_offer.offer.page_event_data.merge( quantity: cart_offer.quantity ) }
+						}
 					}
-				}
-			)
+				)
+			end
 
 			log_event( on: @cart )
 

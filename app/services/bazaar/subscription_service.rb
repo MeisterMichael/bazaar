@@ -18,7 +18,10 @@ module Bazaar
 			order.order_offers.each do |order_offer|
 				if order_offer.offer.recurring? && ( order_offer.subscription.nil? || order_offer.subscription.trash? )
 
-					order_offer.subscription = self.subscribe( order.user, order_offer.offer, args.merge( quantity: order_offer.quantity, order: order, subscription: order_offer.subscription, interval: order_offer.subscription_interval ) )
+					order_offer.offer_interval = order_offer.offer_interval || 1
+					order_offer.subscription_offer = self.subscribe_for_subscription_offer( order.user, order_offer.offer, args.merge( quantity: order_offer.quantity, order: order, subscription: order_offer.subscription, interval: order_offer.offer_interval ) )
+					order_offer.subscription = order_offer.subscription_offer.subscription
+
 					order_offer.save
 
 				end
@@ -27,9 +30,16 @@ module Bazaar
 		end
 
 		def subscribe( user, offer, args = {} )
-			start_at = args[:start_at] || Time.now
-			quantity = args[:quantity] || 1
-			interval = args[:interval] || 1
+			subscription_offer = subscribe_for_subscription_offer( user, offer, args )
+
+			subscription_offer.subscription
+		end
+
+		def subscribe_for_subscription_offer( user, offer, args = {} )
+			start_at 					= args[:start_at] || Time.now
+			quantity 					= args[:quantity] || 1
+			interval 					= args[:interval] || 1
+			next_subscription_interval	= args[:next_subscription_interval] || 2
 
 			if (order = args[:order]).present?
 
@@ -118,9 +128,109 @@ module Bazaar
 
 			subscription.save!
 
-			log_event( user: user, name: 'subscribed', category: 'ecom', on: subscription, content: "started a subscription #{subscription.code} to #{offer.title}" )
+			subscription_offer = subscribe_subscription_offer( subscription, offer, {
+				quantity: quantity,
+				interval: interval,
+				next_subscription_interval: next_subscription_interval,
+			} )
+
+			subscription_offer
+		end
+
+		def subscribe_subscription_offer( subscription, offer, args = {} )
+			quantity 					= args[:quantity] || 1
+			interval 					= args[:interval] || 1
+			next_subscription_interval	= args[:next_subscription_interval] || 2
+			status 						= args[:status] || 'active'
+
+			subscription_offer = subscription.subscription_offers.new(
+				offer: offer,
+				status: status,
+				quantity: quantity,
+				next_subscription_interval: next_subscription_interval,
+			)
+
+			subscription_recalculate( subscription )
+
+			subscription.save!
+
+			log_event( user: subscription.user, name: 'subscribed', category: 'ecom', on: subscription, content: "started a subscription #{subscription.code} to #{offer.title}" )
+
+			subscription_offer
+		end
+
+		def subscription_change_offer( subscription, offer, args = {} )
+
+			subscription_offer = subscription.subscription_offers.where( offer: subscription.offer ).first
+			subscription_offer = subscription.subscription_offers.first if subscription_offer.blank? && subscription.subscription_offers.count == 1
+
+			if subscription_offer.present?
+				subscription_offer_change_offer( subscription_offer, offer, args )
+				if subscription.subscription_offers.count == 1
+					subscription.offer = offer
+					subscription.save!
+				end
+			else
+				raise Exception.new('Subscription does not have the appropriate subscription offer.')
+			end
 
 			subscription
+		end
+
+		def subscription_offer_change_offer( subscription_offer, offer, args = {} )
+
+			subscription = subscription_offer.subscription
+
+			subscription.offer = offer if subscription_offer.offer == subscription.offer
+
+			old_offer = subscription_offer.offer
+			subscription_offer.offer = offer
+			subscription_offer.quantity = args[:quantity] if args[:quantity].present?
+			subscription_offer.save!
+
+			subscription_recalculate( subscription )
+			subscription.save!
+
+			log_event( user: subscription.user, name: 'subscription_offer_changed', category: 'ecom', on: subscription_offer, content: "changed a subscription #{subscription.code} offer from '#{old_offer.title}' to '#{offer.title}'" )
+
+			subscription
+		end
+
+		def subscription_recalculate( subscription )
+
+			if subscription.subscription_offers.blank?
+
+				subscription.price = subscription.offer.price_for_interval( subscription.next_subscription_interval )
+				subscription.amount = subscription.price * subscription.quantity
+
+			else
+				subscription.price = 0
+				subscription.amount = 0
+
+				subscription.subscription_offers.active.each do |subscription_offer|
+
+					price = subscription_offer.offer.price_for_interval( subscription_offer.next_offer_interval )
+					subscription.price = subscription.price + price
+					subscription.amount = subscription.amount + price * subscription_offer.quantity
+
+				end
+			end
+
+			if subscription.respond_to? :estimated_total
+				order = calculate_subscription_order( subscription )
+
+				subscription.estimated_tax = order.tax
+				subscription.estimated_shipping = order.shipping
+				subscription.estimated_discount = order.discount
+				subscription.estimated_subtotal = order.subtotal
+				subscription.estimated_total = order.total
+				# subscription.estimated_interval = order.tax
+				subscription.estimate_update_at = Time.now
+
+			end
+
+			
+
 		end
 
 		def generate_subscription_order( subscription, args = {} )
@@ -151,20 +261,47 @@ module Bazaar
 
 			subscriptions.each do |subscription|
 				# create order
-				offer = subscription.offer
 
-				interval = args[:interval] || subscription.next_subscription_interval
-				price = subscription.price_for_interval( interval )
-				order.order_offers.new(
-					offer: offer,
-					subscription: subscription,
-					price: price,
-					subtotal: price * subscription.quantity,
-					quantity: subscription.quantity,
-					title: offer.cart_title,
-					tax_code: offer.tax_code,
-					subscription_interval: interval
-				)
+				subscription_interval = args[:interval] || subscription.next_subscription_interval
+
+				if subscription.subscription_offers.blank?
+					offer = subscription.offer
+
+					interval = args[:interval] || subscription.next_subscription_interval
+					price = subscription.price_for_interval( interval )
+					order.order_offers.new(
+						offer: offer,
+						subscription: subscription,
+						price: price,
+						subtotal: price * subscription.quantity,
+						quantity: subscription.quantity,
+						title: offer.cart_title,
+						tax_code: offer.tax_code,
+						subscription_interval: interval
+					)
+				else
+					subscription.subscription_offers.to_a.each do |subscription_offer|
+						if subscription_offer.active? && subscription_offer.next_subscription_interval <= subscription_interval
+							offer = subscription.offer
+
+							offer_interval = args[:offer_interval] || subscription_offer.next_offer_interval
+
+							price = subscription_offer.offer.price_for_interval( offer_interval )
+							order.order_offers.new(
+								offer: offer,
+								subscription: subscription,
+								price: price,
+								subtotal: price * subscription_offer.quantity,
+								quantity: subscription_offer.quantity,
+								title: offer.cart_title,
+								tax_code: offer.tax_code,
+								subscription_interval: subscription_interval,
+								offer_interval: offer_interval,
+								subscription_offer: subscription_offer,
+							)
+						end
+					end
+				end
 
 				# apply the subscription discount to new orders, but only the first one.
 				if ( discount = subscription.discount ).present?
@@ -299,6 +436,12 @@ module Bazaar
 					if ( interval_value = subscription.interval_value_for_interval( subscription_interval ) ).present?
 						subscription.billing_interval_value	= interval_value
 						subscription.billing_interval_unit	= subscription.interval_unit_for_interval( subscription_interval )
+					end
+
+					order.order_offers.where( subscription: subscription ).each do |order_offer|
+						order_offer.subscription_offer.update(
+							next_subscription_interval: subscription.next_subscription_interval,
+						)
 					end
 
 					# update the subscriptions next date

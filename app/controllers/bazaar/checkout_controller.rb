@@ -280,7 +280,7 @@ module Bazaar
 				}
 			)
 
-			if params[:buy_now]
+			if params[:buy_now] && @cart.cart_offers.present?
 				add_page_event_data(
 					ecommerce: {
 						add: {
