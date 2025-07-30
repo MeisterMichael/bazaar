@@ -86,7 +86,7 @@ module Bazaar
 			authorize( @subscription )
 			@orders = @subscription.orders.order( created_at: :desc )
 
-			@transactions = Bazaar::Transaction.where( parent_obj: ( @subscription.orders.to_a + [ @subscription ] ) ).order( created_at: :desc )
+			-#@transactions = Bazaar::Transaction.where( parent_obj: ( @subscription.orders.to_a + [ @subscription ] ) ).order( created_at: :desc )
 
 			set_page_meta( title: "#{@subscription.code} | Subscription" )
 		end
