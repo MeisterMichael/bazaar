@@ -236,6 +236,7 @@ module Bazaar
 					:customer_notes,
 					:same_as_billing,
 					:same_as_shipping,
+					:returned,
 					{
 						:billing_user_address_attributes => [
 							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
