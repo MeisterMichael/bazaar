@@ -134,6 +134,11 @@ module Bazaar
 
 				@order.shipments.update_all( status: 'canceled' ) if params[:cancel_fullfillment]
 
+				if params[:returned]
+					@order.shipments.update_all( status: 'returned' )
+					@order.update( returned: true )
+				end
+
 				@transactions.select(&:approved?).select(&:negative?).each do |transaction|
 					Bazaar::OrderMailer.refund( transaction ).deliver_now
 				end
@@ -142,6 +147,8 @@ module Bazaar
 				log_event( user: @order.user, name: 'refund', value: -@transactions.sum(&:amount), on: @order, content: "refunded #{@transactions.sum(&:amount_as_money)} on order #{@order.code}" )
 
 			end
+
+
 
 			redirect_to bazaar.order_admin_path( @order )
 		end
@@ -236,7 +243,6 @@ module Bazaar
 					:customer_notes,
 					:same_as_billing,
 					:same_as_shipping,
-					:returned,
 					{
 						:billing_user_address_attributes => [
 							:phone, :zip, :geo_country_id, :geo_state_id , :state, :city, :street2, :street, :last_name, :first_name,
