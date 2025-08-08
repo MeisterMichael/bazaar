@@ -326,8 +326,9 @@ module Bazaar
 				end
 
 				@cart.discount = discount
-				@cart.discounted_at = Time.now if @cart.discount_id_changed?
+				@cart.discounted_at = Time.now if @cart.discount_id_changed? || @cart.discount_changed?
 				@cart.save
+				die()
 
 			end
 		end
