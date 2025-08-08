@@ -324,7 +324,11 @@ module Bazaar
 					Bazaar::Discount.pluck('distinct type').collect(&:constantize) if Rails.env.development?
 					discount = Bazaar::CouponDiscount.active.in_progress.where( 'lower(code) = ?', discount_code.downcase ).first
 				end
-				@cart.update( discount: discount )
+
+				@cart.discount = discount
+				@cart.discounted_at = Time.now if @cart.discount_id_changed?
+				@cart.save
+
 			end
 		end
 

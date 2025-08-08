@@ -28,6 +28,8 @@ module Bazaar
 				@cart.attributes = options[:attributes] if options[:attributes].present?
 				@cart.properties = @cart.properties.merge(options[:properties]) if options[:properties].present?
 
+				@cart.discounted_at = Time.now if @cart.discount_id_changed?
+
 				@cart.save
 			end
 
