@@ -150,6 +150,8 @@ module Bazaar
 				next_subscription_interval: next_subscription_interval,
 			)
 
+			subscription.save!
+
 			subscription_recalculate( subscription )
 
 			subscription.save!
@@ -188,7 +190,10 @@ module Bazaar
 			subscription_offer.quantity = args[:quantity] if args[:quantity].present?
 			subscription_offer.save!
 
+			subscription.save!
+
 			subscription_recalculate( subscription )
+
 			subscription.save!
 
 			log_event( user: subscription.user, name: 'subscription_offer_changed', category: 'ecom', on: subscription_offer, content: "changed a subscription #{subscription.code} offer from '#{old_offer.title}' to '#{offer.title}'" )
@@ -446,6 +451,10 @@ module Bazaar
 
 					# update the subscriptions next date
 					update_next_charged_at( subscription )
+
+					subscription.save
+
+					subscription_recalculate( subscription )
 
 					subscription.save
 
