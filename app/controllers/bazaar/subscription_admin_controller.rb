@@ -66,6 +66,7 @@ module Bazaar
 			subscription_options[:quantity]					= subscription_options[:quantity].to_i if subscription_options[:quantity]
 			subscription_options[:shipping]					||= 0
 			subscription_options[:tax]							||= 0
+			subscription_options[:next_subscription_interval] ||= 1
 
 			offer = Bazaar::Offer.find( subscription_options.delete( :offer_id ) )
 
