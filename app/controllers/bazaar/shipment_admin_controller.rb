@@ -223,6 +223,9 @@ module Bazaar
 				end
 			else
 				@shipment = Bazaar::Shipment.new shipment_params
+				shipment_params.each do |attribute_name,attribute_value|
+					@shipment.properties["manual_#{attribute_name}"] = attribute_value if @shipment.respond_to?(attribute_name)
+				end
 			end
 
 			@shipment.destination_address ||= @shipment.destination_user_address.try(:geo_address)
@@ -333,6 +336,13 @@ module Bazaar
 
 			if @shipment.save
 				set_flash 'Shipment Updated'
+
+				# Save manual changes
+				shipment_params.each do |attribute_name,attribute_value|
+					@shipment.properties["manual_#{attribute_name}"] = attribute_value if @shipment.respond_to?(attribute_name)
+				end
+				@shipment.save
+
 				redirect_to edit_shipment_admin_path( id: @shipment.id, calculate_shipping: params[:calculate_shipping] )
 			else
 				set_flash 'Shipment could not be Updated', :error, @shipment
