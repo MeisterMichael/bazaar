@@ -150,6 +150,7 @@ module Bazaar
 				next_subscription_interval: next_subscription_interval,
 			)
 
+			subscription_offer.save!
 			subscription.save!
 
 			subscription_recalculate( subscription )
