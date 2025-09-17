@@ -275,7 +275,7 @@ module Bazaar
 
 					interval = args[:interval] || subscription.next_subscription_interval
 					price = subscription.price_for_interval( interval )
-					order.order_offers.new(
+					order_offer = order.order_offers.new(
 						offer: offer,
 						subscription: subscription,
 						price: price,
@@ -285,6 +285,9 @@ module Bazaar
 						tax_code: offer.tax_code,
 						subscription_interval: interval
 					)
+
+					order_offer.renewal_attempt = subscription.failed_attempts + 1 if order_offer.respond_to? :renewal_attempt
+
 				else
 					subscription.subscription_offers.to_a.each do |subscription_offer|
 						if subscription_offer.active? && subscription_offer.next_subscription_interval <= subscription_interval
@@ -293,7 +296,7 @@ module Bazaar
 							offer_interval = args[:offer_interval] || subscription_offer.next_offer_interval
 
 							price = subscription_offer.offer.price_for_interval( offer_interval )
-							order.order_offers.new(
+							order_offer = order.order_offers.new(
 								offer: offer,
 								subscription: subscription,
 								price: price,
@@ -305,6 +308,8 @@ module Bazaar
 								offer_interval: offer_interval,
 								subscription_offer: subscription_offer,
 							)
+
+							order_offer.renewal_attempt = subscription.failed_attempts + 1 if order_offer.respond_to? :renewal_attempt
 						end
 					end
 				end
