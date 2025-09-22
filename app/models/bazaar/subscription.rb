@@ -38,6 +38,8 @@ module Bazaar
 
 		money_attributes :amount, :price, :estimated_tax, :estimated_shipping, :estimated_discount, :estimated_subtotal, :estimated_total
 
+		acts_as_taggable_array_on :tags
+
 		validates	:user, presence: true, allow_blank: false, unless: :trash?
 		validates	:amount, presence: true, allow_blank: false, unless: :trash?
 		validates	:price, presence: true, allow_blank: false, unless: :trash?

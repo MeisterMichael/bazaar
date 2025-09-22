@@ -37,6 +37,8 @@ module Bazaar
 
 		money_attributes :subtotal, :tax, :shipping, :total, :discount
 
+		acts_as_taggable_array_on :tags
+
 		attr_accessor :options
 
 		# def email=(value)
