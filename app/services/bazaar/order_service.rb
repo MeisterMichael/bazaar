@@ -291,15 +291,19 @@ module Bazaar
 
 
 		def calculate_order_items( order, args = {} )
+
+			order_offers_count = {}
+
 			order.order_offers.to_a.each do |order_offer|
+				order_item_offer_index = order_offers_count[order_offer.offer_id] || 0
+
 				item = order_offer.offer.product
 				item = Bazaar::SubscriptionPlan.where( offer: order_offer.offer ).first if order_offer.offer.recurring?
 				item = order_offer.subscription if order_offer.subscription_interval > 1
 
 				prod_order_items = order.order_items.to_a.select{ |order_item| order_item.order_item_type == 'prod' }
 
-				order_item = prod_order_items.find{ |order_item| order_item.offer == order_offer.offer }
-				order_item ||= prod_order_items.find{ |order_item| order_item.item == item }
+				order_item = prod_order_items.select{ |order_item| order_item.offer == order_offer.offer }[order_item_offer_index]
 				order_item ||= order.order_items.new( order_item_type: 'prod', item: item, offer: order_offer.offer )
 				order_item.attributes = {
 					quantity: order_offer.quantity,
