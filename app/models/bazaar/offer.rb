@@ -72,8 +72,13 @@ module Bazaar
 				id: self.code || self.id,
 				name: self.cart_title,
 				price: self.initial_price_as_money,
-				category: nil,
+				category: self.product.try(:product_category).try(:name),
+				image: self.avatar,
+				product_id: self.product.try(:slug),
+				product_name: self.product.try(:name)
 			}
+
+			data[:image] ||= self.avatar_attachment.url if self.avatar_attachment.attached?
 
 			data
 		end
