@@ -28,6 +28,15 @@ $ ->
 				if !$el.is(":focus") && $el.hasClass('jp-card-invalid')
 					return 'Invalid value.'
 				return
+
+			dedupe: ($el) ->
+				if $el.data('dedupe-target')
+					$others = $($el.data('dedupe-target'))
+
+					if ($el.val() || '').length > 0 && $el.val() == $others.val()
+						return 'Duplicate value.'
+				return
+
 		#	zipcode: ($el) ->
 		#	 	matchValue = $el.data('phone')
 		#	  	# foo
