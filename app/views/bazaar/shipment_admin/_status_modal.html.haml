@@ -24,6 +24,11 @@
 						= f.label :fulfilled_by
 						= f.text_field :fulfilled_by, class: 'form-control', readonly: true
 
+					- if @shipment.draft? || @shipment.pending? || @shipment.processing_error?
+						.form-group
+							=f.label :warehouse_id
+							= f.collection_select :warehouse_id, Bazaar::Warehouse.active.order( name: :asc ), :id, :name, {}, class: 'form-control'
+
 					.form-group
 						= f.label :source_system, 'Source System'
 						= f.text_field :source_system, class: 'form-control'
