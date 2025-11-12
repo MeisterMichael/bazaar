@@ -157,6 +157,7 @@ module Bazaar
 
 			subscription.save!
 
+			subscription.subscription_logs.create( subject: 'Subscribed', details: "started a subscription" )
 			log_event( user: subscription.user, name: 'subscribed', category: 'ecom', on: subscription, content: "started a subscription #{subscription.code} to #{offer.title}" )
 
 			subscription_offer
@@ -197,6 +198,7 @@ module Bazaar
 
 			subscription.save!
 
+			subscription.subscription_logs.create( subject: 'Subscription Offer Changed', details: "changed a subscription #{subscription.code} offer from '#{old_offer.title}' to '#{offer.title}'" )
 			log_event( user: subscription.user, name: 'subscription_offer_changed', category: 'ecom', on: subscription_offer, content: "changed a subscription #{subscription.code} offer from '#{old_offer.title}' to '#{offer.title}'" )
 
 			subscription
@@ -379,6 +381,7 @@ module Bazaar
 
 					subscription.save
 
+					subscription.subscription_logs.create( subject: 'Subscription Renewal Failed', details: "failed to renew due to: #{subscription.failed_message}" )
 					log_event( name: 'subscription_failed', category: 'ecom', on: subscription, content: "subscription #{subscription.code} failed to renew due to: #{subscription.failed_message}" )
 				end
 
@@ -436,6 +439,7 @@ module Bazaar
 				subscriptions.each do |subscription|
 					subscription_interval = subscription_intervals[subscription.id]
 
+					subscription.subscription_logs.create( subject: 'Subscription Renewal Processed', details: "auto renewed a subscription" )
 					log_event( user: subscription.user, name: 'renewal', on: subscription, content: "auto renewed a subscription #{subscription.code}" )
 
 					# remove discount after use, if it is not for more than one order
