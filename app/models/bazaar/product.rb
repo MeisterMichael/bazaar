@@ -2,7 +2,7 @@ module Bazaar
 	class Product < ApplicationRecord
 
 
-		include Pulitzer::Concerns::UrlConcern
+		# include Pulitzer::Concerns::UrlConcern
 		include Bazaar::Concerns::MoneyAttributesConcern
 		include SwellId::Concerns::PolymorphicIdentifiers
 		include FriendlyId
@@ -53,13 +53,18 @@ module Bazaar
 
 		money_attributes :price, :suggested_price, :shipping_price, :purchase_price, :listing_strikethrough_price, :listing_from_price, :listing_promotion_strikethrough_price, :listing_promotion_from_price
 
-		mounted_at '/store'
+		# mounted_at '/store'
 		friendly_id :slugger, use: [ :slugged, :history ]
 		acts_as_taggable_array_on :tags
 
 
 		def self.published( args = {} )
 			where( "bazaar_products.publish_at <= :now", now: Time.zone.now ).active
+		end
+
+		def self.released(args = {})
+			now = args[:now] || Time.now
+			self.where(released_at: nil).or(self.where(released_at: Time.at(0)..now))
 		end
 
 		def bazaar_uid
@@ -166,6 +171,22 @@ module Bazaar
 
 		def purchase_price
 			self.price
+		end
+
+		def review_source
+			self
+		end
+
+		def subtitle
+			listing_subtitle
+		end
+
+		def path
+			listing_perkins_page.try(:path)
+		end
+
+		def url
+			listing_perkins_page.try(:url)
 		end
 
 		# e.g. Product.record_search( category_name: 'Shirts', text: 'live amrap' )

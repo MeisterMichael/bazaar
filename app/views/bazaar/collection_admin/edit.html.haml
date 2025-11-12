@@ -30,6 +30,9 @@
 					%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_item_offer_modal' } }
 						%i.fa.fa-plus-square
 						New Offer
+					%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_item_product_modal' } }
+						%i.fa.fa-plus-square
+						New Product
 					%a.btn.btn-success{ data: { toggle: :modal, target: '#new_collection_item_bazaar_media_modal' } }
 						%i.fa.fa-plus-square
 						New Shop Page
@@ -84,6 +87,7 @@
 
 = render "bazaar/collection_item_admin/new_bazaar_media_modal"
 = render "bazaar/collection_item_admin/new_offer_modal"
+= render "bazaar/collection_item_admin/new_product_modal"
 
 :javascript
 	$('.form-group.collection-item input').change(function(){

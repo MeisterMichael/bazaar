@@ -1,0 +1,19 @@
+#new_collection_item_product_modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					New Item
+			= form_for Bazaar::CollectionItem.new( collection: @collection ), url: bazaar.collection_item_admin_index_path, as: :collection_item do |f|
+				= f.hidden_field :collection_id
+				.modal-body
+					.form-group
+						= f.label :item_polymorphic_id, "Product"
+						= f.collection_select :item_polymorphic_id, Bazaar::Product.active.where.not( id: @collection.collection_items.where( item_type: 'Bazaar::Product' ).select( :item_id ) ).order( title: :asc ), :polymorphic_id, :title, {}, class: 'form-control'
+
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Create', class: 'btn btn-primary'
