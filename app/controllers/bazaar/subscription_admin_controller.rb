@@ -171,10 +171,10 @@ module Bazaar
 		def timeline
 			authorize( @subscription )
 
-			@events = Bunyan::Event.where( target_obj: @subscription )
-			@events = @events.or( Bunyan::Event.where( target_obj: @subscription.orders ) )
-			@events = @events.or( Bunyan::Event.where( user_id: @subscription.user_id, created_at: Time.at(0)..(@subscription.created_at + 10.minutes) ) )
-			@events = @events.where( category: [ 'account', 'ecom' ] )
+			subscription_events = Bunyan::Event.where( target_obj: @subscription )
+			order_events = Bunyan::Event.where( target_obj: @subscription.orders )
+
+			@events = Bunyan::Event.where( id: subscription_events.pluck(:id) + order_events.pluck(:id) )
 			@events = @events.order( created_at: :desc ).page( params[:page] )
 
 			set_page_meta( title: "Subscription Timeline" )
