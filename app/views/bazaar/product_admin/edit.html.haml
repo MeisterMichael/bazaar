@@ -9,6 +9,10 @@
 					%a{ href: product_admin_index_path }
 						%i.fa.fa-angle-left
 						Products
+				- if @product.is_a? Bazaar::SubProduct
+					%li
+						%a{ href: edit_product_admin_path( @product.parent_id ) }
+							= @product.parent.title
 			%h2
 				%strong= @product.title
 				%small= current_user.to_local_tz(@product.created_at).to_fs( :short )
@@ -18,7 +22,7 @@
 				%i.fa.fa-eye
 				Preview
 
-	= form_for @product, url: product_admin_path( @product ) do |f|
+	= form_for @product, url: product_admin_path( @product ), as: :product do |f|
 		.row
 			.col-xs-8
 				.well.white-well
@@ -82,7 +86,7 @@
 							.col-xs-12.col-md-6
 								.form-group
 									= f.label :listing_perkins_page, 'Page'
-									= f.collection_select :listing_perkins_page_id, Perkins::Page.active.or(Perkins::Page.where(id: @product.listing_perkins_page_id)).order( :path ), :id, :path, { include_blank: '-- None -- ' }, class: 'form-control'
+									= f.collection_select :listing_perkins_page_id, Perkins::Page.active.where( page_type: 'Shop Page' ).or(Perkins::Page.where(id: @product.listing_perkins_page_id)).order( :path ), :id, :path, { include_blank: '-- None -- ' }, class: 'form-control'
 					.row
 						.col-xs-12.col-md-6
 							.form-group
@@ -217,15 +221,22 @@
 					Offers
 				= render 'bazaar/offer_admin/offer_table', offers: @product.offers.order( title: :asc ), args: {}
 
-	.row#skus
-		.col-xs-12
-			.well.white-well
-				%h4
-					Sub Products
-				= render 'bazaar/product_admin/sub_products_table', products: @product.sub_products.order( title: :asc ), args: {}
+	- if @product.respond_to? :sub_products
+		.row#sub_products
+			.col-xs-12
+				.well.white-well
+					- if authorized?(Bazaar::Product, controller: Bazaar::ProductAdminController, action: :create )
+						%a.btn.btn-success.pull-right{ data: { toggle: :modal, target: '#new_product' } }
+							%i.fa.fa-plus-square
+							New
+
+					%h4
+						Sub Products
+					= render 'bazaar/product_admin/sub_products_table', products: @product.sub_products.order( title: :asc ), args: {}
 
 
 
 
 = render 'new_gallery_attachment', args: {}
 = render 'bazaar/upsell_offer_admin/new_modal', args: { src_product: @product }
+= render 'new_modal', args: { type: 'Bazaar::SubProduct', parent_id: @product.id }

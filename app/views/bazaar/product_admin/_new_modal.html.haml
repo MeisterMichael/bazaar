@@ -6,7 +6,9 @@
 					&times;
 				%h4.modal-title
 					New Product
-			= form_for Bazaar::Product.new, url: bazaar.product_admin_index_path do |f|
+			= form_for Bazaar::Product.new( type: args[:type], parent_id: args[:parent_id] ), as: :product, url: bazaar.product_admin_index_path do |f|
+				= f.hidden_field :type
+				= f.hidden_field :parent_id
 				.modal-body
 					= f.label :title
 					= f.text_field :title, class: 'form-control'
