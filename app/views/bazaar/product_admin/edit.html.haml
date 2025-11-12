@@ -28,7 +28,7 @@
 						= f.label :title
 						= f.text_field :title, class: 'form-control input-lg'
 					.row
-						.col-xs-12.col-lg-6
+						-# .col-xs-12.col-lg-6
 							.form-group
 								= f.label :caption
 								= f.text_field :caption, class: 'form-control'
@@ -41,36 +41,123 @@
 						= f.label :description
 						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
 
-					- if @product.respond_to? :medical_disclaimer
-						.form-group
-							= f.label :medical_disclaimer
-							= f.text_area :medical_disclaimer, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
+					- if @product.is_a?(Bazaar::RootProduct)
+						.row
+							- if @product.respond_to? :mpns_csv
+								.col-xs-12.col-lg-6
+									.form-group
+										= f.label :mpns_csv, 'MPNs: (Comma Separated)'
+										= f.text_field :mpns_csv, placeholder: 'Separate with commas', class: 'form-control'
+							- if @product.respond_to? :gtins_csv
+								.col-xs-12.col-lg-6
+									.form-group
+										= f.label :gtins_csv, 'GTINs: (Comma Separated)'
+										= f.text_field :gtins_csv, placeholder: 'Separate with commas', class: 'form-control'
+
+
+
+				.well.white-well
+					.form-group
+						%h4 Listing
+
+					.form-group
+						= f.label :listing_title, 'Title'
+						= f.text_field :listing_title, class: 'form-control'
+					.form-group
+						= f.label :listing_subtitle, 'Subtitle'
+						= f.text_field :listing_subtitle, class: 'form-control'
 
 
 					.row
-						- if @product.respond_to? :mpns_csv
-							.col-xs-12.col-lg-6
+						.col-xs-12.col-md-6
+							.form-group
+								= f.label :listing_recurring_offer_id, 'Non-Recurring Offer'
+								= f.collection_select :listing_non_recurring_offer_id, @product.offers.active.not_recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'false' }, format: 'json' ) }
+
+						.col-xs-12.col-md-6
+							.form-group
+								= f.label :listing_recurring_offer_id, 'Recurring Offer'
+								= f.collection_select :listing_recurring_offer_id, @product.offers.active.recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'true' }, format: 'json' ) }
+						- if defined?(Perkins::Page)
+							.col-xs-12.col-md-6
 								.form-group
-									= f.label :mpns_csv, 'MPNs: (Comma Separated)'
-									= f.text_field :mpns_csv, placeholder: 'Separate with commas', class: 'form-control'
-						- if @product.respond_to? :gtins_csv
-							.col-xs-12.col-lg-6
+									= f.label :listing_perkins_page, 'Page'
+									= f.collection_select :listing_perkins_page_id, Perkins::Page.active.or(Perkins::Page.where(id: @product.listing_perkins_page_id)).order( :path ), :id, :path, { include_blank: '-- None -- ' }, class: 'form-control'
+					.row
+						.col-xs-12.col-md-6
+							.form-group
+								= f.label :listing_strikethrough_price_as_money, 'Strikethrough Price'
+								= f.text_field :listing_strikethrough_price_as_money, class: 'form-control'
+						.col-xs-12.col-md-6
+							.form-group
+								= f.label :listing_from_price_as_money, 'Price'
+								= f.text_field :listing_from_price_as_money, class: 'form-control'
+						.col-xs-12.col-md-6
+							.form-group
+								= f.label :listing_partial, 'Card Template'
+								= f.select :listing_partial, options_for_select( Dir.glob( "app/views/bazaar_media/_card*" ).collect{ |f| f.gsub('.html.haml','').split('/_').last }, f.object.listing_partial ), {}, class: 'form-control'
+						.col-xs-12.col-md-6
+							.form-group
+								= f.label :badges_csv, 'Badges:'
+								= f.text_field :badges_csv, placeholder: 'Separate badges with commas', class: 'form-control'
+						.col-xs-12.col-md-6
+							= render 'pulitzer/attachments/has_one_card', f: f, attribute: :listing_avatar_attachment, object: @product, args: {}
+						.col-xs-12.col-md-6
+							= render 'pulitzer/attachments/has_one_card', f: f, attribute: :listing_alternative_attachment, object: @product, args: {}
+
+				- if @product.respond_to?( :medical_disclaimer ) && @product.is_a?(Bazaar::RootProduct)
+					.well.white-well
+						.form-group
+							%h4 Medical Disclaimer
+						.form-group
+							-# = f.label :medical_disclaimer
+							= f.text_area :medical_disclaimer, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
+
+				- if @product.is_a?(Bazaar::RootProduct)
+					.well.white-well
+						.form-group
+							%h4 Formulation
+						.row
+							.col-xs-12.col-md-6
+								= render 'pulitzer/attachments/has_one_card', f: f, attribute: :formulation_avatar_attachment, object: @product, args: {}
+							.col-xs-12.col-md-6
+								= render 'pulitzer/attachments/has_one_card', f: f, attribute: :formulation_nutrition_info_attachment, object: @product, args: {}
+
+				- if @product.is_a?(Bazaar::RootProduct)
+					.well.white-well
+						.form-group
+							%h4 Release
+
+
+						.row
+							.col-xs-12.col-md-6
 								.form-group
-									= f.label :gtins_csv, 'GTINs: (Comma Separated)'
-									= f.text_field :gtins_csv, placeholder: 'Separate with commas', class: 'form-control'
+									= f.label :pre_release_start_at
+									= f.text_field :pre_release_start_at, value: current_user.to_local_tz( f.object.pre_release_start_at ), class: 'form-control datetimepicker'
+							.col-xs-12.col-md-6
+								.form-group
+									= f.label :pre_release_end_at
+									= f.text_field :pre_release_end_at, value: current_user.to_local_tz( f.object.pre_release_end_at ), class: 'form-control datetimepicker'
+							.col-xs-12.col-md-6
+								.form-group
+									= f.label :released_at
+									= f.text_field :released_at, value: current_user.to_local_tz( f.object.released_at ), class: 'form-control datetimepicker'
+							.col-xs-12.col-md-6
+								= render 'pulitzer/attachments/has_one_card', f: f, attribute: :coming_soon_attachment, object: @product, args: {}
 
 
 				= render 'custom_fields', f: f, options: {}
 
-				#upsell_offers
-					.well.white-well
-						%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
-							%i.fa.fa-plus
-							Add
-						%h4
-							Upsell Offers
+				- if @product.is_a?(Bazaar::RootProduct)
+					#upsell_offers
+						.well.white-well
+							%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
+								%i.fa.fa-plus
+								Add
+							%h4
+								Upsell Offers
 
-						= render 'bazaar/offer_admin/upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.active.where( src_product: @product, src_offer: nil ), args: {}
+							= render 'bazaar/offer_admin/upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.active.where( src_product: @product, src_offer: nil ), args: {}
 
 
 			.col-xs-4
@@ -90,10 +177,10 @@
 							.col-xs-6
 								= f.file_field :avatar_attachment
 
-					%h4 Suggested Price
-					.form-group
-						-# = f.label :suggested_price_as_money_string, 'Suggested Price'
-						= f.number_field :suggested_price_as_money_string, class: 'form-control', min: 0.00, step: 0.01
+					-# %h4 Suggested Price
+					-# .form-group
+					-# 	-# = f.label :suggested_price_as_money_string, 'Suggested Price'
+					-# 	= f.number_field :suggested_price_as_money_string, class: 'form-control', min: 0.00, step: 0.01
 
 					%h4
 						Publishing Settings
@@ -113,10 +200,10 @@
 						= f.label :tags_csv, 'Tags:'
 						= f.text_field :tags_csv, placeholder: 'Separate tags with commas', class: 'form-control'
 
-					%h4
-						Default Offer
-					.form-group
-						= f.collection_select :offer_id, @product.offers.active, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id }, format: 'json' ) }
+					-# %h4
+					-# 	Default Offer
+					-# .form-group
+					-# 	= f.collection_select :offer_id, @product.offers.active, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id }, format: 'json' ) }
 
 					%hr
 
@@ -129,6 +216,14 @@
 				%h4
 					Offers
 				= render 'bazaar/offer_admin/offer_table', offers: @product.offers.order( title: :asc ), args: {}
+
+	.row#skus
+		.col-xs-12
+			.well.white-well
+				%h4
+					Sub Products
+				= render 'bazaar/product_admin/sub_products_table', products: @product.sub_products.order( title: :asc ), args: {}
+
 
 
 

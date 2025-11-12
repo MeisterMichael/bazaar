@@ -27,10 +27,32 @@ module Bazaar
 		has_many_attached :gallery_attachments
 		has_many_attached :other_attachments
 
+
+		# Listing Details
+		belongs_to :listing_perkins_page, class_name: 'Perkins::Page', optional: true
+		belongs_to :listing_recurring_offer, class_name: 'Bazaar::Offer', optional: true
+		belongs_to :listing_non_recurring_offer, class_name: 'Bazaar::Offer', optional: true
+
+		belongs_to :listing_promotion_perkins_page, default: nil, class_name: 'Perkins::Page', optional: true
+		belongs_to :listing_promotion_recurring_offer, default: nil, class_name: 'Bazaar::Offer', optional: true
+		belongs_to :listing_promotion_non_recurring_offer, default: nil, class_name: 'Bazaar::Offer', optional: true
+
+		has_one_attached :listing_avatar_attachment
+		has_one_attached :listing_alternative_attachment
+		has_one_attached :coming_soon_attachment
+
+		has_one_attached :formulation_avatar_attachment
+		has_one_attached :formulation_nutrition_info_attachment
+
+		has_one_attached :money_back_guarantee_attachment
+
+
+
 		before_save		:set_avatar
 		before_save	:set_publish_at
 
-		money_attributes :price, :suggested_price, :shipping_price, :purchase_price
+		money_attributes :price, :suggested_price, :shipping_price, :purchase_price, :listing_strikethrough_price, :listing_from_price, :listing_promotion_strikethrough_price, :listing_promotion_from_price
+
 		mounted_at '/store'
 		friendly_id :slugger, use: [ :slugged, :history ]
 		acts_as_taggable_array_on :tags
@@ -44,6 +66,13 @@ module Bazaar
 			"product_#{self.id}"
 		end
 
+		def badges_csv
+			self.badges.join(',')
+		end
+
+		def badges_csv=(badges_csv)
+			self.badges = badges_csv.split(/,\s*/)
+		end
 
 		def gtins_csv
 			self.gtins.join(',')
