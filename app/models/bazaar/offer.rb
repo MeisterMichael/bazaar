@@ -69,16 +69,27 @@ module Bazaar
 
 		def page_event_data
 			data = {
-				id: self.code || self.id,
+				id: self.code.presence || self.id,
 				name: self.cart_title,
 				price: self.initial_price_as_money,
-				category: self.product.try(:product_category).try(:name),
-				image: self.avatar,
-				product_id: self.product.try(:slug),
-				product_name: self.product.try(:title)
 			}
 
+			data[:image] ||= self.avatar if self.avatar.present?
 			data[:image] ||= self.avatar_attachment.url if self.avatar_attachment.attached?
+
+
+			if product.present?
+
+				data[:category] = self.product.product_category.try(:name)
+				data[:product_id] = self.product.slug
+				data[:product_name] = self.product.listing_title.presence || self.product.title
+				data[:url] = self.product.try(:url)
+
+				data[:image] ||= product.listing_avatar_attachment.url if product.listing_avatar_attachment.attached?
+				data[:image] ||= product.avatar_attachment.url if product.avatar_attachment.attached?
+				data[:image] ||= product.avatar
+
+			end
 
 			data
 		end
