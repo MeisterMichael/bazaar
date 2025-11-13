@@ -7,14 +7,21 @@
 				%h4.modal-title
 					New Product
 			= form_for Bazaar::Product.new( type: args[:type], parent_id: args[:parent_id] ), as: :product, url: bazaar.product_admin_index_path do |f|
-				= f.hidden_field :type
+				
 				= f.hidden_field :parent_id
 				.modal-body
-					= f.label :title
-					= f.text_field :title, class: 'form-control'
-
-					= f.label :description
-					= f.text_area :description, class: 'form-control'
+					.form-group
+						= f.label :title
+						= f.text_field :title, class: 'form-control'
+					.form-group
+						= f.label :description
+						= f.text_area :description, class: 'form-control'
+					- if args[:type_enabled]
+						.form-group
+							= f.label :type
+							= f.collection_select :type, [['Bazaar::RootProduct','Root Product (default)'],['Bazaar::SubProduct','Sub Product']], :first, :last, {}, class: 'form-control'
+					- else
+						= f.hidden_field :type
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close

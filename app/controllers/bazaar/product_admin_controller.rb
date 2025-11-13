@@ -13,6 +13,7 @@ module Bazaar
 
 			filters = ( params[:filters] || {} ).select{ |attribute,value| not( value.nil? ) }
 			filters[:status] = params[:status] if params[:status].present?
+			filters[:type] = params[:type] if params[:type].present?
 			@products = @search_service.product_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir }, mode: @search_mode )
 
 			set_page_meta( title: "Products" )
@@ -22,6 +23,7 @@ module Bazaar
 			authorize( Bazaar::Product )
 
 			@product = Product.new( product_params )
+			@product.product_relationships.new( relationship_type: 'contains', related_product: @product.parent ) if @product.parent.present?
 
 			@product.publish_at ||= Time.zone.now
 			@product.status = 'draft'
