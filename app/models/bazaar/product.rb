@@ -22,6 +22,10 @@ module Bazaar
 		belongs_to 	:product_category, foreign_key: :category_id, required: false
 		has_many 	:product_options
 
+		has_many :product_relationships
+		has_many :related_products, through: :product_relationships
+		has_many :related_product_relationships, foreign_key: :related_product_id, class_name: 'Bazaar::ProductRelationship'
+
 		has_one_attached :avatar_attachment
 		has_many_attached :embedded_attachments
 		has_many_attached :gallery_attachments

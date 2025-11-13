@@ -1,0 +1,24 @@
+#new_product_relationship.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{ type: :button, 'data-dismiss' => 'modal', 'aria-hidden' => 'true' }
+					&times;
+				%h4.modal-title
+					Add Product Relationship
+			= form_for Bazaar::ProductRelationship.new( product: product ), as: :product_relationship, url: bazaar.product_relationship_admin_index_path do |f|
+				= f.hidden_field :product_id
+				.modal-body
+					.form-group
+						= label_tag 'This Product'
+						.form-control=product.title
+					.form-group
+						= f.label :relationship_type
+						= f.collection_select :relationship_type, Bazaar::ProductRelationship.relationship_types, :first, :first, {}, class: 'form-control'
+					.form-group
+						= f.label :related_product_id, 'That Product'
+						= f.collection_select :related_product_id, Bazaar::RootProduct.active.where.not( id: product.product_relationships.select(:related_product_id) ).order( :title ), :id, :title, { include_blank: '-- None -- ' }, class: 'form-control'
+				.modal-footer
+					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
+						Close
+					= f.submit 'Add', class: 'btn btn-primary'

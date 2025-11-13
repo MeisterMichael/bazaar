@@ -22,6 +22,7 @@ module Bazaar
 			authorize( Bazaar::Product )
 
 			@product = Product.new( product_params )
+
 			@product.publish_at ||= Time.zone.now
 			@product.status = 'draft'
 

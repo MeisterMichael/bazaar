@@ -61,6 +61,8 @@ Bazaar::Engine.routes.draw do
 		delete :empty_trash, on: :collection
 	end
 
+	resources :product_relationship_admin, only: [:create,:destroy]
+
 	resources :shipment_admin do
 		post :batch_create, on: :collection
 		get :batch_template, on: :collection

@@ -10,8 +10,9 @@
 						%i.fa.fa-angle-left
 						Products
 				- if @product.is_a? Bazaar::SubProduct
+
 					%li
-						%a{ href: edit_product_admin_path( @product.parent_id ) }
+						%a{ href: edit_product_admin_path(@product.parent_id) }
 							= @product.parent.title
 			%h2
 				%strong= @product.title
@@ -222,7 +223,8 @@
 				= render 'bazaar/offer_admin/offer_table', offers: @product.offers.order( title: :asc ), args: {}
 
 	- if @product.respond_to? :sub_products
-		.row#sub_products
+
+		.row#child_products
 			.col-xs-12
 				.well.white-well
 					- if authorized?(Bazaar::Product, controller: Bazaar::ProductAdminController, action: :create )
@@ -231,8 +233,38 @@
 							New
 
 					%h4
-						Sub Products
-					= render 'bazaar/product_admin/sub_products_table', products: @product.sub_products.order( title: :asc ), args: {}
+						Child Products
+
+					%table.table.table-light.table-bordered{ style: 'margin:0;' }
+						%thead
+							%th Title
+							%th{ style: 'width: 10em' } Status
+							%th{ style: 'width: 10em' } Created At
+						- if @product.sub_products.count == 0
+							%tr
+								%td{ colspan: 3 }
+									\- No Product Found -
+						- @product.sub_products.each do |product|
+							%tr
+								%td
+									%a{ href: edit_product_admin_path( product.id ) }
+										= product.title
+								%td
+									= product.status
+								%td
+									= current_user.to_local_tz(product.created_at).to_fs( :short )
+
+	.row#root_products
+		.col-xs-12
+			.well.white-well
+				- if @product.draft? && authorized?(Bazaar::Product, controller: Bazaar::ProductAdminController, action: :create )
+					%a.btn.btn-success.pull-right{ data: { toggle: :modal, target: '#new_product_relationship' } }
+						%i.fa.fa-plus-square
+						New
+
+				%h4
+					Related Products
+				= render 'bazaar/product_relationship_admin/table', product_relationships: @product.product_relationships.joins(:related_product).order( 'bazaar_products.title': :asc ), args: { editable: @product.draft? }
 
 
 
@@ -240,3 +272,4 @@
 = render 'new_gallery_attachment', args: {}
 = render 'bazaar/upsell_offer_admin/new_modal', args: { src_product: @product }
 = render 'new_modal', args: { type: 'Bazaar::SubProduct', parent_id: @product.id }
+= render 'bazaar/product_relationship_admin/new_modal', product: @product, args: {  }
