@@ -2,13 +2,12 @@
 %table.table.table-light.table-bordered{ style: 'margin:0;' }
 	%thead
 		%th &nbsp;
-		%th{ style: 'width: 10em' } Status
 		%th{ style: 'width: 10em' } Created At
 		- if args[:editable]
 			%th{ style: 'width: 10em' } &nbsp;
 	- if product_relationships.count == 0
 		%tr
-			%td{ colspan: ( args[:editable] ? 4 : 3 ) }
+			%td{ colspan: ( args[:editable] ? 3 : 2 ) }
 				\- No Product Relationships Found -
 	- product_relationships.each do |product_relationship|
 		%tr
@@ -18,9 +17,7 @@
 				%a{ href: edit_product_admin_path( product_relationship.related_product_id ) }
 					%u= product_relationship.related_product.title
 			%td
-				= product_relationship.related_product.status
-			%td
-				= current_user.to_local_tz(product_relationship.related_product.created_at).to_fs( :short )
+				= current_user.to_local_tz(product_relationship.created_at).to_fs( :short )
 			- if args[:editable]
 				%td
 					%a{ href: product_relationship_admin_path( product_relationship ), data: { method: 'delete', confirm: 'Are you sure?' } }

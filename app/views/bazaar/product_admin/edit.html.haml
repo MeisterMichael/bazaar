@@ -83,10 +83,14 @@
 							.form-group
 								= f.label :listing_recurring_offer_id, 'Recurring Offer'
 								= f.collection_select :listing_recurring_offer_id, @product.offers.active.recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'true' }, format: 'json' ) }
-						- if defined?(Perkins::Page)
+					- if defined?(Perkins::Page)
+						.row
 							.col-xs-12.col-md-6
 								.form-group
 									= f.label :listing_perkins_page, 'Page'
+									%a{ onclick: "window.location = '#{perkins.edit_page_admin_path('perkins_page_id')}'.replace('perkins_page_id',$('#product_listing_perkins_page_id').val()).replace('//edit','')", style: 'cursor: pointer;' }
+										%i.fa.fa-pencil
+
 									= f.collection_select :listing_perkins_page_id, Perkins::Page.active.where( page_type: 'Shop Page' ).or(Perkins::Page.where(id: @product.listing_perkins_page_id)).order( :path ), :id, :path, { include_blank: '-- None -- ' }, class: 'form-control'
 					.row
 						.col-xs-12.col-md-6
