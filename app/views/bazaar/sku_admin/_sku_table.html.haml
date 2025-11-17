@@ -1,0 +1,20 @@
+%table.table.table-light.table-bordered{ style: 'margin:0;' }
+	%thead
+		%th Name
+		%th Code
+		%th{ style: 'width: 6em' } Status
+		%th{ style: 'width: 10em' } Created At
+	- if skus.count == 0
+		%tr
+			%td{ colspan: 4 }
+				\- No Skus Found -
+	- skus.each do |sku|
+		%tr
+			%td
+				%a{ href: edit_sku_admin_path( sku.id ) }
+					= sku.name
+			%td= sku.code
+			%td
+				= sku.status
+			%td
+				= current_user.to_local_tz(sku.created_at).to_fs( :short )

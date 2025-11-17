@@ -4,6 +4,7 @@ module Bazaar
 		include Bazaar::SkuSearchable if (Bazaar::SkuSearchable rescue nil)
 		include SwellId::Concerns::MultiIdentifierConcern if (SwellId::Concerns::MultiIdentifierConcern rescue nil)
 
+		belongs_to	:product, required: false
 
 		has_many	:offer_skus
 		has_many	:offers, through: :offer_skus, source: :parent_obj, source_type: 'Bazaar::Offer'

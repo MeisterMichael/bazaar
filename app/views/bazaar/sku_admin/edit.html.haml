@@ -135,6 +135,10 @@
 						= f.collection_select :status, Bazaar::Sku.statuses, :first, :first, {}, class: 'form-control'
 
 					.form-group
+						= f.label :product_id, 'Product'
+						= f.collection_select :product_id, Bazaar::RootProduct.active.order(title: :asc), :id, :title, { include_blank: true }, { class: 'form-control' }
+
+					.form-group
 						= f.label :tags_csv, 'Tags'
 						= f.text_field :tags_csv, class: 'form-control'
 

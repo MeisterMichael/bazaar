@@ -223,12 +223,50 @@
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
-	.row#skus
+	.row#offers
 		.col-xs-12
 			.well.white-well
 				%h4
 					Offers
 				= render 'bazaar/offer_admin/offer_table', offers: @product.offers.order( title: :asc ), args: {}
+
+	.row#offers
+		.col-xs-12
+			.well.white-well
+				%h4
+					Skus
+				= render 'bazaar/sku_admin/sku_table', skus: @product.skus.order( name: :asc ), args: {}
+	- if defined?(Perkins::Page)
+		- pages = Perkins::Page.where( id: Perkins::PageSectionProduct.joins(:page_section).select(:page_id) ).or(Perkins::Page.where( id: Perkins::PageProduct.select(:page_id) )).where( status: ['draft','active'] )
+		.row#pages
+			.col-xs-12
+				.well.white-well
+					%h4
+						Perkins Pages
+					%table.table.table-light.table-bordered{ style: 'margin:0;' }
+						%thead
+							%th Title
+							%th Path
+							%th{ style: 'width: 6em' } Status
+							%th{ style: 'width: 10em' } Created At
+						- if pages.count == 0
+							%tr
+								%td{ colspan: 2 }
+									\- No Pages Found -
+						- pages.each do |page|
+							%tr
+								%td
+									%a{ href: perkins.edit_page_admin_path( page.id ) }
+										= page.title
+								%td
+									- if page.path.present?
+										= "/#{page.path}"
+									- else
+										\-
+								%td
+									= page.status
+								%td
+									= current_user.to_local_tz(page.created_at).to_fs( :short )
 
 	- if @product.respond_to? :sub_products
 
