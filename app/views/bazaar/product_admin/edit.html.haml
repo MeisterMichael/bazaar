@@ -206,6 +206,10 @@
 						= f.text_field :category_name, class: 'form-control', placeholder: 'Add Category'
 
 					.form-group
+						= f.label :reviewable, 'Reviewable?'
+						= f.check_box :reviewable, {}, 'true', 'false'
+
+					.form-group
 						= f.label :tags_csv, 'Tags:'
 						= f.text_field :tags_csv, placeholder: 'Separate tags with commas', class: 'form-control'
 
