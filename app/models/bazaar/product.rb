@@ -37,6 +37,7 @@ module Bazaar
 		belongs_to :listing_recurring_offer, class_name: 'Bazaar::Offer', optional: true
 		belongs_to :listing_non_recurring_offer, class_name: 'Bazaar::Offer', optional: true
 
+		belongs_to :listing_promotion, default: nil, class_name: 'Promotion', optional: true
 		belongs_to :listing_promotion_perkins_page, default: nil, class_name: 'Perkins::Page', optional: true
 		belongs_to :listing_promotion_recurring_offer, default: nil, class_name: 'Bazaar::Offer', optional: true
 		belongs_to :listing_promotion_non_recurring_offer, default: nil, class_name: 'Bazaar::Offer', optional: true
