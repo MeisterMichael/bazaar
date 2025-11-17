@@ -84,6 +84,7 @@ module Bazaar
 
 					end
 
+					@subscription.subscription_logs.create( subject: 'Subscription Payment Method Updated', details: "updated subscription payment details" )
 					log_event( name: 'update_payment', on: @subscription, content: "updated suscription #{@subscription.code} payment details" )
 
 				end
@@ -107,12 +108,15 @@ module Bazaar
 
 				if @subscription.status_changed?
 					if @subscription.active?
+						@subscription.subscription_logs.create( subject: 'Subscription Reactivated', details: "reactivated suscription" )
 						log_event( name: 'reactivate_subscription', category: 'ecom', on: @subscription, content: "reactivated suscription #{@subscription.code}" )
 					else
+						@subscription.subscription_logs.create( subject: 'Subscription Canceled', details: "canceled their subscription" )
 						log_event( name: 'cancel_subscription', category: 'ecom', on: @subscription, content: "cancelled suscription #{@subscription.code}" )
 						Bazaar::SubscriptionMailer.cancel_subscription( @subscription ).deliver_now
 					end
 				else
+					@subscription.subscription_logs.create( subject: 'Subscription Changed', details: "updated suscription #{@subscription.code}: #{@subscription.changes.collect{|attribute,changes| "#{attribute} changed from '#{changes.first}' to '#{changes.last}'" }.join(', ')}." )
 					log_event( name: 'update_subscription', category: 'ecom', on: @subscription, content: "updated suscription #{@subscription.code}: #{@subscription.changes.collect{|attribute,changes| "#{attribute} changed from '#{changes.first}' to '#{changes.last}'" }.join(', ')}." )
 				end
 
