@@ -72,18 +72,26 @@ module Bazaar
 				id: self.code.presence || self.id,
 				name: self.cart_title,
 				price: self.initial_price_as_money,
+				offer_id: self.code.presence || self.id,
+				offer_name: self.cart_title,
 			}
 
 			data[:image] ||= self.avatar if self.avatar.present?
 			data[:image] ||= self.avatar_attachment.url if self.avatar_attachment.attached?
 
 
-			if product.present?
+			if self.product.present?
 
 				data[:category] = self.product.product_category.try(:name)
-				data[:product_id] = self.product.slug
-				data[:product_name] = self.product.listing_title.presence || self.product.title
+
+				data[:id] = data[:product_id] = self.product.slug
+				data[:name] = data[:product_name] = self.product.listing_title.presence || self.product.title
 				data[:url] = self.product.try(:url)
+
+				if product.respond_to?(:parent) && product.parent.present?
+					data[:id] = data[:product_id] = self.product.parent.slug
+					data[:name] = data[:product_name] = self.product.parent.listing_title.presence || self.product.parent.title
+				end
 
 				data[:image] ||= product.listing_avatar_attachment.url if product.listing_avatar_attachment.attached?
 				data[:image] ||= product.avatar_attachment.url if product.avatar_attachment.attached?
