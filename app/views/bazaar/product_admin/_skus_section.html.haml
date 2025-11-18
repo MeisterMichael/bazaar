@@ -1,8 +1,9 @@
-.panel.panel-default
-	#headingSkuList.panel-heading{role: "tab"}
-		%h4.panel-title
-			%a{"aria-controls" => "collapseSkuList", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseSkuList", role: "button"}
-				SKUs
-	#collapseSkuList.panel-collapse.collapse{"aria-labelledby" => "headingSkuList", role: "tabpanel"}
-		.panel-body
-			= render 'bazaar/sku_admin/sku_table', skus: product.skus.order( name: :asc ), args: {}
+- if product.respond_to? :sub_products
+	.panel.panel-default
+		#headingSkuList.panel-heading{role: "tab"}
+			%h4.panel-title
+				%a{"aria-controls" => "collapseSkuList", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseSkuList", role: "button"}
+					SKUs
+		#collapseSkuList.panel-collapse.collapse{"aria-labelledby" => "headingSkuList", role: "tabpanel"}
+			.panel-body
+				= render 'bazaar/sku_admin/sku_table', skus: product.skus.order( name: :asc ), args: {}
