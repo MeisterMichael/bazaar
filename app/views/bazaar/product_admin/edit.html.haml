@@ -46,20 +46,6 @@
 						= f.label :description
 						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
 
-					- if @product.is_a?(Bazaar::RootProduct)
-						.row
-							- if @product.respond_to? :mpns_csv
-								.col-xs-12.col-lg-6
-									.form-group
-										= f.label :mpns_csv, 'MPNs: (Comma Separated)'
-										= f.text_field :mpns_csv, placeholder: 'Separate with commas', class: 'form-control'
-							- if @product.respond_to? :gtins_csv
-								.col-xs-12.col-lg-6
-									.form-group
-										= f.label :gtins_csv, 'GTINs: (Comma Separated)'
-										= f.text_field :gtins_csv, placeholder: 'Separate with commas', class: 'form-control'
-
-
 				= render 'bazaar/product_admin/listing_section', product: @product, f: f, args: {}
 
 				- if @product.is_a?(Bazaar::RootProduct)
@@ -116,6 +102,21 @@
 								More Settings
 					#collapseMoreSettings.panel-collapse.collapse{"aria-labelledby" => "headingMoreSettings", role: "tabpanel"}
 						.panel-body
+
+							- if @product.is_a?(Bazaar::RootProduct)
+								.well.white-well
+									.row
+										- if @product.respond_to? :mpns_csv
+											.col-xs-12.col-lg-6
+												.form-group
+													= f.label :mpns_csv, 'MPNs: (Comma Separated)'
+													= f.text_field :mpns_csv, placeholder: 'Separate with commas', class: 'form-control'
+										- if @product.respond_to? :gtins_csv
+											.col-xs-12.col-lg-6
+												.form-group
+													= f.label :gtins_csv, 'GTINs: (Comma Separated)'
+													= f.text_field :gtins_csv, placeholder: 'Separate with commas', class: 'form-control'
+
 							= render 'custom_fields', f: f, options: {}
 
 			.col-xs-4
