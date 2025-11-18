@@ -1,0 +1,58 @@
+.panel.panel-default
+	#headingListingSettings.panel-heading{role: "tab"}
+		%h4.panel-title
+			%a{"aria-controls" => "collapseListingSettings", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseListingSettings", role: "button"}
+				Listing
+	#collapseListingSettings.panel-collapse.collapse{"aria-labelledby" => "headingListingSettings", role: "tabpanel"}
+		.panel-body
+			.form-group
+				= f.label :listing_title, 'Title'
+				= f.text_field :listing_title, class: 'form-control', placeholder: f.object.title
+			.form-group
+				= f.label :listing_subtitle, 'Subtitle'
+				= f.text_field :listing_subtitle, class: 'form-control'
+
+
+			.row
+				.col-xs-12.col-md-6
+					.form-group
+						= f.label :listing_recurring_offer_id, 'Non-Recurring Offer'
+						= f.collection_select :listing_non_recurring_offer_id, @product.offers.active.not_recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'false' }, format: 'json' ) }
+
+				.col-xs-12.col-md-6
+					.form-group
+						= f.label :listing_recurring_offer_id, 'Recurring Offer'
+						= f.collection_select :listing_recurring_offer_id, @product.offers.active.recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'true' }, format: 'json' ) }
+			- if defined?(Perkins::Page)
+				.row
+					.col-xs-12.col-md-6
+						.form-group
+							= f.label :listing_perkins_page, 'Page'
+							%a{ onclick: "window.location = '#{perkins.edit_page_admin_path('perkins_page_id')}'.replace('perkins_page_id',$('#product_listing_perkins_page_id').val()).replace('//edit','')", style: 'cursor: pointer;' }
+								%i.fa.fa-pencil
+
+							= f.collection_select :listing_perkins_page_id, Perkins::Page.active.where( page_type: 'Shop Page' ).or(Perkins::Page.where(id: @product.listing_perkins_page_id)).order( :path ), :id, :path, { include_blank: '-- None -- ' }, class: 'form-control'
+			.row
+				.col-xs-12.col-md-6
+					.form-group
+						= f.label :listing_strikethrough_price_as_money, 'Strikethrough Price'
+						= f.text_field :listing_strikethrough_price_as_money, class: 'form-control', placeholder: @product.listing_non_recurring_offer.try(:initial_price_as_money_string)
+				.col-xs-12.col-md-6
+					.form-group
+						= f.label :listing_from_price_as_money, 'From Price'
+						= f.text_field :listing_from_price_as_money, class: 'form-control', placeholder: @product.listing_recurring_offer.try(:initial_price_as_money_string)
+			.row
+				.col-xs-12.col-md-6
+					.form-group
+						= f.label :listing_partial, 'Card Template'
+						= f.select :listing_partial, options_for_select( Dir.glob( "app/views/bazaar_media/_card*" ).collect{ |f| f.gsub('.html.haml','').split('/_').last }, f.object.listing_partial ), {}, class: 'form-control'
+				.col-xs-12.col-md-6
+					.form-group
+						= f.label :badges_csv, 'Badges:'
+						= f.text_field :badges_csv, placeholder: 'Separate badges with commas', class: 'form-control'
+				.col-xs-12.col-md-6
+					= render 'pulitzer/attachments/has_one_card', f: f, attribute: :listing_avatar_attachment, object: @product, args: {}
+				.col-xs-12.col-md-6
+					= render 'pulitzer/attachments/has_one_card', f: f, attribute: :listing_alternative_attachment, object: @product, args: {}
+:css
+	#collapseListingSettings .select2 { width: 100% !important; }

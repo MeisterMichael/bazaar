@@ -1,0 +1,38 @@
+- if defined?(Perkins::Page)
+	- pages = Perkins::Page.where( id: Perkins::PageSectionProduct.where( product: product ).joins(:page_section).select(:page_id) ).or(Perkins::Page.where( id: Perkins::PageProduct.where( product: product ).select(:page_id) )).where( status: ['draft','active'] )
+	.panel.panel-default
+		#headingPagesList.panel-heading{role: "tab"}
+			%h4.panel-title
+				%a{"aria-controls" => "collapsePagesList", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapsePagesList", role: "button"}
+					Pages
+		#collapsePagesList.panel-collapse.collapse{"aria-labelledby" => "headingPagesList", role: "tabpanel"}
+			.panel-body
+				%table.table.table-light.table-bordered{ style: 'margin:0;' }
+					%thead
+						%th Path
+						%th Title
+						%th{ style: 'width: 6em' } Status
+						%th{ style: 'width: 10em' } Created At
+					- if pages.count == 0
+						%tr
+							%td{ colspan: 2 }
+								\- No Pages Found -
+					- pages.order( status: :desc, Arel.sql("NULLIF(perkins_pages.path,'')") => :asc, title: :asc ).each do |page|
+						%tr
+							%td
+								- if page.path.present?
+									= "/#{page.path}"
+								- else
+									\-
+							%td
+								%a{ href: perkins.edit_page_admin_path( page.id ) }
+									= page.title
+								- if page.page_products.where( product: product ).present?
+									%div{ style: 'padding-left: 1em;'}="<Page Settings>"
+								- if (page_sections = page.page_sections.where( id: Perkins::PageSectionProduct.where( product: product ).select(:page_section_id) ) ).present?
+									- page_sections.each do |page_section|
+										%div{ style: 'padding-left: 1em;'}= page_section.name
+							%td
+								= page.status
+							%td
+								= current_user.to_local_tz(page.created_at).to_fs( :short )

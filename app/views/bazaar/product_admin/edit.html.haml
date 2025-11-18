@@ -42,7 +42,7 @@
 								= f.label :slug_pref, 'Slug'
 								= f.text_field :slug_pref, class: 'form-control', placeholder: @product.slug
 
-					.form-group
+					-# .form-group
 						= f.label :description
 						= f.text_area :description, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
 
@@ -60,114 +60,63 @@
 										= f.text_field :gtins_csv, placeholder: 'Separate with commas', class: 'form-control'
 
 
-
-				.well.white-well
-					.form-group
-						%h4 Listing
-
-					.form-group
-						= f.label :listing_title, 'Title'
-						= f.text_field :listing_title, class: 'form-control'
-					.form-group
-						= f.label :listing_subtitle, 'Subtitle'
-						= f.text_field :listing_subtitle, class: 'form-control'
-
-
-					.row
-						.col-xs-12.col-md-6
-							.form-group
-								= f.label :listing_recurring_offer_id, 'Non-Recurring Offer'
-								= f.collection_select :listing_non_recurring_offer_id, @product.offers.active.not_recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'false' }, format: 'json' ) }
-
-						.col-xs-12.col-md-6
-							.form-group
-								= f.label :listing_recurring_offer_id, 'Recurring Offer'
-								= f.collection_select :listing_recurring_offer_id, @product.offers.active.recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'true' }, format: 'json' ) }
-					- if defined?(Perkins::Page)
-						.row
-							.col-xs-12.col-md-6
-								.form-group
-									= f.label :listing_perkins_page, 'Page'
-									%a{ onclick: "window.location = '#{perkins.edit_page_admin_path('perkins_page_id')}'.replace('perkins_page_id',$('#product_listing_perkins_page_id').val()).replace('//edit','')", style: 'cursor: pointer;' }
-										%i.fa.fa-pencil
-
-									= f.collection_select :listing_perkins_page_id, Perkins::Page.active.where( page_type: 'Shop Page' ).or(Perkins::Page.where(id: @product.listing_perkins_page_id)).order( :path ), :id, :path, { include_blank: '-- None -- ' }, class: 'form-control'
-					.row
-						.col-xs-12.col-md-6
-							.form-group
-								= f.label :listing_strikethrough_price_as_money, 'Strikethrough Price'
-								= f.text_field :listing_strikethrough_price_as_money, class: 'form-control'
-						.col-xs-12.col-md-6
-							.form-group
-								= f.label :listing_from_price_as_money, 'Price'
-								= f.text_field :listing_from_price_as_money, class: 'form-control'
-						.col-xs-12.col-md-6
-							.form-group
-								= f.label :listing_partial, 'Card Template'
-								= f.select :listing_partial, options_for_select( Dir.glob( "app/views/bazaar_media/_card*" ).collect{ |f| f.gsub('.html.haml','').split('/_').last }, f.object.listing_partial ), {}, class: 'form-control'
-						.col-xs-12.col-md-6
-							.form-group
-								= f.label :badges_csv, 'Badges:'
-								= f.text_field :badges_csv, placeholder: 'Separate badges with commas', class: 'form-control'
-						.col-xs-12.col-md-6
-							= render 'pulitzer/attachments/has_one_card', f: f, attribute: :listing_avatar_attachment, object: @product, args: {}
-						.col-xs-12.col-md-6
-							= render 'pulitzer/attachments/has_one_card', f: f, attribute: :listing_alternative_attachment, object: @product, args: {}
-
-				- if @product.respond_to?( :medical_disclaimer ) && @product.is_a?(Bazaar::RootProduct)
-					.well.white-well
-						.form-group
-							%h4 Medical Disclaimer
-						.form-group
-							-# = f.label :medical_disclaimer
-							= f.text_area :medical_disclaimer, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
+				= render 'bazaar/product_admin/listing_section', product: @product, f: f, args: {}
 
 				- if @product.is_a?(Bazaar::RootProduct)
-					.well.white-well
-						.form-group
-							%h4 Formulation
-						.row
-							.col-xs-12.col-md-6
-								= render 'pulitzer/attachments/has_one_card', f: f, attribute: :formulation_avatar_attachment, object: @product, args: {}
-							.col-xs-12.col-md-6
-								= render 'pulitzer/attachments/has_one_card', f: f, attribute: :formulation_nutrition_info_attachment, object: @product, args: {}
+					.panel.panel-default
+						#headingContent.panel-heading{role: "tab"}
+							%h4.panel-title
+								%a{"aria-controls" => "collapseContent", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseContent", role: "button"}
+									Content
+						#collapseContent.panel-collapse.collapse{"aria-labelledby" => "headingContent", role: "tabpanel"}
+							.panel-body
+								- if @product.respond_to?( :medical_disclaimer )
+									.well.white-well
+										.form-group
+											%h4 Medical Disclaimer
+										.form-group
+											-# = f.label :medical_disclaimer
+											= f.text_area :medical_disclaimer, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
 
-				- if @product.is_a?(Bazaar::RootProduct)
-					.well.white-well
-						.form-group
-							%h4 Release
+								.well.white-well
+									.form-group
+										%h4 Formulation
+									.row
+										.col-xs-12.col-md-6
+											= render 'pulitzer/attachments/has_one_card', f: f, attribute: :formulation_avatar_attachment, object: @product, args: {}
+										.col-xs-12.col-md-6
+											= render 'pulitzer/attachments/has_one_card', f: f, attribute: :formulation_nutrition_info_attachment, object: @product, args: {}
 
-
-						.row
-							.col-xs-12.col-md-6
-								.form-group
-									= f.label :pre_release_start_at
-									= f.text_field :pre_release_start_at, value: current_user.to_local_tz( f.object.pre_release_start_at ), class: 'form-control datetimepicker'
-							.col-xs-12.col-md-6
-								.form-group
-									= f.label :pre_release_end_at
-									= f.text_field :pre_release_end_at, value: current_user.to_local_tz( f.object.pre_release_end_at ), class: 'form-control datetimepicker'
-							.col-xs-12.col-md-6
-								.form-group
-									= f.label :released_at
-									= f.text_field :released_at, value: current_user.to_local_tz( f.object.released_at ), class: 'form-control datetimepicker'
-							.col-xs-12.col-md-6
-								= render 'pulitzer/attachments/has_one_card', f: f, attribute: :coming_soon_attachment, object: @product, args: {}
-
-
-				= render 'custom_fields', f: f, options: {}
-
-				- if @product.is_a?(Bazaar::RootProduct)
-					#upsell_offers
-						.well.white-well
-							%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
-								%i.fa.fa-plus
-								Add
-							%h4
-								Upsell Offers
-
-							= render 'bazaar/offer_admin/upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.active.where( src_product: @product, src_offer: nil ), args: {}
-
+					.panel.panel-default
+						#headingRelease.panel-heading{role: "tab"}
+							%h4.panel-title
+								%a{"aria-controls" => "collapseRelease", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseRelease", role: "button"}
+									Release
+						#collapseRelease.panel-collapse.collapse{"aria-labelledby" => "headingRelease", role: "tabpanel"}
+							.panel-body
+								.row
+									.col-xs-12.col-md-6
+										.form-group
+											= f.label :pre_release_start_at
+											= f.text_field :pre_release_start_at, value: current_user.to_local_tz( f.object.pre_release_start_at ), class: 'form-control datetimepicker'
+									.col-xs-12.col-md-6
+										.form-group
+											= f.label :pre_release_end_at
+											= f.text_field :pre_release_end_at, value: current_user.to_local_tz( f.object.pre_release_end_at ), class: 'form-control datetimepicker'
+									.col-xs-12.col-md-6
+										.form-group
+											= f.label :released_at
+											= f.text_field :released_at, value: current_user.to_local_tz( f.object.released_at ), class: 'form-control datetimepicker'
+									.col-xs-12.col-md-6
+										= render 'pulitzer/attachments/has_one_card', f: f, attribute: :coming_soon_attachment, object: @product, args: {}
+				.panel.panel-default
+					#headingMoreSettings.panel-heading{role: "tab"}
+						%h4.panel-title
+							%a{"aria-controls" => "collapseMoreSettings", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseMoreSettings", role: "button"}
+								More Settings
+					#collapseMoreSettings.panel-collapse.collapse{"aria-labelledby" => "headingMoreSettings", role: "tabpanel"}
+						.panel-body
+							= render 'custom_fields', f: f, options: {}
 
 			.col-xs-4
 				.well.white-well
@@ -223,95 +172,12 @@
 					.form-group
 						= f.submit 'Update', class: 'btn btn-primary'
 
-	.row#offers
-		.col-xs-12
-			.well.white-well
-				%h4
-					Offers
-				= render 'bazaar/offer_admin/offer_table', offers: @product.offers.order( title: :asc ), args: {}
-
-	.row#offers
-		.col-xs-12
-			.well.white-well
-				%h4
-					Skus
-				= render 'bazaar/sku_admin/sku_table', skus: @product.skus.order( name: :asc ), args: {}
-	- if defined?(Perkins::Page)
-		- pages = Perkins::Page.where( id: Perkins::PageSectionProduct.joins(:page_section).select(:page_id) ).or(Perkins::Page.where( id: Perkins::PageProduct.select(:page_id) )).where( status: ['draft','active'] )
-		.row#pages
-			.col-xs-12
-				.well.white-well
-					%h4
-						Perkins Pages
-					%table.table.table-light.table-bordered{ style: 'margin:0;' }
-						%thead
-							%th Title
-							%th Path
-							%th{ style: 'width: 6em' } Status
-							%th{ style: 'width: 10em' } Created At
-						- if pages.count == 0
-							%tr
-								%td{ colspan: 2 }
-									\- No Pages Found -
-						- pages.each do |page|
-							%tr
-								%td
-									%a{ href: perkins.edit_page_admin_path( page.id ) }
-										= page.title
-								%td
-									- if page.path.present?
-										= "/#{page.path}"
-									- else
-										\-
-								%td
-									= page.status
-								%td
-									= current_user.to_local_tz(page.created_at).to_fs( :short )
-
-	- if @product.respond_to? :sub_products
-
-		.row#child_products
-			.col-xs-12
-				.well.white-well
-					- if authorized?(Bazaar::Product, controller: Bazaar::ProductAdminController, action: :create )
-						%a.btn.btn-success.pull-right{ data: { toggle: :modal, target: '#new_product' } }
-							%i.fa.fa-plus-square
-							New
-
-					%h4
-						Child Products
-
-					%table.table.table-light.table-bordered{ style: 'margin:0;' }
-						%thead
-							%th Title
-							%th{ style: 'width: 10em' } Status
-							%th{ style: 'width: 10em' } Created At
-						- if @product.sub_products.count == 0
-							%tr
-								%td{ colspan: 3 }
-									\- No Product Found -
-						- @product.sub_products.each do |product|
-							%tr
-								%td
-									%a{ href: edit_product_admin_path( product.id ) }
-										= product.title
-								%td
-									= product.status
-								%td
-									= current_user.to_local_tz(product.created_at).to_fs( :short )
-
-	.row#root_products
-		.col-xs-12
-			.well.white-well
-				- if @product.draft? && @product.parent.blank? && authorized?(Bazaar::Product, controller: Bazaar::ProductAdminController, action: :create )
-					%a.btn.btn-success.pull-right{ data: { toggle: :modal, target: '#new_product_relationship' } }
-						%i.fa.fa-plus-square
-						New
-
-				%h4
-					Related Products
-				= render 'bazaar/product_relationship_admin/table', product_relationships: @product.product_relationships.joins(:related_product).order( 'bazaar_products.title': :asc ), args: { editable: (@product.draft? && @product.parent.blank?) }
-
+	= render 'bazaar/product_admin/upsell_offers_section', product: @product, args: {}
+	= render 'bazaar/product_admin/offers_section', product: @product, args: {}
+	= render 'bazaar/product_admin/skus_section', product: @product, args: {}
+	= render 'bazaar/product_admin/pages_section', product: @product, args: {}
+	= render 'bazaar/product_admin/sub_products_section', product: @product, args: {}
+	= render 'bazaar/product_admin/related_products_section', product: @product, args: {}
 
 
 

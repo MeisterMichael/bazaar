@@ -1,0 +1,32 @@
+- if @product.respond_to? :sub_products
+	.panel.panel-default
+		#headingChildProductsList.panel-heading{role: "tab"}
+			%h4.panel-title
+				%a{"aria-controls" => "collapseChildProductsList", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseChildProductsList", role: "button"}
+					Child Products
+		#collapseChildProductsList.panel-collapse.collapse{"aria-labelledby" => "headingChildProductsList", role: "tabpanel"}
+			.panel-body
+				%table.table.table-light.table-bordered{ style: 'margin:0;' }
+					%thead
+						%th Title
+						%th{ style: 'width: 10em' } Status
+						%th{ style: 'width: 10em' } Created At
+					- if product.sub_products.count == 0
+						%tr
+							%td{ colspan: 3 }
+								\- No Product Found -
+					- product.sub_products.each do |sub_product|
+						%tr
+							%td
+								%a{ href: edit_product_admin_path( sub_product.id ) }
+									= sub_product.title
+							%td
+								= sub_product.status
+							%td
+								= current_user.to_local_tz(sub_product.created_at).to_fs( :short )
+
+				- if authorized?(Bazaar::Product, controller: Bazaar::ProductAdminController, action: :create )
+					.text-center{ style: 'padding-top: 1em;' }
+						%a.btn.btn-success.pull-right{ data: { toggle: :modal, target: '#new_product' } }
+							%i.fa.fa-plus-square
+							New

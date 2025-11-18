@@ -1,0 +1,15 @@
+.panel.panel-default
+	#headingUpsellOffersList.panel-heading{role: "tab"}
+		%h4.panel-title
+			%a{"aria-controls" => "collapseUpsellOffersList", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseUpsellOffersList", role: "button"}
+				Upsell Offers
+	#collapseUpsellOffersList.panel-collapse.collapse{"aria-labelledby" => "headingUpsellOffersList", role: "tabpanel"}
+		.panel-body
+			%h4
+				Upsell Offers
+
+			= render 'bazaar/offer_admin/upsell_offer_table', upsell_offers: Bazaar::UpsellOffer.active.where( src_product: product, src_offer: nil ), args: {}
+			.text-center{ style: 'padding-top: 1em;' }
+				%a.pull-right{ href: '#new_upsell_offer_modal', data: { toggle: :modal, target: '#new_upsell_offer_modal' } }
+					%i.fa.fa-plus
+					Add

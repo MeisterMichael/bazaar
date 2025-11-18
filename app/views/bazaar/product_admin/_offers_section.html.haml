@@ -1,0 +1,8 @@
+.panel.panel-default
+	#headingOffersList.panel-heading{role: "tab"}
+		%h4.panel-title
+			%a{"aria-controls" => "collapseOffersList", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseOffersList", role: "button"}
+				Offers
+	#collapseOffersList.panel-collapse.collapse{"aria-labelledby" => "headingOffersList", role: "tabpanel"}
+		.panel-body
+			= render 'bazaar/offer_admin/offer_table', offers: product.offers.order( title: :asc ), args: {}

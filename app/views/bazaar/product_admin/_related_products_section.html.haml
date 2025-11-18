@@ -1,0 +1,14 @@
+.panel.panel-default
+	#headingRelatedProductsList.panel-heading{role: "tab"}
+		%h4.panel-title
+			%a{"aria-controls" => "collapseRelatedProductsList", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseRelatedProductsList", role: "button"}
+				Related Products
+	#collapseRelatedProductsList.panel-collapse.collapse{"aria-labelledby" => "headingRelatedProductsList", role: "tabpanel"}
+		.panel-body
+			= render 'bazaar/product_relationship_admin/table', product_relationships: product.product_relationships.joins(:related_product).order( 'bazaar_products.title': :asc ), args: { editable: (product.draft? && product.parent.blank?) }
+			- if product.draft? && product.parent.blank? && authorized?(Bazaar::Product, controller: Bazaar::ProductAdminController, action: :create )
+				.text-center{ style: 'padding-top: 1em;' }
+					%a.btn.btn-success.pull-right{ data: { toggle: :modal, target: '#new_product_relationship' } }
+						%i.fa.fa-plus-square
+						New
+
