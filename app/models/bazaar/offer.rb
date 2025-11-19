@@ -84,7 +84,7 @@ module Bazaar
 			data[:image] ||= self.avatar if self.avatar.present?
 			data[:image] ||= self.avatar_attachment.url if self.avatar_attachment.attached?
 
-			root_product = self.product.parent if self.product.present? && self.product.respond_to?(:parent) && self.product.parent.present?
+			root_product = self.product.parent if self.product.is_a?( Bazaar::SubProduct )
 			root_product ||= self.product
 
 			if root_product.present?
@@ -95,14 +95,9 @@ module Bazaar
 				data[:name] = data[:product_name] = root_product.listing_title.presence || root_product.title
 				data[:url] = root_product.try(:url)
 
-				if product.respond_to?(:parent) && product.parent.present?
-					data[:id] = data[:product_id] = root_product.parent.slug
-					data[:name] = data[:product_name] = root_product.parent.listing_title.presence || root_product.parent.title
-				end
-
-				data[:image] ||= product.listing_avatar_attachment.url if product.listing_avatar_attachment.attached?
-				data[:image] ||= product.avatar_attachment.url if product.avatar_attachment.attached?
-				data[:image] ||= product.avatar
+				data[:image] ||= root_product.listing_avatar_attachment.url if root_product.listing_avatar_attachment.attached?
+				data[:image] ||= root_product.avatar_attachment.url if root_product.avatar_attachment.attached?
+				data[:image] ||= root_product.avatar
 
 			end
 
