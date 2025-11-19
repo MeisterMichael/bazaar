@@ -84,18 +84,20 @@ module Bazaar
 			data[:image] ||= self.avatar if self.avatar.present?
 			data[:image] ||= self.avatar_attachment.url if self.avatar_attachment.attached?
 
+			root_product = self.product.parent if self.product.present? && self.product.respond_to?(:parent) && self.product.parent.present?
+			root_product ||= self.product
 
-			if self.product.present?
+			if root_product.present?
 
-				data[:category] = self.product.product_category.try(:name)
+				data[:category] = root_product.product_category.try(:name)
 
-				data[:id] = data[:product_id] = self.product.slug
-				data[:name] = data[:product_name] = self.product.listing_title.presence || self.product.title
-				data[:url] = self.product.try(:url)
+				data[:id] = data[:product_id] = root_product.slug
+				data[:name] = data[:product_name] = root_product.listing_title.presence || root_product.title
+				data[:url] = root_product.try(:url)
 
 				if product.respond_to?(:parent) && product.parent.present?
-					data[:id] = data[:product_id] = self.product.parent.slug
-					data[:name] = data[:product_name] = self.product.parent.listing_title.presence || self.product.parent.title
+					data[:id] = data[:product_id] = root_product.parent.slug
+					data[:name] = data[:product_name] = root_product.parent.listing_title.presence || root_product.parent.title
 				end
 
 				data[:image] ||= product.listing_avatar_attachment.url if product.listing_avatar_attachment.attached?
