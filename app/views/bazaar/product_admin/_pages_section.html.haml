@@ -28,10 +28,14 @@
 								%a{ href: perkins.edit_page_admin_path( page.id ) }
 									= page.title
 								- if page.page_products.where( product: product ).present?
-									%div{ style: 'padding-left: 1em;'}="<Page Settings>"
+									%div
+										%i= "#{page.page_products.where( product: product ).pluck(:name).joins(', ')}"
 								- if (page_sections = page.page_sections.where( id: Perkins::PageSectionProduct.where( product: product ).select(:page_section_id) ) ).present?
 									- page_sections.each do |page_section|
-										%div{ style: 'padding-left: 1em;'}= page_section.name
+										%div{ style: 'padding-left: 1em;'}
+											Section:
+											= page_section.name
+											%i= "#{page_section.page_section_products.where( product: product ).pluck(:name).joins(', ')}"
 							%td
 								= page.status
 							%td
