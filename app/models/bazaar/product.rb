@@ -33,7 +33,15 @@ module Bazaar
 
 
 		# Listing Details
-		belongs_to :listing_perkins_page, class_name: 'Perkins::Page', optional: true
+		if defined?( Perkins::Page )
+			belongs_to :listing_perkins_page, class_name: 'Perkins::Page', optional: true
+			has_many :perkins_page_products, class_name: 'Perkins::PageProduct'
+			has_many :perkins_page_section_products, class_name: 'Perkins::PageSectionProduct'
+
+			has_many :perkins_page_offers, through: :offers
+			has_many :perkins_page_section_offers, through: :offers
+		end
+
 		belongs_to :listing_recurring_offer, class_name: 'Bazaar::Offer', optional: true
 		belongs_to :listing_non_recurring_offer, class_name: 'Bazaar::Offer', optional: true
 
@@ -98,6 +106,36 @@ module Bazaar
 
 		def mpns_csv=(mpns_csv)
 			self.mpns = mpns_csv.split(/,\s*/)
+		end
+
+		if defined?( Perkins::Page )
+			def linked_perkins_pages
+				Perkins::Page.where(
+					id: perkins_page_section_products.joins(:page_section).select(:page_id) 
+				).or(
+					Perkins::Page.where(
+						id: perkins_page_products.select(:page_id) 
+					)
+				).or(
+					Perkins::Page.where(
+						id: perkins_page_section_offers.joins(:page_section).select(:page_id) 
+					)
+				).or(
+					Perkins::Page.where(
+						id: perkins_page_offers.select(:page_id) 
+					)
+				)
+			end
+
+			def linked_perkins_page_sections
+				Perkins::PageSection.where(
+					id: perkins_page_section_products.select(:page_section_id)
+				).or(
+					Perkins::PageSection.where(
+						id: perkins_page_section_offers.select(:page_section_id)
+					)
+				)
+			end
 		end
 
 		def page_event_data

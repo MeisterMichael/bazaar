@@ -1,5 +1,5 @@
 - if defined?(Perkins::Page)
-	- pages = Perkins::Page.where( id: Perkins::PageSectionProduct.where( product: product ).joins(:page_section).select(:page_id) ).or(Perkins::Page.where( id: Perkins::PageProduct.where( product: product ).select(:page_id) )).where( status: ['draft','active'] )
+	- pages = product.linked_perkins_pages.where( status: ['draft','active'] )
 	.panel.panel-default
 		#headingPagesList.panel-heading{role: "tab"}
 			%h4.panel-title
@@ -21,7 +21,7 @@
 						%tr
 							%td
 								- if page.path.present?
-									= "/#{page.path}"
+									%a{ href: page.url }= "/#{page.path}"
 								- else
 									\-
 							%td
@@ -29,13 +29,14 @@
 									= page.title
 								- if page.page_products.where( product: product ).present?
 									%div
-										%i= "#{page.page_products.where( product: product ).pluck(:name).joins(', ')}"
-								- if (page_sections = page.page_sections.where( id: Perkins::PageSectionProduct.where( product: product ).select(:page_section_id) ) ).present?
+										%i= "#{page.page_products.where( product: product ).pluck(:name).join(', ')}"
+								- if (page_sections = product.linked_perkins_page_sections.where( page: page ) ).present?
 									- page_sections.each do |page_section|
 										%div{ style: 'padding-left: 1em;'}
-											Section:
-											= page_section.name
-											%i= "#{page_section.page_section_products.where( product: product ).pluck(:name).joins(', ')}"
+											Section >
+											= "#{page_section.name}:"
+											%i= "#{(page_section.page_section_products.where( product: product ).pluck(:name) + page_section.page_section_offers.joins(:offer).merge(Bazaar::Offer.where( product: product ) ).pluck(:name)).join(', ')}"
+
 							%td
 								= page.status
 							%td

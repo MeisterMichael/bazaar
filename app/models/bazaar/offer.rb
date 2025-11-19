@@ -14,6 +14,11 @@ module Bazaar
 		has_many :offer_skus, as: :parent_obj
 		has_many :skus, through: :offer_skus
 
+		if defined?( Perkins::Page )
+			has_many :perkins_page_offers, class_name: 'Perkins::PageOffer'
+			has_many :perkins_page_section_offers, class_name: 'Perkins::PageSectionOffer'
+		end
+
 		has_many :order_offers
 
 		has_many :wholesale_items
