@@ -36,7 +36,7 @@
 				.col-xs-12.col-md-6
 					.form-group
 						= f.label :listing_strikethrough_price_as_money, 'Strikethrough Price'
-						= f.text_field :listing_strikethrough_price_as_money, class: 'form-control', placeholder: @product.listing_non_recurring_offer.try(:initial_price_as_money_string)
+						= f.text_field :listing_strikethrough_price_as_money, class: 'form-control', placeholder: @product.listing_non_recurring_offer.try(:initial_price_as_money_string) || @product.listing_recurring_offer.try(:suggested_price_as_money_string)
 				.col-xs-12.col-md-6
 					.form-group
 						= f.label :listing_from_price_as_money, 'From Price'
