@@ -4,7 +4,7 @@
 			%a{"aria-controls" => "collapseListingSettings", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseListingSettings", role: "button"}
 				Listing
 	#collapseListingSettings.panel-collapse.collapse{"aria-labelledby" => "headingListingSettings", role: "tabpanel"}
-		.panel-body
+		.panel-body.pricing-mode-container{ class: "pricing-mode-#{@product.listing_offer_mode}"}
 			.form-group
 				= f.label :listing_title, 'Title'
 				= f.text_field :listing_title, class: 'form-control', placeholder: f.object.title
@@ -12,17 +12,6 @@
 				= f.label :listing_subtitle, 'Subtitle'
 				= f.text_field :listing_subtitle, class: 'form-control'
 
-
-			.row
-				.col-xs-12.col-md-6
-					.form-group
-						= f.label :listing_recurring_offer_id, 'Non-Recurring Offer'
-						= f.collection_select :listing_non_recurring_offer_id, @product.offers.active.not_recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'false' }, format: 'json' ) }
-
-				.col-xs-12.col-md-6
-					.form-group
-						= f.label :listing_recurring_offer_id, 'Recurring Offer'
-						= f.collection_select :listing_recurring_offer_id, @product.offers.active.recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'true' }, format: 'json' ) }
 			- if defined?(Perkins::Page)
 				.row
 					.col-xs-12.col-md-6
@@ -32,15 +21,50 @@
 								%i.fa.fa-pencil
 
 							= f.collection_select :listing_perkins_page_id, Perkins::Page.active.where( page_type: 'Shop Page' ).or(Perkins::Page.where(id: @product.listing_perkins_page_id)).order( :path ), :id, :path, { include_blank: '-- None -- ' }, class: 'form-control'
-			.row
-				.col-xs-12.col-md-6
-					.form-group
-						= f.label :listing_strikethrough_price_as_money, 'Strikethrough Price'
-						= f.text_field :listing_strikethrough_price_as_money, class: 'form-control', placeholder: @product.listing_non_recurring_offer.try(:initial_price_as_money_string) || @product.listing_recurring_offer.try(:suggested_price_as_money_string)
-				.col-xs-12.col-md-6
-					.form-group
-						= f.label :listing_from_price_as_money, 'From Price'
-						= f.text_field :listing_from_price_as_money, class: 'form-control', placeholder: @product.listing_recurring_offer.try(:initial_price_as_money_string)
+			.well
+				.row
+					.col-xs-12
+						.row
+							.col-xs-12.col-md-6
+								.form-group
+									= f.label :listing_offer_mode
+									= f.collection_select :listing_offer_mode, Bazaar::Product.listing_offer_modes, :first, :first, {}, class: 'form-control', onchange: "$('.pricing-mode-container')#{raw Bazaar::Product.listing_offer_modes.keys.collect{|status| ".removeClass('pricing-mode-#{status}')"}.join('')}.addClass('pricing-mode-'+$(this).val())"
+					.col-xs-12.col-md-6.pricing-mode-block.pricing-mode-custom
+
+						.form-group
+							= f.label :listing_recurring_offer_id, 'Single Offer'
+							= f.collection_select :listing_non_recurring_offer_id, @product.offers.active.not_recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'false' }, format: 'json' ) }
+
+					.col-xs-12.col-md-6.pricing-mode-block.pricing-mode-custom
+						.form-group
+							= f.label :listing_recurring_offer_id, 'Subscription Offer'
+							= f.collection_select :listing_recurring_offer_id, @product.offers.active.recurring, :id, :title, {}, class: 'form-control select-2-ajax', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { product_id: @product.id, recurring: 'true' }, format: 'json' ) }
+
+				.row.pricing-mode-block.pricing-mode-subscription_only.pricing-mode-single_plus_subscription.pricing-mode-single_only
+					.col-xs-12.col-md-6
+						.form-group
+							= f.label :listing_sku_id, 'Initial SKU'
+							= f.collection_select :listing_sku_id, Bazaar::Sku.active.or(Bazaar::Sku.where(id: @product.listing_sku_id)).order( Arel.sql("(COALESCE(product_id,0) = #{@product.id})") => :desc, code: :asc ), :id, :code, { include_blank: '-- None -- ' }, class: 'form-control'
+					.col-xs-12.col-md-6.pricing-mode-block.pricing-mode-subscription_only.pricing-mode-single_plus_subscription
+						.form-group
+							= f.label :listing_recurring_sku_id, 'Recurring SKU'
+							= f.collection_select :listing_recurring_sku_id, Bazaar::Sku.active.or(Bazaar::Sku.where(id: @product.listing_sku_id)).order( Arel.sql("(COALESCE(product_id,0) = #{@product.id})") => :desc, code: :asc ), :id, :code, { include_blank: '-- Same as Initial Sku -- ' }, class: 'form-control'
+				.row
+					.col-xs-12.col-md-6.pricing-mode-block.pricing-mode-subscription_only.pricing-mode-single_plus_subscription.pricing-mode-single_only.pricing-mode-custom
+						.form-group
+							= f.label :listing_strikethrough_price_as_money, 'Strikethrough Price', class: 'pricing-mode-block pricing-mode-custom pricing-mode-single_only pricing-mode-subscription_only'
+							= f.label :listing_strikethrough_price_as_money, 'Single Unit (Strikethrough) Price', class: 'pricing-mode-block pricing-mode-single_plus_subscription'
+							= f.text_field :listing_strikethrough_price_as_money, class: 'form-control', placeholder: @product.listing_non_recurring_offer.try(:initial_price_as_money_string) || @product.listing_recurring_offer.try(:suggested_price_as_money_string)
+					.col-xs-12.col-md-6.pricing-mode-block.pricing-mode-subscription_only.pricing-mode-single_plus_subscription.pricing-mode-single_only.pricing-mode-custom
+						.form-group
+							= f.label :listing_from_price_as_money, 'From Price', class: 'pricing-mode-block pricing-mode-custom'
+							= f.label :listing_from_price_as_money, 'Single Unit (From) Price', class: 'pricing-mode-block pricing-mode-single_only'
+							= f.label :listing_from_price_as_money, 'Subscription Initial (From) Price', class: 'pricing-mode-block pricing-mode-single_plus_subscription pricing-mode-subscription_only'
+							= f.text_field :listing_from_price_as_money, class: 'form-control', placeholder: @product.listing_recurring_offer.try(:initial_price_as_money_string)
+					.col-xs-12.col-md-6.pricing-mode-block.pricing-mode-single_plus_subscription.pricing-mode-subscription_only
+						.form-group
+							= f.label :listing_renewal_price_as_money, 'Subscription Renewal Price'
+							= f.text_field :listing_renewal_price_as_money, class: 'form-control', placeholder: @product.listing_recurring_offer.try(:renewal_price_as_money_string)
 			.row
 				.col-xs-12.col-md-6
 					.form-group
@@ -56,3 +80,8 @@
 					= render 'pulitzer/attachments/has_one_card', f: f, attribute: :listing_alternative_attachment, object: @product, args: {}
 :css
 	#collapseListingSettings .select2 { width: 100% !important; }
+	.pricing-mode-container .pricing-mode-block { display: none; }
+	.pricing-mode-container.pricing-mode-custom .pricing-mode-block.pricing-mode-custom { display: block; }
+	.pricing-mode-container.pricing-mode-single_plus_subscription .pricing-mode-block.pricing-mode-single_plus_subscription { display: block; }
+	.pricing-mode-container.pricing-mode-subscription_only .pricing-mode-block.pricing-mode-subscription_only { display: block; }
+	.pricing-mode-container.pricing-mode-single_only .pricing-mode-block.pricing-mode-single_only { display: block; }

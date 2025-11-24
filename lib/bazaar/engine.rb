@@ -61,6 +61,7 @@ module Bazaar
 		mattr_accessor :checkout_order_service_class
 		mattr_accessor :upsell_service_class
 		mattr_accessor :wholesale_order_service_class
+		mattr_accessor :product_service_class
 
 		mattr_accessor :admin_permit_additions
 
@@ -133,6 +134,7 @@ module Bazaar
 		self.checkout_order_service_class = "Bazaar::CheckoutOrderService"
 		self.upsell_service_class = "Bazaar::UpsellService"
 		self.wholesale_order_service_class = "Bazaar::WholesaleOrderService"
+		self.product_service_class = "Bazaar::ProductService"
 
 		self.warehouse_address = {}
 		self.nexus_addresses = []

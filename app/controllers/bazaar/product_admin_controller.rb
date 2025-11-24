@@ -28,6 +28,9 @@ module Bazaar
 			@product.publish_at ||= Time.zone.now
 			@product.status = 'draft'
 
+			@product_service = Bazaar.product_service_class.constantize.new()
+			@product_service.before_save( @product )
+
 			if @product.save
 				set_flash 'Product Created'
 				redirect_to edit_product_admin_path( @product )
@@ -84,6 +87,9 @@ module Bazaar
 				@product.category_id = ProductCategory.where( name: params[:product][:category_name] ).first_or_create( status: 'active' ).id
 			end
 
+			@product_service = Bazaar.product_service_class.constantize.new()
+			@product_service.before_save( @product )
+
 			if @product.save
 				set_flash 'Product Updated'
 				redirect_to edit_product_admin_path( id: @product.id )
@@ -95,7 +101,7 @@ module Bazaar
 
 		private
 			def product_params
-				params.require( :product ).permit( [:type, :parent_id, :title, :subtitle, :caption, :slug_pref, :category_id, :description, :medical_disclaimer, :content, :cart_description, :price, :price_as_money_string, :suggested_price, :suggested_price_as_money_string, :status, :reviewable, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :publish_at, :tags, :tags_csv, :avatar, :avatar_attachment, :cover_image, :avatar_urls, :shopify_code, :size_info, :notes, :tax_code, :seq, :sku, :offer_id, :gtins_csv, :mpns_csv, :listing_perkins_page_id, :listing_bogo_perkins_page_id, :listing_recurring_offer_id, :listing_non_recurring_offer_id, :listing_bogo_recurring_offer_id, :listing_bogo_non_recurring_offer_id, :listing_title, :listing_subtitle, :listing_strikethrough_price, :listing_strikethrough_price_as_money, :listing_from_price, :listing_from_price_as_money, :listing_partial, :pre_release_start_at, :pre_release_end_at, :released_at, :badges, :badges_csv, :listing_promotion_perkins_page_id, :listing_promotion_recurring_offer_id, :listing_promotion_non_recurring_offer_id, :listing_promotion_strikethrough_price, :listing_promotion_strikethrough_price_as_money, :listing_promotion_from_price, :listing_promotion_from_price_as_money, :listing_avatar_attachment, :listing_alternative_attachment ] + ( Bazaar.admin_permit_additions[:product_admin] || [] ) )
+				params.require( :product ).permit( [:type, :parent_id, :title, :subtitle, :caption, :slug_pref, :category_id, :description, :medical_disclaimer, :content, :cart_description, :price, :price_as_money_string, :suggested_price, :suggested_price_as_money_string, :status, :reviewable, :availability, :package_shape, :package_weight, :package_length, :package_width, :package_height, :publish_at, :tags, :tags_csv, :avatar, :avatar_attachment, :cover_image, :avatar_urls, :shopify_code, :size_info, :notes, :tax_code, :seq, :sku, :offer_id, :gtins_csv, :mpns_csv, :listing_offer_mode, :listing_perkins_page_id, :listing_bogo_perkins_page_id, :listing_recurring_offer_id, :listing_non_recurring_offer_id, :listing_bogo_recurring_offer_id, :listing_bogo_non_recurring_offer_id, :listing_title, :listing_subtitle, :listing_strikethrough_price, :listing_strikethrough_price_as_money, :listing_from_price, :listing_from_price_as_money, :listing_renewal_price, :listing_renewal_price_as_money, :listing_partial, :pre_release_start_at, :pre_release_end_at, :released_at, :badges, :badges_csv, :listing_promotion_perkins_page_id, :listing_promotion_recurring_offer_id, :listing_promotion_non_recurring_offer_id, :listing_promotion_strikethrough_price, :listing_promotion_strikethrough_price_as_money, :listing_promotion_from_price, :listing_promotion_from_price_as_money, :listing_sku_id, :listing_recurring_sku_id, :listing_avatar_attachment, :listing_alternative_attachment ] + ( Bazaar.admin_permit_additions[:product_admin] || [] ) )
 			end
 
 			def get_product

@@ -28,8 +28,6 @@
 			.col-xs-8
 				.well.white-well
 					.form-group
-						%h4 Content
-					.form-group
 						= f.label :title
 						= f.text_field :title, class: 'form-control input-lg'
 					.row
@@ -56,6 +54,24 @@
 									Content
 						#collapseContent.panel-collapse.collapse{"aria-labelledby" => "headingContent", role: "tabpanel"}
 							.panel-body
+
+								.well.white-well
+									.form-group
+										%h4
+											Product Image
+											%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The public facing image used to reference this product.' }
+									.form-group
+										.row
+											.col-xs-6{ style: 'max-width: 100px;' }
+												%div{ style: 'border: 1px solid #ccc;background: #fff;margin-bottom: 5px;' }
+													- if @product.avatar.present?
+														%a{ href: @product.avatar, target: '_preview_image' }
+															%img.img.img-responsive.center-block#product_avatar_img{:src => @product.avatar }
+													- else
+														%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
+											.col-xs-6
+												= f.file_field :avatar_attachment
+
 								- if @product.respond_to?( :medical_disclaimer )
 									.well.white-well
 										.form-group
@@ -72,6 +88,13 @@
 											= render 'pulitzer/attachments/has_one_card', f: f, attribute: :formulation_avatar_attachment, object: @product, args: {}
 										.col-xs-12.col-md-6
 											= render 'pulitzer/attachments/has_one_card', f: f, attribute: :formulation_nutrition_info_attachment, object: @product, args: {}
+
+								.well.white-well
+									.pull-right
+										%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachments_modal' } } Add
+									%h5 Gallery Attachments
+									= render 'pulitzer/attachments/gallery', object: @product, attribute: :gallery_attachments, args: { success: edit_product_admin_path( @product.id ) }
+
 
 					.panel.panel-default
 						#headingRelease.panel-heading{role: "tab"}
@@ -121,21 +144,6 @@
 
 			.col-xs-4
 				.well.white-well
-					%h4
-						Product Image
-						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The public facing image used to reference this product.' }
-					.form-group
-						.row
-							.col-xs-6{ style: 'max-width: 100px;' }
-								%div{ style: 'border: 1px solid #ccc;background: #fff;margin-bottom: 5px;' }
-									- if @product.avatar.present?
-										%a{ href: @product.avatar, target: '_preview_image' }
-											%img.img.img-responsive.center-block#product_avatar_img{:src => @product.avatar }
-									- else
-										%img.img.img-responsive.center-block{:src => 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', style: 'width: 100%;' }
-							.col-xs-6
-								= f.file_field :avatar_attachment
-
 					-# %h4 Suggested Price
 					-# .form-group
 					-# 	-# = f.label :suggested_price_as_money_string, 'Suggested Price'
@@ -182,7 +190,8 @@
 
 
 
-= render 'new_gallery_attachment', args: {}
 = render 'bazaar/upsell_offer_admin/new_modal', args: { src_product: @product }
 = render 'new_modal', args: { type: 'Bazaar::SubProduct', parent_id: @product.id }
 = render 'bazaar/product_relationship_admin/new_modal', product: @product, args: {  }
+
+= render 'pulitzer/attachments/new_has_many_attachments', attribute: 'gallery_attachments', object: @product, args: {}
