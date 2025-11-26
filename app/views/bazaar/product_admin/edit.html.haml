@@ -95,7 +95,7 @@
 									%h5 Gallery Attachments
 									= render 'pulitzer/attachments/gallery', object: @product, attribute: :gallery_attachments, args: { success: edit_product_admin_path( @product.id ) }
 
-
+								= render 'custom_content_section', product: @product, f: f
 					.panel.panel-default
 						#headingRelease.panel-heading{role: "tab"}
 							%h4.panel-title
@@ -118,6 +118,7 @@
 											= f.text_field :released_at, value: current_user.to_local_tz( f.object.released_at ), class: 'form-control datetimepicker'
 									.col-xs-12.col-md-6
 										= render 'pulitzer/attachments/has_one_card', f: f, attribute: :coming_soon_attachment, object: @product, args: {}
+								= render 'custom_release_section', product: @product, f: f
 				.panel.panel-default
 					#headingMoreSettings.panel-heading{role: "tab"}
 						%h4.panel-title

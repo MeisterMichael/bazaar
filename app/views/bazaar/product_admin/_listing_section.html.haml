@@ -78,6 +78,7 @@
 					= render 'pulitzer/attachments/has_one_card', f: f, attribute: :listing_avatar_attachment, object: @product, args: {}
 				.col-xs-12.col-md-6
 					= render 'pulitzer/attachments/has_one_card', f: f, attribute: :listing_alternative_attachment, object: @product, args: {}
+			= render 'custom_listing_section', product: @product, f: f
 :css
 	#collapseListingSettings .select2 { width: 100% !important; }
 	.pricing-mode-container .pricing-mode-block { display: none; }
