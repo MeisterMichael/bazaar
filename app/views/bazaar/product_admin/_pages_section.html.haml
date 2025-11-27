@@ -74,13 +74,15 @@
 							%td
 								- if page.is_a? Pulitzer::Page
 									%a{ href: pulitzer.edit_page_admin_path( page.id ) }
-										= page.title
+										= page.title.presence || 'N/A'
 								- elsif page.is_a? Pulitzer::Article
 									%a{ href: pulitzer.edit_article_admin_path( page.id ) }
+										= page.title.presence || 'N/A'
 								- elsif page.is_a? Pulitzer::Redirect
 									%a{ href: pulitzer.edit_redirect_admin_path( page.id ) }
+										= page.title.presence || 'N/A'
 								- else
-									= page.title
+									= page.title.presence || 'N/A'
 							%td
 								= page.status
 							%td
