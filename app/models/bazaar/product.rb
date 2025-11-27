@@ -47,6 +47,10 @@ module Bazaar
 			has_many :perkins_page_section_offers, through: :offers
 		end
 
+		if defined?( Pulitzer::Media )
+			has_many :linked_pulitzer_media, class_name: 'Pulitzer::Media'
+		end
+
 		belongs_to :listing_recurring_offer, class_name: 'Bazaar::Offer', optional: true
 		belongs_to :listing_non_recurring_offer, class_name: 'Bazaar::Offer', optional: true
 

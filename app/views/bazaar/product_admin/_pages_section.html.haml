@@ -24,6 +24,8 @@
 									%a{ href: page.url }= "/#{page.path}"
 								- else
 									\-
+								- if page.redirect_url.present?
+									REDIRECTED
 							%td
 								%a{ href: perkins.edit_page_admin_path( page.id ) }
 									= page.title
@@ -41,3 +43,48 @@
 								= page.status
 							%td
 								= current_user.to_local_tz(page.created_at).to_fs( :short )
+
+- if defined?(Pulitzer::Media) && product.respond_to?(:linked_pulitzer_media)
+	- pages = product.linked_pulitzer_media.where( status: ['draft','active'] )
+	.panel.panel-default
+		#headingLegacyPagesList.panel-heading{role: "tab"}
+			%h4.panel-title
+				%a{"aria-controls" => "collapseLegacyPagesList", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseLegacyPagesList", role: "button"}
+					Legacy Pages/Articles/Media
+		#collapseLegacyPagesList.panel-collapse.collapse{"aria-labelledby" => "headingLegacyPagesList", role: "tabpanel"}
+			.panel-body
+				%table.table.table-light.table-bordered{ style: 'margin:0;' }
+					%thead
+						%th Path
+						%th Title
+						%th{ style: 'width: 10em' } Type
+						%th{ style: 'width: 6em' } Status
+						%th{ style: 'width: 10em' } Created At
+					- if pages.count == 0
+						%tr
+							%td{ colspan: 5 }
+								\- No Pages Found -
+					- pages.order( status: :desc, slug: :asc, title: :asc ).each do |page|
+						%tr
+							%td
+								%a{ href: page.url }= page.path
+								- if page.redirect_url.present?
+									REDIRECTED
+
+							%td
+								- if page.is_a? Pulitzer::Page
+									%a{ href: pulitzer.edit_page_admin_path( page.id ) }
+										= page.title
+								- elsif page.is_a? Pulitzer::Article
+									%a{ href: pulitzer.edit_article_admin_path( page.id ) }
+								- elsif page.is_a? Pulitzer::Redirect
+									%a{ href: pulitzer.edit_redirect_admin_path( page.id ) }
+								- else
+									= page.title
+							%td
+								= page.status
+							%td
+								= page.type.split('::').last
+							%td
+								= current_user.to_local_tz(page.created_at).to_fs( :short )
+
