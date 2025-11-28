@@ -81,15 +81,6 @@
 											= f.text_area :medical_disclaimer, class: 'form-control wysiwyg', data: { wysiwyg: { height_min: 80, toolbar_sticky: true, toolbar_preset: 'admin_default', object_class: @product.class.base_class.name, object_id: @product.id }.to_json }
 
 								.well.white-well
-									.form-group
-										%h4 Formulation
-									.row
-										.col-xs-12.col-md-6
-											= render 'pulitzer/attachments/has_one_card', f: f, attribute: :formulation_avatar_attachment, object: @product, args: {}
-										.col-xs-12.col-md-6
-											= render 'pulitzer/attachments/has_one_card', f: f, attribute: :formulation_nutrition_info_attachment, object: @product, args: {}
-
-								.well.white-well
 									.pull-right
 										%a{ href: '#', data: { toggle: :modal, target: '#new_gallery_attachments_modal' } } Add
 									%h5 Gallery Attachments
