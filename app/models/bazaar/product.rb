@@ -47,6 +47,11 @@ module Bazaar
 			has_many :perkins_page_section_offers, through: :offers
 		end
 
+		if defined?( Perkins::Kit )
+			has_many :perkins_kit_products, class_name: 'Perkins::KitProduct'
+			has_many :perkins_kits, foreign_key: :product_id, class_name: 'Perkins::Kit'
+		end
+
 		if defined?( Pulitzer::Media )
 			has_many :linked_pulitzer_media, class_name: 'Pulitzer::Media'
 		end
