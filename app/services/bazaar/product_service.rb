@@ -64,6 +64,11 @@ module Bazaar
 
 			end
 
+			product.listing_recurring_offer = nil if product.single_only?
+			product.listing_non_recurring_offer = nil if product.subscription_only?
+
+
+			product
 		end
 
 	end
