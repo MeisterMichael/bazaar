@@ -26,6 +26,7 @@ module Bazaar
 				offer = Bazaar::Offer.where( code: offer_code ).create_with(
 					product: product,
 					title: "#{product.title} #{ActionController::Base.helpers.number_to_currency(change_non_recurring_offer[:initial_price]/100.0)} (Product Generated)",
+					cart_title: "#{product.title}",
 					status: 'active',
 				).first_or_initialize
 
@@ -46,6 +47,7 @@ module Bazaar
 				offer = Bazaar::Offer.where( code: offer_code ).create_with(
 					product: product,
 					title: "#{product.title} Auto Renew #{ActionController::Base.helpers.number_to_currency(change_recurring_offer[:initial_price]/100.0)} / #{ActionController::Base.helpers.number_to_currency(change_recurring_offer[:recurring_price]/100.0)} (Product Generated)",
+					cart_title: "#{product.title} Auto Renew",
 					status: 'active',
 				).first_or_initialize
 
