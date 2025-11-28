@@ -8,16 +8,16 @@ module Bazaar
 			change_non_recurring_offer = false
 
 			# Change the Non-Recurring Offer, with the strikethrough_price
-			change_non_recurring_offer = { initial_price: product.listing_strikethrough_price } if product.single_plus_subscription? && (product.listing_strikethrough_price_changed? || product.listing_sku_id_changed? || product.listing_offer_mode_changed?)
+			change_non_recurring_offer = { initial_price: product.listing_strikethrough_price || product.listing_non_recurring_offer.try(:initial_price) || product.listing_recurring_offer.try(:suggested_price) } if product.single_plus_subscription? && (product.listing_strikethrough_price_changed? || product.listing_sku_id_changed? || product.listing_offer_mode_changed?)
 
 			# Change the Non-Recurring Offer, with the from_price
-			change_non_recurring_offer = { initial_price: product.listing_from_price } if product.single_only? && (product.listing_from_price_changed? || product.listing_sku_id_changed? || product.listing_offer_mode_changed?)
+			change_non_recurring_offer = { initial_price: product.listing_from_price || product.listing_recurring_offer.try(:initial_price) } if product.single_only? && (product.listing_from_price_changed? || product.listing_sku_id_changed? || product.listing_offer_mode_changed?)
 
 			# Change the Recurring Offer
 			if ((product.single_plus_subscription? || product.subscription_only?) && (product.listing_from_price_changed? || product.listing_renewal_price_changed? || product.listing_sku_id_changed? || product.listing_recurring_sku_changed? || product.listing_offer_mode_changed?))
 				change_recurring_offer = {
-					initial_price: product.listing_from_price,
-					recurring_price: product.listing_renewal_price,
+					initial_price: product.listing_from_price || product.listing_recurring_offer.try(:initial_price),
+					recurring_price: product.listing_renewal_price || product.listing_recurring_offer.try(:renewal_price),
 				}
 			end
 
