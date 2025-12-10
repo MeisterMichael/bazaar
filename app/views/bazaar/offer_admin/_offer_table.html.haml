@@ -2,6 +2,7 @@
 	%thead
 		%th Title
 		%th{ style: 'width: 6em' } Type
+		%th{ style: 'width: 6em' } Availability
 		%th{ style: 'width: 6em' } Price
 		%th{ style: 'width: 10em' } Created At
 	- if offers.active.count == 0
@@ -15,6 +16,8 @@
 					= offer.title
 			%td
 				= offer.recurring? ? 'Recurring' : ''
+			%td
+				= offer.availability
 			%td
 				= offer.initial_price_formatted
 			%td

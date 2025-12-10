@@ -11,6 +11,7 @@ module Bazaar
 		enum status: { 'draft' => 0, 'active' => 1, 'archive' => 2, 'trash' => 3 }
 		enum availability: { 'backorder' => -1, 'pre_order' => 0, 'open_availability' => 1 }
 		enum package_shape: { 'no_shape' => 0, 'letter' => 1, 'box' => 2, 'cylinder' => 3 }
+		enum listing_offer_mode: { 'custom' => 0, 'single_plus_subscription' => 1, 'subscription_only' => 2, 'single_only' => 3 }
 
 		validates		:title, presence: true, unless: :allow_blank_title?
 
@@ -22,6 +23,9 @@ module Bazaar
 		belongs_to 	:product_category, foreign_key: :category_id, required: false
 		has_many 	:product_options
 
+		belongs_to :listing_sku, required: false, class_name: 'Bazaar::Sku'
+		belongs_to :listing_recurring_sku, required: false, class_name: 'Bazaar::Sku'
+
 		has_many :product_relationships
 		has_many :related_products, through: :product_relationships
 		has_many :related_product_relationships, foreign_key: :related_product_id, class_name: 'Bazaar::ProductRelationship'
@@ -30,7 +34,8 @@ module Bazaar
 		has_many_attached :embedded_attachments
 		has_many_attached :gallery_attachments
 		has_many_attached :other_attachments
-
+		has_many_attached :icon_attachments
+		has_many_attached :blue_icon_attachments
 
 		# Listing Details
 		if defined?( Perkins::Page )
@@ -40,6 +45,15 @@ module Bazaar
 
 			has_many :perkins_page_offers, through: :offers
 			has_many :perkins_page_section_offers, through: :offers
+		end
+
+		if defined?( Perkins::Kit )
+			has_many :perkins_kit_products, class_name: 'Perkins::KitProduct'
+			has_many :perkins_kits, foreign_key: :product_id, class_name: 'Perkins::Kit'
+		end
+
+		if defined?( Pulitzer::Media )
+			has_many :linked_pulitzer_media, class_name: 'Pulitzer::Media'
 		end
 
 		belongs_to :listing_recurring_offer, class_name: 'Bazaar::Offer', optional: true
@@ -64,7 +78,7 @@ module Bazaar
 		before_save		:set_avatar
 		before_save	:set_publish_at
 
-		money_attributes :price, :suggested_price, :shipping_price, :purchase_price, :listing_strikethrough_price, :listing_from_price, :listing_promotion_strikethrough_price, :listing_promotion_from_price
+		money_attributes :price, :suggested_price, :shipping_price, :purchase_price, :listing_strikethrough_price, :listing_from_price, :listing_renewal_price, :listing_promotion_strikethrough_price, :listing_promotion_from_price, :listing_promotion_renewal_price
 
 		# mounted_at '/store'
 		friendly_id :slugger, use: [ :slugged, :history ]

@@ -7,7 +7,7 @@ module Bazaar
 		before_save :set_trashed_at
 		before_save :set_default_code
 
-		belongs_to :product
+		belongs_to :product, required: false
 
 		has_many :offer_prices, as: :parent_obj
 		has_many :offer_schedules, as: :parent_obj
@@ -32,7 +32,7 @@ module Bazaar
 
 		accepts_nested_attributes_for :offer_prices, :offer_schedules, :offer_skus
 
-		money_attributes :initial_price, :suggested_price
+		money_attributes :initial_price, :renewal_price, :suggested_price
 
 		acts_as_taggable_array_on :tags
 
@@ -41,6 +41,10 @@ module Bazaar
 
 		def initial_price
 			price_for_interval( 1 )
+		end
+
+		def renewal_price
+			price_for_interval( 2 )
 		end
 
 		def price_for_interval( interval = 1, args = {} )
