@@ -49,6 +49,8 @@ module Bazaar
 
 		def edit
 			authorize( @product )
+			@advanced_mode = params[:advanced_mode] == 'true'
+
 			set_page_meta( title: "#{@product.title} | Product" )
 		end
 

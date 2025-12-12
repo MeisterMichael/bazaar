@@ -3,7 +3,7 @@
 
 .container-fluid
 	.row
-		.col-xs-10
+		.col-xs-10.col-lg-8
 			%ul.breadcrumb
 				%li
 					%a{ href: product_admin_index_path }
@@ -18,12 +18,19 @@
 				%strong= @product.title
 				%small= current_user.to_local_tz(@product.created_at).to_fs( :short )
 
-		.col-xs-2.text-right
+		.col-xs-2.col-lg-4.text-right
 			%a.btn.btn-primary{ href: preview_product_admin_path( @product.id ), target: '_new' }
 				%i.fa.fa-eye
 				Preview
+			- if @advanced_mode
+				%a.btn.btn-danger{ href: edit_product_admin_path( @product.id, advanced_mode: 'false' ) }
+					Advanced Mode: ON
+			- else
+				%a.btn.btn-default{ href: edit_product_admin_path( @product.id, advanced_mode: 'true' ) }
+					Advanced Mode
 
 	= form_for @product, url: product_admin_path( @product ), as: :product do |f|
+		= hidden_field_tag :advanced_mode, @advanced_mode
 		.row
 			.col-xs-8
 				.well.white-well
@@ -110,29 +117,30 @@
 									.col-xs-12.col-md-6
 										= render 'pulitzer/attachments/has_one_card', f: f, attribute: :coming_soon_attachment, object: @product, args: {}
 								= render 'custom_release_section', product: @product, f: f
-				.panel.panel-default
-					#headingMoreSettings.panel-heading{role: "tab"}
-						%h4.panel-title
-							%a{"aria-controls" => "collapseMoreSettings", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseMoreSettings", role: "button"}
-								More Settings
-					#collapseMoreSettings.panel-collapse.collapse{"aria-labelledby" => "headingMoreSettings", role: "tabpanel"}
-						.panel-body
+				- if @advanced_mode
+					.panel.panel-default
+						#headingMoreSettings.panel-heading{role: "tab"}
+							%h4.panel-title
+								%a{"aria-controls" => "collapseMoreSettings", "aria-expanded" => "false", "data-parent" => "#accordion", "data-toggle" => "collapse", href: "#collapseMoreSettings", role: "button"}
+									More Settings
+						#collapseMoreSettings.panel-collapse.collapse{"aria-labelledby" => "headingMoreSettings", role: "tabpanel"}
+							.panel-body
 
-							- if @product.is_a?(Bazaar::RootProduct)
-								.well.white-well
-									.row
-										- if @product.respond_to? :mpns_csv
-											.col-xs-12.col-lg-6
-												.form-group
-													= f.label :mpns_csv, 'MPNs: (Comma Separated)'
-													= f.text_field :mpns_csv, placeholder: 'Separate with commas', class: 'form-control'
-										- if @product.respond_to? :gtins_csv
-											.col-xs-12.col-lg-6
-												.form-group
-													= f.label :gtins_csv, 'GTINs: (Comma Separated)'
-													= f.text_field :gtins_csv, placeholder: 'Separate with commas', class: 'form-control'
+								- if @product.is_a?(Bazaar::RootProduct)
+									.well.white-well
+										.row
+											- if @product.respond_to? :mpns_csv
+												.col-xs-12.col-lg-6
+													.form-group
+														= f.label :mpns_csv, 'MPNs: (Comma Separated)'
+														= f.text_field :mpns_csv, placeholder: 'Separate with commas', class: 'form-control'
+											- if @product.respond_to? :gtins_csv
+												.col-xs-12.col-lg-6
+													.form-group
+														= f.label :gtins_csv, 'GTINs: (Comma Separated)'
+														= f.text_field :gtins_csv, placeholder: 'Separate with commas', class: 'form-control'
 
-							= render 'custom_fields', f: f, options: {}
+								= render 'custom_fields', f: f, options: {}
 
 			.col-xs-4
 				.well.white-well
@@ -141,17 +149,20 @@
 					.form-group
 						= f.label :status
 						= f.collection_select :status, Bazaar::Product.statuses, :first, :first, {}, class: 'form-control'
-					.form-group
-						= f.label :publish_at
-						= f.text_field :publish_at, value: current_user.to_local_tz( f.object.publish_at ), class: 'form-control datetimepicker'
-					-# .form-group
-						= f.label :availability
-						= f.collection_select :availability, Bazaar::Product.availabilities, :first, :first, {}, class: 'form-control'
-					.form-group
-						= f.label :category_id
-						= f.collection_select :category_id, Bazaar::ProductCategory.active.order( :name ), :id, :name, { include_blank: '-- None -- ' }, class: 'form-control'
-					.form-group
-						= f.text_field :category_name, class: 'form-control', placeholder: 'Add Category'
+					- if @advanced_mode
+						.form-group
+							= f.label :publish_at
+							= f.text_field :publish_at, value: current_user.to_local_tz( f.object.publish_at ), class: 'form-control datetimepicker'
+
+						.form-group
+							= f.label :availability
+							= f.collection_select :availability, Bazaar::Product.availabilities, :first, :first, {}, class: 'form-control'
+
+						.form-group
+							= f.label :category_id
+							= f.collection_select :category_id, Bazaar::ProductCategory.active.order( :name ), :id, :name, { include_blank: '-- None -- ' }, class: 'form-control'
+						.form-group
+							= f.text_field :category_name, class: 'form-control', placeholder: 'Add Category'
 
 					.form-group
 						= f.label :reviewable, 'Reviewable?'

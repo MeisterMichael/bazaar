@@ -12,7 +12,7 @@
 				= f.label :listing_subtitle, 'Subtitle'
 				= f.text_field :listing_subtitle, class: 'form-control'
 
-			- if defined?(Perkins::Page)
+			- if @advanced_mode && defined?(Perkins::Page)
 				.row
 					.col-xs-12.col-md-6
 						.form-group
@@ -67,9 +67,10 @@
 							= f.text_field :listing_renewal_price_as_money, class: 'form-control', placeholder: @product.listing_recurring_offer.try(:renewal_price_as_money_string)
 			.row
 				.col-xs-12.col-md-6
-					.form-group
-						= f.label :listing_partial, 'Card Template'
-						= f.select :listing_partial, options_for_select( Dir.glob( "app/views/bazaar_media/_card*" ).collect{ |f| f.gsub('.html.haml','').split('/_').last }, f.object.listing_partial ), {}, class: 'form-control'
+					- if @advanced_mode
+						.form-group
+							= f.label :listing_partial, 'Card Template'
+							= f.select :listing_partial, options_for_select( Dir.glob( "app/views/bazaar_media/_card*" ).collect{ |f| f.gsub('.html.haml','').split('/_').last }, f.object.listing_partial ), {}, class: 'form-control'
 				.col-xs-12.col-md-6
 					.form-group
 						= f.label :badges_csv, 'Badges:'

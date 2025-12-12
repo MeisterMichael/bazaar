@@ -44,7 +44,7 @@
 							%td
 								= current_user.to_local_tz(page.created_at).to_fs( :short )
 
-- if defined?(Perkins::Kit)
+- if @advanced_mode && defined?(Perkins::Kit)
 	- kits = product.perkins_kits.where( status: ['draft','active'] )
 	.panel.panel-default
 		#headingKitsList.panel-heading{role: "tab"}
