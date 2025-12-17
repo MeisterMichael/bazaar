@@ -11,7 +11,15 @@
 				= hidden_field_tag :object_class, @product.class.base_class.name
 				= hidden_field_tag :object_id, @product.id
 				.modal-body
-					= f.file_field :gallery_attachments, name: :attachments
+					.form-group
+						= f.file_field :gallery_attachments, name: :attachments
+					.form-group{ style: 'margin-bottom: 0' }
+						%label Position
+						= number_field_tag :sequence, '', min: 1, step: 1, placeholder: 'last', class: 'form-control'
+					%label
+						= check_box_tag :replace, '1', false
+						Replace Existing?
+
 				.modal-footer
 					%button.btn.btn-default{ type: :button, 'data-dismiss' => 'modal' }
 						Close
