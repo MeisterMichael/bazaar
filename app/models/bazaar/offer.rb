@@ -140,6 +140,14 @@ module Bazaar
 			self.offer_schedules.active.sum('COALESCE(max_intervals,99)') > 1
 		end
 
+		def root_product
+			self.product.try(:root_product)
+		end
+
+		def review_source
+			self.product.try(:review_source)
+		end
+
 		def set_default_code
 			self.code ||= self.title.parameterize
 		end

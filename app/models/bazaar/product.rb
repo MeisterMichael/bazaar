@@ -231,7 +231,11 @@ module Bazaar
 		end
 
 		def review_source
-			self
+			nil
+		end
+
+		def root_product
+			nil
 		end
 
 		def subtitle
