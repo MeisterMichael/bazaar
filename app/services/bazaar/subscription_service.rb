@@ -293,7 +293,7 @@ module Bazaar
 				else
 					subscription.subscription_offers.to_a.each do |subscription_offer|
 						if subscription_offer.active? && subscription_offer.next_subscription_interval <= subscription_interval
-							offer = subscription.offer
+							offer = subscription_offer.offer
 
 							offer_interval = args[:offer_interval] || subscription_offer.next_offer_interval
 
