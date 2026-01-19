@@ -5,10 +5,12 @@ module Bazaar
 		belongs_to :parent, required: false, class_name: 'Bazaar::RootProduct'
 
 		def review_source
-			if root_product.present?
-				root_product
+			contained_products = self.related_products.merge(Bazaar::ProductRelationship.contains)
+
+			if self.parent.blank? && contained_products.present?
+				contained_products
 			else
-				related_products.merge(Bazaar::ProductRelationship.contains)
+				self.root_product
 			end
 		end
 
