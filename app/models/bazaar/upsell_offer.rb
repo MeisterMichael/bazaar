@@ -13,6 +13,8 @@ module Bazaar
 		enum upsell_type: { 'post_sale' => 1, 'at_checkout' => 2, 'exit_checkout' => 3 } #, 'post_add_to_cart' => 3 }
 		enum status: { 'trash' => -1, 'draft' => 0, 'active' => 1, 'archived' => 2 }
 
+		scope :with_active_upsell, -> { joins(:upsell).merge(Bazaar::Upsell.active) }
+
 		# def offer
 		# 	self.upsell.try(:offer) || Bazaar::Offer.where(id: self.attributes[:offer_id]).first
 		# end
