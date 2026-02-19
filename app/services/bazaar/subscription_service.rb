@@ -486,7 +486,101 @@ module Bazaar
 			@order_service.transaction_service.update_subscription_payment_profile( subscription, args )
 		end
 
+		# Merge multiple subscriptions into one by moving all subscription_offers
+		# from source subscriptions into a single destination subscription.
+		#
+		# @param subscriptions [Array<Bazaar::Subscription>] subscriptions to merge (must share same provider/address/interval attributes)
+		# @param args [Hash] options
+		# @option args [String] :version version tag for audit logs (default "1.0")
+		# @option args [Bazaar::Subscription] :dest_subscription force a specific destination (default: closest to average next_charged_at)
+		# @return [Bazaar::Subscription] the destination subscription with merged offers
+		def amalgamate_subscriptions( subscriptions, args = {} )
+			version = args[:version] || "1.0"
 
+			raise ArgumentError, "Need at least 2 subscriptions to amalgamate" if subscriptions.size < 2
+
+			# Select destination subscription: closest next_charged_at to the group average
+			dest_subscription = args[:dest_subscription]
+			unless dest_subscription
+				average_next_charged_at = Time.at( subscriptions.map(&:next_charged_at).map(&:to_f).sum / subscriptions.size.to_f )
+				dest_subscription = subscriptions.min_by { |s| (s.next_charged_at.to_f - average_next_charged_at.to_f).abs }
+			end
+
+			source_subscriptions = subscriptions.reject { |s| s.id == dest_subscription.id }
+
+			ActiveRecord::Base.transaction do
+
+				dest_subscription.subscription_logs.create( "subject" => "Amalgamation Started" )
+
+				source_subscriptions.each do |source_subscription|
+					source_subscription.subscription_logs.create( "subject" => "Amalgamation Started" )
+
+					# Move each subscription offer to the destination
+					source_subscription.subscription_offers.each do |subscription_offer|
+
+						source_subscription.subscription_logs.create(
+							"subject" => "Subscription Offer \##{subscription_offer.id} Amalgamation Started",
+							subscription_offer: subscription_offer,
+							properties: { subscription_offer_attributes: subscription_offer.attributes }
+						)
+
+						next_subscription_interval_delta = subscription_offer.next_subscription_interval - subscription_offer.subscription.next_subscription_interval
+
+						subscription_offer.subscription = dest_subscription
+						subscription_offer.next_subscription_interval = dest_subscription.next_subscription_interval + next_subscription_interval_delta
+						subscription_offer.save!
+
+						source_subscription.subscription_logs.create( "subject" => "Subscription Offer \##{subscription_offer.id} Amalgamation Complete", subscription_offer: subscription_offer )
+
+						source_subscription.subscription_logs.create(
+							subscription_offer: subscription_offer,
+							"event_type" => 'subscription_offer_amalgamated',
+							"subject" => "Subscription Offer \##{subscription_offer.id} was Transfered to Subscription #{dest_subscription.code}",
+							"details" => "This subscription offer was transfered from subscription #{source_subscription.code} to subscription #{dest_subscription.code}.",
+							"properties" => {
+								'amalgamated_to_subscription_id' => dest_subscription.id,
+								'amalgamated_version' => version,
+							}
+						)
+					end
+
+					# Trash the source subscription
+					source_subscription.status = 'trash'
+					source_subscription.save!
+
+					source_subscription.subscription_logs.create( "subject" => "Amalgamation Complete" )
+
+					source_subscription.subscription_logs.create(
+						"event_type" => 'subscription_amalgamated',
+						"subject" => "Amalgamated into #{dest_subscription.code}",
+						"details" => "This subscription's 'Subscription Offers' were transfered to another subscription (#{dest_subscription.code}), and then this subscription was set to the trash status.",
+						"properties" => {
+							'amalgamated_to_subscription_id' => dest_subscription.id,
+							'amalgamated_version' => version,
+						}
+					)
+				end
+
+				# Recalculate the destination subscription estimates
+				subscription_recalculate( dest_subscription )
+				dest_subscription.save!
+
+				dest_subscription.subscription_logs.create( "subject" => "Amalgamation Complete" )
+
+				dest_subscription.subscription_logs.create(
+					"event_type" => 'subscriptions_amalgamated',
+					"subject" => "Subscriptions Amalgamated",
+					"details" => "The following subscriptions had their subscription offers transfered to this subscription, and then were trashed: #{source_subscriptions.collect(&:code)}",
+					"properties" => {
+						'amalgamated_version' => version,
+						'amalgamated_subscription_ids' => source_subscriptions.collect(&:id),
+					}
+				)
+
+			end
+
+			dest_subscription
+		end
 
 		def get_shipping_options_from_subscription(subscription)
 			{ shipping_carrier_service_id: subscription.shipping_carrier_service_id, fixed_price: subscription.shipping }
