@@ -15,15 +15,49 @@ module Bazaar
 			# will only create subscriptions for active orders
 			raise Exception.new('Can only create subscriptions for active orders') unless order.active? || order.review?
 
-			order.order_offers.each do |order_offer|
-				if order_offer.offer.recurring? && ( order_offer.subscription.nil? || order_offer.subscription.trash? )
+			# Collect recurring order_offers that need new subscriptions
+			recurring_order_offers = order.order_offers.select do |order_offer|
+				order_offer.offer.recurring? && ( order_offer.subscription.nil? || order_offer.subscription.trash? )
+			end
 
+			# Group by full schedule shape so only offers with identical billing
+			# progressions share a subscription (handles offers whose interval
+			# changes at later periods, e.g. trial → regular cadence).
+			interval_groups = recurring_order_offers.group_by do |order_offer|
+				order_offer.offer.offer_schedules.active
+					.order(:start_interval)
+					.pluck(:start_interval, :max_intervals, :interval_value, :interval_unit)
+			end
+
+			interval_groups.each do |_schedule_shape, group_order_offers|
+				subscription = nil
+
+				group_order_offers.each do |order_offer|
 					order_offer.offer_interval = order_offer.offer_interval || 1
-					order_offer.subscription_offer = self.subscribe_for_subscription_offer( order.user, order_offer.offer, args.merge( quantity: order_offer.quantity, order: order, subscription: order_offer.subscription, interval: order_offer.offer_interval ) )
-					order_offer.subscription = order_offer.subscription_offer.subscription
 
+					if subscription.nil?
+						# First offer in group: create Subscription + SubscriptionOffer
+						order_offer.subscription_offer = self.subscribe_for_subscription_offer(
+							order.user, order_offer.offer,
+							args.merge(
+								quantity: order_offer.quantity,
+								order: order,
+								subscription: order_offer.subscription,
+								interval: order_offer.offer_interval,
+							)
+						)
+						subscription = order_offer.subscription_offer.subscription
+					else
+						# Subsequent offers: add SubscriptionOffer to existing Subscription
+						order_offer.subscription_offer = self.subscribe_subscription_offer(
+							subscription, order_offer.offer,
+							quantity: order_offer.quantity,
+							interval: order_offer.offer_interval,
+						)
+					end
+
+					order_offer.subscription = subscription
 					order_offer.save
-
 				end
 			end
 
