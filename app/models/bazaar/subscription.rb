@@ -60,6 +60,12 @@ module Bazaar
 			self.billing_interval_value.try(self.billing_interval_unit)
 		end
 
+		def self.compatible_with( subscription, exclude_ids: [] )
+			active
+				.where( billing_interval_value: subscription.billing_interval_value, billing_interval_unit: subscription.billing_interval_unit )
+				.where.not( id: [subscription.id] + Array(exclude_ids) )
+		end
+
 		def self.ready_for_next_charge( time_now = nil )
 			time_now ||= Time.now
 			active.where( 'next_charged_at < :now', now: time_now )

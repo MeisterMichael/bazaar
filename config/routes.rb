@@ -54,6 +54,7 @@ Bazaar::Engine.routes.draw do
 
 	resources :orders do
 		get :thank_you, on: :member, path: 'thank-you'
+		put :merge_into_existing, on: :member
 	end
 
 	resources :product_admin do
