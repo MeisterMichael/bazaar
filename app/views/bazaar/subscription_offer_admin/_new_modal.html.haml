@@ -16,7 +16,7 @@
 							= f.collection_select :offer_id, Bazaar::Offer.recurring.active, :id, :title, {}, class: 'form-control select-2-ajax', style: 'width: 100%', data: { url: bazaar.offer_admin_index_path( status: 'active', filters: { recurring: 'true' }, format: 'json' ) }
 					.form-group
 						= f.label :quantity
-						= f.number_field :quantity, class: 'form-control'
+						= f.number_field :quantity, class: 'form-control', min: 1, step: 1, required: true
 					.form-group
 						= f.label :next_subscription_interval
 						= f.number_field :next_subscription_interval, class: 'form-control', value: subscription.next_subscription_interval, min: subscription.next_subscription_interval

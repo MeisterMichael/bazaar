@@ -37,7 +37,7 @@ module Bazaar
 
 		def subscribe_for_subscription_offer( user, offer, args = {} )
 			start_at 					= args[:start_at] || Time.now
-			quantity 					= args[:quantity] || 1
+			quantity 					= args[:quantity].to_i.nonzero? || 1
 			interval 					= args[:interval] || 1
 			next_subscription_interval	= args[:next_subscription_interval] || 2
 
@@ -138,7 +138,7 @@ module Bazaar
 		end
 
 		def subscribe_subscription_offer( subscription, offer, args = {} )
-			quantity 					= args[:quantity] || 1
+			quantity 					= args[:quantity].to_i.nonzero? || 1
 			interval 					= args[:interval] || 1
 			next_subscription_interval	= args[:next_subscription_interval] || 2
 			status 						= args[:status] || 'active'
@@ -219,7 +219,7 @@ module Bazaar
 
 					price = subscription_offer.offer.price_for_interval( subscription_offer.next_offer_interval )
 					subscription.price = subscription.price + price
-					subscription.amount = subscription.amount + price * subscription_offer.quantity
+					subscription.amount = subscription.amount + price * (subscription_offer.quantity || 1)
 
 				end
 			end
@@ -302,8 +302,8 @@ module Bazaar
 								offer: offer,
 								subscription: subscription,
 								price: price,
-								subtotal: price * subscription_offer.quantity,
-								quantity: subscription_offer.quantity,
+								subtotal: price * (subscription_offer.quantity || 1),
+								quantity: (subscription_offer.quantity || 1),
 								title: offer.cart_title,
 								tax_code: offer.tax_code,
 								subscription_interval: subscription_interval,

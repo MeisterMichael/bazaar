@@ -12,7 +12,7 @@ module Bazaar
 
 		enum status: { 'trash' => -200, 'canceled' => -100, 'draft' => 0, 'active' => 100 }
 
-
+		validates :quantity, numericality: { greater_than: 0 }, allow_nil: false
 
 		def next_offer_interval( args = {} )
 			orders = Bazaar::Order.where( status: args[:statuses] ) if args[:statuses]
