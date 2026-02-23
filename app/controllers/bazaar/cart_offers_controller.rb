@@ -9,8 +9,14 @@ module Bazaar
 		end
 
 		def create
-			@offer = Bazaar::Offer.active.find( params[:offer_id] ) if params[:offer_id]
+			@offer = Bazaar::Offer.active.joins(:product).where( bazaar_products: { status: 'active' } ).find_by( id: params[:offer_id] ) if params[:offer_id]
 			@offer ||= params[:item_type].constantize.find_by( id: params[:item_id] ).offer if params[:item_type]
+
+			if @offer.nil?
+				set_flash "The requested product could not be found.", :danger
+				redirect_back fallback_location: '/shop'
+				return
+			end
 
 			get_or_create_bazaar_cart
 
