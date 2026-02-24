@@ -8,7 +8,7 @@ $ ->
 		$stateSelect = $( '.geo-address-geo-states', $group )
 		$countryInput = $( '.geo-address-geo-countries, .geo-address-geo-country', $group )
 		$form = $stateSelect.parents('form')
-		$stateFormGroup = $stateSelect.parents('.form-group')
+		$stateFormGroup = $stateSelect.parents('.tw-form-group, .form-group')
 
 		$countryInput.change ()->
 			options.geo_country_id = $countryInput.val()

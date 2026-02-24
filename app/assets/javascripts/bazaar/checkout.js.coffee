@@ -1,6 +1,6 @@
 #= require ./plugins/jquery.payment
 #= require ./plugins/jquery.card
-#= require ./plugins/validator.js
+#= require checkout_validator
 #= require ./custom/stripe_integration.js
 #= require ./plugins/jquery.caret.js
 #= require ./plugins/jquery.mobilephonenumber.js
@@ -54,9 +54,9 @@ $ ->
 			$(this).data( 'default-required', $(this).attr('required') ) if $(this).data('default-required') == undefined
 
 		if $input.is(':checked')
-			$form.find('.billing-address-section').addClass('hide').find('input,select,textarea').attr('data-validate','false').removeAttr( 'required' )
+			$form.find('.billing-address-section').addClass('tw-hidden').find('input,select,textarea').attr('data-validate','false').removeAttr( 'required' )
 		else
-			$form.find('.billing-address-section').removeClass('hide').find('input,select,textarea').attr('data-validate','true')
+			$form.find('.billing-address-section').removeClass('tw-hidden').find('input,select,textarea').attr('data-validate','true')
 			$form.find('.billing-address-section').find('input,select,textarea').each ->
 				$(this).attr('required', $(this).data('default-required') ) if $(this).data('default-required')
 
