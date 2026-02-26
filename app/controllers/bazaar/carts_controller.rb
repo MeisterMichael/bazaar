@@ -6,6 +6,8 @@ module Bazaar
 		before_action :get_or_create_bazaar_cart
 
 		def show
+			# Clean up orphaned cart_offers where offer has been deleted
+			@cart.cart_offers.select{ |co| co.offer.blank? }.each(&:destroy) if @cart.present?
 
 			set_page_meta(
 				{
