@@ -527,6 +527,32 @@ module Bazaar
 					if payment_token.blank?
 						payment_details[:error] = 'Invalid Google Pay Token'
 					end
+
+				elsif args[:apple_pay].present?
+
+					payment_data = JSON.parse(args.dig(:apple_pay,:payment_data) || '{}', :symbolize_names => true )
+					payment_token = payment_data.dig(:token,:paymentData)
+					payment_token = payment_token.to_json if payment_token.is_a?(Hash)
+
+					payment_details = {
+						type: 'opaque_data',
+						source: 'apple_pay',
+						meta_data: {
+						'credit_card_ending_in' => payment_data.dig(:token,:paymentMethod,:displayName),
+						'credit_card_brand' => payment_data.dig(:token,:paymentMethod,:network),
+						},
+						details: {
+							token: payment_token,
+							token_type: 'apple_pay',
+							results: args[:apple_pay],
+							data_descriptor: 'COMMON.APPLE.INAPP.PAYMENT',
+						},
+					}
+
+					if payment_token.blank?
+						payment_details[:error] = 'Invalid Apple Pay Token'
+					end
+
 				else
 					# this exception blocks the renewals
 					# raise Exception.new("Unable to extract payment details")
