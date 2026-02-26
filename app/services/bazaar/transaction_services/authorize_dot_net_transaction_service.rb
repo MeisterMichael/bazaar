@@ -552,7 +552,8 @@ module Bazaar
 					}
 				else
 
-					raise Exception.new( 'cannot create payment profile without valid payment info' )
+					order.errors.add(:base, payment_details[:error] || 'cannot create payment profile without valid payment info')
+					return false
 
 				end
 
