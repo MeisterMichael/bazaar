@@ -552,7 +552,8 @@ module Bazaar
 					}
 				else
 
-					raise Exception.new( 'cannot create payment profile without valid payment info' )
+					order.errors.add(:base, payment_details[:error] || 'cannot create payment profile without valid payment info')
+					return false
 
 				end
 
@@ -671,6 +672,15 @@ module Bazaar
 				puts "request #{request.to_xml}"
 
 				response = anet_transaction.create_customer_profile(request)
+
+				if payment_details_type == 'opaque_data'
+					begin
+						log_event( user: user, name: 'opaque_data_profile_creation', content: "Source: #{payment_details[:source]}, Result: #{get_first_message_code(response)} - #{get_frist_message_text(response)}" )
+					rescue => e
+						puts "opaque_data_profile_creation log_event error: #{e.message}"
+					end
+				end
+
 				# puts "request.profile.email #{request.profile.email}"
 				# puts response.methods.to_json
 				# puts "response.to_xml #{response.to_xml}"

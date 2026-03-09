@@ -6,6 +6,8 @@ module Bazaar
 		before_action :get_or_create_bazaar_cart
 
 		def show
+			# Clean up orphaned cart_offers where offer has been deleted
+			@cart.cart_offers.select{ |co| co.offer.blank? }.each(&:destroy) if @cart.present?
 
 			set_page_meta(
 				{
@@ -19,7 +21,7 @@ module Bazaar
 					ecommerce: {
 						add: {
 							actionField: {},
-							products: @cart.cart_offers.collect{|cart_offer| cart_offer.offer.page_event_data.merge( quantity: cart_offer.quantity ) }
+							products: @cart.cart_offers.select{|cart_offer| cart_offer.offer.present? }.collect{|cart_offer| cart_offer.offer.page_event_data.merge( quantity: cart_offer.quantity ) }
 						}
 					}
 				)

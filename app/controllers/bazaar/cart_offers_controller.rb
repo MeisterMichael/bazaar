@@ -64,7 +64,7 @@ module Bazaar
 				remove_cart_offer.destroy
 			end
 
-			cart_offer_price = @offer.initial_price
+			cart_offer_price = @offer&.initial_price || 0
 			@cart_offer.update( price: cart_offer_price, subtotal: cart_offer_price * @cart_offer.quantity )
 
 			@cart.update subtotal: @cart.cart_offers.sum( :subtotal )
@@ -91,7 +91,17 @@ module Bazaar
 		end
 
 		def destroy
-			@cart_offer = @cart.cart_offers.find_by( id: params[:id] )
+			@cart_offer = @cart&.cart_offers&.find_by( id: params[:id] )
+
+			if @cart_offer.blank?
+				respond_to do |format|
+					format.js { head :not_found }
+					format.json { head :not_found }
+					format.html { redirect_back fallback_location: '/shop' }
+				end
+				return
+			end
+
 			@cart_offer.destroy
 			@cart.update subtotal: @cart.cart_offers.sum(:price)
 			session[:cart_count] = @cart.cart_offers.sum(:quantity)
@@ -105,10 +115,10 @@ module Bazaar
 				format.json {
 				}
 				format.html {
-					redirect_back fallback_location: '/admin'
+					redirect_back fallback_location: '/shop'
 				}
 			end
-			
+
 		end
 
 		protected

@@ -75,6 +75,15 @@ module Bazaar
 
 
 
+		# Resolve effective listing offers (promotion takes precedence)
+		def resolve_listing_recurring_offer
+			listing_promotion_recurring_offer || listing_recurring_offer
+		end
+
+		def resolve_listing_non_recurring_offer
+			listing_promotion_non_recurring_offer || listing_non_recurring_offer
+		end
+
 		before_save		:set_avatar
 		before_save	:set_publish_at
 
