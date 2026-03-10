@@ -112,8 +112,7 @@ module Bazaar
 			respond_to do |format|
 				format.js {
 				}
-				format.json {
-				}
+				format.json { head :ok }
 				format.html {
 					redirect_back fallback_location: '/shop'
 				}
