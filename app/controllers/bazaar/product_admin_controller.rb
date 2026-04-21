@@ -23,7 +23,7 @@ module Bazaar
 			authorize( Bazaar::Product )
 
 			@product = Product.new( product_params )
-			@product.product_relationships.new( relationship_type: 'contains', related_product: @product.parent ) if @product.parent.present?
+			@product.product_relationships.new( relationship_type: 'contains', related_product: @product.parent ) if @product.respond_to?(:parent) && @product.parent.present?
 
 			@product.publish_at ||= Time.zone.now
 			@product.status = 'draft'
