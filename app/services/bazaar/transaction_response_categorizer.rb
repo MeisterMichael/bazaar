@@ -81,23 +81,34 @@ module Bazaar
 		}.freeze
 
 		# Amazon Pay V2 reasonCodes from the API plus our own internal codes set
-		# in AmazonPayV2TransactionService.
+		# in AmazonPayV2TransactionService. The list is augmented over time as
+		# previously-unseen codes turn up in production data.
 		AMAZON_PAY_V2_CODES = {
 			'OK'                       => 'success',
 			'Captured'                 => 'success',
 			'Authorized'               => 'success',
 			'Refunded'                 => 'success',
 			'Pending'                  => 'success',
+			'Completed'                => 'success',
 			'BuyerCanceled'            => 'customer_canceled',
 			'CheckoutSessionCanceled'  => 'customer_canceled',
 			'Declined'                 => 'do_not_honor',
 			'HardDeclined'             => 'do_not_honor',
 			'SoftDeclined'             => 'do_not_honor',
+			'AmazonRejected'           => 'do_not_honor',
 			'ExpiredPaymentMethod'     => 'expired_card',
 			'PaymentMethodNotAllowed'  => 'card_not_accepted',
+			'PeriodicAmountExceeded'   => 'card_velocity_exceeded',
 			'TransactionTimedOut'      => 'gateway_timeout',
+			'ServiceUnavailable'       => 'gateway_timeout',
 			'ProcessingFailure'        => 'processor_error',
+			'InternalServerError'      => 'processor_error',
 			'InvalidRequest'           => 'gateway_error',
+			'InvalidChargePermissionStatus' => 'gateway_error',
+			'InvalidCheckoutSessionStatus'  => 'gateway_error',
+			'InvalidParameterValue'    => 'gateway_error',
+			'AmountMismatch'           => 'gateway_error',
+			'ResourceNotFound'         => 'gateway_error',
 			'MISSING_SESSION'          => 'gateway_error',
 			'MISSING_CHARGE_PERMISSION' => 'gateway_error',
 		}.freeze
