@@ -73,6 +73,70 @@ module Bazaar
 				response.messages.resultCode == AuthorizeNet::API::MessageTypeEnum::Ok
 			end
 
+			# Returns [provider_response_code, provider_response_message] from the most
+			# specific level of the Authorize.net response available. Prefers the
+			# per-transaction error/message before falling back to the API-level
+			# message.
+			def extract_provider_response( response )
+				transaction_response = response.respond_to?(:transactionResponse) ? response.transactionResponse : nil
+
+				if transaction_response.present? && transaction_response.errors.present? && transaction_response.errors.errors.present?
+					err = transaction_response.errors.errors.first
+					return [ err.try(:errorCode).to_s, err.try(:errorText).to_s ]
+				end
+
+				if transaction_response.present? && transaction_response.messages.present? && transaction_response.messages.messages.present?
+					msg = transaction_response.messages.messages.first
+					return [ msg.try(:code).to_s, msg.try(:description).to_s ]
+				end
+
+				[ get_first_message_code(response).to_s, get_frist_message_text(response).to_s ]
+			end
+
+			# Returns [avs_result_code, cvv_result_code] from the transactionResponse,
+			# or [nil, nil] if no transactionResponse is present (eg. API-level error).
+			def extract_avs_cvv( response )
+				transaction_response = response.respond_to?(:transactionResponse) ? response.transactionResponse : nil
+				return [nil, nil] unless transaction_response.present?
+
+				[ transaction_response.try(:avsResultCode).presence, transaction_response.try(:cvvResultCode).presence ]
+			end
+
+			# Determines the card-expiration date in effect for this transaction.
+			# Prefers fresh payment_details (initial charge) and falls back to the
+			# parent subscription's stored expiry (renewal). Returns nil if unknown.
+			def card_expires_on_for( transaction, payment_details = nil )
+				if payment_details.is_a?(Hash) && payment_details[:expires_at].present?
+					return payment_details[:expires_at].to_date rescue nil
+				end
+
+				parent = transaction.try(:parent_obj)
+				if parent.respond_to?(:payment_profile_expires_at) && parent.payment_profile_expires_at.present?
+					return parent.payment_profile_expires_at.to_date rescue nil
+				end
+
+				if parent.respond_to?(:parent) && parent.parent.respond_to?(:payment_profile_expires_at) && parent.parent.payment_profile_expires_at.present?
+					return parent.parent.payment_profile_expires_at.to_date rescue nil
+				end
+
+				nil
+			end
+
+			# Populates the transaction's response, AVS/CVV, expiry, and category
+			# fields from the gateway response. Caller is still responsible for
+			# saving the transaction.
+			def apply_response_metadata( transaction, response, payment_details = nil )
+				transaction.provider_response_code, transaction.provider_response_message = extract_provider_response( response )
+				transaction.avs_result_code, transaction.cvv_result_code = extract_avs_cvv( response )
+				transaction.card_expires_on = card_expires_on_for( transaction, payment_details )
+				transaction.provider_response_category = Bazaar::TransactionResponseCategorizer.categorize(
+					provider: transaction.provider,
+					code: transaction.provider_response_code,
+					avs: transaction.avs_result_code,
+					cvv: transaction.cvv_result_code,
+				)
+			end
+
 			def process( order, args = {} )
 				payment_details = extract_payment_details( args )
 
@@ -191,6 +255,9 @@ module Bazaar
 					if profiles == false
 						transaction.status = 'declined'
 						transaction.message = "Unable to create customer profile"
+						transaction.provider_response_code = 'PROFILE_CREATION_FAILED'
+						transaction.provider_response_message = 'Unable to create customer profile'
+						transaction.provider_response_category = 'gateway_error'
 						transaction.save
 						return false
 					end
@@ -228,6 +295,8 @@ module Bazaar
 
 				puts "response.to_xml - create_transaction charge" if @enable_debug
 				puts response.to_xml if @enable_debug
+
+				apply_response_metadata( transaction, response, payment_details )
 
 				# process response
 				if get_response_success?( response ) && SUCCESS_RESPONSE_CODES.include?( transaction_response.responseCode.to_s.downcase )
@@ -346,6 +415,9 @@ module Bazaar
 
 				if transaction.amount <= 0
 					transaction.status = 'declined'
+					transaction.provider_response_code = 'INVALID_AMOUNT'
+					transaction.provider_response_message = 'Refund amount must be greater than 0'
+					transaction.provider_response_category = 'gateway_error'
 					transaction.errors.add(:base, "Refund amount must be greater than 0")
 					return transaction
 				end
@@ -411,6 +483,8 @@ module Bazaar
 				end
 
 				transaction_response = response.transactionResponse
+
+				apply_response_metadata( transaction, response )
 
 				# process response
 				if get_response_success?( response ) && ['1','Ok'].include?( transaction_response.responseCode.to_s )
