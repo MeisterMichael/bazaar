@@ -109,6 +109,7 @@ module Bazaar
 			'InvalidParameterValue'    => 'gateway_error',
 			'AmountMismatch'           => 'gateway_error',
 			'ResourceNotFound'         => 'gateway_error',
+			'RetriedTooEarly'          => 'gateway_error',
 			'MISSING_SESSION'          => 'gateway_error',
 			'MISSING_CHARGE_PERMISSION' => 'gateway_error',
 		}.freeze
