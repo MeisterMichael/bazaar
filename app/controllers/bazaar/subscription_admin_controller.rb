@@ -7,7 +7,7 @@ module Bazaar
 		def address
 			authorize( @subscription )
 
-			address_attributes = params.require( :user_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :street, :street2, :city, :zip, :phone )
+			address_attributes = params.require( :user_address ).permit( :first_name, :last_name, :geo_country_id, :geo_state_id, :state, :street, :street2, :city, :zip, :phone )
 			address = UserAddress.canonical_find_or_create_with_cannonical_geo_address( address_attributes.merge( user: @subscription.user ) )
 
 			if address.errors.present?
