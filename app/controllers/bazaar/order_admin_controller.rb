@@ -173,7 +173,10 @@ module Bazaar
 
 			authorize( @order )
 
-			@transactions = Transaction.where( parent_obj: @order )
+			# Include transactions whose parent_obj is the order AND transactions
+			# only linked via order_id (e.g. failed renewals whose parent_obj is
+			# the subscription). Both paths point at this order.
+			@transactions = Transaction.where( parent_obj: @order ).or( Transaction.where( order_id: @order.id ) )
 
 			@transaction_history = @transactions.to_a
 			@transaction_history = @transaction_history + Transaction.where( parent_obj: @order.cart ) if @order.cart
@@ -196,7 +199,7 @@ module Bazaar
 		def timeline
 			authorize( @order )
 
-			@transactions = Bazaar::Transaction.where( parent_obj: @order )
+			@transactions = Bazaar::Transaction.where( parent_obj: @order ).or( Bazaar::Transaction.where( order_id: @order.id ) )
 
 			@events = Bunyan::Event.where( target_obj: @order )
 			@events = @events.or( Bunyan::Event.where.not( user_id: nil ).where( user_id: @order.user_id, created_at: Time.at(0)..(@order.created_at + 10.minutes) ) )
