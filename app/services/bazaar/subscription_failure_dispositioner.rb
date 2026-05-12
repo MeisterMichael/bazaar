@@ -33,6 +33,7 @@ module Bazaar
 		# Authorize.net response codes that the categorizer leaves as 'unknown'
 		# but for which we have a confident subscription-level disposition.
 		AUTHNET_UNKNOWN_CODE_DISPOSITIONS = {
+			'E00013' => [:payment_method_invalidated, :update_credit_card],   # Customer Payment Profile ID is invalid (stored profile dead)
 			'E00040' => [:payment_method_invalidated, :update_credit_card],   # Customer Profile / Payment Profile not found
 			'252'    => [:card_flagged,               :terminal_no_action],   # Held for review (fraud)
 			'E00104' => [:transient_retrying,         :none_required],        # Server in maintenance
