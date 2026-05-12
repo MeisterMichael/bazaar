@@ -379,6 +379,13 @@ module Bazaar
 					# mark subscription as failed if the transaction failed
 					subscription.status = 'failed'
 
+					# No persisted transaction available in this path — categorize as unknown so
+					# the retry system can still treat it as recoverable until we have more info.
+					if subscription.respond_to?( :failed_reason ) && subscription.failed_reason.blank?
+						subscription.failed_reason = 'unknown_reason'
+						subscription.failed_recovery_action = 'contact_support'
+					end
+
 					subscription.save
 
 					subscription.subscription_logs.create( subject: 'Subscription Renewal Failed', details: "failed to renew due to: #{subscription.failed_message}" )
@@ -429,6 +436,17 @@ module Bazaar
 
 					# mark subscription as failed if the transaction failed
 					subscription.status = 'failed'
+
+					# Classify the failure for the retry system and customer comms.
+					if subscription.respond_to?( :failed_reason )
+						reason, action = Bazaar::SubscriptionFailureDispositioner.disposition(
+							category: transaction.try( :provider_response_category ),
+							code:     transaction.try( :provider_response_code ),
+							provider: transaction.try( :provider ),
+						)
+						subscription.failed_reason = reason
+						subscription.failed_recovery_action = action
+					end
 
 					subscription.save
 				end

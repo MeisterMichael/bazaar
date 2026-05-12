@@ -6,6 +6,26 @@ module Bazaar
 
 		enum status: { 'trash' => -99, 'rejected' => -5, 'on_hold' => -2, 'canceled' => -1, 'failed' => 0, 'active' => 1, 'review' => 98, 'hold_review' => 110 }
 
+		enum failed_reason: {
+			'transient_retrying'             => 1,
+			'user_action_required'           => 10,
+			'payment_method_invalidated'     => 20,
+			'provider_authorization_revoked' => 30,
+			'card_flagged'                   => 40,
+			'retries_exhausted'              => 90,
+			'unknown_reason'                 => 99,
+		}, _prefix: :failed_reason
+
+		enum failed_recovery_action: {
+			'none_required'           => 0,
+			'update_credit_card'      => 1,
+			'verify_billing_address'  => 2,
+			'verify_security_code'    => 3,
+			'reauthorize_provider'    => 4,
+			'contact_support'         => 8,
+			'terminal_no_action'      => 9,
+		}, _prefix: :recovery_action
+
 		belongs_to	:user, required: false
 		belongs_to	:discount, required: false
 		belongs_to	:shipping_carrier_service, required: false
