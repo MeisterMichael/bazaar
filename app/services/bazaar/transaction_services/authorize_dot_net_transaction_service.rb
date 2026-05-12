@@ -158,6 +158,7 @@ module Bazaar
 				transaction = Bazaar::Transaction.new(
 					billing_address: order.billing_address,
 					parent_obj: order,
+					order: order,
 					transaction_type: 'charge',
 					customer_profile_reference: profiles[:customer_profile_reference],
 					customer_payment_profile_reference: profiles[:customer_payment_profile_reference],
@@ -404,6 +405,7 @@ module Bazaar
 				transaction.merchant_identification = self.merchant_identification
 				transaction.currency					||= charge_transaction.currency
 				transaction.parent_obj				||= charge_transaction.parent_obj
+				transaction.order							||= charge_transaction.order
 
 				transaction.customer_profile_reference ||= charge_transaction.customer_profile_reference
 				transaction.customer_payment_profile_reference ||= charge_transaction.customer_payment_profile_reference

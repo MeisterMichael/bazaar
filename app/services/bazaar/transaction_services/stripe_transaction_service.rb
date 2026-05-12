@@ -50,7 +50,7 @@ module Bazaar
 
 						order.save
 
-						Transaction.create( parent_obj: order, transaction_type: 'charge', reference_code: charge.id, provider: @provider_name, transaction_provider: self.transaction_provider, merchant_identification: self.merchant_identification, amount: order.total, currency: order.currency, status: 'approved' )
+						Transaction.create( parent_obj: order, order: order, transaction_type: 'charge', reference_code: charge.id, provider: @provider_name, transaction_provider: self.transaction_provider, merchant_identification: self.merchant_identification, amount: order.total, currency: order.currency, status: 'approved' )
 
 						return true
 					end

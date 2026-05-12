@@ -62,6 +62,7 @@ module Bazaar
 
 				transaction = Bazaar::Transaction.create(
 					parent_obj: order,
+					order: order,
 					transaction_type: 'charge',
 					reference_code: pay_pal_order_id,
 					customer_profile_reference: pay_pal_payer_id,
@@ -187,6 +188,7 @@ module Bazaar
 				transaction.amount				||= charge_transaction.amount
 				transaction.currency			= parent_obj.currency
 				transaction.parent_obj			= parent_obj
+				transaction.order					||= charge_transaction.order
 
 				if transaction.amount <= 0
 					transaction.status = 'declined'
