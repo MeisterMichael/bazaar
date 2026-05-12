@@ -16,20 +16,6 @@ module Bazaar
 
 		money_attributes :amount, :signed_amount
 
-		before_save :derive_order_id_from_parent_obj
-
-		def derive_order_id_from_parent_obj
-			# Auto-populate order_id when parent_obj is an Order so transactions are
-			# always joinable to their order. Failed-renewal transactions whose
-			# parent_obj is a Subscription must set order_id explicitly.
-			return if order_id.present?
-			return unless parent_obj_type.present? && parent_obj_id.present?
-			return unless parent_obj_type == 'Bazaar::Order' || parent_obj_type.constantize <= Bazaar::Order
-			self.order_id = parent_obj_id
-		rescue NameError
-			nil
-		end
-
 		def negative?
 			void? || chargeback? || refund?
 		end
