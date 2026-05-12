@@ -403,6 +403,7 @@ module Bazaar
 				if transaction.present? && transaction.persisted?
 
 					transaction.parent_obj = subscriptions.first
+					transaction.order = order
 					transaction.save
 
 				else
@@ -411,6 +412,7 @@ module Bazaar
 					transaction = Bazaar::Transaction.create(
 						message: order.nested_errors.join(' * '),
 						parent_obj: subscriptions.first,
+						order: order,
 						status: 'declined',
 						transaction_type: 'charge',
 						amount: order.total,

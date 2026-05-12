@@ -112,6 +112,7 @@ module Bazaar
 
 				transaction = Bazaar::Transaction.create!(
 					parent_obj: order,
+					order: order,
 					provider: provider_name,
 					amount: order.total,
 					currency: order.currency,
@@ -433,6 +434,7 @@ module Bazaar
 				transaction.merchant_identification = self.merchant_identification
 				transaction.currency          ||= charge_transaction.currency
 				transaction.parent_obj        ||= charge_transaction.parent_obj
+				transaction.order             ||= charge_transaction.order
 				transaction.amount            = charge_transaction.amount unless transaction.amount != 0
 				transaction.status            = 'declined'
 

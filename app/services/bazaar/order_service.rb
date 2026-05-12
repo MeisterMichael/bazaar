@@ -70,6 +70,7 @@ module Bazaar
 				status: 'declined',
 				parent_obj_id: order.id,
 				parent_obj_type: order.class.base_class.name,
+				order_id: order.id,
 				billing_address_id: order.billing_address_id,
 				provider: order.provider,
 				transaction_provider: order.transaction_provider,
