@@ -94,13 +94,21 @@ module Bazaar
 		acts_as_taggable_array_on :tags
 
 
+		# Sub products inherit publish_at / released_at from their parent (Bazaar::RootProduct).
+		# A correlated subselect (vs a self-join) lets these scopes chain freely (e.g.
+		# `.published.released`) without alias collisions, and stays cheap because
+		# bazaar_products.parent_id is already indexed.
+		PARENT_PUBLISH_AT_SQL  = "COALESCE((SELECT p.publish_at FROM bazaar_products p WHERE p.id = bazaar_products.parent_id), bazaar_products.publish_at)".freeze
+		PARENT_RELEASED_AT_SQL = "COALESCE((SELECT p.released_at FROM bazaar_products p WHERE p.id = bazaar_products.parent_id), bazaar_products.released_at)".freeze
+
 		def self.published( args = {} )
-			where( "bazaar_products.publish_at <= :now", now: Time.zone.now ).active
+			now = args[:now] || Time.zone.now
+			where("#{PARENT_PUBLISH_AT_SQL} <= :now", now: now).active
 		end
 
 		def self.released(args = {})
-			now = args[:now] || Time.now
-			self.where(released_at: nil).or(self.where(released_at: Time.at(0)..now))
+			now = args[:now] || Time.zone.now
+			where("#{PARENT_RELEASED_AT_SQL} IS NULL OR #{PARENT_RELEASED_AT_SQL} <= :now", now: now)
 		end
 
 		def bazaar_uid
@@ -187,7 +195,7 @@ module Bazaar
 				'url' => self.url,
 				'description' => self.description,
 				'name' => self.title,
-				'datePublished' => self.publish_at.iso8601,
+				'datePublished' => self.effective_publish_at.iso8601,
 				'image' => self.avatar,
 				'offers' => {
 					'@type' => 'Offer',
@@ -215,7 +223,7 @@ module Bazaar
 				twitter_format: 'summary_large_image',
 				type: 'Product',
 				og: {
-					"article:published_time" => self.publish_at.iso8601,
+					"article:published_time" => self.effective_publish_at.iso8601,
 					"product:price:amount" => self.price / 100.to_f,
 					"product:price:currency" => 'USD'
 				},
@@ -231,8 +239,22 @@ module Bazaar
 			self.url
 		end
 
+		# Sub products inherit publish_at / released_at from their parent root product.
+		# Only the SubProduct subclass defines :parent — try() returns nil elsewhere.
+		def effective_publish_at
+			try(:parent)&.publish_at || publish_at
+		end
+
+		def effective_released_at
+			try(:parent)&.released_at || released_at
+		end
+
 		def published?
-			active? && publish_at < Time.zone.now
+			active? && effective_publish_at.present? && effective_publish_at < Time.zone.now
+		end
+
+		def released?( now = Time.zone.now )
+			effective_released_at.blank? || effective_released_at <= now
 		end
 
 		def purchase_price
