@@ -288,7 +288,7 @@ module Bazaar
 						subscription_interval: interval
 					)
 
-					order_offer.renewal_attempt = subscription.failed_attempts + 1 if order_offer.respond_to? :renewal_attempt
+					order_offer.attempt = subscription.failed_attempts + 1
 
 				else
 					subscription.subscription_offers.to_a.each do |subscription_offer|
@@ -311,7 +311,7 @@ module Bazaar
 								subscription_offer: subscription_offer,
 							)
 
-							order_offer.renewal_attempt = subscription.failed_attempts + 1 if order_offer.respond_to? :renewal_attempt
+							order_offer.attempt = subscription.failed_attempts + 1
 						end
 					end
 				end
@@ -322,6 +322,8 @@ module Bazaar
 					discounts << discount
 				end
 			end
+
+			order.attempt = order.order_offers.map(&:attempt).compact.max
 
 			order
 		end
