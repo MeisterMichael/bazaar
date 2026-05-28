@@ -49,9 +49,29 @@ module Bazaar
 		has_many		:order_offers
 		has_many		:orders, through: :order_offers
 
+		# Properties hash keys set when a customer pauses their subscription
+		# (see Settings::SubscriptionsController#pause in nhc-web). These keys
+		# are cleared by the clear_stale_pause_metadata callback when the sub
+		# transitions to a terminal/broken status OR when the pause's natural
+		# end date has passed — leaving them lying around makes the
+		# subscription_paused? helper return stale truthy values and produces
+		# "PAUSED and canceled at the same time" UI anomalies.
+		PAUSE_PROPERTY_KEYS = %w[
+			paused_at
+			paused_until
+			pre_pause_next_charged_at
+			pause_duration_months
+		].freeze
+
+		# Statuses where pause metadata is no longer meaningful. active, review,
+		# and hold_review preserve pause metadata so that a sub temporarily moved
+		# to admin review doesn't lose the customer's pause intent.
+		CLEAR_PAUSE_METADATA_STATUSES = %w[trash rejected on_hold canceled failed].freeze
+
 		before_create :generate_subscription_code
 		before_create :initialize_timestamps
 		before_save :update_timestamps
+		before_save :clear_stale_pause_metadata
 
 		accepts_nested_attributes_for :billing_address, :shipping_address, :user
 		accepts_nested_user_address_attributes_for [:billing_user_address,:billing_address,:user_id], [:shipping_user_address,:shipping_address,:user_id]
@@ -202,6 +222,34 @@ module Bazaar
 
 		def update_timestamps
 			self.canceled_at = Time.now if not( self.canceled_at_changed? ) && self.status_changed? && self.canceled?
+		end
+
+		# Removes the pause metadata keys (PAUSE_PROPERTY_KEYS) from the
+		# properties hash when either:
+		#   - the subscription is moving to a terminal/broken status (see
+		#     CLEAR_PAUSE_METADATA_STATUSES — these are the statuses where a
+		#     pause no longer makes sense), or
+		#   - the pause's natural end date (paused_until) has already passed.
+		#
+		# Active, review, and hold_review subs with a future paused_until are
+		# preserved — that's the legitimate "currently paused" state.
+		#
+		# The audit trail (when the sub was paused, for how long, etc.) is
+		# preserved separately in bazaar_subscription_logs and Bunyan events,
+		# so deleting these properties does not lose history.
+		def clear_stale_pause_metadata
+			return unless self.properties.is_a?(Hash)
+			return unless self.properties.key?('paused_until')
+
+			pause_expired = begin
+				Time.parse( self.properties['paused_until'].to_s ) <= Time.now
+			rescue ArgumentError, TypeError
+				true  # malformed value → treat as expired
+			end
+
+			return unless CLEAR_PAUSE_METADATA_STATUSES.include?( self.status ) || pause_expired
+
+			PAUSE_PROPERTY_KEYS.each { |key| self.properties.delete(key) }
 		end
 
 	end
