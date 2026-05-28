@@ -178,6 +178,41 @@
 						= f.label :status
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: "Determines if the subscription is renewing, and if not why it's not renewing." }
 						= f.collection_select :status, Bazaar::Subscription.statuses, :first, humanize_first, {}, class: 'form-control'
+						- if subscription_paused?( @subscription )
+							- projected_next_charge = subscription_unpause_next_charged_at( @subscription )
+							- pre_pause_date = (Time.parse( @subscription.properties['pre_pause_next_charged_at'].to_s ) rescue nil)
+							- tomorrow_date  = ( Time.now + 1.day ).beginning_of_day
+							- confirm_text   = "Unpause this subscription? Next charge will be set to #{projected_next_charge.strftime('%b %d, %Y')}. The pause metadata (paused_at, paused_until, pre_pause_next_charged_at, pause_duration_months) will be cleared."
+							.alert.alert-warning{ style: 'background-color: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 8px 12px; margin-top: 8px; border-radius: 4px;' }
+								%div{ style: 'display: flex; justify-content: space-between; align-items: center; gap: 12px;' }
+									%div
+										%strong PAUSED
+										until
+										= subscription_pause_ends_at( @subscription ).strftime('%b %d, %Y')
+										- if (months = subscription_pause_duration_months( @subscription ))
+											- paused_at = subscription_paused_at( @subscription )
+											%small{ style: 'display: block; margin-top: 4px; color: #856404;' }
+												#{months}-month pause
+												- if paused_at
+													initiated #{paused_at.strftime('%b %d, %Y')}
+									= button_to 'Unpause', unpause_subscription_admin_path( @subscription ), method: :put, class: 'btn btn-sm btn-warning', data: { confirm: confirm_text }, style: 'background-color: #ffc107; border-color: #d39e00; color: #856404; font-weight: bold; white-space: nowrap;'
+								-# Preview of what unpausing right now would set as next charge.
+								-# Always shows the actual date plus the underlying reason:
+								-# either restored from pre_pause_next_charged_at, or floored
+								-# at tomorrow to prevent retroactive charges.
+								%div{ style: 'margin-top: 8px; padding: 6px 8px; background: #fffbe6; border: 1px dashed #ffc107; border-radius: 3px; color: #856404; font-size: 12px;' }
+									%strong If unpaused now:
+									next charge will be
+									%strong= projected_next_charge.strftime('%b %d, %Y')
+									- if pre_pause_date && projected_next_charge.to_date == pre_pause_date.to_date
+										\— restored from the original pre-pause date (#{pre_pause_date.strftime('%b %d, %Y')})
+									- elsif pre_pause_date && projected_next_charge.to_date == tomorrow_date.to_date
+										\— floored at tomorrow because the original pre-pause date (#{pre_pause_date.strftime('%b %d, %Y')}) has already passed
+									- else
+										\— floored at tomorrow (no pre-pause date on record)
+								%small{ style: 'display: block; margin-top: 8px; color: #856404; border-top: 1px solid #ffe69c; padding-top: 6px;' }
+									%strong NOTE:
+									'Active' status for paused subscriptions is intentional. Pause is stored in the subscription's properties (paused_at, paused_until, pre_pause_next_charged_at, pause_duration_months) — the status stays 'active' so the subscription continues to be tracked normally; the renewal worker simply doesn't pick it up until next_charged_at arrives.
 					.form-group
 						= f.label :next_charged_at, 'Next Charge'
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The date and time that this subscription will next be charged.' }

@@ -114,6 +114,16 @@ module Bazaar
 			filters[ params[:status] ] = true if params[:status].present? && params[:status] != 'all'
 			@subscriptions = @search_service.subscription_search( params[:q], filters, page: params[:page], order: { sort_by => sort_dir }, mode: @search_mode )
 
+			# Filter by pause state. Pause is virtual — stored in
+			# properties['paused_until'] (hstore) rather than as a status
+			# value — so we apply this filter after the search service.
+			case params[:paused]
+			when 'true'
+				@subscriptions = @subscriptions.where( "(properties->'paused_until')::timestamptz > NOW()" )
+			when 'false'
+				@subscriptions = @subscriptions.where( "NOT (properties ? 'paused_until') OR (properties->'paused_until')::timestamptz <= NOW()" )
+			end
+
 			set_page_meta( title: "Subscriptions" )
 		end
 
@@ -233,6 +243,43 @@ module Bazaar
 			else
 				redirect_back fallback_location: '/admin'
 			end
+		end
+
+		# Admin-side equivalent of the customer's "Resume Subscription" action.
+		# Clears the four pause metadata keys from properties and restores
+		# next_charged_at to max(pre_pause_next_charged_at, tomorrow) so the
+		# subscription resumes normal billing without an immediate retroactive
+		# charge. Audit trail is preserved in subscription_logs.
+		def unpause
+			authorize( @subscription )
+
+			unless @subscription.properties.is_a?(Hash) && @subscription.properties['paused_until'].present?
+				set_flash "This subscription is not currently paused.", :danger
+				redirect_back fallback_location: edit_subscription_admin_path( @subscription )
+				return
+			end
+
+			tomorrow = ( Time.now + 1.day ).beginning_of_day
+			pre_pause_date = begin
+				Time.parse( @subscription.properties['pre_pause_next_charged_at'].to_s )
+			rescue ArgumentError, TypeError
+				nil
+			end
+			new_next_charged_at = [pre_pause_date, tomorrow].compact.max
+
+			orig_paused_until = @subscription.properties['paused_until']
+			@subscription.next_charged_at = new_next_charged_at
+			Bazaar::Subscription::PAUSE_PROPERTY_KEYS.each { |key| @subscription.properties.delete(key) }
+			@subscription.save!
+
+			@subscription.subscription_logs.create(
+				subject: 'Subscription Resumed (admin)',
+				details: "admin-resumed subscription #{@subscription.code} (was paused until #{orig_paused_until}), next charge set to #{new_next_charged_at}"
+			)
+			log_event( { name: 'resume_subscription', category: 'ecom', on: @subscription, content: "admin resumed subscription #{@subscription.code}." } )
+
+			set_flash "Subscription unpaused. Next charge set to #{new_next_charged_at.strftime('%b %d, %Y')}.", :success
+			redirect_to edit_subscription_admin_path( @subscription )
 		end
 
 		private

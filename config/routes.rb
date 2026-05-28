@@ -90,6 +90,7 @@ Bazaar::Engine.routes.draw do
 		get :edit_shipping_carrier_service, on: :member
 		get :timeline, on: :member
 		patch :update_offer, on: :member
+		put :unpause, on: :member
 	end
 
 	resources :subscription_offer_admin
