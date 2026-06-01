@@ -245,6 +245,60 @@ module Bazaar
 			end
 		end
 
+		# Admin-side equivalent of the customer's pause action
+		# (Settings::SubscriptionsController#pause). Sets the same four pause
+		# properties and pushes next_charged_at out by the selected number of
+		# months (1–3). The subscription stays 'active' — pause is virtual.
+		def pause
+			authorize( @subscription )
+
+			unless @subscription.active? || @subscription.review? || @subscription.hold_review?
+				set_flash "Only active subscriptions can be paused.", :danger
+				redirect_back fallback_location: edit_subscription_admin_path( @subscription )
+				return
+			end
+
+			if @subscription.properties.is_a?(Hash) && @subscription.properties['paused_until'].present?
+				set_flash "This subscription is already paused.", :danger
+				redirect_back fallback_location: edit_subscription_admin_path( @subscription )
+				return
+			end
+
+			pause_months = params[:pause_for].to_i
+			unless (1..3).include?( pause_months )
+				set_flash "Please select a pause duration between 1 and 3 months.", :danger
+				redirect_back fallback_location: edit_subscription_admin_path( @subscription )
+				return
+			end
+
+			orig_next_charged_at = @subscription.next_charged_at || Time.now
+			new_next_charged_at  = orig_next_charged_at + pause_months.months
+
+			@subscription.next_charged_at = new_next_charged_at
+			@subscription.properties ||= {}
+			@subscription.properties['paused_at']                = Time.now.iso8601
+			@subscription.properties['paused_until']             = new_next_charged_at.iso8601
+			@subscription.properties['pre_pause_next_charged_at'] = orig_next_charged_at.iso8601
+			@subscription.properties['pause_duration_months']    = pause_months.to_s
+			@subscription.save!
+
+			pause_duration_label = "#{pause_months} #{'month'.pluralize(pause_months)}"
+			# subscription_logs keeps the explicit "(admin)" audit trail of who acted.
+			@subscription.subscription_logs.create(
+				subject: 'Subscription Paused (admin)',
+				details: "admin paused subscription #{@subscription.code} for #{pause_duration_label}, next charge moved from #{orig_next_charged_at} to #{new_next_charged_at}"
+			)
+			# Bunyan timeline event matches the customer-initiated format:
+			# "<customer name> paused subscription <code> for <N months>."
+			# Attribute to the subscription's user (not the admin) so the timeline
+			# reads consistently with customer pauses; admin attribution lives in
+			# the subscription_log above.
+			log_event( { name: 'pause_subscription', user: @subscription.user, category: 'ecom', on: @subscription, content: "paused subscription #{@subscription.code} for #{pause_duration_label}." } )
+
+			set_flash "Subscription paused for #{pause_duration_label}. Next charge: #{new_next_charged_at.strftime('%b %d, %Y')}.", :success
+			redirect_to edit_subscription_admin_path( @subscription )
+		end
+
 		# Admin-side equivalent of the customer's "Resume Subscription" action.
 		# Clears the four pause metadata keys from properties and restores
 		# next_charged_at to max(pre_pause_next_charged_at, tomorrow) so the
@@ -276,7 +330,9 @@ module Bazaar
 				subject: 'Subscription Resumed (admin)',
 				details: "admin-resumed subscription #{@subscription.code} (was paused until #{orig_paused_until}), next charge set to #{new_next_charged_at}"
 			)
-			log_event( { name: 'resume_subscription', category: 'ecom', on: @subscription, content: "admin resumed subscription #{@subscription.code}." } )
+			# Match the customer-initiated timeline format ("<name> resumed subscription <code>.").
+			# Attribute to the subscription's user; admin attribution is in the subscription_log above.
+			log_event( { name: 'resume_subscription', user: @subscription.user, category: 'ecom', on: @subscription, content: "resumed subscription #{@subscription.code}." } )
 
 			set_flash "Subscription unpaused. Next charge set to #{new_next_charged_at.strftime('%b %d, %Y')}.", :success
 			redirect_to edit_subscription_admin_path( @subscription )

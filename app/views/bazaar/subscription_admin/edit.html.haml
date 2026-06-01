@@ -177,7 +177,12 @@
 					.form-group
 						= f.label :status
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: "Determines if the subscription is renewing, and if not why it's not renewing." }
-						= f.collection_select :status, Bazaar::Subscription.statuses, :first, humanize_first, {}, class: 'form-control'
+						-# Omit the legacy 'on_hold' status so admins can't set it manually
+						-# (the customer pause feature supersedes it). Keep it as an option
+						-# only when the sub is ALREADY on_hold, so existing records still
+						-# display correctly and aren't accidentally changed on save.
+						- status_options = @subscription.on_hold? ? Bazaar::Subscription.statuses : Bazaar::Subscription.statuses.except('on_hold')
+						= f.collection_select :status, status_options, :first, humanize_first, {}, class: 'form-control'
 						- if subscription_paused?( @subscription )
 							- projected_next_charge = subscription_unpause_next_charged_at( @subscription )
 							- pre_pause_date = (Time.parse( @subscription.properties['pre_pause_next_charged_at'].to_s ) rescue nil)
@@ -195,7 +200,10 @@
 												#{months}-month pause
 												- if paused_at
 													initiated #{paused_at.strftime('%b %d, %Y')}
-									= button_to 'Unpause', unpause_subscription_admin_path( @subscription ), method: :put, class: 'btn btn-sm btn-warning', data: { confirm: confirm_text }, style: 'background-color: #ffc107; border-color: #d39e00; color: #856404; font-weight: bold; white-space: nowrap;'
+									-# IMPORTANT: must be link_to, not button_to — button_to generates a
+									-# nested <form> inside the main subscription form_for, which is invalid
+									-# HTML and silently breaks the outer Update button on paused subs.
+									= link_to 'Unpause', unpause_subscription_admin_path( @subscription ), method: :put, data: { confirm: confirm_text }, class: 'btn btn-sm btn-warning', style: 'background-color: #ffc107; border-color: #d39e00; color: #856404; font-weight: bold; white-space: nowrap; text-decoration: none;'
 								-# Preview of what unpausing right now would set as next charge.
 								-# Always shows the actual date plus the underlying reason:
 								-# either restored from pre_pause_next_charged_at, or floored
@@ -213,6 +221,20 @@
 								%small{ style: 'display: block; margin-top: 8px; color: #856404; border-top: 1px solid #ffe69c; padding-top: 6px;' }
 									%strong NOTE:
 									'Active' status for paused subscriptions is intentional. Pause is stored in the subscription's properties (paused_at, paused_until, pre_pause_next_charged_at, pause_duration_months) — the status stays 'active' so the subscription continues to be tracked normally; the renewal worker simply doesn't pick it up until next_charged_at arrives.
+						- elsif @subscription.active? || @subscription.review? || @subscription.hold_review?
+							-# Admin-initiated pause. Sets the same four pause properties as a
+							-# customer pause (see Settings::SubscriptionsController#pause). Uses a
+							-# link_to method: :put (NOT a nested form_tag) driven by the dropdown
+							-# via onchange, so it doesn't break the outer subscription form.
+							.alert.alert-info{ style: 'background-color: #e7f3fe; border: 1px solid #b6d8f7; color: #31597d; padding: 8px 12px; margin-top: 8px; border-radius: 4px;' }
+								%strong Pause subscription
+								%div{ style: 'display: flex; gap: 8px; align-items: center; margin-top: 6px;' }
+									%select{ id: "admin_pause_months_#{@subscription.id}", class: 'form-control', style: 'width: auto;', onchange: "document.getElementById('admin_pause_link_#{@subscription.id}').search = 'pause_for=' + this.value;" }
+										- (1..3).each do |m|
+											%option{ value: m }= "#{m} #{'month'.pluralize(m)}"
+									= link_to 'Pause', "#{pause_subscription_admin_path( @subscription )}?pause_for=1", id: "admin_pause_link_#{@subscription.id}", method: :put, data: { confirm: 'Pause this subscription for the selected duration? This sets the same pause properties as a customer-initiated pause.' }, class: 'btn btn-sm btn-primary', style: 'white-space: nowrap; text-decoration: none;'
+								%small{ style: 'display: block; margin-top: 6px; color: #31597d;' }
+									Moves the next charge out by the selected number of months and stores paused_at, paused_until, pre_pause_next_charged_at, pause_duration_months.
 					.form-group
 						= f.label :next_charged_at, 'Next Charge'
 						%i.fa.fa-question-circle{ data: { toggle: 'tooltip' }, title: 'The date and time that this subscription will next be charged.' }
