@@ -250,6 +250,14 @@ module Bazaar
 			return unless CLEAR_PAUSE_METADATA_STATUSES.include?( self.status ) || pause_expired
 
 			PAUSE_PROPERTY_KEYS.each { |key| self.properties.delete(key) }
+
+			# Also drop the pause-ending reminder flag set by
+			# SubscriptionPauseEndingNotificationService (key
+			# 'pause_ending_notification_sent_at'). It's intentionally NOT a
+			# PAUSE_PROPERTY_KEY — it's a notification artifact, not pause-defining
+			# metadata — so clear it explicitly here so a future pause re-arms the
+			# reminder cleanly even when the pause ended on its own.
+			self.properties.delete( 'pause_ending_notification_sent_at' )
 		end
 
 	end

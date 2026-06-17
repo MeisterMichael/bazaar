@@ -280,6 +280,10 @@ module Bazaar
 			@subscription.properties['paused_until']             = new_next_charged_at.iso8601
 			@subscription.properties['pre_pause_next_charged_at'] = orig_next_charged_at.iso8601
 			@subscription.properties['pause_duration_months']    = pause_months.to_s
+			# Re-arm the pause-ending reminder for this fresh pause; a prior pause may
+			# have left the flag set (it isn't a PAUSE_PROPERTY_KEY, so it survives
+			# natural expiry). Key == SubscriptionPauseEndingNotificationService::SENT_FLAG_KEY.
+			@subscription.properties.delete( 'pause_ending_notification_sent_at' )
 			@subscription.save!
 
 			pause_duration_label = "#{pause_months} #{'month'.pluralize(pause_months)}"
@@ -324,6 +328,9 @@ module Bazaar
 			orig_paused_until = @subscription.properties['paused_until']
 			@subscription.next_charged_at = new_next_charged_at
 			Bazaar::Subscription::PAUSE_PROPERTY_KEYS.each { |key| @subscription.properties.delete(key) }
+			# Also clear the pause-ending reminder flag (not part of PAUSE_PROPERTY_KEYS).
+			# Key == SubscriptionPauseEndingNotificationService::SENT_FLAG_KEY.
+			@subscription.properties.delete( 'pause_ending_notification_sent_at' )
 			@subscription.save!
 
 			@subscription.subscription_logs.create(
