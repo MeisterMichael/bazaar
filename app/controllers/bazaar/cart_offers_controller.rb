@@ -103,7 +103,7 @@ module Bazaar
 			end
 
 			@cart_offer.destroy
-			@cart.update subtotal: @cart.cart_offers.sum(:price)
+			@cart.update subtotal: @cart.cart_offers.reload.sum(:subtotal)
 			session[:cart_count] = @cart.cart_offers.sum(:quantity)
 
 			log_event( { name:'remove_cart', on: @cart_offer.offer, content: "removed #{@cart_offer.offer} from their cart." } )
